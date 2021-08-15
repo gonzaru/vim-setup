@@ -59,18 +59,26 @@ endfunction
 
 " comment by language
 function! CommentByLanguage()
+  let l:curline = line('.')
+  let l:curcol = col('.')
   if  &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
-    execute "normal! mt\<ESC>I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>`t"
+    execute "normal! I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>"
+    call cursor(l:curline, l:curcol + 3)
   elseif  &filetype ==# "go"
-    execute "normal! mt\<ESC>I//\<SPACE>\<ESC>`t"
+    execute "normal! I//\<SPACE>"
+    call cursor(l:curline, l:curcol + 3)
   elseif &filetype ==# "vim"
-    execute "normal! mt\<ESC>I\"\<SPACE>\<ESC>`t"
+    execute "normal! I\"\<SPACE>\<ESC>"
+    call cursor(l:curline, l:curcol + 2)
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
-    execute "normal! mt\<ESC>I#\<SPACE>\<ESC>`t"
+    execute "normal! I#\<SPACE>\<ESC>"
+    call cursor(l:curline, l:curcol + 2)
   elseif &filetype ==# "php" || &filetype ==# "javascript"
-    execute "normal! mt\<ESC>I//\<SPACE>\<ESC>`t"
+    execute "normal! I//\<SPACE>"
+    call cursor(l:curline, l:curcol + 3)
   elseif &filetype ==# "html" || &filetype ==# "xml"
-    execute "normal! mt\<ESC>I\<!--\<SPACE>\<ESC>A\<SPACE>-->\<ESC>`t"
+    execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
+    call cursor(l:curline, l:curcol + 5)
   endif
 endfunction
 
@@ -649,23 +657,55 @@ endfunction
 
 " uncomment by language
 function! UncommentByLanguage()
+  let l:curline = line('.')
+  let l:curcol = col('.')
   if  &filetype ==# "c" || &filetype ==# "java" || &filetype ==# "sql"
-    execute "normal! mt\<ESC>^xx$xx=="
-    " deletetrail
-    :.s/\s\+$//e
-    execute "normal! \<ESC>`t"
+    execute "normal! ^"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! ^xxx$xxx"
+    call cursor(l:curline, l:curcol - 3)
   elseif  &filetype ==# "go"
-    execute "normal! mt\<ESC>^xx==\<ESC>`t"
+    execute "normal! ^"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! xxx"
+    call cursor(l:curline, l:curcol - 3)
   elseif &filetype ==# "vim"
-    execute "normal! mt\<ESC>^x==\<ESC>`t"
+    execute "normal! ^"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != '"'
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! xx"
+    call cursor(l:curline, l:curcol - 2)
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
-    execute "normal! mt\<ESC>^x==\<ESC>`t"
+    execute "normal! ^"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "#"
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! xx"
+    call cursor(l:curline, l:curcol - 2)
   elseif &filetype ==# "php" || &filetype ==# "javascript"
-    execute "normal! mt\<ESC>^xx==\<ESC>`t"
+    execute "normal! ^"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! xxx"
+    call cursor(l:curline, l:curcol - 3)
   elseif &filetype ==# "html" || &filetype ==# "xml"
-    execute "normal! mt\<ESC>^xxxx$xxx=="
-    " deletetrail
-    :.s/\s\+$//e
-    execute "normal! \<ESC>`t"
+    execute "normal! ^l"
+    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "!"
+      call cursor(l:curline, l:curcol)
+      return
+    endif
+    execute "normal! ^xxxxx$xxxx"
+    call cursor(l:curline, l:curcol - 5)
   endif
 endfunction
