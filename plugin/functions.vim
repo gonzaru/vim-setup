@@ -661,7 +661,7 @@ function! UncommentByLanguage()
   let l:curcol = col('.')
   if  &filetype ==# "c" || &filetype ==# "java" || &filetype ==# "sql"
     execute "normal! ^"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+    if expand("<cWORD>") != "/*"
       call cursor(l:curline, l:curcol)
       return
     endif
@@ -669,7 +669,7 @@ function! UncommentByLanguage()
     call cursor(l:curline, l:curcol - 3)
   elseif  &filetype ==# "go"
     execute "normal! ^"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+    if expand("<cWORD>") != "//"
       call cursor(l:curline, l:curcol)
       return
     endif
@@ -677,7 +677,7 @@ function! UncommentByLanguage()
     call cursor(l:curline, l:curcol - 3)
   elseif &filetype ==# "vim"
     execute "normal! ^"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != '"'
+    if expand("<cWORD>") != '"'
       call cursor(l:curline, l:curcol)
       return
     endif
@@ -685,7 +685,7 @@ function! UncommentByLanguage()
     call cursor(l:curline, l:curcol - 2)
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
     execute "normal! ^"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "#"
+    if expand("<cWORD>") != "#"
       call cursor(l:curline, l:curcol)
       return
     endif
@@ -693,7 +693,7 @@ function! UncommentByLanguage()
     call cursor(l:curline, l:curcol - 2)
   elseif &filetype ==# "php" || &filetype ==# "javascript"
     execute "normal! ^"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "/"
+    if expand("<cWORD>") != "//"
       call cursor(l:curline, l:curcol)
       return
     endif
@@ -701,7 +701,7 @@ function! UncommentByLanguage()
     call cursor(l:curline, l:curcol - 3)
   elseif &filetype ==# "html" || &filetype ==# "xml"
     execute "normal! ^l"
-    if matchstr(getline('.'), '\%' . col('.') . 'c.') != "!"
+    if expand("<cWORD>") != "<!--"
       call cursor(l:curline, l:curcol)
       return
     endif
