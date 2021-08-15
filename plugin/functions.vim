@@ -656,7 +656,7 @@ function! UncommentByLanguage()
   let l:curcol = col('.')
 
   " c, cpp, java, sql
-  if  &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
+  if &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 0)
     if l:trimline[0:1] != "/*" || l:trimline[-2:-1] != "*/"
