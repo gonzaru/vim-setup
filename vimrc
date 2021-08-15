@@ -31,11 +31,7 @@ let g:loaded_zipPlugin = 1         " zipPlugin.vim
 
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
-  " 3.x
-  " set pythonthreehome=/usr
-  " set pythonthreedll=/usr/lib/x86_64-linux-gnu/libpython3.x.so.1
-
-  " 3.9 (default)"
+  " python3.9
   let g:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
   if filereadable(g:libpython3)
     set pythonthreehome=/usr
@@ -142,7 +138,7 @@ set showtabline=2          " to show tab always
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
 
-" see special characters
+" show special characters
 set nolist
 set listchars=tab:»·,trail:¨
 
@@ -153,16 +149,16 @@ if has('multi_byte')
 endif
 
 " vertical seperator for vertical split windows
-set fillchars=vert:\ ,fold:- " contains one space!
+set fillchars=vert:\ ,fold:-  " contains one space!
 
 " more powerful backspacing
 set backspace=indent,eol,start
 
-" set tabstop=2      " number of spaces a <tab> in the text stands for
-" set softtabstop=2  " if non-zero, number of spaces to insert for a <tab>
-" set shiftwidth=2   " number of spaces used for each step of (auto)indent
-set shiftround       " round to shiftwidth for "<<" and ">>"
-set expandtab        " expand <tab> to spaces in insert mode
+set tabstop=2      " number of spaces a <tab> in the text stands for
+set softtabstop=2  " if non-zero, number of spaces to insert for a <tab>
+set shiftwidth=2   " number of spaces used for each step of (auto)indent
+set shiftround     " round to shiftwidth for "<<" and ">>"
+set expandtab      " expand <tab> to spaces in insert mode
 
 " backup files
 set backup

@@ -64,7 +64,7 @@ function! CommentByLanguage()
   if  &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
     execute "normal! I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>"
     call cursor(l:curline, l:curcol + 3)
-  elseif  &filetype ==# "go"
+  elseif &filetype ==# "go" || &filetype ==# "php" || &filetype ==# "javascript"
     execute "normal! I//\<SPACE>"
     call cursor(l:curline, l:curcol + 3)
   elseif &filetype ==# "vim"
@@ -73,9 +73,6 @@ function! CommentByLanguage()
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
     execute "normal! I#\<SPACE>\<ESC>"
     call cursor(l:curline, l:curcol + 2)
-  elseif &filetype ==# "php" || &filetype ==# "javascript"
-    execute "normal! I//\<SPACE>"
-    call cursor(l:curline, l:curcol + 3)
   elseif &filetype ==# "html" || &filetype ==# "xml"
     execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
     call cursor(l:curline, l:curcol + 5)
@@ -119,13 +116,11 @@ function! CycleSignsShowDebugInfo(type, mode)
   let l:fnamec = "/tmp/".$USER."-vim-signplace-clean.txt"
   let l:curline = line('.')
 
-  if filereadable(fname)
-    call delete(fname)
-  endif
-
-  if filereadable(fnamec)
-    call delete(fnamec)
-  endif
+  for l:file in [l:fname, l:fnamec]
+    if filereadable(l:file)
+      call delete(l:file)
+    endif
+  endfor
 
   execute "redir! > " l:fname
   silent execute ":sign place buffer=" . l:curbuf
@@ -659,53 +654,77 @@ endfunction
 function! UncommentByLanguage()
   let l:curline = line('.')
   let l:curcol = col('.')
-  if  &filetype ==# "c" || &filetype ==# "java" || &filetype ==# "sql"
+
+  " c, cpp, java, sql
+  if  &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
     execute "normal! ^"
-    if expand("<cWORD>") != "/*"
+    let l:trimline = trim(getline('.'), 0)
+    if l:trimline[0:1] != "/*" || l:trimline[-2:-1] != "*/"
       call cursor(l:curline, l:curcol)
       return
     endif
-    execute "normal! ^xxx$xxx"
-    call cursor(l:curline, l:curcol - 3)
-  elseif  &filetype ==# "go"
+    let l:num = 2
+    if l:trimline[0:2] == "/* " && l:trimline[-3:-1] == " */"
+      let l:num = 3
+    endif
+    execute "normal! ".l:num."x$".(l:num - 1)."h".l:num."x"
+    call cursor(l:curline, l:curcol - l:num)
+
+  " go, php, javascript
+  elseif &filetype ==# "go" || &filetype ==# "php" || &filetype ==# "javascript"
     execute "normal! ^"
-    if expand("<cWORD>") != "//"
+    let l:trimline = trim(getline('.'), 1)
+    if l:trimline[0:1] != "//"
       call cursor(l:curline, l:curcol)
       return
     endif
-    execute "normal! xxx"
-    call cursor(l:curline, l:curcol - 3)
+    let l:num = 2
+    if l:trimline[0:2] == "// " && l:trimline[3] != " "
+      let l:num = 3
+    endif
+    execute "normal! ".l:num."x"
+    call cursor(l:curline, l:curcol - l:num)
+
+  " vim
   elseif &filetype ==# "vim"
     execute "normal! ^"
-    if expand("<cWORD>") != '"'
+    let l:trimline = trim(getline('.'), 1)
+    if l:trimline[0] != '"'
       call cursor(l:curline, l:curcol)
       return
     endif
-    execute "normal! xx"
-    call cursor(l:curline, l:curcol - 2)
+    let l:num = 1
+    if l:trimline[0:1] == '" ' || l:trimline[0:2] == '"  '
+      let l:num = 2
+    endif
+    execute "normal! ".l:num."x"
+    call cursor(l:curline, l:curcol - l:num)
+
+  " sh, perl, python
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
     execute "normal! ^"
-    if expand("<cWORD>") != "#"
+    let l:trimline = trim(getline('.'), 1)
+    if l:trimline[0] != "#"
       call cursor(l:curline, l:curcol)
       return
     endif
-    execute "normal! xx"
-    call cursor(l:curline, l:curcol - 2)
-  elseif &filetype ==# "php" || &filetype ==# "javascript"
-    execute "normal! ^"
-    if expand("<cWORD>") != "//"
-      call cursor(l:curline, l:curcol)
-      return
+    let l:num = 1
+    if l:trimline[0:1] == "# " || l:trimline[0:2] == "#  "
+      let l:num = 2
     endif
-    execute "normal! xxx"
-    call cursor(l:curline, l:curcol - 3)
+    execute "normal! ".l:num."x"
+    call cursor(l:curline, l:curcol - l:num)
+
+  " html, xml
   elseif &filetype ==# "html" || &filetype ==# "xml"
-    execute "normal! ^l"
-    if expand("<cWORD>") != "<!--"
+    execute "normal! ^"
+    let l:trimline = trim(getline('.'), 0)
+    if l:trimline[0:4] != "<!-- " || l:trimline[-4:-1] != " -->"
       call cursor(l:curline, l:curcol)
       return
     endif
-    execute "normal! ^xxxxx$xxxx"
-    call cursor(l:curline, l:curcol - 5)
+    let l:num = 5
+    execute "normal! ".l:num."x$xxxx"
+    call cursor(l:curline, l:curcol - l:num)
   endif
 endfunction
