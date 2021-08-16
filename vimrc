@@ -481,7 +481,7 @@ autocmd!
 autocmd BufReadPost * call GoLastEditCursorPos()
 augroup END
 
-" sets custom theme
+" set custom theme
 if &term =~ "-256color" && !empty($TMUX)
   " disable background color erase (BCE) so schemes can work properly inside tmux
   set t_ut=
@@ -492,4 +492,10 @@ if (&term =~ "-256color" || has('gui_running'))
   execute "colorscheme " . g:mytheme
 elseif !exists("g:loaded_plan9")
   colorscheme default
+endif
+
+" load local config
+let g:vimrc_local = $HOME."/.vimrc.local"
+if filereadable(g:vimrc_local)
+  execute "source " . g:vimrc_local
 endif
