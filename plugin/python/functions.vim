@@ -14,7 +14,7 @@ function! PYDoc()
 	let l:pfile = "(pydoc)". l:word
 	if empty(l:word)
 		echohl ErrorMsg
-		echo "word is empty!"
+		echom "Error: word is empty"
 		echohl None
 		return 0
 	endif
@@ -32,10 +32,10 @@ function! PYDoc()
 	let l:curline = getline(".")
 	if l:curline =~# "No Python documentation found for"
 		bw
+		let v:errmsg = "Warning: no Python documentation found for " . l:word
 		echohl WarningMsg
-		echom "No Python documentation found for " . l:word . "!"
+		echom v:errmsg
 		echohl None
-		let v:errmsg = "No Python documentation found for " . l:word . "!"
 	else
 		let v:errmsg = ''
 	endif

@@ -53,10 +53,10 @@ function! SHCheck(mode) abort
     catch
       if a:mode ==# "read"
         echohl ErrorMsg
-        echom "(SHCheck) (read) function contains errors!"
+        echom "Error: (SHCheck) (read) function contains errors"
         echohl None
       elseif a:mode ==# "write"
-        throw "(SHCheck) (write) function contains errors!"
+        throw "Error: (SHCheck) (write) function contains errors"
       endif
     finally
       if a:mode ==# "write" && filereadable(s:sh_filebuff)
@@ -74,8 +74,8 @@ function! SHShellCheckAsync()
   " depends on SHCheck()
   if exists("s:sh_error") && s:sh_error
     echohl ErrorMsg
-    echom "(SHCheck) previous function contains errors!"
-    echom "(SHShellCheckAsync) detected error"
+    echom "Error: (SHCheck) previous function contains errors"
+    echom "Error: (SHShellCheckAsync) detected error"
     echohl None
     return
   endif
@@ -113,7 +113,7 @@ function! ShowSHDebugInfo()
           call s:SHShowShellCheckErrorPopup()
           break
         else
-          throw "unknown sign " . sb
+          throw "Error: unknown sign " . sb
         endif
       endif
     endfor

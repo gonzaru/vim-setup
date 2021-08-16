@@ -62,11 +62,11 @@ function! GOCheck(mode)
   endif
 
   if &filetype !=# "go"
-    throw "(GOCheck) " . l:curbufname . " is not a valid go file!"
+    throw "Error: (GOCheck) " . l:curbufname . " is not a valid go file!"
   endif
 
   if !executable("gofmt")
-    throw "(GOCheck) program gofmt is missing!"
+    throw "Error: (GOCheck) program gofmt is missing!"
   endif
 
   call RemoveSignsName(l:curbufnr, "go_error")
@@ -85,7 +85,7 @@ function! GOCheck(mode)
     execute ":sign place ".l:errline." line=".l:errline." name=go_error buffer=".l:curbufnr
     call cursor(l:errline, 1)
     call s:cleanup(a:mode)
-    throw "(".a:mode.") " . l:errout
+    throw "Error: (".a:mode.") " . l:errout
   endif
   call s:cleanup(a:mode)
 endfunction
@@ -99,8 +99,8 @@ function! GOVetAsync()
   " depends on GoCheck()
    if exists("s:go_error") && s:go_error
      echohl ErrorMsg
-     echom "(GOCheck) previous function contains errors!"
-     echom "(GOVetAsync) detected error"
+     echom "Error: (GOCheck) previous function contains errors"
+     echom "Error: (GOVetAsync) detected error"
      echohl None
      return
   endif
@@ -137,7 +137,7 @@ function! ShowGODebugInfo()
           call s:GOVetShowErrorPopup()
           break
         else
-          throw "unknown sign " . sb
+          throw "Error: unknown sign " . sb
         endif
       endif
     endfor

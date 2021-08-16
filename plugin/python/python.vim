@@ -50,10 +50,10 @@ function! PY3Check(mode) abort
     catch
       if a:mode ==# "read"
         echohl ErrorMsg
-        echom "(PY3Check) (read) function contains errors!"
+        echom "Error: (PY3Check) (read) function contains errors"
         echohl None
       elseif a:mode ==# "write"
-        throw "(PY3Check) (write) function contains errors!"
+        throw "Error: (PY3Check) (write) function contains errors"
       endif
     finally
       if a:mode ==# "write" && filereadable(s:py3_filebuff)
@@ -71,8 +71,8 @@ function! PY3Pep8Async() abort
    " depends on PY3Check()
   if exists("s:py_error") && s:py_error
     echohl ErrorMsg
-    echom "(PY3Check) previous function contains errors!"
-    echom "(PY3Pep8Async) detected error"
+    echom "Error: (PY3Check) previous function contains errors"
+    echom "Error: (PY3Pep8Async) detected error"
     echohl None
     return
   endif
@@ -108,7 +108,7 @@ function! ShowPY3DebugInfo() abort
           call s:PY3Pep8ErrorPopup()
           break
         else
-          throw "unknown sign " . sb
+          throw "Error: unknown sign " . sb
         endif
       endif
     endfor

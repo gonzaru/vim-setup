@@ -85,9 +85,7 @@ function! CycleBuffers()
   let l:bufinfo = getbufinfo({'buflisted':1})
 
   if len(l:bufinfo) == 1
-    echohl WarningMsg
-    echom  "Already using only one buffer!"
-    echohl None
+    call EchoWarningMsg("Warning: already using only one buffer")
     return
   endif
 
@@ -190,6 +188,24 @@ function! DisableArrowKeys()
   silent execute ":vnoremap <right> <nop>"
 endfunction
 
+" prints error message and saves the message in the message-history
+function EchoErrorMsg(msg)
+  if len(a:msg) > 0
+    echohl ErrorMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
+
+" prints warning message and saves the message in the message-history
+function EchoWarningMsg(msg)
+  if len(a:msg) > 0
+    echohl WarningMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
+
 " edit using a top window
 function! EditTop(file)
   if filereadable(a:file)
@@ -246,18 +262,16 @@ function! FormatLanguage()
     let l:out = systemlist("black -S -l 79 " . l:curfile)
     checktime
     if empty(l:out) || index(l:out, "1 file left unchanged.") >= 0
-      echo "file was not modified (black)"
+      echo "Info: file was not modified (black)"
     endif
   elseif &filetype ==# "go"
     let l:out = systemlist("go fmt " . l:curfile)
     checktime
     if empty(l:out)
-      echo "file was not modified (go fmt)"
+      echo "Info: file was not modified (go fmt)"
     endif
   else
-    echohl WarningMsg
-    echom "Unknown how to format!"
-    echohl None
+    call EchoErrorMsg("Error: unknown how to format")
   endif
 endfunction
 
@@ -274,9 +288,7 @@ function! GoBufferPos(bnum)
     let l:i += 1
   endfor
   if !l:match
-    echohl ErrorMsg
-    echom "Error: buffer in position " . a:bnum . " does not exist!"
-    echohl None
+    call EchoErrorMsg("Error: buffer in position " . a:bnum . " does not exist")
   endif
 endfunction
 
@@ -303,9 +315,7 @@ function! GuiMenuBarToggle()
     endif
     let v:statusmsg = "guioptions=" . &guioptions
   else
-    echohl WarningMsg
-    echom "Only use this function with gvim!"
-    echohl None
+    call EchoWarningMsg("Warning: only use this function with gvim")
   endif
 endfunction
 
@@ -337,9 +347,7 @@ function! MenuLanguageSpell()
       endif
     endif
   elseif !empty(l:langchoice)
-      echohl ErrorMsg
-      echom "Error: wrong option " . l:langchoice . "!"
-      echohl None
+      call EchoErrorMsg("Error: wrong option " . l:langchoice)
   endif
 endfunction
 
@@ -359,9 +367,7 @@ function! MenuMisc()
         call GuiMenuBarToggle()
       endif
     else
-      echohl ErrorMsg
-      echom " Error: wrong option " . l:choice . "!"
-      echohl None
+      call EchoErrorMsg("Error: wrong option " . l:choice)
     endif
   endif
 endfunction
@@ -507,52 +513,42 @@ endfunction
 
 " run
 function! Run()
-  let l:curfile = expand('%:t')
+  let l:curfile = expand('%:p')
   if &filetype ==# "python"
     echo system("python3 " . l:curfile)
   elseif &filetype ==# "go"
     echo system("go run " . l:curfile)
   else
-    echohl WarningMsg
-    echom "Unknown how to run!"
-    echohl None
+    call EchoErrorMsg("Error: unknown how to run")
   endif
 endfunction
 
 " run using a window
 function! RunInWindow()
   let l:bufname = "runoutput"
-  let l:curfile = expand('%:t')
+  let l:curfile = expand('%:p')
   let l:curwinid = win_getid()
   let l:prevwinid = bufwinid(l:bufname)
 
   if l:curwinid == l:prevwinid
-    echohl WarningMsg
-    echom "Already using the same window " . l:bufname . "!"
-    echohl None
+    call EchoWarningMsg("Warning: already using the same window " . l:bufname)
     return
   endif
 
   if &filetype ==# "python"
     let l:out = systemlist("python3 " . l:curfile)
     if empty(l:out)
-      echohl WarningMsg
-      echom "Empty output!"
-      echohl None
+      call EchoWarningMsg("Warning: empty output")
       return
     endif
   elseif &filetype ==# "go"
     let l:out = systemlist("go run " . l:curfile)
     if empty(l:out)
-      echohl WarningMsg
-      echom "Empty output!"
-      echohl None
+      call EchoWarningMsg("Warning: empty output")
       return
     endif
   else
-    echohl WarningMsg
-    echom "Unknown how to run!"
-    echohl None
+    call EchoErrorMsg("Error: unknown how to run")
     return
   endif
 

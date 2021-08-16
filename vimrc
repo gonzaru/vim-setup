@@ -4,7 +4,7 @@
 " do not read the file if is already loaded
 if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
   echohl WarningMsg
-  echom  "File vimrc already loaded!"
+  echom "Warning: file vimrc already loaded"
   echo ":let g:loaded_vimrc = 0 (to unblock it)"
   echohl None
   finish

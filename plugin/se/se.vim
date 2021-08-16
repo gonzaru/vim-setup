@@ -123,7 +123,7 @@ function! SeGofile(mode) abort
     call SeList()
   elseif l:lastchar == '@'
     echohl Warningmsg
-    echo "TODO: symlink link"
+    echom "Warning: TODO symlink link"
     echohl None
   else
     let l:mode_list = ["edit", "editk", "pedit", "split"]

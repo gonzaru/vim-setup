@@ -15,7 +15,7 @@ function! GODoc()
 
 	if empty(l:word)
 		echohl ErrorMsg
-		echo "word is empty!"
+		echom "Error: word is empty"
 		echohl None
 		return 0
 	endif
@@ -33,10 +33,10 @@ function! GODoc()
 	let l:curline = getline(".")
 	if l:curline =~# "no buildable Go source files"
 		bw
+		let v:errmsg = "Warning: no buildable Go source files for " . l:word
 		echohl WarningMsg
-		echom "No buildable Go source files for " . l:word . "!"
+		echom v:errmsg
 		echohl None
-		let v:errmsg = "No buildable Go source files for " . l:word . "!"
 	else
 		let v:errmsg = ""
 	endif
