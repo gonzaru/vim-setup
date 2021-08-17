@@ -1,13 +1,13 @@
 " by Gonzaru
 " Distributed under the terms of the GNU General Public License v3
 
-" g:	global variables
-" b:	local buffer variables
-" w:	local window variables
-" t:	local tab page variables
-" s:	script-local variables
-" l:	local function variables
-" v:	Vim variables.
+" g:  global variables
+" b:  local buffer variables
+" w:  local window variables
+" t:  local tab page variables
+" s:  script-local variables
+" l:  local function variables
+" v:  Vim variables.
 
 " do not read the file if is already loaded
 if exists('g:loaded_functions') && g:loaded_functions == 1
@@ -27,7 +27,7 @@ endfunction
 
 " tells if buffer is empty
 function! BufferIsEmpty()
-  return (line('$') == 1 && getline(1) == '') ? 1 : 0
+  return (line('$') == 1 && empty(getline(1))) ? 1 : 0
 endfunction
 
 " remove all buffers except the current one
@@ -38,20 +38,21 @@ function! BufferRemoveAllExceptCurrent(mode)
   elseif a:mode ==# 'wipe!'
     let l:bufinfo = getbufinfo()
   endif
-  for b in l:bufinfo
-    if b.bufnr != l:curbufid
-      if getbufvar(b.bufnr, '&buftype') ==# 'terminal' && term_getstatus(b.bufnr) ==# 'running,normal'
-        if a:mode ==# "delete"
-          execute ":bd! " . b.bufnr
-        elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
-          execute ":bw! " . b.bufnr
-        endif
-      else
-        if a:mode ==# "delete"
-          execute ":bd " . b.bufnr
-        elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
-          execute ":bw " . b.bufnr
-        endif
+  for l:b in l:bufinfo
+    if l:b.bufnr == l:curbufid
+      continue
+    endif
+    if getbufvar(l:b.bufnr, '&buftype') ==# 'terminal' && term_getstatus(b.bufnr) ==# 'running,normal'
+      if a:mode ==# "delete"
+        execute "bd! " . l:b.bufnr
+      elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
+        execute "bw! " . l:b.bufnr
+      endif
+    else
+      if a:mode ==# "delete"
+        execute "bd " . l:b.bufnr
+      elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
+        execute "bw " . l:b.bufnr
       endif
     endif
   endfor
@@ -76,6 +77,8 @@ function! CommentByLanguage()
   elseif &filetype ==# "html" || &filetype ==# "xml"
     execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
     call cursor(l:curline, l:curcol + 5)
+  else
+    call EchoErrorMsg("Error: commenting filetype '" . &filetype . "' is not supported")
   endif
 endfunction
 
@@ -83,25 +86,23 @@ endfunction
 function! CycleBuffers()
   let l:curbuf = substitute(bufname("%"), $HOME . "/" . $USER . "/", "~/", "")
   let l:bufinfo = getbufinfo({'buflisted':1})
-
   if len(l:bufinfo) == 1
     call EchoWarningMsg("Warning: already using only one buffer")
     return
   endif
-
   let l:buflist = []
-  for buf in l:bufinfo
-    let bul = split(substitute(buf.name, $HOME . "/" . $USER . "/", "~/", ""))
-    call extend(l:buflist, bul)
+  for l:buf in l:bufinfo
+    let l:bul = split(substitute(l:buf.name, $HOME . "/" . $USER . "/", "~/", ""))
+    call extend(l:buflist, l:bul)
   endfor
   topleft new
   call appendbufline('%', 0, l:buflist)
   call deletebufline('%', '$')
-  execute ":resize " . line('$')
+  execute "resize " . line('$')
   setlocal filetype=cb
-  for i in range(1, line('$'))
-    if l:curbuf ==# getline(i)
-      call cursor(i, 1)
+  for l:i in range(1, line('$'))
+    if l:curbuf ==# getline(l:i)
+      call cursor(l:i, 1)
       break
     endif
   endfor
@@ -110,50 +111,51 @@ endfunction
 " shows debug information
 function! CycleSignsShowDebugInfo(type, mode)
   let l:curbuf = winbufnr(winnr())
-  let l:fname = "/tmp/".$USER."-vim-signplace.txt"
-  let l:fnamec = "/tmp/".$USER."-vim-signplace-clean.txt"
   let l:curline = line('.')
-
-  for l:file in [l:fname, l:fnamec]
-    if filereadable(l:file)
-      call delete(l:file)
-    endif
-  endfor
-
-  execute "redir! > " l:fname
-  silent execute ":sign place buffer=" . l:curbuf
-  redir END
-  silent call system("sort -n -t '=' -k 2 " . l:fname . " | grep -F 'line=' > " . l:fnamec)
   let l:curcycleline = 0
   let l:nextcycleline = 0
   let l:prevcycleline = 0
-  for sb in readfile(l:fnamec)
-    if l:sb =~# "line="
-      let l:cycleline = split(split(l:sb, "=")[1], " ")[0]
-      if a:mode ==# 'cur'
-        let l:curcycleline = l:curline
+  if a:type != "sh" && a:type != "py" && a:type != "go"
+    call EchoErrorMsg("Error: debug information for filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  let l:signs = sign_getplaced(l:curbuf)[0].signs
+  if empty(l:signs)
+    call EchoWarningMsg("Warning: signs not found in the current buffer")
+    return
+  endif
+  for l:sign in l:signs
+    let l:cycleline = l:sign.lnum
+    if a:mode ==# 'cur'
+      let l:curcycleline = l:curline
+      break
+    elseif a:mode ==# 'next'
+      if l:curline < l:cycleline
+        let l:nextcycleline = l:cycleline
         break
-      elseif a:mode ==# 'next'
-        if l:curline < l:cycleline
-          let l:nextcycleline = l:cycleline
-          break
-        endif
-      elseif a:mode ==# 'prev'
-        if l:curline > l:cycleline
-          let l:prevcycleline = l:cycleline
-        endif
+      endif
+    elseif a:mode ==# 'prev'
+      if l:curline > l:cycleline
+        let l:prevcycleline = l:cycleline
       endif
     endif
   endfor
   if l:curcycleline || l:nextcycleline || l:prevcycleline
     if l:curcycleline
-      execute ":sign jump " . l:curcycleline . " buffer=" . l:curbuf
+      try
+        call sign_jump(l:curcycleline, '', l:curbuf)
+      catch
+        call EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
+      endtry
     elseif l:nextcycleline
-      execute ":sign jump " . l:nextcycleline . " buffer=" . l:curbuf
+      call sign_jump(l:nextcycleline, '', l:curbuf)
     elseif l:prevcycleline
-      execute ":sign jump " . l:prevcycleline . " buffer=" . l:curbuf
+      call sign_jump(l:prevcycleline, '', l:curbuf)
+    else
+      call EchoErrorMsg("Error: sign jump line not found")
+      return
     endif
-   if a:type ==# "sh"
+    if a:type ==# "sh"
       call ShowSHDebugInfo()
     elseif a:type ==# "py"
       call ShowPY3DebugInfo()
@@ -174,23 +176,23 @@ endfunction
 
 " disable arrow keys
 function! DisableArrowKeys()
-  silent execute ":nnoremap <up> <nop>"
-  silent execute ":nnoremap <down> <nop>"
-  silent execute ":nnoremap <left> <nop>"
-  silent execute ":nnoremap <right> <nop>"
-  silent execute ":inoremap <up> <nop>"
-  silent execute ":inoremap <down> <nop>"
-  silent execute ":inoremap <left> <nop>"
-  silent execute ":inoremap <right> <nop>"
-  silent execute ":vnoremap <up> <nop>"
-  silent execute ":vnoremap <down> <nop>"
-  silent execute ":vnoremap <left> <nop>"
-  silent execute ":vnoremap <right> <nop>"
+  silent execute "nnoremap <up> <nop>"
+  silent execute "nnoremap <down> <nop>"
+  silent execute "nnoremap <left> <nop>"
+  silent execute "nnoremap <right> <nop>"
+  silent execute "inoremap <up> <nop>"
+  silent execute "inoremap <down> <nop>"
+  silent execute "inoremap <left> <nop>"
+  silent execute "inoremap <right> <nop>"
+  silent execute "vnoremap <up> <nop>"
+  silent execute "vnoremap <down> <nop>"
+  silent execute "vnoremap <left> <nop>"
+  silent execute "vnoremap <right> <nop>"
 endfunction
 
 " prints error message and saves the message in the message-history
 function EchoErrorMsg(msg)
-  if len(a:msg) > 0
+  if !empty(a:msg)
     echohl ErrorMsg
     echom  a:msg
     echohl None
@@ -199,7 +201,7 @@ endfunction
 
 " prints warning message and saves the message in the message-history
 function EchoWarningMsg(msg)
-  if len(a:msg) > 0
+  if !empty(a:msg)
     echohl WarningMsg
     echom  a:msg
     echohl None
@@ -209,25 +211,25 @@ endfunction
 " edit using a top window
 function! EditTop(file)
   if filereadable(a:file)
-    execute ":new " . a:file
+    execute "new " . a:file
     execute "normal! \<C-W>_"
   endif
 endfunction
 
 " enable arrow keys
 function! EnableArrowKeys()
-  silent execute ":nnoremap <up> <up>"
-  silent execute ":nnoremap <down> <down>"
-  silent execute ":nnoremap <left> <left>"
-  silent execute ":nnoremap <right> <right>"
-  silent execute ":inoremap <up> <up>"
-  silent execute ":inoremap <down> <down>"
-  silent execute ":inoremap <left> <left>"
-  silent execute ":inoremap <right> <right>"
-  silent execute ":vnoremap <up> <up>"
-  silent execute ":vnoremap <down> <down>"
-  silent execute ":vnoremap <left> <left>"
-  silent execute ":vnoremap <right> <right>"
+  silent execute "nnoremap <up> <up>"
+  silent execute "nnoremap <down> <down>"
+  silent execute "nnoremap <left> <left>"
+  silent execute "nnoremap <right> <right>"
+  silent execute "inoremap <up> <up>"
+  silent execute "inoremap <down> <down>"
+  silent execute "inoremap <left> <left>"
+  silent execute "inoremap <right> <right>"
+  silent execute "vnoremap <up> <up>"
+  silent execute "vnoremap <down> <down>"
+  silent execute "vnoremap <left> <left>"
+  silent execute "vnoremap <right> <right>"
 endfunction
 
 " checks if file is empty
@@ -259,6 +261,7 @@ endfunction
 function! FormatLanguage()
   let l:curfile = expand('%:p')
   if &filetype ==# "python"
+    " -l 79 to keep pep8 in all projects
     let l:out = systemlist("black -S -l 79 " . l:curfile)
     checktime
     if empty(l:out) || index(l:out, "1 file left unchanged.") >= 0
@@ -271,7 +274,7 @@ function! FormatLanguage()
       echo "Info: file was not modified (go fmt)"
     endif
   else
-    call EchoErrorMsg("Error: unknown how to format")
+    call EchoErrorMsg("Error: formatting filetype '" . &filetype . "' is not supported")
   endif
 endfunction
 
@@ -279,9 +282,9 @@ endfunction
 function! GoBufferPos(bnum)
   let l:match = 0
   let l:i = 1
-  for b in getbufinfo({'buflisted':1})
+  for l:b in getbufinfo({'buflisted':1})
     if a:bnum == l:i
-      execute "b " . b.bufnr
+      execute "b " . l:b.bufnr
       let l:match = 1
       break
     endif
@@ -302,21 +305,21 @@ endfunction
 
 " toggle gui menu bar
 function! GuiMenuBarToggle()
-  if has('gui_running')
-    if &guioptions =~# "m"
-      setlocal guioptions-=m
-      setlocal guioptions+=M
-    else
-      if !exists('g:did_install_default_menus')
-        source $VIMRUNTIME/menu.vim
-      endif
-      setlocal guioptions-=M
-      setlocal guioptions+=m
-    endif
-    let v:statusmsg = "guioptions=" . &guioptions
-  else
+  if !has('gui_running')
     call EchoWarningMsg("Warning: only use this function with gvim")
+    return
   endif
+  if &guioptions =~# "m"
+    setlocal guioptions-=m
+    setlocal guioptions+=M
+  else
+    if !exists('g:did_install_default_menus')
+      source $VIMRUNTIME/menu.vim
+    endif
+    setlocal guioptions-=M
+    setlocal guioptions+=m
+  endif
+  let v:statusmsg = "guioptions=" . &guioptions
 endfunction
 
 " menu spell
@@ -327,14 +330,18 @@ function! MenuLanguageSpell()
                     \'3.  Catalan',
                     \'4.  Russian',
                     \'5.  Disable spell'])
-  if l:langchoice >=1 && l:langchoice <= 5
+  if !empty(l:langchoice)
+    if l:langchoice < 1 || l:langchoice > 5
+      call EchoErrorMsg("Error: wrong option " . l:langchoice)
+      return
+    endif
     if l:langchoice == 5
       setlocal nospell
     else
       setlocal spell
-      " setlocal spellfile="$HOME/.vim/spell/language.utf-8.spl"
       if l:langchoice == 1
         setlocal spelllang=en
+        " setlocal spellfile="$HOME/.vim/spell/language.utf-8.spl"
       elseif l:langchoice == 2
         setlocal spelllang=es
         setlocal spellfile="$HOME/.vim/spell/es.".&encoding.".spl"
@@ -346,8 +353,6 @@ function! MenuLanguageSpell()
         setlocal spellfile="$HOME/.vim/spell/ru.".&encoding.".spl"
       endif
     endif
-  elseif !empty(l:langchoice)
-      call EchoErrorMsg("Error: wrong option " . l:langchoice)
   endif
 endfunction
 
@@ -358,31 +363,30 @@ function! MenuMisc()
                       \'2.  Disable arrow keys',
                       \'3.  Toggle gui menu bar'])
   if !empty(l:choice)
-    if l:choice >=1 && l:choice <= 3
-      if l:choice == 1
-        call EnableArrowKeys()
-      elseif l:choice == 2
-        call DisableArrowKeys()
-      elseif l:choice == 3
-        call GuiMenuBarToggle()
-      endif
-    else
+    if l:choice < 1 || l:choice > 3
       call EchoErrorMsg("Error: wrong option " . l:choice)
+      return
+    endif
+    if l:choice == 1
+      call EnableArrowKeys()
+    elseif l:choice == 2
+      call DisableArrowKeys()
+    elseif l:choice == 3
+      call GuiMenuBarToggle()
     endif
   endif
 endfunction
 
 " my tablabel
-function! MyTabLabel(n)
-  let l:buflist = tabpagebuflist(a:n)
-  let l:winnr = tabpagewinnr(a:n)
+function! MyTabLabel(arg)
+  let l:buflist = tabpagebuflist(a:arg)
+  let l:winnr = tabpagewinnr(a:arg)
   let l:name = fnamemodify(bufname(buflist[l:winnr - 1]), ":~")
   let l:tname = fnamemodify(l:name, ":t")
   let l:cname = ''
   let l:cchars = ''
-
   " exception [No Name]
-  if l:name == ''
+  if empty(l:name)
     let l:cchars = "[No Name]"
     if getbufvar(l:buflist[l:winnr -1], "&modified")
       if len(l:buflist) > 1
@@ -399,20 +403,18 @@ function! MyTabLabel(n)
     endif
     return l:cname
   endif
-
   let l:name_len = len(split(l:name, "/"))
   let l:i = 0
-  for n in split(l:name, "/")
+  for l:n in split(l:name, "/")
     if l:i < l:name_len - 1
-      if n[0] == '.'
-        let l:cchars .= n[0:1] . "/"
+      if l:n[0] == '.'
+        let l:cchars .= l:n[0:1] . "/"
       else
-        let l:cchars .= n[0] . "/"
+        let l:cchars .= l:n[0] . "/"
       endif
     endif
     let l:i += 1
   endfor
-
   if getbufvar(l:buflist[l:winnr -1], "&modified")
     if len(l:buflist) > 1
       if l:name[0] == "/"
@@ -448,14 +450,14 @@ endfunction
 " my tabline
 function MyTabLine()
   let l:s = ''
-  for i in range(tabpagenr('$'))
-    if i + 1 == tabpagenr()
+  for l:i in range(tabpagenr('$'))
+    if l:i + 1 == tabpagenr()
       let l:s .= '%#TabLineSel#'
     else
       let l:s .= '%#TabLine#'
     endif
-    let l:s .= '%' . (i + 1) . 'T'
-    let l:s .= ' %{MyTabLabel(' . (i + 1) . ')} '
+    let l:s .= '%' . (l:i + 1) . 'T'
+    let l:s .= ' %{MyTabLabel(' . (l:i + 1) . ')} '
   endfor
   let l:s .= '%#TabLineFill#%T'
   return l:s
@@ -468,14 +470,13 @@ function! MyStatusLine()
   let l:tname = fnamemodify(l:dirname, ":t")
   let l:cchars = ""
   let l:name_len = len(split(l:dirname, "/"))
-
   let l:i = 0
-  for n in split(l:dirname, "/")
+  for l:d in split(l:dirname, "/")
     if l:i < l:name_len - 1
-      if n[0] == '.'
-        let l:cchars .= n[0:1] . "/"
+      if l:d[0] == '.'
+        let l:cchars .= l:d[0:1] . "/"
       else
-        let l:cchars .= n[0] . "/"
+        let l:cchars .= l:d[0] . "/"
       endif
     endif
     let l:i += 1
@@ -492,7 +493,7 @@ function! MyStatusLine()
   elseif &filetype ==# "go"
     let l:output = GOStatusLine()
   endif
-  if l:output != ""
+  if !empty(l:output)
     let l:output = " " . l:output
   endif
   return l:sname . '$' . l:output
@@ -500,13 +501,13 @@ endfunction
 
 " remove signs
 function! RemoveSignsName(buf, name)
-  redir => signsout
-  silent execute ":sign place buffer=" . a:buf
-  redir END
-  for sl in split(signsout, "\n")
-    if sl =~# a:name
-      let l:slid = split(split(sl, "=")[2], " ")[0]
-      execute ":sign unplace " . l:slid . "  buffer=" . a:buf
+  let l:signs = sign_getplaced(a:buf)[0].signs
+  if empty(l:signs)
+    return
+  endif
+  for l:sign in l:signs
+    if l:sign.name ==# a:name
+      call sign_unplace('', {'buffer' : a:buf, 'id' : l:sign.id})
     endif
   endfor
 endfunction
@@ -519,7 +520,7 @@ function! Run()
   elseif &filetype ==# "go"
     echo system("go run " . l:curfile)
   else
-    call EchoErrorMsg("Error: unknown how to run")
+    call EchoErrorMsg("Error: running filetype '" . &filetype . "' is not supported")
   endif
 endfunction
 
@@ -529,12 +530,10 @@ function! RunInWindow()
   let l:curfile = expand('%:p')
   let l:curwinid = win_getid()
   let l:prevwinid = bufwinid(l:bufname)
-
   if l:curwinid == l:prevwinid
     call EchoWarningMsg("Warning: already using the same window " . l:bufname)
     return
   endif
-
   if &filetype ==# "python"
     let l:out = systemlist("python3 " . l:curfile)
     if empty(l:out)
@@ -548,15 +547,14 @@ function! RunInWindow()
       return
     endif
   else
-    call EchoErrorMsg("Error: unknown how to run")
+    call EchoErrorMsg("Error: formatting filetype '" . &filetype . "' is not supported")
     return
   endif
-
   if l:prevwinid > 0
     call win_gotoid(l:prevwinid)
   else
     if !empty(bufname(l:bufname))
-      silent execute ":bw! " . l:bufname
+      silent execute "bw! " . l:bufname
     endif
     below new
     setlocal winfixheight
@@ -564,12 +562,12 @@ function! RunInWindow()
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    execute ":file " . l:bufname
+    execute "file " . l:bufname
   endif
   call appendbufline('%', 0, l:out)
   call deletebufline('%', '$')
   call cursor(1, 1)
-  execute ":resize " . len(l:out)
+  execute "resize " . len(l:out)
   call win_gotoid(l:curwinid)
 endfunction
 
@@ -584,6 +582,10 @@ endfunction
 
 " sh
 function! SH()
+  if !has('gui_running')
+    call EchoWarningMsg("Warning: only use this function with gvim")
+    return
+  endif
   let l:guioptions_orig=&guioptions
   setlocal guioptions+=!
   sh
@@ -603,13 +605,15 @@ endfunction
 " scratch buffer
 function! ScratchBuffer()
   let l:curbufn = winbufnr(winnr())
-
+  let l:scnum = 0
   let l:match = 0
-  for b in getbufinfo()
+  for l:b in getbufinfo()
     " :help special-buffers
-    if b.name == '' && getbufvar(b.bufnr, '&buftype') ==# 'nofile' && getbufvar(b.bufnr, '&bufhidden') ==# 'hide'
-    \ && getbufvar(b.bufnr, '&swapfile') == 0
-      let l:scnum = b.bufnr
+    if empty(b.name)
+    \ && getbufvar(l:b.bufnr, '&buftype') ==# 'nofile'
+    \ && getbufvar(l:b.bufnr, '&bufhidden') ==# 'hide'
+    \ && getbufvar(l:b.bufnr, '&swapfile') == 0
+      let l:scnum = l:b.bufnr
       let l:match = 1
       break
     endif
@@ -618,10 +622,10 @@ function! ScratchBuffer()
     if l:curbufn == l:scnum
       " return to previous buffer if whe are in the scratch
       if !empty(getreg('#'))
-        execute ":b #"
+        execute "b #"
       endif
     else
-      execute ":b " . l:scnum
+      execute "b " . l:scnum
     endif
   else
     enew
@@ -650,8 +654,6 @@ endfunction
 function! UncommentByLanguage()
   let l:curline = line('.')
   let l:curcol = col('.')
-
-  " c, cpp, java, sql
   if &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 0)
@@ -665,8 +667,6 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x$".(l:num - 1)."h".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-
-  " go, php, javascript
   elseif &filetype ==# "go" || &filetype ==# "php" || &filetype ==# "javascript"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 1)
@@ -680,8 +680,6 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-
-  " vim
   elseif &filetype ==# "vim"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 1)
@@ -695,8 +693,6 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-
-  " sh, perl, python
   elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 1)
@@ -710,8 +706,6 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-
-  " html, xml
   elseif &filetype ==# "html" || &filetype ==# "xml"
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 0)
@@ -722,5 +716,7 @@ function! UncommentByLanguage()
     let l:num = 5
     execute "normal! ".l:num."x$xxxx"
     call cursor(l:curline, l:curcol - l:num)
+  else
+    call EchoErrorMsg("Error: uncommenting filetype '" . &filetype . "' is not supported")
   endif
 endfunction
