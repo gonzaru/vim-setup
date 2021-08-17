@@ -95,37 +95,20 @@ function! ExitHandlerSHShellCheck(job, status)
 endfunction
 
 " shows sh debug information
-function! ShowSHDebugInfo()
-  let l:curbufnr = winbufnr(winnr())
-  let l:curline = line('.')
-
-  redir => signsbuf
-  silent execute ":sign place buffer=" . l:curbufnr
-  redir END
-
-  if !empty(signsbuf)
-    for sb in split(signsbuf, "\n")
-      if sb =~# "line=".l:curline." "
-        if sb =~# "name=sh_error "
-          call s:SHShowErrorPopup()
-          break
-        elseif sb =~# "name=sh_shellcheckerror "
-          call s:SHShowShellCheckErrorPopup()
-          break
-        else
-          throw "Error: unknown sign " . sb
-        endif
-      endif
-    endfor
+function! ShowSHDebugInfo(signame)
+  if a:signame ==# "sh_error"
+    call s:SHShowErrorPopup()
+  elseif a:signame ==# "sh_shellcheckerror"
+    call s:SHShowShellCheckErrorPopup()
+  else
+    throw "Error: unknown sign " . a:signame
   endif
-
 endfunction
 
 " shows sh error popup
 function! s:SHShowErrorPopup()
   let l:curline = line('.')
   let l:errmsg = systemlist("cut -d ':' -f2- " . s:sh_filesyntax . " | sed 's/^ //' | head -n1")
-
   echo "SH: " . join(l:errmsg)
   call popup_create("SH: " . join(l:errmsg), #{
   \ pos: 'topleft',
@@ -141,7 +124,6 @@ endfunction
 function! s:SHShowShellCheckErrorPopup()
   let l:curline = line('.')
   let l:errmsg = systemlist("sed -n '/line " . l:curline . "/,/^$/p' " . s:sh_shellcheckfilesyntax . " | grep -v '^$' | tail -n1 | sed 's/   //g' | sed 's/  ^-- //'")
-
   echo "SC: " . join(l:errmsg)
   call popup_create("SC: " . join(l:errmsg), #{
   \ pos: 'topleft',

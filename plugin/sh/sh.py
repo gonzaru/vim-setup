@@ -62,8 +62,8 @@ def sh_check(mode: str) -> bool:
             errline = errout.split(":")[1].split(" ")[2]
         errclean = f"{errline} : " + "".join(errout.split(":")[-2:])
         vim.command(
-            f"sign place {errline} line={errline} name=sh_error \
-            buffer={str(curbufnr)}"
+            f"call sign_place({errline}, '', 'sh_error', \
+            {str(curbufnr)}, {{'lnum' : {errline}}})"
         )
         vim.command(f"call cursor({errline}, 1)")
         raise ValueError(errclean)
@@ -98,8 +98,8 @@ def sh_shellcheck_noexec() -> bool:
             if re.match("^In ", line):
                 errline = line.rstrip("\n").split(" ")[3].split(":")[0]
                 vim.command(
-                    f"sign place {errline} line={errline} \
-                    name=sh_shellcheckerror buffer={str(curbufnr)}"
+                    f"call sign_place({errline}, '', 'sh_shellcheckerror', \
+                    {str(curbufnr)}, {{'lnum' : {errline}}})"
                 )
                 terrors += 1
     if terrors:

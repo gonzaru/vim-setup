@@ -34,8 +34,8 @@ def go_vet_noexec() -> bool:
             if re.match("^vet: ", line):
                 errline = line.rstrip("\n").split(":")[2]
                 vim.command(
-                    f"sign place {errline} line={errline} name=go_veterror \
-                    buffer={str(curbufnr)}"
+                    f"call sign_place({errline}, '', 'go_veterror', \
+                    {str(curbufnr)}, {{'lnum' : {errline}}})"
                 )
                 terrors += 1
 

@@ -44,7 +44,7 @@ function! GOStatusLine()
   if exists("s:go_error") && s:go_error
     let l:output = "[GO=".s:go_error."][GV]"
   elseif exists("s:gv_error") && s:gv_error
-    let l:output = "[GV][GV=".s:gv_error."]"
+    let l:output = "[GO][GV=".s:gv_error."]"
   else
     let l:output = "[GO][GV]"
   endif
@@ -55,20 +55,19 @@ endfunction
 function! GOCheck(mode)
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
+  let l:curline = line('.')
   let s:go_error = 0
-
   if s:GOBufferIsEmpty()
     return
   endif
-
   if &filetype !=# "go"
     throw "Error: (GOCheck) " . l:curbufname . " is not a valid go file!"
   endif
-
   if !executable("gofmt")
     throw "Error: (GOCheck) program gofmt is missing!"
   endif
-
+  " sign_unplace() does not support 'name' : 'error_name'
+  " call sign_unplace('', {'buffer' : l:curbufnr, 'id' : l:curline})
   call RemoveSignsName(l:curbufnr, "go_error")
   if a:mode ==# "read"
     let l:check_file = l:curbufname
@@ -82,7 +81,7 @@ function! GOCheck(mode)
     let s:go_error = 1
     let l:errout = trim(system("cut -d ':' -f2- " . s:go_filesyntax . " | head -n1"))
     let l:errline = trim(system("cut -d ':' -f2 " . s:go_filesyntax . " | head -n1"))
-    execute ":sign place ".l:errline." line=".l:errline." name=go_error buffer=".l:curbufnr
+    call sign_place(l:errline, '', 'go_error', l:curbufnr, {'lnum' : l:errline})
     call cursor(l:errline, 1)
     call s:cleanup(a:mode)
     throw "Error: (".a:mode.") " . l:errout
@@ -120,27 +119,13 @@ function! ExitHandlerGOVet(job, status)
 endfunction
 
 " shows debug information
-function! ShowGODebugInfo()
-  let l:curbufnr = winbufnr(winnr())
-  let l:curline = line('.')
-
-  redir => signsbuf
-  silent execute ":sign place buffer=" . l:curbufnr
-  redir END
-  if !empty(signsbuf)
-    for sb in split(signsbuf, "\n")
-      if sb =~# "line=".l:curline." "
-        if sb =~# "name=go_error "
-          call s:GOShowErrorPopup()
-          break
-        elseif sb =~# "name=go_veterror "
-          call s:GOVetShowErrorPopup()
-          break
-        else
-          throw "Error: unknown sign " . sb
-        endif
-      endif
-    endfor
+function! ShowGODebugInfo(signame)
+  if a:signame ==# "go_error"
+    call s:GOShowErrorPopup()
+  elseif a:signame ==# "go_veterror"
+    call s:GOVetShowErrorPopup()
+  else
+    throw "Error: unknown sign " . a:signame
   endif
 endfunction
 

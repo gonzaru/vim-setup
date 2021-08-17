@@ -92,26 +92,13 @@ function! ExitHandlerPY3Pep8(job, status) abort
 endfunction
 
 " shows py3 debug information
-function! ShowPY3DebugInfo() abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curline = line('.')
-  redir => signsbuf
-  silent execute ":sign place buffer=" . l:curbufnr
-  redir END
-  if !empty(signsbuf)
-    for sb in split(signsbuf, "\n")
-      if sb =~# "line=".l:curline." "
-        if sb =~# "name=py_error "
-          call s:PY3ErrorPopup()
-          break
-        elseif sb =~# "name=py_pep8error "
-          call s:PY3Pep8ErrorPopup()
-          break
-        else
-          throw "Error: unknown sign " . sb
-        endif
-      endif
-    endfor
+function! ShowPY3DebugInfo(signame) abort
+  if a:signame ==# "py_error"
+    call s:PY3ErrorPopup()
+  elseif a:signame ==# "py_pep8error"
+    call  s:PY3Pep8ErrorPopup()
+  else
+    throw "Error: unknown sign " . a:signame
   endif
 endfunction
 

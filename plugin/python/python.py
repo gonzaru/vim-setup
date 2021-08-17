@@ -40,8 +40,8 @@ def py3_check(mode: str) -> bool:
             errline = errout[4].split(" ")[-1].rstrip()
         errclean = f"SyntaxError: invalid syntax on line {errline}"
         vim.command(
-            f"sign place {errline} line={errline} name=py_error \
-            buffer={str(curbufnr)}"
+            f"call sign_place({errline}, '', 'py_error', \
+            {str(curbufnr)}, {{'lnum' : {errline}}})"
         )
         vim.command(f"call cursor({errline}, 1)")
         raise ValueError(errclean)
@@ -73,8 +73,8 @@ def py3_pep8_noexec() -> bool:
         for line in lines:
             errline = line.rstrip("\n").split(":")[1]
             vim.command(
-                f"sign place {errline} line={errline} name=py_pep8error \
-                buffer={str(curbufnr)}"
+                f"call sign_place({errline}, '', 'py_pep8error', \
+                {str(curbufnr)}, {{'lnum' : {errline}}})"
             )
             terrors += 1
 

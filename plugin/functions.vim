@@ -115,6 +115,7 @@ function! CycleSignsShowDebugInfo(type, mode)
   let l:curcycleline = 0
   let l:nextcycleline = 0
   let l:prevcycleline = 0
+  let l:signameline = ""
   if a:type != "sh" && a:type != "py" && a:type != "go"
     call EchoErrorMsg("Error: debug information for filetype '" . &filetype . "' is not supported")
     return
@@ -128,15 +129,18 @@ function! CycleSignsShowDebugInfo(type, mode)
     let l:cycleline = l:sign.lnum
     if a:mode ==# 'cur'
       let l:curcycleline = l:curline
+      let l:signameline = l:sign.name
       break
     elseif a:mode ==# 'next'
       if l:curline < l:cycleline
         let l:nextcycleline = l:cycleline
+        let l:signameline = l:sign.name
         break
       endif
     elseif a:mode ==# 'prev'
       if l:curline > l:cycleline
         let l:prevcycleline = l:cycleline
+        let l:signameline = l:sign.name
       endif
     endif
   endfor
@@ -146,21 +150,32 @@ function! CycleSignsShowDebugInfo(type, mode)
         call sign_jump(l:curcycleline, '', l:curbuf)
       catch
         call EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
+        return
       endtry
     elseif l:nextcycleline
-      call sign_jump(l:nextcycleline, '', l:curbuf)
+      try
+        call sign_jump(l:nextcycleline, '', l:curbuf)
+      catch
+        call EchoWarningMsg("Warning: sign id not found in line " . l:nextcycleline)
+        return
+      endtry
     elseif l:prevcycleline
-      call sign_jump(l:prevcycleline, '', l:curbuf)
+      try
+        call sign_jump(l:prevcycleline, '', l:curbuf)
+      catch
+        call EchoWarningMsg("Warning: sign id not found in line " . l:prevcycleline)
+        return
+      endtry
     else
       call EchoErrorMsg("Error: sign jump line not found")
       return
     endif
     if a:type ==# "sh"
-      call ShowSHDebugInfo()
+      call ShowSHDebugInfo(l:signameline)
     elseif a:type ==# "py"
-      call ShowPY3DebugInfo()
+      call ShowPY3DebugInfo(l:signameline)
     elseif a:type ==# "go"
-      call ShowGODebugInfo()
+      call ShowGODebugInfo(l:signameline)
     endif
   endif
 endfunction
