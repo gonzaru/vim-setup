@@ -32,10 +32,10 @@ let g:loaded_zipPlugin = 1         " zipPlugin.vim
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
   " python3.9
-  let g:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
-  if filereadable(g:libpython3)
+  let s:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
+  if filereadable(s:libpython3)
     set pythonthreehome=/usr
-    execute "set pythonthreedll=".g:libpython3
+    execute "set pythonthreedll=".s:libpython3
   endif
 endif
 
@@ -383,9 +383,9 @@ nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 
 " go to N buffer (up to 9 for now)
-for i in range(1, 9)
-  if i <= 9
-    execute "nnoremap <leader>b".i." :call GoBufferPos(".i.")<CR>"
+for s:i in range(1, 9)
+  if s:i <= 9
+    execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
   endif
 endfor
 
@@ -495,7 +495,7 @@ elseif !exists("g:loaded_plan9")
 endif
 
 " load local config
-let g:vimrc_local = $HOME."/.vimrc.local"
-if filereadable(g:vimrc_local)
-  execute "source " . g:vimrc_local
+let s:vimrc_local = $HOME."/.vimrc.local"
+if filereadable(s:vimrc_local)
+  execute "source " . s:vimrc_local
 endif

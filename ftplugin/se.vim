@@ -29,7 +29,6 @@ nnoremap <buffer>S :call SeGofile('split')<CR>:call SeToggle()<CR>
 nnoremap <buffer>v :call SeGofile('vsplit')<CR>
 nnoremap <buffer>V :call SeGofile('vsplit')<CR>:call SeToggle()<CR>
 nnoremap <buffer>t :call SeGofile('tabedit')<CR>
-nnoremap <buffer>T :call SeGofile('tabedit')<CR>:call SeToggle()<CR>
 nnoremap <buffer>- :call cursor(1, 1)<CR>:call SeGofile('edit')<CR>
 nnoremap <buffer>r :call cursor(2, 1)<CR>:call SeList()<CR>
 nnoremap <buffer>f :call SeFollowFile()<CR>

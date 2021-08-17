@@ -3,19 +3,21 @@
 
 " Se simple explorer
 
+" See also ../../ftplugin/se.vim
+
 " do not read the file if is already loaded
 if exists('g:loaded_se') && g:loaded_se == 1
   finish
 endif
 let g:loaded_se = 1
 let g:se_winsize = 20
-let g:se_oldcwd = ""
+let s:se_oldcwd = ""
 
 " gets Se buffer id
 function! s:SeGetBufId() abort
-  for b in getbufinfo()
-    if getbufvar(b.bufnr, '&filetype') ==# "se"
-      return b.bufnr
+  for l:b in getbufinfo()
+    if getbufvar(l:b.bufnr, '&filetype') ==# "se"
+      return l:b.bufnr
     endif
   endfor
   return 0
@@ -29,7 +31,7 @@ function! SeToggle() abort
     setlocal nosplitright
     execute "vertical sbuffer " . l:sb
     setlocal splitright
-    execute "lcd " . g:se_oldcwd
+    execute "lcd " . s:se_oldcwd
     execute "vertical resize " . g:se_winsize
   elseif l:sb && !l:bufinfo[0].hidden
     if win_getid() != bufwinid(l:sb)
@@ -69,14 +71,14 @@ endfunction
 function! SeList() abort
   let l:sb = s:SeGetBufId()
   if !l:sb
-    let g:se_oldcwd = fnamemodify(bufname('%'), ":~:h")
+    let s:se_oldcwd = fnamemodify(bufname('%'), ":~:h")
     setlocal nosplitright
     vertical new
     silent file se
     setlocal splitright
     setfiletype se
-    if g:se_oldcwd && g:se_oldcwd != '.'
-      execute "lcd " . g:se_oldcwd
+    if s:se_oldcwd && s:se_oldcwd != '.'
+      execute "lcd " . s:se_oldcwd
     endif
     call s:SeListPopulate()
     execute ":vertical resize " . g:se_winsize
@@ -90,7 +92,7 @@ function! SeList() abort
     silent call deletebufline('%', 1, '$')
     call s:SeListPopulate()
   endif
-  let g:se_oldcwd = getcwd()
+  let s:se_oldcwd = getcwd()
   setlocal nomodifiable
 endfunction
 

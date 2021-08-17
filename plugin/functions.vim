@@ -62,19 +62,19 @@ endfunction
 function! CommentByLanguage()
   let l:curline = line('.')
   let l:curcol = col('.')
-  if  &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
+  if index(["c", "cpp", "java", "sql"], &filetype) >= 0
     execute "normal! I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>"
     call cursor(l:curline, l:curcol + 3)
-  elseif &filetype ==# "go" || &filetype ==# "php" || &filetype ==# "javascript"
+  elseif index(["go", "php", "javascript"], &filetype) >= 0
     execute "normal! I//\<SPACE>"
     call cursor(l:curline, l:curcol + 3)
   elseif &filetype ==# "vim"
     execute "normal! I\"\<SPACE>\<ESC>"
     call cursor(l:curline, l:curcol + 2)
-  elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
+  elseif index(["sh", "perl", "python"], &filetype) >= 0
     execute "normal! I#\<SPACE>\<ESC>"
     call cursor(l:curline, l:curcol + 2)
-  elseif &filetype ==# "html" || &filetype ==# "xml"
+  elseif index(["html", "xml"], &filetype) >= 0
     execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
     call cursor(l:curline, l:curcol + 5)
   else
@@ -669,7 +669,7 @@ endfunction
 function! UncommentByLanguage()
   let l:curline = line('.')
   let l:curcol = col('.')
-  if &filetype ==# "c" || &filetype ==# "cpp" || &filetype ==# "java" || &filetype ==# "sql"
+  if index(["c", "cpp", "java", "sql"], &filetype) >= 0
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 0)
     if l:trimline[0:1] != "/*" || l:trimline[-2:-1] != "*/"
@@ -682,7 +682,7 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x$".(l:num - 1)."h".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-  elseif &filetype ==# "go" || &filetype ==# "php" || &filetype ==# "javascript"
+  elseif index(["go", "php", "javascript"], &filetype) >= 0
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 1)
     if l:trimline[0:1] != "//"
@@ -708,7 +708,7 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-  elseif &filetype ==# "sh" || &filetype ==# "perl" || &filetype ==# "python"
+  elseif index(["sh", "perl", "python"], &filetype) >= 0
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 1)
     if l:trimline[0] != "#"
@@ -721,7 +721,7 @@ function! UncommentByLanguage()
     endif
     execute "normal! ".l:num."x"
     call cursor(l:curline, l:curcol - l:num)
-  elseif &filetype ==# "html" || &filetype ==# "xml"
+  elseif index(["html", "xml"], &filetype) >= 0
     execute "normal! ^"
     let l:trimline = trim(getline('.'), 0)
     if l:trimline[0:4] != "<!-- " || l:trimline[-4:-1] != " -->"
