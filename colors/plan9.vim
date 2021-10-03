@@ -34,7 +34,8 @@ if exists("syntax_on")
   syntax reset
 endif
 
-let colors_name = "plan9"
+" colorscheme
+let g:colors_name = "plan9"
 
 highlight! Normal guibg=#ffffd7 guifg=black ctermbg=230 ctermfg=black gui=NONE cterm=NONE term=NONE
 
@@ -182,6 +183,3 @@ if (&term =~ "^xterm" || !empty($PARENT_TERM) && $PARENT_TERM =~ "^xterm" && !em
   autocmd VimLeave * silent !echo -e -n "\x1b[\x34 q"
   augroup END
 endif
-
-" colorscheme
-let g:colors_name = "plan9"

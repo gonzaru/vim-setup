@@ -123,11 +123,13 @@ function! SeGofile(mode) abort
   elseif a:mode ==# "edit" && l:lastchar == '/' && isdirectory(l:curline)
     execute "lcd " . getcwd(winnr()) . "/" . l:curline
     call SeList()
-  elseif l:lastchar == '@'
-    echohl Warningmsg
-    echom "Warning: TODO symlink link"
-    echohl None
+  elseif a:mode ==# "edit" && l:lastchar == '@' && isdirectory(resolve(substitute(l:curline, '@$', "", "")))
+    execute "lcd " . resolve(substitute(l:curline, '@$', "", ""))
+    call SeList()
   else
+    if l:lastchar == '@'
+      let l:curline = resolve(substitute(l:curline, '@$', "", ""))
+    endif
     let l:mode_list = ["edit", "editk", "pedit", "split"]
     if index(l:mode_list, a:mode) >= 0
       let l:oldcwd = getcwd()
