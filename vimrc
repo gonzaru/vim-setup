@@ -239,7 +239,7 @@ set complete=.,w,b,u,k,t
 
 " use clipboard register '+' and also copies it to '*' (yank only)
 if has('clipboard')
-  set clipboard=unnamed,unnamedplus
+  set clipboard^=unnamed,unnamedplus
 endif
 
 " signs
