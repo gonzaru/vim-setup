@@ -116,6 +116,7 @@ set matchpairs=(:),{:},[:]   " characters that form pairs
 set foldlevelstart=99        " don't start new buffers folded (default -1)
 set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
+set t_ti= t_te=              " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 " behavior of cursorline {line, number} (default both)
 if exists('+cursorlineopt')
