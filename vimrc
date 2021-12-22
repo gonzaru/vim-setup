@@ -65,12 +65,16 @@ endif
 
 " gVim
 if has("gui_running")
-  set guioptions=acM                  " do not load menus for gvim (default aegimrLtT)
-  set guiheadroom=0                   " when zero, the whole screen height will be used by the window
-  set guifont=DejaVu\ Sans\ Mono\ 12  " gui font
-  set mouseshape-=v:rightup-arrow     " by default uses a left arrow that confuses
-  set mouseshape+=v:beam              " change it by beam shape (as in other apps)
-  set mousehide                       " hide the mouse pointer while typing (default on)
+  set guioptions=acM                    " do not load menus for gvim (default aegimrLtT)
+  set guiheadroom=0                     " when zero, the whole screen height will be used by the window
+  if has("gui_macvim")
+    set guifont=Menlo\ Regular:h16      " gui font
+  else
+    set guifont=DejaVu\ Sans\ Mono\ 12  " gui font
+  endif
+  set mouseshape-=v:rightup-arrow       " by default uses a left arrow that confuses
+  set mouseshape+=v:beam                " change it by beam shape (as in other apps)
+  set mousehide                         " hide the mouse pointer while typing (default on)
 endif
 
 " see :filetype
@@ -135,7 +139,8 @@ endif
 
 " statusline
 let g:statusline_base = &statusline
-set showtabline=2          " to show tab always
+" set showtabline=2          " to show tab always
+set showtabline=1          " to show tab only if there are at least two tabs (default 1)
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
 
@@ -275,7 +280,8 @@ sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
 "---------------------------------------------------------------------------"
 
 " mapleader
-let mapleader = "\\"
+" let mapleader = "\\"
+let mapleader = "\<C-\>"
 
 " alternative second leader
 let maplocalleader = "\<C-q>"
