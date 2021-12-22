@@ -33,8 +33,14 @@ let g:loaded_zipPlugin = 1         " zipPlugin.vim
 if has("python3_dynamic")
   " python3.9
   let s:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
+  let s:pythonhome3="/usr"
+  if has('macunix')
+    " python3.8 from pkgsrc
+    let s:libpython3=$HOME."/opt/pkg/lib/libpython3.8.dylib"
+    let s:pythonhome3=$HOME."/opt/pkg"
+  endif
   if filereadable(s:libpython3)
-    set pythonthreehome=/usr
+    execute "set pythonthreehome=".s:pythonhome3
     execute "set pythonthreedll=".s:libpython3
   endif
 endif
