@@ -501,11 +501,11 @@ function! MyStatusLine()
   else
     let l:sname = l:cchars . l:tname
   endif
-  if &filetype ==# "sh"
+  if &filetype ==# "sh" && (executable("sh") || executable("bash")) && executable("shellcheck")
     let l:output = SHStatusLine()
-  elseif &filetype ==# "python"
+  elseif &filetype ==# "python" && executable("python3") && executable("pep8")
     let l:output = PY3StatusLine()
-  elseif &filetype ==# "go"
+  elseif &filetype ==# "go" && executable("go") && executable("gofmt")
     let l:output = GOStatusLine()
   endif
   if !empty(l:output)
