@@ -172,14 +172,26 @@ highlight! SyntaxErrorGOVET guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 
 " statusline
 highlight! SyntaxFoldLevel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
 
-if (&term =~ "^xterm" || !empty($PARENT_TERM) && $PARENT_TERM =~ "^xterm" && !empty($TMUX)) && !has("gui_running")
-  " solid block cursor
-  let &t_SI.="\e[6 q" " INSERT mode
-  let &t_SR.="\e[4 q" " REPLACE mode
-  let &t_EI.="\e[2 q" " NORMAL mode (ELSE)
+if !has("gui_running")
+  " &t_SI = blinking vertical bar
+  " &t_SR = blinking underscore
+  " &t_EI = blinking block
+  if has('macunix')
+    let &t_SI.="\e[5 q" " INSERT mode
+    let &t_SR.="\e[3 q" " REPLACE mode
+    let &t_EI.="\e[1 q" " NORMAL mode (ELSE)
+  else
+    let &t_SI.="\e[6 q" " INSERT mode
+    let &t_SR.="\e[4 q" " REPLACE mode
+    let &t_EI.="\e[2 q" " NORMAL mode (ELSE)
+  endif
   " reset cursor to underscore when vim exits
   augroup event_vim_leave_from_theme
   autocmd!
-  autocmd VimLeave * silent !echo -e -n "\x1b[\x34 q"
+  if has('macunix')
+    autocmd VimLeave * silent !echo -e -n "\x1b[\x33 q"
+  else
+    autocmd VimLeave * silent !echo -e -n "\x1b[\x34 q"
+  endif
   augroup END
 endif
