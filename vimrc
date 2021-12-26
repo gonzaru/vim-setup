@@ -35,8 +35,11 @@ if has("python3_dynamic")
   let s:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
   let s:homepython3="/usr"
   if has('macunix')
-    " python3.8 from pkgsrc
-    let s:libpython3=$HOME."/opt/pkg/lib/libpython3.8.dylib"
+    if filereadable($HOME."/opt/pkg/lib/libpython3.9.dylib")
+      let s:libpython3=$HOME."/opt/pkg/lib/libpython3.9.dylib"
+    elseif filereadable($HOME."/opt/pkg/lib/libpython3.8.dylib")
+      let s:libpython3=$HOME."/opt/pkg/lib/libpython3.8.dylib"
+    endif
     let s:homepython3=$HOME."/opt/pkg"
   endif
   if filereadable(s:libpython3)
@@ -74,6 +77,7 @@ if has("gui_running")
   set guioptions=acM                    " do not load menus for gvim (default aegimrLtT)
   set guiheadroom=0                     " when zero, the whole screen height will be used by the window
   if has("gui_macvim")
+    set antialias                       " smooth fonts
     set guifont=Menlo\ Regular:h16      " gui font
   else
     set guifont=DejaVu\ Sans\ Mono\ 12  " gui font
