@@ -176,7 +176,7 @@ if !has("gui_running")
   " &t_SI = blinking vertical bar
   " &t_SR = blinking underscore
   " &t_EI = blinking block
-  if has('macunix')
+  if has('macunix') && empty($XTERM_VERSION) && !empty($TERM_PROGRAM) && $TERM_PROGRAM ==# "Apple_Terminal"
     let &t_SI.="\e[5 q" " INSERT mode
     let &t_SR.="\e[3 q" " REPLACE mode
     let &t_EI.="\e[1 q" " NORMAL mode (ELSE)
