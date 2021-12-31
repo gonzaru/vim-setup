@@ -34,7 +34,7 @@ if has("python3_dynamic")
   " python3.9
   let s:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
   let s:homepython3="/usr"
-  if has('macunix')
+  if has('mac')
     if filereadable($HOME."/opt/pkg/lib/libpython3.9.dylib")
       let s:libpython3=$HOME."/opt/pkg/lib/libpython3.9.dylib"
     elseif filereadable($HOME."/opt/pkg/lib/libpython3.8.dylib")
