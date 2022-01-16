@@ -2,7 +2,7 @@
 " Distributed under the terms of the GNU General Public License v3
 
 " Python
-if has("python3") && executable("python3") && executable("pep8")
+if executable("python3") && executable("pep8")
   autocmd BufWinEnter,FileType python call PY3Check("read")|
     \:call PY3Pep8Async()
   autocmd FileType python autocmd BufWritePre <buffer> call PY3Check("write")

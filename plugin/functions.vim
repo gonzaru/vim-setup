@@ -735,3 +735,16 @@ function! UncommentByLanguage()
     call EchoErrorMsg("Error: uncommenting filetype '" . &filetype . "' is not supported")
   endif
 endfunction
+
+" user tmp
+function! UserTempDir()
+  let l:tmp = "/tmp"
+  if !empty($TMPDIR)
+    if $TMPDIR == "/"
+      let l:tmp = $TMPDIR
+    else
+      let l:tmp = substitute($TMPDIR, "/$", "", "")
+    endif
+  endif
+  return l:tmp
+endfunction
