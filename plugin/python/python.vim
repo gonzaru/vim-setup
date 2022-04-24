@@ -109,17 +109,17 @@ function! g:PY3Pep8Async() abort
     return
   endif
   if !s:PY3BufferIsEmpty() && &filetype ==# "python"
-    let l:job = job_start("pep8 " . bufname('%'), {"out_cb": "OutHandlerPY3Pep8", "err_cb": "ErrHandlerPY3Pep8", "exit_cb": "s:ExitHandlerPY3Pep8", "out_io": "file", "out_name": s:py3_pep8filesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("pep8 " . bufname('%'), {"out_cb": "OutHandlerPY3Pep8", "err_cb": "ErrHandlerPY3Pep8", "exit_cb": "ExitHandlerPY3Pep8", "out_io": "file", "out_name": s:py3_pep8filesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! s:OutHandlerPY3Pep8(channel, message) abort
+function! OutHandlerPY3Pep8(channel, message) abort
 endfunction
 
-function! s:ErrHandlerPY3Pep8(channel, message) abort
+function! ErrHandlerPY3Pep8(channel, message) abort
 endfunction
 
-function! s:ExitHandlerPY3Pep8(job, status) abort
+function! ExitHandlerPY3Pep8(job, status) abort
   call s:PY3Pep8NoExec()
   " TODO: recheck if necessary
   redraw!

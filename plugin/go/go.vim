@@ -120,17 +120,17 @@ function! g:GOVetAsync() abort
      return
   endif
   if !s:GOBufferIsEmpty() && &filetype ==# "go"
-    let l:job = job_start("go vet " . bufname('%'), {"out_cb": "OutHandlerGOVet", "err_cb": "ErrHandlerGOVet", "exit_cb": "s:ExitHandlerGOVet", "out_io": "file", "out_name": s:go_vetfilesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("go vet " . bufname('%'), {"out_cb": "OutHandlerGOVet", "err_cb": "ErrHandlerGOVet", "exit_cb": "ExitHandlerGOVet", "out_io": "file", "out_name": s:go_vetfilesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! s:OutHandlerGOVet(channel, message) abort
+function! OutHandlerGOVet(channel, message) abort
 endfunction
 
-function! s:ErrHandlerGOVet(channel, message) abort
+function! ErrHandlerGOVet(channel, message) abort
 endfunction
 
-function! s:ExitHandlerGOVet(job, status) abort
+function! ExitHandlerGOVet(job, status) abort
   call s:GOVetNoExec()
   " TODO: recheck if necessary
   redraw!

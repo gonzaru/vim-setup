@@ -124,17 +124,17 @@ function! g:SHShellCheckAsync() abort
     return
   endif
   if !s:SHBufferIsEmpty() && &filetype ==# "sh"
-    let l:job = job_start("shellcheck --color=never " . bufname('%'), {"out_cb": "OutHandlerSHShellCheck", "err_cb": "ErrHandlerSHShellCheck", "exit_cb": "s:ExitHandlerSHShellCheck", "out_io": "file", "out_name": s:sh_shellcheckfilesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("shellcheck --color=never " . bufname('%'), {"out_cb": "OutHandlerSHShellCheck", "err_cb": "ErrHandlerSHShellCheck", "exit_cb": "ExitHandlerSHShellCheck", "out_io": "file", "out_name": s:sh_shellcheckfilesyntax, "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! s:OutHandlerSHShellCheck(channel, message) abort
+function! OutHandlerSHShellCheck(channel, message) abort
 endfunction
 
-function! s:ErrHandlerSHShellCheck(channel, message) abort
+function! ErrHandlerSHShellCheck(channel, message) abort
 endfunction
 
-function! s:ExitHandlerSHShellCheck(job, status) abort
+function! ExitHandlerSHShellCheck(job, status) abort
   call s:SHShellCheckNoExec()
   " TODO: recheck if necessary
   redraw!

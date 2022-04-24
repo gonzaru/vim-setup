@@ -29,6 +29,11 @@ let g:loaded_vimballPlugin = 1     " vimballPlugin.vim
 let g:loaded_zip = 1               " zip.vim
 let g:loaded_zipPlugin = 1         " zipPlugin.vim
 
+" set shell $PATH for MacVim if it is lauched without using a terminal
+if has("gui_macvim") && empty($TERM)
+  let $PATH = $HOME."/bin:".$HOME."/opt/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/opt/local/sbin:/opt/local/bin:".$HOME."/opt/go/bin:".$HOME."/opt/aws/bin"
+endif
+
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
   " python3.9
@@ -99,7 +104,13 @@ set ruler                    " show line & column number
 set magic                    " use extended regexp in search patterns
 set modelines=0              " do not use modelines
 set nomodeline               " avoid modeline vulnerability
-set shell=/bin/bash          " set bash as default shell
+if !empty($SHELL) && executable($SHELL)
+  set shell=$SHELL           " set the current $SHELL as default shell
+elseif executable("/bin/bash")
+  set shell=/bin/bash        " set /bin/bash as default shell
+else
+  set shell=/bin/sh          " set /bin/sh as default shell
+endif
 set equalalways              " windows are automatically made the same size after splitting or closing a window
 set helpheight=0             " zero disables this (default 20)
 set formatoptions-=cro       " remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
