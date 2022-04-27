@@ -36,18 +36,16 @@ endif
 
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
-  " python3.9
-  let s:libpython3="/usr/lib/x86_64-linux-gnu/libpython3.9.so.1"
-  let s:homepython3="/usr"
   if has('mac')
-    if filereadable($HOME."/opt/pkg/lib/libpython3.9.dylib")
-      let s:libpython3=$HOME."/opt/pkg/lib/libpython3.9.dylib"
-    elseif filereadable($HOME."/opt/pkg/lib/libpython3.8.dylib")
-      let s:libpython3=$HOME."/opt/pkg/lib/libpython3.8.dylib"
-    endif
-    let s:homepython3=$HOME."/opt/pkg"
+    let s:py3ver = "3.8"
+    let s:homepython3 ="/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/".s:py3ver
+    let s:libpython3 = s:homepython3."/lib/python".s:py3ver."/config-".s:py3ver."-darwin/libpython".s:py3ver.".dylib"
+  else
+    let s:py3ver = "3.9"
+    let s:homepython3 ="/usr"
+    let s:libpython3 ="/usr/lib/x86_64-linux-gnu/libpython".s:py3ver.".so.1"
   endif
-  if filereadable(s:libpython3)
+  if isdirectory(s:homepython3) && filereadable(s:libpython3)
     execute "set pythonthreehome=".s:homepython3
     execute "set pythonthreedll=".s:libpython3
   endif
@@ -75,6 +73,11 @@ set linespace=0     " number of pixel lines inserted between characters (default
 " vim
 if !has("gui_running")
   set ttyfast  " :help ttyfast, fast terminal connection
+endif
+
+" separate viminfo file for MacVim
+if has("gui_macvim")
+  set viminfofile=$HOME/.viminfo_macvim
 endif
 
 " gVim
@@ -160,7 +163,7 @@ endif
 
 " statusline
 let g:statusline_base = &statusline
-" set showtabline=2          " to show tab always
+" set showtabline=2        " to show tab always
 set showtabline=1          " to show tab only if there are at least two tabs (default 1)
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
@@ -219,7 +222,7 @@ set viewoptions-=folds
 
 " buffers
 set hidden    " buffer becomes hidden when it is abandoned
-set report=0  " show alway the number of lines changed (default 2)
+set report=0  " show always the number of lines changed (default 2)
 set confirm   " use dialog confirmation before exiting if files have not been saved
 set more      " when on, listings pause when the whole screen is filled (default on)
 
@@ -236,7 +239,7 @@ set omnifunc=syntaxcomplete#Complete
 set completefunc=syntaxcomplete#Complete
 
 " completion
-if v:version >= 802
+if has('popupwin')
   set completeopt=menuone,noinsert,popup  " popup extra info, like using omnicompletion
 else
   set completeopt=menuone,noinsert
@@ -301,7 +304,6 @@ sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
 "---------------------------------------------------------------------------"
 
 " mapleader
-" let mapleader = "\\"
 let mapleader = "\<C-\>"
 
 " alternative second leader
@@ -323,6 +325,7 @@ nnoremap <leader>eb :browse oldfiles<CR>
 
 " source
 nnoremap <leader>sv :source $HOME/.vimrc<CR>
+nnoremap <leader>sV :let g:loaded_vimrc=0<CR>:source $HOME/.vimrc<CR>
 nnoremap <leader>st :let g:loaded_plan9=0<CR>:execute ":colorscheme " . g:mytheme<CR>
 nnoremap <leader>sf :let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
 nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
@@ -348,6 +351,11 @@ nnoremap <leader>tgd :call DiffToggle()<CR>
 nnoremap <leader>* :nohlsearch<CR>
 nnoremap <silent><leader>tgs :call SyntaxToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
 nnoremap <leader>tgb :call BackgroundToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
+
+" sign, fold
+nnoremap <leader>tgc :call SignColumnToggle()<CR>
+nnoremap <leader>tgf :call FoldColumnToggle()<CR>
+nnoremap <leader>tgz :call FoldToggle()<CR>
 
 " :sh
 if has('gui_running')
@@ -492,11 +500,6 @@ command! ScratchBuffer :call ScratchBuffer()
 nnoremap <silent><leader><F10> :call MenuMisc()<CR>
 command! MenuMisc :call MenuMisc()
 
-" sign, fold
-nnoremap <leader>tgc :call SignColumnToggle()<CR>
-nnoremap <leader>tgf :call FoldColumnToggle()<CR>
-nnoremap <leader>tgz :call FoldToggle()<CR>
-
 " edit using a top window
 command! -nargs=1 Et call EditTop(<f-args>)
 
@@ -509,11 +512,12 @@ autocmd!
 autocmd BufReadPost * call GoLastEditCursorPos()
 augroup END
 
-" set custom theme
+" disable background color erase (BCE) so schemes can work properly inside tmux
 if &term =~ "-256color" && !empty($TMUX)
-  " disable background color erase (BCE) so schemes can work properly inside tmux
   set t_ut=
 endif
+
+" set custom theme
 if (&term =~ "-256color" || has('gui_running'))
 \ && exists("g:mytheme") && g:mytheme ==# "plan9" && !exists("g:loaded_plan9")
   set background=light
