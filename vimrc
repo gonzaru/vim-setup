@@ -107,13 +107,6 @@ set ruler                    " show line & column number
 set magic                    " use extended regexp in search patterns
 set modelines=0              " do not use modelines
 set nomodeline               " avoid modeline vulnerability
-if !empty($SHELL) && executable($SHELL)
-  set shell=$SHELL           " set the current $SHELL as default shell
-elseif executable("/bin/bash")
-  set shell=/bin/bash        " set /bin/bash as default shell
-else
-  set shell=/bin/sh          " set /bin/sh as default shell
-endif
 set equalalways              " windows are automatically made the same size after splitting or closing a window
 set helpheight=0             " zero disables this (default 20)
 set formatoptions-=cro       " remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
@@ -146,6 +139,15 @@ set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
 set t_ti= t_te=              " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
+" default shell
+if !empty($SHELL)&& executable($SHELL)
+  set shell=$SHELL
+elseif executable("/bin/bash")
+  set shell=/bin/bash
+else
+  set shell=/bin/sh
+endif
+
 " behavior of cursorline {line, number} (default both)
 if exists('+cursorlineopt')
   set cursorlineopt=both
@@ -163,8 +165,7 @@ endif
 
 " statusline
 let g:statusline_base = &statusline
-" set showtabline=2        " to show tab always
-set showtabline=1          " to show tab only if there are at least two tabs (default 1)
+set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
 
@@ -473,8 +474,8 @@ command! DiffGetAll :1,$+1diffget
 command! DiffPutAll :1,$+1diffput
 command! DiffGetLine :.,.diffget
 command! DiffPutLine :.,.diffput
-" from defaults.vim
 if !exists(":DiffOrig")
+  " from defaults.vim
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 endif
 
