@@ -27,7 +27,7 @@ endfunction
 
 " tells if buffer is empty
 function! BufferIsEmpty()
-  return (line('$') == 1 && empty(getline(1))) ? 1 : 0
+  return line('$') == 1 && empty(getline(1))
 endfunction
 
 " remove all buffers except the current one
@@ -116,7 +116,7 @@ function! CycleSignsShowDebugInfo(type, mode)
   let l:nextcycleline = 0
   let l:prevcycleline = 0
   let l:signameline = ""
-  if a:type != "sh" && a:type != "py" && a:type != "go"
+  if index(["sh", "py", "go"], a:type) == -1
     call EchoErrorMsg("Error: debug information for filetype '" . &filetype . "' is not supported")
     return
   endif
@@ -182,7 +182,7 @@ endfunction
 
 " toggle diff
 function! DiffToggle()
-  if &diff == 1
+  if &diff
     diffoff
   else
     diffthis
@@ -249,8 +249,7 @@ endfunction
 
 " checks if file is empty
 function! FileIsEmpty(file)
-  let l:rc = trim(system("test -s " . a:file . "  && echo 1 || echo 0"))
-  return (l:rc == 0) ? 1 : 0
+  return filereadable(a:file) && !getfsize(a:file)
 endfunction
 
 " toggle fold column
@@ -321,7 +320,7 @@ endfunction
 " toggle gui menu bar
 function! GuiMenuBarToggle()
   if !has('gui_running')
-    call EchoWarningMsg("Warning: only use this function with gvim")
+    call EchoWarningMsg("Warning: only use this function with gui")
     return
   endif
   if &guioptions =~# "m"
@@ -598,7 +597,7 @@ endfunction
 " sh
 function! SH()
   if !has('gui_running')
-    call EchoWarningMsg("Warning: only use this function with gvim")
+    call EchoWarningMsg("Warning: only use this function with gui")
     return
   endif
   let l:guioptions_orig=&guioptions

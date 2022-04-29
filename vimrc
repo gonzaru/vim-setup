@@ -80,9 +80,9 @@ if has("gui_macvim")
   set viminfofile=$HOME/.viminfo_macvim
 endif
 
-" gVim
+" gui
 if has("gui_running")
-  set guioptions=acM                    " do not load menus for gvim (default aegimrLtT)
+  set guioptions=acM                    " do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                     " when zero, the whole screen height will be used by the window
   if has("gui_macvim")
     set antialias                       " smooth fonts
@@ -374,8 +374,12 @@ command! RunWindow :call RunInWindow()
 nnoremap <leader>fm :call FormatLanguage()<CR>
 command! FormatLanguage :call FormatLanguage()
 nnoremap <leader>; mt<ESC>$a;<ESC>`t
-nnoremap <silent><leader>z :below terminal<CR>
-nnoremap <silent><leader><C-z> :below terminal<CR>
+nnoremap <silent><leader><CR> :below terminal<CR>
+if has("gui_running")
+  nnoremap <silent><leader><C-CR> :below terminal<CR>
+endif
+nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
+nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
 
 " move
 nnoremap <leader><C-j> :move .+1<CR>==
@@ -385,7 +389,7 @@ inoremap <leader><C-k> <Esc>:move .-2<CR>==gi
 vnoremap <leader><C-j> :move '>+1<CR>gv=gv
 vnoremap <leader><C-k> :move '<-2<CR>gv=gv
 
-" gVim
+" gui
 if has("gui_running")
   map <S-Insert> <Nop>
   map! <S-Insert> <MiddleMouse>
@@ -483,7 +487,6 @@ endif
 nnoremap <leader>cw :close<CR>
 nnoremap <leader>ch :helpclose<CR>
 nnoremap <leader>ct :tabclose<CR>
-nnoremap <silent><leader><CR> <C-w>x
 command! SwapWindow :execute "normal! \<C-w>x"
 " resize horizontal windows
 nnoremap <leader><C-i> :resize +5<CR>
