@@ -189,6 +189,12 @@ function! DiffToggle()
   endif
 endfunction
 
+" checks if directory is empty
+function! DirIsEmpty(file)
+    let l:dirHasFiles = systemlist("[ \"$(ls -A ".fnameescape(a:file).")\" ] && echo 1 || echo 0")
+    return !l:dirHasFiles[0]
+endfunction
+
 " disable arrow keys
 function! DisableArrowKeys()
   silent execute "nnoremap <up> <nop>"
@@ -206,7 +212,7 @@ function! DisableArrowKeys()
 endfunction
 
 " prints error message and saves the message in the message-history
-function EchoErrorMsg(msg)
+function! EchoErrorMsg(msg)
   if !empty(a:msg)
     echohl ErrorMsg
     echom  a:msg
@@ -215,7 +221,7 @@ function EchoErrorMsg(msg)
 endfunction
 
 " prints warning message and saves the message in the message-history
-function EchoWarningMsg(msg)
+function! EchoWarningMsg(msg)
   if !empty(a:msg)
     echohl WarningMsg
     echom  a:msg
@@ -462,7 +468,7 @@ function! MyTabLabel(arg)
 endfunction
 
 " my tabline
-function MyTabLine()
+function! MyTabLine()
   let l:s = ''
   for l:i in range(tabpagenr('$'))
     if l:i + 1 == tabpagenr()

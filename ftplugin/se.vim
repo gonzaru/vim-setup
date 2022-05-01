@@ -30,7 +30,7 @@ nnoremap <buffer>v :call SeGofile('vsplit')<CR>
 nnoremap <buffer>V :call SeGofile('vsplit')<CR>:call SeToggle()<CR>
 nnoremap <buffer>t :call SeGofile('tabedit')<CR>
 nnoremap <buffer>- :call cursor(1, 1)<CR>:call SeGofile('edit')<CR>
-nnoremap <buffer>r :call cursor(2, 1)<CR>:call SeList()<CR>
+nnoremap <buffer>r :call SeRefreshList()<CR>
 nnoremap <buffer>f :call SeFollowFile()<CR>
 nnoremap <buffer><BS> :execute ":vertical resize " . g:se_winsize<CR>
 nnoremap <buffer><C-h> :execute ":vertical resize " . g:se_winsize<CR>

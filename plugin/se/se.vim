@@ -31,7 +31,7 @@ function! SeToggle() abort
     setlocal nosplitright
     execute "vertical sbuffer " . l:sb
     setlocal splitright
-    execute "lcd " . s:se_oldcwd
+    execute "lcd " . fnameescape(s:se_oldcwd)
     execute "vertical resize " . g:se_winsize
   elseif l:sb && !l:bufinfo[0].hidden
     if win_getid() != bufwinid(l:sb)
@@ -47,11 +47,14 @@ endfunction
 
 " populates Se
 function! s:SeListPopulate() abort
-  let l:lsf = systemlist("cd " . getcwd() . "
+  let l:lsf = systemlist("cd " . fnameescape(getcwd()) . "
   \ && nohidden=$(ls -1 -F) && hidden=$(ls -1 -dF \.?*)
   \ && printf \"${nohidden}\\n${hidden}\" | grep -vE '^(\\.|\\.\\.)/$'")
-  call appendbufline('%', 0, l:lsf)
-  call deletebufline('%', '$')
+  let l:dirIsEmpty = (empty(trim(join(l:lsf)))) ? 1 : 0
+  if !l:dirIsEmpty
+    call appendbufline('%', 0, l:lsf)
+    call deletebufline('%', '$')
+  endif
   call cursor(1, 1)
   try
     let l:parent2cwd = split(getcwd(), "/")[-2]
@@ -65,6 +68,11 @@ function! s:SeListPopulate() abort
     let l:parentcwd = '/'
   endtry
   call appendbufline('%', 1, ['./ [' . l:parentcwd . ']'])
+  if l:dirIsEmpty
+    call deletebufline('%', '$')
+    call cursor(1, 1)
+    call EchoWarningMsg("Warning: directory is empty")
+  endif
 endfunction
 
 " lists Se
@@ -78,7 +86,7 @@ function! SeList() abort
     setlocal splitright
     setfiletype se
     if s:se_oldcwd && s:se_oldcwd != '.'
-      execute "lcd " . s:se_oldcwd
+      execute "lcd " . fnameescape(s:se_oldcwd)
     endif
     call s:SeListPopulate()
     execute ":vertical resize " . g:se_winsize
@@ -104,31 +112,66 @@ function! SeFollowFile() abort
   let l:prevcwd = fnamemodify(prevfile, ":~:h")
   let l:prevtailfile = fnamemodify(prevfile, ":t")
   call win_gotoid(l:sewinid)
-  execute ":lcd " . l:prevcwd
+  execute ":lcd " . fnameescape(l:prevcwd)
   call SeList()
-  if l:prevtailfile != ''
-    call search('^' . l:prevtailfile . '.\?$')
+  call s:SeSearchFile(l:prevtailfile)
+endfunction
+
+" search Se file
+function! s:SeSearchFile(file) abort
+  if !empty(a:file)
+    call search('^' . a:file . '.\?$')
   endif
+endfunction
+
+" refresh Se list
+function! SeRefreshList()
+  let l:se_prevline = substitute(fnameescape(getline('.')), '\\\*$', "", "")
+  call cursor(2, 1)
+  call SeList()
+  call s:SeSearchFile(l:se_prevline)
 endfunction
 
 " goes to file
 function! SeGofile(mode) abort
-  let l:curline = substitute(fnameescape(getline('.')), '\\\*$', "", "")
+  let l:curline = substitute(getline('.'), '\\\*$', "", "")
   let l:firstchar = matchstr(l:curline, "^.")
   let l:lastchar = matchstr(l:curline, ".$")
   let l:sb = s:SeGetBufId()
-  if a:mode ==# "edit" && l:firstchar == "." && l:lastchar == ']' && isdirectory(split(l:curline, "\\")[0])
-    execute "lcd " . getcwd(winnr()) . "/" . split(l:curline, "\\")[0]
+  if a:mode ==# "edit" && l:firstchar == "." && l:lastchar == ']' && isdirectory(split(l:curline, " ")[0])
+    try
+      let l:oldcwd = split(getcwd(), "/")[-1] . "/"
+    catch
+      let l:oldcwd = "/"
+    endtry
+    execute "lcd " . getcwd(winnr()) . "/" . fnameescape(split(l:curline, " ")[0])
     call SeList()
+    call s:SeSearchFile(l:oldcwd)
   elseif a:mode ==# "edit" && l:lastchar == '/' && isdirectory(l:curline)
-    execute "lcd " . getcwd(winnr()) . "/" . l:curline
+    if DirIsEmpty(l:curline)
+      call EchoWarningMsg("Warning: directory is empty")
+      return
+    endif
+    execute "lcd " . getcwd(winnr()) . "/" . fnameescape(l:curline)
     call SeList()
   elseif a:mode ==# "edit" && l:lastchar == '@' && isdirectory(resolve(substitute(l:curline, '@$', "", "")))
-    execute "lcd " . resolve(substitute(l:curline, '@$', "", ""))
+    if DirIsEmpty(resolve(substitute(l:curline, '@$', "", "")))
+      call EchoWarningMsg("Warning: directory is empty")
+      return
+    endif
+    execute "lcd " . fnameescape(resolve(substitute(l:curline, '@$', "", "")))
     call SeList()
   else
     if l:lastchar == '@'
       let l:curline = resolve(substitute(l:curline, '@$', "", ""))
+      if !filereadable(l:curline)
+        call EchoErrorMsg("Error: symlink is broken")
+        return
+      endif
+    endif
+    if !filereadable(l:curline)
+      call EchoErrorMsg("Error: file is no longer available")
+      return
     endif
     let l:mode_list = ["edit", "editk", "pedit", "split"]
     if index(l:mode_list, a:mode) >= 0
@@ -136,11 +179,11 @@ function! SeGofile(mode) abort
       let l:oldwindid = win_getid()
       call win_gotoid(win_getid(winnr('#')))
       if win_getid() != l:oldwindid
-        if a:mode ==# "edit"
+        if a:mode ==# "edit" || a:mode ==# "editk"
           execute "edit " . l:oldcwd . "/" . l:curline
-        elseif a:mode ==# "editk"
-          execute "edit " . l:oldcwd . "/" . l:curline
-          call win_gotoid(bufwinid(l:sb))
+          if a:mode ==# "editk"
+            call win_gotoid(bufwinid(l:sb))
+          endif
         elseif a:mode ==# "pedit"
           execute "pedit " . l:oldcwd . "/" . l:curline
           call win_gotoid(bufwinid(l:sb))
