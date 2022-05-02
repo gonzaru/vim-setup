@@ -47,11 +47,10 @@ endfunction
 
 " populates Se
 function! s:SeListPopulate() abort
-  let l:lsf = systemlist("cd " . fnameescape(getcwd()) . "
-  \ && nohidden=$(ls -1 -F) && hidden=$(ls -1 -dF \.?*)
-  \ && printf \"${nohidden}\\n${hidden}\" | grep -vE '^(\\.|\\.\\.)/$'")
-  let l:dirIsEmpty = (empty(trim(join(l:lsf)))) ? 1 : 0
-  if !l:dirIsEmpty
+  let l:nohidden = map(sort(globpath(getcwd(), "*", 0, 1)), 'split(v:val, "/")[-1] . FileIndicator(v:val)')
+  let l:hidden = map(sort(globpath(getcwd(), ".*", 0, 1)), 'split(v:val, "/")[-1] . FileIndicator(v:val)')[2:]
+  let l:lsf = extend(l:nohidden, l:hidden)
+  if len(l:lsf)
     call appendbufline('%', 0, l:lsf)
     call deletebufline('%', '$')
   endif
@@ -68,7 +67,7 @@ function! s:SeListPopulate() abort
     let l:parentcwd = '/'
   endtry
   call appendbufline('%', 1, ['./ [' . l:parentcwd . ']'])
-  if l:dirIsEmpty
+  if !len(l:lsf)
     call deletebufline('%', '$')
     call cursor(1, 1)
     call EchoWarningMsg("Warning: directory is empty")
@@ -125,8 +124,8 @@ function! s:SeSearchFile(file) abort
 endfunction
 
 " refresh Se list
-function! SeRefreshList()
-  let l:se_prevline = substitute(fnameescape(getline('.')), '\\\*$', "", "")
+function! SeRefreshList() abort
+  let l:se_prevline = substitute(fnameescape(getline('.')), '*$', "", "")
   call cursor(2, 1)
   call SeList()
   call s:SeSearchFile(l:se_prevline)
@@ -134,7 +133,7 @@ endfunction
 
 " goes to file
 function! SeGofile(mode) abort
-  let l:curline = substitute(getline('.'), '\\\*$', "", "")
+  let l:curline = substitute(getline('.'), '*$', "", "")
   let l:firstchar = matchstr(l:curline, "^.")
   let l:lastchar = matchstr(l:curline, ".$")
   let l:sb = s:SeGetBufId()
@@ -148,17 +147,9 @@ function! SeGofile(mode) abort
     call SeList()
     call s:SeSearchFile(l:oldcwd)
   elseif a:mode ==# "edit" && l:lastchar == '/' && isdirectory(l:curline)
-    if DirIsEmpty(l:curline)
-      call EchoWarningMsg("Warning: directory is empty")
-      return
-    endif
     execute "lcd " . getcwd(winnr()) . "/" . fnameescape(l:curline)
     call SeList()
   elseif a:mode ==# "edit" && l:lastchar == '@' && isdirectory(resolve(substitute(l:curline, '@$', "", "")))
-    if DirIsEmpty(resolve(substitute(l:curline, '@$', "", "")))
-      call EchoWarningMsg("Warning: directory is empty")
-      return
-    endif
     execute "lcd " . fnameescape(resolve(substitute(l:curline, '@$', "", "")))
     call SeList()
   else

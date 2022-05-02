@@ -190,9 +190,10 @@ function! DiffToggle()
 endfunction
 
 " checks if directory is empty
-function! DirIsEmpty(file)
-    let l:dirHasFiles = systemlist("[ \"$(ls -A ".fnameescape(a:file).")\" ] && echo 1 || echo 0")
-    return !l:dirHasFiles[0]
+function! DirIsEmpty(path)
+    let l:nohidden = globpath(a:path, "*", 0, 1)
+    let l:hidden = globpath(a:path, ".*", 0, 1)[2:]
+    return !len(extend(l:nohidden, l:hidden))
 endfunction
 
 " disable arrow keys
@@ -251,6 +252,25 @@ function! EnableArrowKeys()
   silent execute "vnoremap <down> <down>"
   silent execute "vnoremap <left> <left>"
   silent execute "vnoremap <right> <right>"
+endfunction
+
+" returns an indicator that identifies a file (*/=@|)
+function! FileIndicator(file)
+  let l:symbol = ""
+  if getftype(a:file) == "dir"
+    let l:symbol = "/"
+  elseif getftype(a:file) == "file" && executable(a:file)
+    let l:symbol = "*"
+  elseif getftype(a:file) == "link"
+    let l:symbol = "@"
+  elseif getftype(a:file) == "fifo"
+    let l:symbol = "|"
+  elseif getftype(a:file) == "socket"
+    let l:symbol = "="
+  elseif getftype(a:file) == "file"
+    let l:symbol = ""
+  endif
+  return l:symbol
 endfunction
 
 " checks if file is empty
