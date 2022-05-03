@@ -42,7 +42,7 @@ function! BufferRemoveAllExceptCurrent(mode)
     if l:b.bufnr == l:curbufid
       continue
     endif
-    if getbufvar(l:b.bufnr, '&buftype') ==# 'terminal' && term_getstatus(b.bufnr) ==# 'running,normal'
+    if getbufvar(l:b.bufnr, '&buftype') ==# 'terminal' && term_getstatus(l:b.bufnr) ==# 'running,normal'
       if a:mode ==# "delete"
         execute "bd! " . l:b.bufnr
       elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
@@ -191,6 +191,10 @@ endfunction
 
 " checks if directory is empty
 function! DirIsEmpty(path)
+    if getftype(a:path) != "dir")
+      call EchoErrorMsg("Error: " . a:path . " is not a directory")
+      return
+    endif
     let l:nohidden = globpath(a:path, "*", 0, 1)
     let l:hidden = globpath(a:path, ".*", 0, 1)[2:]
     return !len(extend(l:nohidden, l:hidden))
@@ -233,8 +237,8 @@ endfunction
 " edit using a top window
 function! EditTop(file)
   if filereadable(a:file)
-    execute "new " . a:file
-    execute "normal! \<C-W>_"
+    new a:file
+    wincmd _
   endif
 endfunction
 
@@ -256,18 +260,18 @@ endfunction
 
 " returns an indicator that identifies a file (*/=@|)
 function! FileIndicator(file)
-  let l:symbol = ""
-  if getftype(a:file) == "dir"
+  let l:ftype = getftype(a:file)
+  if l:ftype == "dir"
     let l:symbol = "/"
-  elseif getftype(a:file) == "file" && executable(a:file)
+  elseif l:ftype == "file" && executable(a:file)
     let l:symbol = "*"
-  elseif getftype(a:file) == "link"
+  elseif l:ftype == "link"
     let l:symbol = "@"
-  elseif getftype(a:file) == "fifo"
+  elseif l:ftype == "fifo"
     let l:symbol = "|"
-  elseif getftype(a:file) == "socket"
+  elseif l:ftype == "socket"
     let l:symbol = "="
-  elseif getftype(a:file) == "file"
+  else
     let l:symbol = ""
   endif
   return l:symbol
@@ -275,7 +279,15 @@ endfunction
 
 " checks if file is empty
 function! FileIsEmpty(file)
-  return filereadable(a:file) && !getfsize(a:file)
+  if getftype(a:file) != "file")
+    call EchoErrorMsg("Error: " . a:file . " is not a normal file")
+    return
+  endif
+  if !filereadable(a:file)
+    call EchoErrorMsg("Error: " . a:file . " is not readable")
+    return
+  endif
+  return !getfsize(a:file)
 endfunction
 
 " toggle fold column
@@ -381,7 +393,7 @@ function! MenuLanguageSpell()
       setlocal spell
       if l:langchoice == 1
         setlocal spelllang=en
-        " setlocal spellfile="$HOME/.vim/spell/language.utf-8.spl"
+        " setlocal spellfile="$HOME/.vim/spell/en.".&encoding.".spl"
       elseif l:langchoice == 2
         setlocal spelllang=es
         setlocal spellfile="$HOME/.vim/spell/es.".&encoding.".spl"
@@ -653,14 +665,15 @@ function! ScratchBuffer()
     \ && getbufvar(l:b.bufnr, '&buftype') ==# 'nofile'
     \ && getbufvar(l:b.bufnr, '&bufhidden') ==# 'hide'
     \ && getbufvar(l:b.bufnr, '&swapfile') == 0
+    \ && getbufvar(l:b.bufnr, '&buflisted') == 0
       let l:scnum = l:b.bufnr
       let l:match = 1
       break
     endif
   endfor
-  if l:match == 1
+  if l:match
     if l:curbufn == l:scnum
-      " return to previous buffer if whe are in the scratch
+      " return to previous buffer if we are in the scratch
       if !empty(getreg('#'))
         execute "b #"
       endif
@@ -670,6 +683,41 @@ function! ScratchBuffer()
   else
     enew
     setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal nobuflisted
+  endif
+endfunction
+
+" scratch terminal
+function! ScratchTerminal()
+  let l:curbufn = winbufnr(winnr())
+  let l:scnum = 0
+  let l:match = 0
+  for l:b in getbufinfo()
+    if l:b.name =~# "[ScratchTerminal]"
+    \ && getbufvar(l:b.bufnr, '&buftype') ==# 'terminal'
+    \ && term_getstatus(l:b.bufnr) ==# 'running,normal'
+    \ && getbufvar(l:b.bufnr, '&bufhidden') ==# 'hide'
+    \ && getbufvar(l:b.bufnr, '&swapfile') == 0
+    \ && getbufvar(l:b.bufnr, '&buflisted') == 0
+      let l:scnum = l:b.bufnr
+      let l:match = 1
+      break
+    endif
+  endfor
+  if l:match
+    if l:curbufn == l:scnum
+      " return to previous buffer if we are in the scratch
+      if !empty(getreg('#'))
+        execute "b #"
+      endif
+    else
+      execute "b " . l:scnum
+    endif
+  else
+    terminal ++curwin ++noclose ++norestore
+    keepalt file [ScratchTerminal]
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal nobuflisted

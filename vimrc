@@ -317,6 +317,10 @@ let maplocalleader = "\<C-q>"
 nnoremap <leader>ex :call SeToggle()<CR>
 command! SeToggle :call SeToggle()
 
+" save
+nnoremap <leader><C-w> :update<CR>
+inoremap <leader><C-w> <C-o>:update<CR>
+
 " edit
 nnoremap <leader>ev :e $HOME/.vimrc<CR>
 nnoremap <leader>ef :e $HOME/.vim/plugin/functions.vim<CR>
@@ -496,9 +500,10 @@ nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
 
 " scratch buffer
-nnoremap <silent><leader>sc :call ScratchBuffer()<CR>
-nnoremap <silent><leader><BS> :call ScratchBuffer()<CR>
+nnoremap <silent><leader>s<BS> :call ScratchBuffer()<CR>
+nnoremap <silent><leader>s<CR> :call ScratchTerminal()<CR>
 command! ScratchBuffer :call ScratchBuffer()
+command! ScratchTerminal :call ScratchTerminal()
 
 " menu misc
 nnoremap <silent><leader><F10> :call MenuMisc()<CR>
