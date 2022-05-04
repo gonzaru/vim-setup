@@ -661,7 +661,7 @@ function! ScratchBuffer()
   let l:match = 0
   for l:b in getbufinfo()
     " :help special-buffers
-    if empty(b.name)
+    if empty(l:b.name)
     \ && getbufvar(l:b.bufnr, '&buftype') ==# 'nofile'
     \ && getbufvar(l:b.bufnr, '&bufhidden') ==# 'hide'
     \ && getbufvar(l:b.bufnr, '&swapfile') == 0
