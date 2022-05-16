@@ -72,7 +72,10 @@ set linespace=0     " number of pixel lines inserted between characters (default
 
 " vim
 if !has("gui_running")
-  set ttyfast  " :help ttyfast, fast terminal connection
+  set ttyfast             " :help ttyfast, fast terminal connection
+  if has('termguicolors')
+    set notermguicolors   " do not use 24-bit terminal color
+  endif
 endif
 
 " separate viminfo file for MacVim
@@ -532,6 +535,8 @@ if (&term =~ "-256color" || has('gui_running'))
   set background=light
   execute "colorscheme " . g:mytheme
 elseif !exists("g:loaded_plan9")
+  execute "colorscheme " . g:mytheme
+else
   colorscheme default
 endif
 

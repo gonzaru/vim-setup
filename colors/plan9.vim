@@ -186,12 +186,12 @@ if !has("gui_running")
     let &t_EI.="\e[2 q" " NORMAL mode (ELSE)
   endif
   " reset cursor to underscore when vim exits
-  augroup event_vim_leave_from_theme
-  autocmd!
-  if has('mac') && empty($XTERM_VERSION) && !empty($TERM_PROGRAM) && $TERM_PROGRAM ==# "Apple_Terminal"
-    autocmd VimLeave * silent !echo -e -n "\x1b[\x33 q"
-  else
-    autocmd VimLeave * silent !echo -e -n "\x1b[\x34 q"
-  endif
-  augroup END
+  " augroup event_vim_leave_from_theme
+  " autocmd!
+  " if has('mac') && empty($XTERM_VERSION) && !empty($TERM_PROGRAM) && $TERM_PROGRAM ==# "Apple_Terminal"
+  "   autocmd VimLeave * silent !echo -e -n "\x1b[\x33 q"
+  " else
+  "   autocmd VimLeave * silent !echo -e -n "\x1b[\x34 q"
+  " endif
+  " augroup END
 endif
