@@ -11,6 +11,9 @@ if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
 endif
 let g:loaded_vimrc = 1
 
+" machine hostname
+let g:hostname = hostname()
+
 " default my plan9 theme
 let g:mytheme = "plan9"
 
@@ -89,7 +92,9 @@ if has("gui_running")
   set guiheadroom=0                     " when zero, the whole screen height will be used by the window
   if has("gui_macvim")
     set antialias                       " smooth fonts
-    set guifont=Menlo\ Regular:h16      " gui font
+    " gui font
+    let s:gui_fontsize = g:hostname ==# "aiur" ? 14 : 16
+    execute "set guifont=Menlo\\ Regular:h" . s:gui_fontsize
   else
     set guifont=DejaVu\ Sans\ Mono\ 12  " gui font
   endif
@@ -534,10 +539,8 @@ if (&term =~ "-256color" || has('gui_running'))
 \ && exists("g:mytheme") && g:mytheme ==# "plan9" && !exists("g:loaded_plan9")
   set background=light
   execute "colorscheme " . g:mytheme
-elseif !exists("g:loaded_plan9")
+elseif exists("g:mytheme") && g:mytheme !=# "plan9"
   execute "colorscheme " . g:mytheme
-else
-  colorscheme default
 endif
 
 " load local config

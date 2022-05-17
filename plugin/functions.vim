@@ -17,11 +17,8 @@ let g:loaded_functions = 1
 
 " toggle background
 function! BackgroundToggle()
-  if &background ==# "dark"
-    setlocal background=light
-  else
-    setlocal background=dark
-  endif
+  let l:new_background = &background ==# "dark" ? "light" : "dark"
+  execute "setlocal background=" . l:new_background
   let v:statusmsg = "background=" . &background
 endfunction
 
@@ -292,11 +289,8 @@ endfunction
 
 " toggle fold column
 function! FoldColumnToggle()
-  if &foldcolumn
-    setlocal foldcolumn=0
-  else
-    setlocal foldcolumn=1
-  endif
+  let l:new_foldcolumn = &foldcolumn ? 0 : 1
+  execute "setlocal foldcolumn=" . l:new_foldcolumn
   let v:statusmsg = "foldcolumn=" . &foldcolumn
 endfunction
 
@@ -646,11 +640,8 @@ endfunction
 
 " toggle sign column
 function! SignColumnToggle()
-  if &signcolumn ==# 'yes'
-    setlocal signcolumn=no
-  else
-    setlocal signcolumn=yes
-  endif
+  let l:new_signcolumn = &signcolumn ==# "yes" ? "no" : "yes"
+  execute "setlocal signcolumn=" . l:new_signcolumn
   let v:statusmsg = "signcolumn=" . &signcolumn
 endfunction
 
@@ -726,16 +717,9 @@ endfunction
 
 " toggle sytnax
 function! SyntaxToggle()
-  if exists("g:syntax_on")
-    syntax off
-    let v:statusmsg = "syntax off, background=" . &background
-  else
-    syntax on
-    if exists("g:mytheme") && g:mytheme ==# "plan9" && &background != "light"
-      setlocal background=light
-    endif
-    let v:statusmsg = "syntax on, background=" . &background
-  endif
+  let l:new_syntax = exists("g:syntax_on") ? "off" : "on"
+  execute "syntax " . l:new_syntax
+  let v:statusmsg = "syntax " . l:new_syntax . ", background=" . &background
 endfunction
 
 " uncomment by language
