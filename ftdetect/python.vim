@@ -3,8 +3,8 @@
 
 " Python
 if executable("python3") && executable("pep8")
-  autocmd BufWinEnter,FileType python call PY3Check("read")|
-    \:call PY3Pep8Async()
-  autocmd FileType python autocmd BufWritePre <buffer> call PY3Check("write")
-  autocmd FileType python autocmd BufWritePost <buffer> call PY3Pep8Async()
+  autocmd BufWinEnter,FileType python call PYCheck("read")|
+    \:call PYPep8Async()
+  autocmd FileType python autocmd BufWritePre <buffer> call PYCheck("write")
+  autocmd FileType python autocmd BufWritePost <buffer> call PYPep8Async()
 endif

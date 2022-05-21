@@ -40,17 +40,17 @@ endif
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
   if has('mac')
-    let s:py3ver = "3.8"
-    let s:homepython3 ="/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/".s:py3ver
-    let s:libpython3 = s:homepython3."/lib/python".s:py3ver."/config-".s:py3ver."-darwin/libpython".s:py3ver.".dylib"
+    let s:pyver = "3.8"
+    let s:homepython ="/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/".s:pyver
+    let s:libpython = s:homepython."/lib/python".s:pyver."/config-".s:pyver."-darwin/libpython".s:pyver.".dylib"
   else
-    let s:py3ver = "3.9"
-    let s:homepython3 ="/usr"
-    let s:libpython3 ="/usr/lib/x86_64-linux-gnu/libpython".s:py3ver.".so.1"
+    let s:pyver = "3.9"
+    let s:homepython ="/usr"
+    let s:libpython ="/usr/lib/x86_64-linux-gnu/libpython".s:pyver.".so.1"
   endif
-  if isdirectory(s:homepython3) && filereadable(s:libpython3)
-    execute "set pythonthreehome=".s:homepython3
-    execute "set pythonthreedll=".s:libpython3
+  if isdirectory(s:homepython) && filereadable(s:libpython)
+    execute "set pythonthreehome=".s:homepython
+    execute "set pythonthreedll=".s:libpython
   endif
 endif
 
@@ -343,11 +343,7 @@ nnoremap <leader>st :let g:loaded_plan9=0<CR>:execute ":colorscheme " . g:mythem
 nnoremap <leader>sf :let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
 nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
                    \:let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
-                   \:let g:loaded_sh=0<CR>:source $HOME/.vim/plugin/sh/sh.vim<CR>
-                   \:let g:loaded_py3=0<CR>:source $HOME/.vim/plugin/python/python.vim<CR>
-                   \:let g:loaded_py3_functions=0<CR>:source $HOME/.vim/plugin/python/functions.vim<CR>
-                   \:let g:loaded_go=0<CR>:source $HOME/.vim/plugin/go/go.vim<CR>
-                   \:let g:loaded_go_functions=0<CR>:source $HOME/.vim/plugin/go/functions.vim<CR>
+                   \:let g:loaded_checker=0<CR>:source $HOME/.vim/plugin/checker/checker.vim<CR>
                    \:let g:loaded_se=0<CR>:source $HOME/.vim/plugin/se/se.vim<CR>
 
 " toggle

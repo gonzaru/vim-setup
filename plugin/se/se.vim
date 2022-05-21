@@ -13,6 +13,25 @@ let g:loaded_se = 1
 let g:se_winsize = 20
 let s:se_oldcwd = ""
 
+" returns an indicator that identifies a file (*/=@|)
+function! s:FileIndicator(file)
+  let l:ftype = getftype(a:file)
+  if l:ftype == "dir"
+    let l:symbol = "/"
+  elseif l:ftype == "file" && executable(a:file)
+    let l:symbol = "*"
+  elseif l:ftype == "link"
+    let l:symbol = "@"
+  elseif l:ftype == "fifo"
+    let l:symbol = "|"
+  elseif l:ftype == "socket"
+    let l:symbol = "="
+  else
+    let l:symbol = ""
+  endif
+  return l:symbol
+endfunction
+
 " gets Se buffer id
 function! s:SeGetBufId() abort
   for l:b in getbufinfo()
@@ -47,8 +66,8 @@ endfunction
 
 " populates Se
 function! s:SeListPopulate() abort
-  let l:nohidden = map(sort(globpath(getcwd(), "*", 0, 1)), 'split(v:val, "/")[-1] . FileIndicator(v:val)')
-  let l:hidden = map(sort(globpath(getcwd(), ".*", 0, 1)), 'split(v:val, "/")[-1] . FileIndicator(v:val)')[2:]
+  let l:nohidden = map(sort(globpath(getcwd(), "*", 0, 1)), 'split(v:val, "/")[-1] . s:FileIndicator(v:val)')
+  let l:hidden = map(sort(globpath(getcwd(), ".*", 0, 1)), 'split(v:val, "/")[-1] . s:FileIndicator(v:val)')[2:]
   let l:lsf = extend(l:nohidden, l:hidden)
   if len(l:lsf)
     call appendbufline('%', 0, l:lsf)

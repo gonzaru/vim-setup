@@ -105,78 +105,6 @@ function! CycleBuffers()
   endfor
 endfunction
 
-" shows debug information
-function! CycleSignsShowDebugInfo(type, mode)
-  let l:curbuf = winbufnr(winnr())
-  let l:curline = line('.')
-  let l:curcycleline = 0
-  let l:nextcycleline = 0
-  let l:prevcycleline = 0
-  let l:signameline = ""
-  if index(["sh", "py", "go"], a:type) == -1
-    call EchoErrorMsg("Error: debug information for filetype '" . &filetype . "' is not supported")
-    return
-  endif
-  let l:signs = sign_getplaced(l:curbuf)[0].signs
-  if empty(l:signs)
-    call EchoWarningMsg("Warning: signs not found in the current buffer")
-    return
-  endif
-  for l:sign in l:signs
-    let l:cycleline = l:sign.lnum
-    if a:mode ==# 'cur'
-      let l:curcycleline = l:curline
-      let l:signameline = l:sign.name
-      break
-    elseif a:mode ==# 'next'
-      if l:curline < l:cycleline
-        let l:nextcycleline = l:cycleline
-        let l:signameline = l:sign.name
-        break
-      endif
-    elseif a:mode ==# 'prev'
-      if l:curline > l:cycleline
-        let l:prevcycleline = l:cycleline
-        let l:signameline = l:sign.name
-      endif
-    endif
-  endfor
-  if l:curcycleline || l:nextcycleline || l:prevcycleline
-    if l:curcycleline
-      try
-        call sign_jump(l:curcycleline, '', l:curbuf)
-      catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
-        return
-      endtry
-    elseif l:nextcycleline
-      try
-        call sign_jump(l:nextcycleline, '', l:curbuf)
-      catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:nextcycleline)
-        return
-      endtry
-    elseif l:prevcycleline
-      try
-        call sign_jump(l:prevcycleline, '', l:curbuf)
-      catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:prevcycleline)
-        return
-      endtry
-    else
-      call EchoErrorMsg("Error: sign jump line not found")
-      return
-    endif
-    if a:type ==# "sh"
-      call ShowSHDebugInfo(l:signameline)
-    elseif a:type ==# "py"
-      call ShowPY3DebugInfo(l:signameline)
-    elseif a:type ==# "go"
-      call ShowGODebugInfo(l:signameline)
-    endif
-  endif
-endfunction
-
 " toggle diff
 function! DiffToggle()
   if &diff
@@ -255,25 +183,6 @@ function! EnableArrowKeys()
   silent execute "vnoremap <right> <right>"
 endfunction
 
-" returns an indicator that identifies a file (*/=@|)
-function! FileIndicator(file)
-  let l:ftype = getftype(a:file)
-  if l:ftype == "dir"
-    let l:symbol = "/"
-  elseif l:ftype == "file" && executable(a:file)
-    let l:symbol = "*"
-  elseif l:ftype == "link"
-    let l:symbol = "@"
-  elseif l:ftype == "fifo"
-    let l:symbol = "|"
-  elseif l:ftype == "socket"
-    let l:symbol = "="
-  else
-    let l:symbol = ""
-  endif
-  return l:symbol
-endfunction
-
 " checks if file is empty
 function! FileIsEmpty(file)
   if getftype(a:file) != "file")
@@ -338,6 +247,40 @@ function! GoBufferPos(bnum)
   endfor
   if !l:match
     call EchoErrorMsg("Error: buffer in position " . a:bnum . " does not exist")
+  endif
+endfunction
+
+" go documentation
+function! GODoc()
+  let l:cword = expand("<cWORD>")
+  let l:word = split(l:cword, "(")[0]
+  let l:pfile = "(godoc)". l:word
+  if empty(l:word)
+    echohl ErrorMsg
+    echom "Error: word is empty"
+    echohl None
+    return 0
+  endif
+  if bufexists(l:pfile)
+    silent execute ":bw! " . l:pfile
+  endif
+  new
+  silent execute ":file " . l:pfile
+  setlocal buftype=nowrite
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal nobuflisted
+  silent execute ":0read !go doc " . l:word
+  execute ":1"
+  let l:curline = getline(".")
+  if l:curline =~# "no buildable Go source files"
+    bw
+    let v:errmsg = "Warning: no buildable Go source files for " . l:word
+    echohl WarningMsg
+    echom v:errmsg
+    echohl None
+  else
+    let v:errmsg = ""
   endif
 endfunction
 
@@ -533,16 +476,50 @@ function! MyStatusLine()
     let l:sname = l:cchars . l:tname
   endif
   if &filetype ==# "sh" && (executable("sh") || executable("bash")) && executable("shellcheck")
-    let l:output = SHStatusLine()
+    let l:output = CheckerStatusLine("sh")
   elseif &filetype ==# "python" && executable("python3") && executable("pep8")
-    let l:output = PY3StatusLine()
+    let l:output = CheckerStatusLine("python")
   elseif &filetype ==# "go" && executable("go") && executable("gofmt")
-    let l:output = GOStatusLine()
+    let l:output = CheckerStatusLine("go")
   endif
   if !empty(l:output)
     let l:output = " " . l:output
   endif
   return l:sname . '$' . l:output
+endfunction
+
+" python documentation
+function! PYDoc()
+  let l:cword = expand("<cWORD>")
+  let l:word = split(l:cword, "(")[0]
+  let l:pfile = "(pydoc)". l:word
+  if empty(l:word)
+    echohl ErrorMsg
+    echom "Error: word is empty"
+    echohl None
+    return 0
+  endif
+  if bufexists(l:pfile)
+    silent execute ":bw! " . l:pfile
+  endif
+  new
+  silent execute ":file " . l:pfile
+  setlocal buftype=nowrite
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal nobuflisted
+  silent execute ":0read !python3 -m pydoc " . l:word
+  execute ":1"
+  let l:curline = getline(".")
+  if l:curline =~# "No Python documentation found for"
+    bw
+    let v:errmsg = "Warning: no Python documentation found for " . l:word
+    echohl WarningMsg
+    echom v:errmsg
+    echohl None
+  else
+    let v:errmsg = ''
+ endif
 endfunction
 
 " remove signs
@@ -791,17 +768,4 @@ function! UncommentByLanguage()
   else
     call EchoErrorMsg("Error: uncommenting filetype '" . &filetype . "' is not supported")
   endif
-endfunction
-
-" user tmp
-function! UserTempDir()
-  let l:tmp = "/tmp"
-  if !empty($TMPDIR)
-    if $TMPDIR == "/"
-      let l:tmp = $TMPDIR
-    else
-      let l:tmp = substitute($TMPDIR, "/$", "", "")
-    endif
-  endif
-  return l:tmp
 endfunction
