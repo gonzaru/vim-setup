@@ -141,6 +141,54 @@ function! DisableArrowKeys()
   silent execute "vnoremap <right> <nop>"
 endfunction
 
+" generates documentation
+function! Doc(type)
+  if index(["python", "go"], &filetype) == -1
+    call EchoErrorMsg("Error: running filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  if &filetype !=# a:type
+    call EchoErrorMsg("Error: running type '" . a:type . "' on filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  let l:cword = expand("<cWORD>")
+  if empty(l:cword) || index(["(", ")", "()"], l:cword) >= 0
+    call EchoErrorMsg("Error: word is empty or invalid")
+    return
+  endif
+  let l:word = shellescape(trim(split(l:cword, "(")[0], '"'))
+  if empty(l:word)
+    call EchoErrorMsg("Error: word is empty")
+    return
+  endif
+  let l:pfile = "(".a:type."doc)". l:word
+  if bufexists(l:pfile)
+    silent execute "bw! " . l:pfile
+  endif
+  new
+  silent execute "file " . l:pfile
+  setlocal buftype=nowrite
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal nobuflisted
+  if a:type ==# "python"
+    call appendbufline('%', 0, systemlist("python3 -m pydoc " . l:word))
+  elseif a:type ==# "go"
+    call appendbufline('%', 0, systemlist("go doc " . l:word))
+  endif
+  call deletebufline('%', '$')
+  call cursor(1, 1)
+  let l:curline = getline(".")
+  if (a:type ==# "python" && l:curline =~# "No Python documentation found for ")
+  \|| (a:type ==# "go" && (l:curline =~# "doc: no symbol ") || l:curline =~# "doc: no buildable Go source files in ")
+    bw
+    let v:errmsg = "Warning: no " . a:type . " documentation found for " . l:word
+    call EchoWarningMsg("Warning: " . v:errmsg)
+  else
+    let v:errmsg = ""
+  endif
+endfunction
+
 " prints error message and saves the message in the message-history
 function! EchoErrorMsg(msg)
   if !empty(a:msg)
@@ -247,40 +295,6 @@ function! GoBufferPos(bnum)
   endfor
   if !l:match
     call EchoErrorMsg("Error: buffer in position " . a:bnum . " does not exist")
-  endif
-endfunction
-
-" go documentation
-function! GODoc()
-  let l:cword = expand("<cWORD>")
-  let l:word = split(l:cword, "(")[0]
-  let l:pfile = "(godoc)". l:word
-  if empty(l:word)
-    echohl ErrorMsg
-    echom "Error: word is empty"
-    echohl None
-    return 0
-  endif
-  if bufexists(l:pfile)
-    silent execute ":bw! " . l:pfile
-  endif
-  new
-  silent execute ":file " . l:pfile
-  setlocal buftype=nowrite
-  setlocal bufhidden=hide
-  setlocal noswapfile
-  setlocal nobuflisted
-  silent execute ":0read !go doc " . l:word
-  execute ":1"
-  let l:curline = getline(".")
-  if l:curline =~# "no buildable Go source files"
-    bw
-    let v:errmsg = "Warning: no buildable Go source files for " . l:word
-    echohl WarningMsg
-    echom v:errmsg
-    echohl None
-  else
-    let v:errmsg = ""
   endif
 endfunction
 
@@ -486,40 +500,6 @@ function! MyStatusLine()
     let l:output = " " . l:output
   endif
   return l:sname . '$' . l:output
-endfunction
-
-" python documentation
-function! PYDoc()
-  let l:cword = expand("<cWORD>")
-  let l:word = split(l:cword, "(")[0]
-  let l:pfile = "(pydoc)". l:word
-  if empty(l:word)
-    echohl ErrorMsg
-    echom "Error: word is empty"
-    echohl None
-    return 0
-  endif
-  if bufexists(l:pfile)
-    silent execute ":bw! " . l:pfile
-  endif
-  new
-  silent execute ":file " . l:pfile
-  setlocal buftype=nowrite
-  setlocal bufhidden=hide
-  setlocal noswapfile
-  setlocal nobuflisted
-  silent execute ":0read !python3 -m pydoc " . l:word
-  execute ":1"
-  let l:curline = getline(".")
-  if l:curline =~# "No Python documentation found for"
-    bw
-    let v:errmsg = "Warning: no Python documentation found for " . l:word
-    echohl WarningMsg
-    echom v:errmsg
-    echohl None
-  else
-    let v:errmsg = ''
- endif
 endfunction
 
 " remove signs

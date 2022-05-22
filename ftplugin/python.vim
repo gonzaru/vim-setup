@@ -28,7 +28,7 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 setlocal omnifunc=python3complete#Complete
 setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
-nnoremap <buffer><leader>K :call PYDoc()<CR>:echo v:errmsg<CR>
+nnoremap <buffer><leader>K :call Doc("python")<CR>:echo v:errmsg<CR>
 nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('py','cur')<CR>
 nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('py','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('py','next')<CR>

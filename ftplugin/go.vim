@@ -23,7 +23,7 @@ setlocal noexpandtab
 setlocal keywordprg=go\ doc
 " setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
-nnoremap <buffer><leader>K :call GODoc()<CR>:echo v:errmsg<CR>
+nnoremap <buffer><leader>K :call Doc("go")<CR>:echo v:errmsg<CR>
 nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('go','cur')<CR>
 nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('go','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('go','next')<CR>
