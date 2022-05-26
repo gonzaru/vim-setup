@@ -517,47 +517,58 @@ endfunction
 
 " run
 function! Run()
+  let l:curbufname = bufname('%')
   let l:curfile = expand('%:p')
-  if &filetype ==# "python"
+  if index(["sh", "python", "go"], &filetype) == -1
+    call EchoErrorMsg("Error: running filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  if &filetype ==# "sh"
+    echo system(SHShellType() . " " . l:curfile)
+  elseif &filetype ==# "python"
     echo system("python3 " . l:curfile)
   elseif &filetype ==# "go"
     echo system("go run " . l:curfile)
-  else
-    call EchoErrorMsg("Error: running filetype '" . &filetype . "' is not supported")
+  endif
+  if v:shell_error
+    call EchoErrorMsg("Error: exit code " . v:shell_error)
   endif
 endfunction
 
 " run using a window
 function! RunInWindow()
-  let l:bufname = "runoutput"
+  let l:bufoutname = "runoutput"
+  let l:curbufname = bufname('%')
   let l:curfile = expand('%:p')
   let l:curwinid = win_getid()
-  let l:prevwinid = bufwinid(l:bufname)
+  let l:prevwinid = bufwinid(l:bufoutname)
   if l:curwinid == l:prevwinid
-    call EchoWarningMsg("Warning: already using the same window " . l:bufname)
+    call EchoWarningMsg("Warning: already using the same window " . l:bufoutname)
     return
   endif
-  if &filetype ==# "python"
+  if index(["sh", "python", "go"], &filetype) == -1
+    call EchoErrorMsg("Error: running filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  if &filetype ==# "sh"
+    let l:out = systemlist(SHShellType() . " " . l:curfile)
+  elseif &filetype ==# "python"
     let l:out = systemlist("python3 " . l:curfile)
-    if empty(l:out)
-      call EchoWarningMsg("Warning: empty output")
-      return
-    endif
   elseif &filetype ==# "go"
     let l:out = systemlist("go run " . l:curfile)
-    if empty(l:out)
-      call EchoWarningMsg("Warning: empty output")
-      return
-    endif
-  else
-    call EchoErrorMsg("Error: formatting filetype '" . &filetype . "' is not supported")
+  endif
+  if v:shell_error
+    call EchoErrorMsg("Error: exit code " . v:shell_error)
+  endif
+  if empty(l:out)
+    call EchoWarningMsg("Warning: empty output")
     return
   endif
   if l:prevwinid > 0
     call win_gotoid(l:prevwinid)
   else
-    if !empty(bufname(l:bufname))
-      silent execute "bw! " . l:bufname
+    if !empty(bufname(l:bufoutname))
+      silent execute "bw! " . l:bufoutname
     endif
     below new
     setlocal winfixheight
@@ -565,7 +576,7 @@ function! RunInWindow()
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    execute "file " . l:bufname
+    execute "file " . l:bufoutname
   endif
   call appendbufline('%', 0, l:out)
   call deletebufline('%', '$')
@@ -670,6 +681,15 @@ function! ScratchTerminal()
     setlocal noswapfile
     setlocal nobuflisted
   endif
+endfunction
+
+" detects if the shell is sh or bash using shebang
+function! SHShellType()
+  if &filetype !=# "sh"
+    call EchoErrorMsg("Error: filetype '" . &filetype . "' is not supported")
+    return
+  endif
+  return readfile(bufname('%'))[0] =~# "bash$" ? "bash" : "sh"
 endfunction
 
 " toggle sytnax
