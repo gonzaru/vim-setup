@@ -525,8 +525,8 @@ autocmd!
 autocmd BufReadPost * call GoLastEditCursorPos()
 augroup END
 
-" disable background color erase (BCE) so schemes can work properly inside tmux
-if &term =~ "-256color" && !empty($TMUX)
+" disable background color erase (BCE)
+if &term =~ "-256color"
   set t_ut=
 endif
 
