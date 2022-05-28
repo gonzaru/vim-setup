@@ -145,7 +145,7 @@ set matchpairs=(:),{:},[:]   " characters that form pairs
 set foldlevelstart=99        " don't start new buffers folded (default -1)
 set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
-set t_ti= t_te=              " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
+" set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 " default shell
 if !empty($SHELL)&& executable($SHELL)
@@ -524,6 +524,13 @@ augroup event_buffer
 autocmd!
 autocmd BufReadPost * call GoLastEditCursorPos()
 augroup END
+
+" reset the terminal on exit
+if !has('gui_running')
+  autocmd!
+  autocmd VimLeave * silent !printf '\e[0m'
+  augroup END
+endif
 
 " disable background color erase (BCE)
 if &term =~ "-256color"
