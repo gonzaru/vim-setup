@@ -17,6 +17,9 @@ let g:hostname = hostname()
 " default my plan9 theme
 let g:mytheme = "plan9"
 
+" don't load defaults.vim
+let g:skip_defaults_vim = 1
+
 " disable some default plugins
 let g:loaded_2html_plugin = 1      " tohtml.vim
 let g:loaded_getscriptPlugin = 1   " getscriptPlugin.vim
@@ -75,9 +78,27 @@ set linespace=0     " number of pixel lines inserted between characters (default
 
 " vim
 if !has("gui_running")
+  " recognize screen and tmux as xterm-256color
+  if &term ==# "screen-256color" || &term ==# "tmux-256color"
+    set term=xterm-256color
+  endif
   set ttyfast             " :help ttyfast, fast terminal connection
   if has('termguicolors')
     set notermguicolors   " do not use 24-bit terminal color
+  endif
+  " cursor shapes
+  " &t_SI = blinking vertical bar
+  " &t_SR = blinking underscore
+  " &t_EI = blinking block
+  " screen
+  if !empty($STY)
+    let &t_SI.="\eP\e[6 q\e\\"  " INSERT mode
+    let &t_SR.="\eP\e[4 q\e\\"  " REPLACE mode
+    let &t_EI.="\eP\e[2 q\e\\"  " NORMAL mode (ELSE)
+  else
+    let &t_SI.="\e[6 q" " INSERT mode
+    let &t_SR.="\e[4 q" " REPLACE mode
+    let &t_EI.="\e[2 q" " NORMAL mode (ELSE)
   endif
 endif
 
@@ -147,6 +168,11 @@ set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
+" disable background color erase (BCE)
+if &term =~ "-256color"
+  set t_ut=
+endif
+
 " default shell
 if !empty($SHELL)&& executable($SHELL)
   set shell=$SHELL
@@ -163,7 +189,14 @@ endif
 
 " enable mouse and do not copy numbers if set number exists
 if has('mouse')
-  set mouse=a
+  " screen has a double <ESC> problem in insert mode with mouse+=i
+  if !empty($STY) || !empty($TMUX)
+    if &term ==# "xterm-256color"
+      set mouse=r
+    endif
+  else
+    set mouse=a
+  endif
 endif
 
 " prevents that the langmap option applies to characters (from defaults.vim)
@@ -525,20 +558,18 @@ autocmd!
 autocmd BufReadPost * call GoLastEditCursorPos()
 augroup END
 
-" reset the terminal on exit
+" vim events
 if !has('gui_running')
   autocmd!
+  " reset the cursor shape and redraw the screen
+  autocmd VimEnter * startinsert | stopinsert | redraw!
+  " reset the terminal
   autocmd VimLeave * silent !printf '\e[0m'
   augroup END
 endif
 
-" disable background color erase (BCE)
-if &term =~ "-256color"
-  set t_ut=
-endif
-
 " set custom theme
-if (&term =~ "-256color" || has('gui_running'))
+if &term =~ "-256color" || has('gui_running')
 \ && exists("g:mytheme") && g:mytheme ==# "plan9" && !exists("g:loaded_plan9")
   set background=light
   execute "colorscheme " . g:mytheme
