@@ -87,18 +87,17 @@ if !has("gui_running")
     set notermguicolors   " do not use 24-bit terminal color
   endif
   " cursor shapes
-  " &t_SI = blinking vertical bar
-  " &t_SR = blinking underscore
-  " &t_EI = blinking block
-  " screen
-  if !empty($STY)
-    let &t_SI.="\eP\e[6 q\e\\"  " INSERT mode
-    let &t_SR.="\eP\e[4 q\e\\"  " REPLACE mode
-    let &t_EI.="\eP\e[2 q\e\\"  " NORMAL mode (ELSE)
+  " &t_SI = blinking vertical bar (INSERT MODE)
+  " &t_SR = blinking underscore   (REPLACE MODE)
+  " &t_EI = blinking block        (NORMAL MODE)
+  if has('mac') && !empty($TERM_PROGRAM) && $TERM_PROGRAM ==# "Apple_Terminal"
+    let &t_SI.="\eP\e[5 q\e\\"
+    let &t_SR.="\eP\e[3 q\e\\"
+    let &t_EI.="\eP\e[1 q\e\\"
   else
-    let &t_SI.="\e[6 q" " INSERT mode
-    let &t_SR.="\e[4 q" " REPLACE mode
-    let &t_EI.="\e[2 q" " NORMAL mode (ELSE)
+    let &t_SI.="\eP\e[6 q\e\\"
+    let &t_SR.="\eP\e[4 q\e\\"
+    let &t_EI.="\eP\e[2 q\e\\"
   endif
 endif
 

@@ -177,7 +177,7 @@ function! g:SHCheck(mode) abort
   endif
   call RemoveSignsName(l:curbufnr, "sh_error")
   call RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
-  let l:theshell = readfile(l:curbufname)[0] =~# "bash$" ? "bash" : "sh"
+  let l:theshell = getline(1) =~# "bash$" ? "bash" : "sh"
   if a:mode ==# "read"
     let l:check_file = l:curbufname
   elseif a:mode ==# "write"
@@ -262,11 +262,10 @@ function! ExitHandlerSHShellCheck(job, status) abort
   call s:SHShellCheckNoExec()
   " TODO: without redraw
   if filereadable(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-    if getfsize(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-      redraw!
-    else
+    if !getfsize(s:checkerfiles["sh"]["shellcheck"]["syntax"])
       call delete(s:checkerfiles["sh"]["shellcheck"]["syntax"])
     endif
+    redraw!
   endif
 endfunction
 
@@ -366,11 +365,10 @@ function! ExitHandlerPYPep8(job, status) abort
   call s:PYPep8NoExec()
   " TODO: without redraw
   if filereadable(s:checkerfiles["python"]["pep8"]["syntax"])
-    if getfsize(s:checkerfiles["python"]["pep8"]["syntax"])
-      redraw!
-    else
+    if !getfsize(s:checkerfiles["python"]["pep8"]["syntax"])
       call delete(s:checkerfiles["python"]["pep8"]["syntax"])
     endif
+    redraw!
   endif
 endfunction
 
@@ -475,11 +473,10 @@ function! ExitHandlerGOVet(job, status) abort
   call s:GOVetNoExec()
   " TODO: without redraw
   if filereadable(s:checkerfiles["go"]["govet"]["syntax"])
-    if getfsize(s:checkerfiles["go"]["govet"]["syntax"])
-      redraw!
-    else
+    if !getfsize(s:checkerfiles["go"]["govet"]["syntax"])
       call delete(s:checkerfiles["go"]["govet"]["syntax"])
     endif
+    redraw!
   endif
 endfunction
 

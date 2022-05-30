@@ -689,7 +689,7 @@ function! SHShellType()
     call EchoErrorMsg("Error: filetype '" . &filetype . "' is not supported")
     return
   endif
-  return readfile(bufname('%'))[0] =~# "bash$" ? "bash" : "sh"
+  return getline(1) =~# "bash$" ? "bash" : "sh"
 endfunction
 
 " toggle sytnax
