@@ -11,6 +11,11 @@ if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
 endif
 let g:loaded_vimrc = 1
 
+" don't source this file for neovim/ideavim
+if has("nvim") || has("ide")
+  finish
+endif
+
 " machine hostname
 let g:hostname = hostname()
 
@@ -79,7 +84,7 @@ set linespace=0     " number of pixel lines inserted between characters (default
 " vim
 if !has("gui_running")
   " recognize screen and tmux as xterm-256color
-  if &term ==# "screen-256color" || &term ==# "tmux-256color"
+  if index(["screen-256color", "screen-256color-bce", "tmux-256color"], &term) >= 0
     set term=xterm-256color
   endif
   set ttyfast             " :help ttyfast, fast terminal connection
@@ -344,11 +349,16 @@ sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
 " cmap / cnoremap  |    -   |   -    |    x    |   -    |   -    |    -     |
 "---------------------------------------------------------------------------"
 
+" macOS default Terminal.app
+" :help mac-lack
+" <C-^> needs to be entered as <C-S-6>
+" <C-@> needs to be entered as <C-S-2>
+
 " mapleader
-let mapleader = "\<C-\>"
+let mapleader = "\<C-s>"
 
 " alternative second leader
-let maplocalleader = "\<C-q>"
+let maplocalleader = "\<C-\>"
 
 " disable arrow keys
 " call DisableArrowKeys()
