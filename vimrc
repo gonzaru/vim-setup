@@ -78,16 +78,18 @@ set noallowrevins   " allow ctrl-_ in insert and cwmmand-line mode (default is o
 set showmode        " show current mode insert, command, replace, visual, etc
 set showcmd         " show command on the last line of screen (ex: see visual mode)
 set esckeys         " allow usage of cursor keys within insert mode
-set lazyredraw      " redraw only when needed, nice for editing macros
+set nolazyredraw    " on: redraw only when needed, nice for editing macros
 set linespace=0     " number of pixel lines inserted between characters (default is 0)
 
 " vim
 if !has("gui_running")
-  " recognize screen and tmux as xterm-256color
+  " screen/tmux mouse codes
   if index(["screen-256color", "screen-256color-bce", "tmux-256color"], &term) >= 0
-    set term=xterm-256color
+    let s:code_ttymouse = has('mac') ? "sgr" : "xterm2"
+    execute "set ttymouse=" . s:code_ttymouse
   endif
-  set ttyfast             " :help ttyfast, fast terminal connection
+
+  " set ttyfast           " :help ttyfast, fast terminal connection
   if has('termguicolors')
     set notermguicolors   " do not use 24-bit terminal color
   endif
@@ -95,7 +97,7 @@ if !has("gui_running")
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
-  if has('mac') && !empty($TERM_PROGRAM) && $TERM_PROGRAM ==# "Apple_Terminal"
+  if has('mac') && index(["Apple_Terminal", "tmux"], $TERM_PROGRAM) >= 0
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
@@ -193,14 +195,7 @@ endif
 
 " enable mouse and do not copy numbers if set number exists
 if has('mouse')
-  " screen has a double <ESC> problem in insert mode with mouse+=i
-  if !empty($STY) || !empty($TMUX)
-    if &term ==# "xterm-256color"
-      set mouse=r
-    endif
-  else
-    set mouse=a
-  endif
+  set mouse=a
 endif
 
 " prevents that the langmap option applies to characters (from defaults.vim)
