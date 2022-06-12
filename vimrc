@@ -169,7 +169,8 @@ set nospell                  " disable spell checking
 set noshowmatch              " disable matching parenthesis
 set matchtime=1              " seconds to show matching parenthesis
 set matchpairs=(:),{:},[:]   " characters that form pairs
-set foldlevelstart=99        " don't start new buffers folded (default -1)
+set nofoldenable             " when off, all folds are open
+set foldmethod=manual        " disable automatic folding
 set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
