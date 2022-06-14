@@ -220,14 +220,16 @@ set showtabline=1          " to show tab only if there are at least two tabs (2 
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
 
-" show special characters
-set nolist
-set listchars=tab:»·,trail:¨
-
 " utf-8 support
 if has('multi_byte')
   set encoding=utf-8      " utf-8 the encoding displayed
   set fileencoding=utf-8  " utf-8 the encoding written to file
+endif
+
+" show special characters
+set nolist
+if &encoding ==# "utf-8"
+  set listchars=tab:»·,trail:¨
 endif
 
 " vertical seperator for vertical split windows
