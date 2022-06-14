@@ -9,36 +9,42 @@ if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
   echohl None
   finish
 endif
-let g:loaded_vimrc = 1
+if has("eval")
+  let g:loaded_vimrc = 1
+endif
 
 " don't source this file for neovim/ideavim
 if has("nvim") || has("ide")
   finish
 endif
 
-" machine hostname
-let g:hostname = hostname()
+if has("eval")
+  " machine hostname
+  let g:hostname = hostname()
 
-" default my plan9 theme
-let g:mytheme = "plan9"
+  " default my plan9 theme
+  let g:mytheme = "plan9"
 
-" don't load defaults.vim
-let g:skip_defaults_vim = 1
+  " don't load defaults.vim
+  let g:skip_defaults_vim = 1
+endif
 
 " disable some default plugins
-let g:loaded_2html_plugin = 1      " tohtml.vim
-let g:loaded_getscriptPlugin = 1   " getscriptPlugin.vim
-let g:loaded_gzip = 1              " gzip.vim
-let g:loaded_logiPath = 1          " logiPat.vim
-let g:loaded_matchparen = 1        " matchparen.vim
-let g:loaded_netrwPlugin = 1       " netrwPlugin.vim
-let g:loaded_rrhelper = 1          " rrhelper.vim
-let g:loaded_spellfile_plugin = 1  " spellfile.vim
-let g:loaded_tar = 1               " pi_tar
-let g:loaded_tarPlugin = 1         " tarPlugin.vim
-let g:loaded_vimballPlugin = 1     " vimballPlugin.vim
-let g:loaded_zip = 1               " zip.vim
-let g:loaded_zipPlugin = 1         " zipPlugin.vim
+if has("eval")
+  let g:loaded_2html_plugin = 1      " tohtml.vim
+  let g:loaded_getscriptPlugin = 1   " getscriptPlugin.vim
+  let g:loaded_gzip = 1              " gzip.vim
+  let g:loaded_logiPath = 1          " logiPat.vim
+  let g:loaded_matchparen = 1        " matchparen.vim
+  let g:loaded_netrwPlugin = 1       " netrwPlugin.vim
+  let g:loaded_rrhelper = 1          " rrhelper.vim
+  let g:loaded_spellfile_plugin = 1  " spellfile.vim
+  let g:loaded_tar = 1               " pi_tar
+  let g:loaded_tarPlugin = 1         " tarPlugin.vim
+  let g:loaded_vimballPlugin = 1     " vimballPlugin.vim
+  let g:loaded_zip = 1               " zip.vim
+  let g:loaded_zipPlugin = 1         " zipPlugin.vim
+endif
 
 " set shell $PATH for MacVim if it is lauched without using a terminal
 if has("gui_macvim") && empty($TERM)
@@ -137,7 +143,9 @@ if has("autocmd")
   filetype indent on
 endif
 
-syntax on                    " enable syntax rules (syntax needs to be after filetype plugin)
+if has("syntax")
+  syntax on                  " enable syntax rules (syntax needs to be after filetype plugin)
+endif
 set ruler                    " show line & column number
 set magic                    " use extended regexp in search patterns
 set modelines=0              " do not use modelines
@@ -204,8 +212,10 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
-" statusline
-let g:statusline_base = &statusline
+if has("eval")
+  " statusline
+  let g:statusline_base = &statusline
+endif
 set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
 set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
@@ -314,21 +324,22 @@ if has('clipboard')
 endif
 
 " signs
+if has("signs")
+  " SH
+  sign define sh_error text=✘ texthl=SyntaxErrorSH
+  sign define sh_errorplus text=↪+ texthl=SyntaxErrorPlus
+  sign define sh_shellcheckerror text=↪ texthl=SyntaxErrorSHELLCHECK
 
-" SH
-sign define sh_error text=✘ texthl=SyntaxErrorSH
-sign define sh_errorplus text=↪+ texthl=SyntaxErrorPlus
-sign define sh_shellcheckerror text=↪ texthl=SyntaxErrorSHELLCHECK
+  " PY
+  sign define py_error text=✘ texthl=SyntaxErrorPY
+  sign define py_errorplus text=↪+ texthl=SyntaxErrorPlus
+  sign define py_pep8error text=↪ texthl=SyntaxErrorPEP8
 
-" PY
-sign define py_error text=✘ texthl=SyntaxErrorPY
-sign define py_errorplus text=↪+ texthl=SyntaxErrorPlus
-sign define py_pep8error text=↪ texthl=SyntaxErrorPEP8
-
-" GO
-sign define go_error text=✘ texthl=SyntaxErrorGO
-sign define go_errorplus text=↪+ texthl=SyntaxErrorPlus
-sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
+  " GO
+  sign define go_error text=✘ texthl=SyntaxErrorGO
+  sign define go_errorplus text=↪+ texthl=SyntaxErrorPlus
+  sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
+endif
 
 " key mapping
 "---------------------------------------------------------------------------"
@@ -350,11 +361,15 @@ sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
 " <C-^> needs to be entered as <C-S-6>
 " <C-@> needs to be entered as <C-S-2>
 
-" mapleader
-let mapleader = "\<C-s>"
+if has("eval")
+  " mapleader
+  let mapleader = "\<C-s>"
+endif
 
-" alternative second leader
-let maplocalleader = "\<C-\>"
+if has("eval")
+  " alternative second leader
+  let maplocalleader = "\<C-\>"
+endif
 
 " disable arrow keys
 " call DisableArrowKeys()
@@ -469,12 +484,14 @@ nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 
-" go to N buffer (up to 9 for now)
-for s:i in range(1, 9)
-  if s:i <= 9
-    execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
-  endif
-endfor
+if has("eval")
+  " go to N buffer (up to 9 for now)
+  for s:i in range(1, 9)
+    if s:i <= 9
+      execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
+    endif
+  endfor
+endif
 
 " remove all buffers except the current one
 command! BufferDeleteListedExceptCurrent :call BufferRemoveAllExceptCurrent('delete')
@@ -560,7 +577,9 @@ command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
 " go to last edit cursor position when opening a file
 augroup event_buffer
 autocmd!
-autocmd BufReadPost * call GoLastEditCursorPos()
+if has("eval")
+  autocmd BufReadPost * call GoLastEditCursorPos()
+endif
 augroup END
 
 " vim events
@@ -582,8 +601,10 @@ elseif exists("g:mytheme") && g:mytheme !=# "plan9"
   execute "colorscheme " . g:mytheme
 endif
 
-" load local config
-let s:vimrc_local = $HOME."/.vimrc.local"
-if filereadable(s:vimrc_local)
-  execute "source " . s:vimrc_local
+if has("eval")
+  " load local config
+  let s:vimrc_local = $HOME."/.vimrc.local"
+  if filereadable(s:vimrc_local)
+    execute "source " . s:vimrc_local
+  endif
 endif

@@ -45,16 +45,18 @@ endfunction
 " toggles Se
 function! SeToggle() abort
   let l:sb = s:SeGetBufId()
-  let l:bufinfo = getbufinfo(l:sb)
-  if l:sb && l:bufinfo[0].hidden
-    setlocal nosplitright
-    execute "vertical sbuffer " . l:sb
-    setlocal splitright
-    execute "lcd " . fnameescape(s:se_oldcwd)
-    execute "vertical resize " . g:se_winsize
-  elseif l:sb && !l:bufinfo[0].hidden
-    if win_getid() != bufwinid(l:sb)
-      call win_gotoid(bufwinid(l:sb))
+  if l:sb
+    if l:bufinfo[0].hidden
+      let l:bufinfo = getbufinfo(l:sb)
+      setlocal nosplitright
+      execute "vertical sbuffer " . l:sb
+      setlocal splitright
+      execute "lcd " . fnameescape(s:se_oldcwd)
+      execute "vertical resize " . g:se_winsize
+    else
+      if win_getid() != bufwinid(l:sb)
+        call win_gotoid(bufwinid(l:sb))
+      endif
     endif
     if &filetype ==# "se"
       close
