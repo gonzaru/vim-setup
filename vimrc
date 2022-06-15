@@ -13,19 +13,14 @@ if has("eval")
   let g:loaded_vimrc = 1
 endif
 
-" don't source this file for neovim/ideavim
-if has("nvim") || has("ide")
-  finish
+" global variables
+if has("eval")
+  let g:hostname = hostname()  " machine hostname
+  let g:mytheme = "plan9"      " default my plan9 theme
 endif
 
+" don't load defaults.vim
 if has("eval")
-  " machine hostname
-  let g:hostname = hostname()
-
-  " default my plan9 theme
-  let g:mytheme = "plan9"
-
-  " don't load defaults.vim
   let g:skip_defaults_vim = 1
 endif
 
@@ -68,6 +63,7 @@ if has("python3_dynamic")
   endif
 endif
 
+" global settings
 set nocompatible    " use vim defaults instead of 100% vi compatibility
 set shortmess=a     " abbreviation status messages shorter (default filnxtToOS)
 set shortmess+=I    " no vim splash
@@ -89,16 +85,6 @@ set linespace=0     " number of pixel lines inserted between characters (default
 
 " vim
 if !has("gui_running")
-  " screen/tmux mouse codes
-  if index(["screen-256color", "screen-256color-bce", "tmux-256color"], &term) >= 0
-    let s:code_ttymouse = has('mac') ? "sgr" : "xterm2"
-    execute "set ttymouse=" . s:code_ttymouse
-  endif
-
-  " set ttyfast           " :help ttyfast, fast terminal connection
-  if has('termguicolors')
-    set notermguicolors   " do not use 24-bit terminal color
-  endif
   " cursor shapes
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
@@ -112,28 +98,39 @@ if !has("gui_running")
     let &t_SR.="\eP\e[4 q\e\\"
     let &t_EI.="\eP\e[2 q\e\\"
   endif
-endif
 
-" separate viminfo file for MacVim
-if has("gui_macvim")
-  set viminfofile=$HOME/.viminfo_macvim
+  " screen/tmux mouse codes
+  if index(["screen-256color", "screen-256color-bce", "tmux-256color"], &term) >= 0
+    if has("eval")
+      let s:code_ttymouse = has('mac') ? "sgr" : "xterm2"
+      execute "set ttymouse=" . s:code_ttymouse
+    endif
+  endif
+
+  " automatically on when term is xterm or screen
+  " set ttyfast           " :help ttyfast, fast terminal connection
+
+  " do not use 24-bit terminal color
+  if has('termguicolors')
+    set notermguicolors
+  endif
 endif
 
 " gui
 if has("gui_running")
-  set guioptions=acM                    " do not load menus for gui (default aegimrLtT)
-  set guiheadroom=0                     " when zero, the whole screen height will be used by the window
   if has("gui_macvim")
-    set antialias                       " smooth fonts
-    " gui font
     let s:gui_fontsize = g:hostname ==# "aiur" ? 14 : 16
     execute "set guifont=Menlo\\ Regular:h" . s:gui_fontsize
+    set viminfofile=$HOME/.viminfo_macvim  " separate viminfo
+    set antialias                          " smooth fonts
   else
-    set guifont=DejaVu\ Sans\ Mono\ 12  " gui font
+    set guifont=DejaVu\ Sans\ Mono\ 12     " gui font
   endif
-  set mouseshape-=v:rightup-arrow       " by default uses a left arrow that confuses
-  set mouseshape+=v:beam                " change it by beam shape (as in other apps)
-  set mousehide                         " hide the mouse pointer while typing (default on)
+  set guioptions=acM               " do not load menus for gui (default aegimrLtT)
+  set guiheadroom=0                " when zero, the whole screen height will be used by the window
+  set mouseshape-=v:rightup-arrow  " by default uses a left arrow that confuses
+  set mouseshape+=v:beam           " change it by beam shape (as in other apps)
+  set mousehide                    " hide the mouse pointer while typing (default on)
 endif
 
 " see :filetype
@@ -143,9 +140,12 @@ if has("autocmd")
   filetype indent on
 endif
 
+" enable syntax rules (needs to be after filetype plugin)
 if has("syntax")
-  syntax on                  " enable syntax rules (syntax needs to be after filetype plugin)
+  syntax on
 endif
+
+" global settings
 set ruler                    " show line & column number
 set magic                    " use extended regexp in search patterns
 set modelines=0              " do not use modelines
@@ -202,18 +202,18 @@ if exists('+cursorlineopt')
   set cursorlineopt=both
 endif
 
-" enable mouse and do not copy numbers if set number exists
+" mouse support
 if has('mouse')
   set mouse=a
 endif
 
 " prevents that the langmap option applies to characters (from defaults.vim)
-if has('langmap') && exists('+langremap')
+if has("langmap") && exists("+langremap")
   set nolangremap
 endif
 
+" statusline
 if has("eval")
-  " statusline
   let g:statusline_base = &statusline
 endif
 set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
@@ -221,12 +221,12 @@ set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
 set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
 
 " utf-8 support
-if has('multi_byte')
-  set encoding=utf-8      " utf-8 the encoding displayed
-  set fileencoding=utf-8  " utf-8 the encoding written to file
+if has("multi_byte")
+  set encoding=utf-8      " encoding displayed
+  set fileencoding=utf-8  " encoding written to file
 endif
 
-" show special characters
+" show special characters (listchars must be after enconding configuration)
 set nolist
 if &encoding ==# "utf-8"
   set listchars=tab:»·,trail:¨
@@ -238,6 +238,7 @@ set fillchars=vert:\ ,fold:-  " contains one space!
 " more powerful backspacing
 set backspace=indent,eol,start
 
+" tabs/spaces
 set tabstop=2      " number of spaces a <tab> in the text stands for
 set softtabstop=2  " if non-zero, number of spaces to insert for a <tab>
 set shiftwidth=2   " number of spaces used for each step of (auto)indent
@@ -301,7 +302,6 @@ endif
 if exists('+completepopup')
   set completepopup+=highlight:InfoPopup  " see InfoPopUp in theme
 endif
-
 " .: the current buffer
 " w: buffers in other windows
 " b: other loaded buffers
@@ -327,17 +327,17 @@ endif
 
 " signs
 if has("signs")
-  " SH
+  " sh
   sign define sh_error text=✘ texthl=SyntaxErrorSH
   sign define sh_errorplus text=↪+ texthl=SyntaxErrorPlus
   sign define sh_shellcheckerror text=↪ texthl=SyntaxErrorSHELLCHECK
 
-  " PY
+  " python
   sign define py_error text=✘ texthl=SyntaxErrorPY
   sign define py_errorplus text=↪+ texthl=SyntaxErrorPlus
   sign define py_pep8error text=↪ texthl=SyntaxErrorPEP8
 
-  " GO
+  " go
   sign define go_error text=✘ texthl=SyntaxErrorGO
   sign define go_errorplus text=↪+ texthl=SyntaxErrorPlus
   sign define go_veterror text=↪ texthl=SyntaxErrorGOVET
@@ -363,12 +363,11 @@ endif
 " <C-^> needs to be entered as <C-S-6>
 " <C-@> needs to be entered as <C-S-2>
 
+" mapping leaders
 if has("eval")
   " mapleader
   let mapleader = "\<C-s>"
-endif
 
-if has("eval")
   " alternative second leader
   let maplocalleader = "\<C-\>"
 endif
@@ -485,7 +484,6 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
-
 if has("eval")
   " go to N buffer (up to 9 for now)
   for s:i in range(1, 9)
@@ -495,7 +493,7 @@ if has("eval")
   endfor
 endif
 
-" remove all buffers except the current one
+" all buffers except the current one
 command! BufferDeleteListedExceptCurrent :call BufferRemoveAllExceptCurrent('delete')
 command! BufferWipeListedExceptCurrent :call BufferRemoveAllExceptCurrent('wipe')
 command! BufferWipeAllExceptCurrent :call BufferRemoveAllExceptCurrent('wipe!')
@@ -543,8 +541,8 @@ command! DiffGetAll :1,$+1diffget
 command! DiffPutAll :1,$+1diffput
 command! DiffGetLine :.,.diffget
 command! DiffPutLine :.,.diffput
+" from defaults.vim
 if !exists(":DiffOrig")
-  " from defaults.vim
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 endif
 
@@ -553,10 +551,8 @@ nnoremap <leader>cw :close<CR>
 nnoremap <leader>ch :helpclose<CR>
 nnoremap <leader>ct :tabclose<CR>
 command! SwapWindow :execute "normal! \<C-w>x"
-" resize horizontal windows
 nnoremap <leader><C-i> :resize +5<CR>
 nnoremap <leader><C-d> :resize -5<CR>
-" resize vertical windows
 nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
 
@@ -576,14 +572,6 @@ command! -nargs=1 Et call EditTop(<f-args>)
 " plan9 theme
 command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
 
-" go to last edit cursor position when opening a file
-augroup event_buffer
-autocmd!
-if has("eval")
-  autocmd BufReadPost * call GoLastEditCursorPos()
-endif
-augroup END
-
 " vim events
 if !has('gui_running')
   autocmd!
@@ -591,6 +579,14 @@ if !has('gui_running')
   autocmd VimEnter * startinsert | stopinsert | redraw!
   " reset the terminal
   autocmd VimLeave * silent !printf '\e[0m'
+  augroup END
+endif
+
+" go to last edit cursor position when opening a file
+if has("eval")
+  augroup event_buffer
+  autocmd!
+  autocmd BufReadPost * call GoLastEditCursorPos()
   augroup END
 endif
 
@@ -603,8 +599,8 @@ elseif exists("g:mytheme") && g:mytheme !=# "plan9"
   execute "colorscheme " . g:mytheme
 endif
 
+" load local config
 if has("eval")
-  " load local config
   let s:vimrc_local = $HOME."/.vimrc.local"
   if filereadable(s:vimrc_local)
     execute "source " . s:vimrc_local
