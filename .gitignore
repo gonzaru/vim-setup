@@ -2,3 +2,5 @@ backups/
 sessions/
 tmp/
 undodir/
+autoload/
+bundle/

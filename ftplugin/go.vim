@@ -1,11 +1,12 @@
 " by Gonzaru
 " Distributed under the terms of the GNU General Public License v3
 
+" did_ftplugin_go_vim name to avoid collision with another plugins
 " do not read the file if is already loaded
-if exists("b:did_ftplugin")
+if exists("b:did_ftplugin_go_vim")
   finish
 endif
-let b:did_ftplugin = 1
+let b:did_ftplugin_go_vim = 1
 
 " see $VIMRUNTIME/ftplugin/go.vim
 " Go
@@ -20,6 +21,7 @@ setlocal softtabstop=4
 setlocal shiftwidth=4
 setlocal shiftround
 setlocal noexpandtab
+setlocal smartindent
 setlocal keywordprg=go\ doc
 " setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build

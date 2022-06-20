@@ -344,16 +344,16 @@ function! MenuLanguageSpell()
       setlocal spell
       if l:langchoice == 1
         setlocal spelllang=en
-        " setlocal spellfile="$HOME/.vim/spell/en.".&encoding.".spl"
+        " setlocal spellfile=~/.vim/spell/en.utf-8.spl.add
       elseif l:langchoice == 2
         setlocal spelllang=es
-        setlocal spellfile="$HOME/.vim/spell/es.".&encoding.".spl"
+        " setlocal spellfile=~/.vim/spell/es.utf-8.spl.add
       elseif l:langchoice == 3
         setlocal spelllang=ca
-        setlocal spellfile="$HOME/.vim/spell/ca.".&encoding.".spl"
+        " setlocal spellfile=~/.vim/spell/ca.utf-8.spl.add
       elseif l:langchoice == 4
         setlocal spelllang=ru
-        setlocal spellfile="$HOME/.vim/spell/ru.".&encoding.".spl"
+        " setlocal spellfile=~/.vim/spell/ru.utf-8.spl.add
       endif
     endif
   endif

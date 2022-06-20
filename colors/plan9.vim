@@ -23,6 +23,7 @@ if exists('g:loaded_plan9') && g:loaded_plan9 == 1
 endif
 let g:loaded_plan9 = 1
 
+" light background
 if &background !=# "light"
   set background=light
 endif

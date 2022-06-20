@@ -10,22 +10,31 @@ if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
   finish
 endif
 if has("eval")
-  let g:loaded_vimrc = 1
+  let g:loaded_vimrc = 1  " already loaded
+  let s:eval = 1          " +eval (not enabled in vim tiny/small versions)
 endif
 
-" global variables
-if has("eval")
-  let g:hostname = hostname()  " machine hostname
-  let g:mytheme = "plan9"      " default my plan9 theme
+" config variables
+if s:eval
+  let s:colorscheme = "plan9"                                      " theme
+  let s:background = "light"                                       " background
+  let s:hostname = hostname()                                      " hostname
+  let s:mac = has('mac')                                           " mac
+  let s:gui = has('gui_running')                                   " gui
+  let s:macvim = has('gui_macvim')                                 " macvim
+  let s:xterm = !empty($XTERM_VERSION)                             " xterm
+  let s:tmux = !empty($TMUX) || &term =~# "tmux"                   " tmux
+  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")   " screen
+  let s:macterm = !s:screen && $TERM_PROGRAM ==# "Apple_Terminal"  " terminal.app
 endif
 
 " don't load defaults.vim
-if has("eval")
+if s:eval
   let g:skip_defaults_vim = 1
 endif
 
 " disable some default plugins
-if has("eval")
+if s:eval
   let g:loaded_2html_plugin = 1      " tohtml.vim
   let g:loaded_getscriptPlugin = 1   " getscriptPlugin.vim
   let g:loaded_gzip = 1              " gzip.vim
@@ -42,13 +51,13 @@ if has("eval")
 endif
 
 " set shell $PATH for MacVim if it is lauched without using a terminal
-if has("gui_macvim") && empty($TERM)
+if s:macvim && empty($TERM)
   let $PATH = $HOME."/bin:".$HOME."/opt/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/opt/local/sbin:/opt/local/bin:".$HOME."/opt/go/bin:".$HOME."/opt/aws/bin"
 endif
 
 " set python3 version with dynamic loading support
 if has("python3_dynamic")
-  if has('mac')
+  if s:mac
     let s:pyver = "3.8"
     let s:homepython ="/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/".s:pyver
     let s:libpython = s:homepython."/lib/python".s:pyver."/config-".s:pyver."-darwin/libpython".s:pyver.".dylib"
@@ -80,16 +89,16 @@ set noallowrevins   " allow ctrl-_ in insert and cwmmand-line mode (default is o
 set showmode        " show current mode insert, command, replace, visual, etc
 set showcmd         " show command on the last line of screen (ex: see visual mode)
 set esckeys         " allow usage of cursor keys within insert mode
-set nolazyredraw    " on: redraw only when needed, nice for editing macros
+set lazyredraw      " on: redraw only when needed, nice for editing macros
 set linespace=0     " number of pixel lines inserted between characters (default is 0)
 
 " vim
-if !has("gui_running")
+if !s:gui
   " cursor shapes
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
-  if has('mac') && index(["Apple_Terminal", "tmux"], $TERM_PROGRAM) >= 0
+  if s:mac && !s:xterm
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
@@ -100,26 +109,41 @@ if !has("gui_running")
   endif
 
   " screen/tmux mouse codes
-  if index(["screen-256color", "screen-256color-bce", "tmux-256color"], &term) >= 0
-    if has("eval")
-      let s:code_ttymouse = has('mac') ? "sgr" : "xterm2"
+  if match(&term, '^\(screen\|tmux\)') != -1
+    if s:eval
+      let s:code_ttymouse = s:mac ? "sgr" : "xterm2"
       execute "set ttymouse=" . s:code_ttymouse
     endif
   endif
 
-  " automatically on when term is xterm or screen
-  " set ttyfast           " :help ttyfast, fast terminal connection
+  " automatically is on when term is xterm or screen/tmux (fast terminal)
+  if match(&term, '^\(xterm\|screen\|tmux\)') != -1
+    set ttyfast
+  endif
 
-  " do not use 24-bit terminal color
-  if has('termguicolors')
-    set notermguicolors
+  " italic
+  if &term =~# "xterm" && !s:screen && !s:tmux
+    let &t_ZH="\e[3m"
+    let &t_ZR="\e[23m"
+  endif
+
+  " 24-bit terminal color
+  if has('termguicolors') && &t_Co == 256
+    if (s:xterm && !s:screen) || s:tmux
+      " :help xterm-true-color
+      let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+      let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+      set termguicolors
+    else
+      set notermguicolors
+    endif
   endif
 endif
 
 " gui
-if has("gui_running")
-  if has("gui_macvim")
-    let s:gui_fontsize = g:hostname ==# "aiur" ? 14 : 16
+if s:gui
+  if s:macvim
+    let s:gui_fontsize = s:hostname ==# "aiur" ? 14 : 16
     execute "set guifont=Menlo\\ Regular:h" . s:gui_fontsize
     set viminfofile=$HOME/.viminfo_macvim  " separate viminfo
     set antialias                          " smooth fonts
@@ -184,7 +208,7 @@ set path+=**                 " set path for finding files with :find
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 " disable background color erase (BCE)
-if &term =~ "-256color"
+if &term =~# "-256color" && &t_Co == 256
   set t_ut=
 endif
 
@@ -213,7 +237,7 @@ if has("langmap") && exists("+langremap")
 endif
 
 " statusline
-if has("eval")
+if s:eval
   let g:statusline_base = &statusline
 endif
 set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
@@ -364,7 +388,7 @@ endif
 " <C-@> needs to be entered as <C-S-2>
 
 " mapping leaders
-if has("eval")
+if s:eval
   " mapleader
   let mapleader = "\<C-s>"
 
@@ -386,14 +410,14 @@ inoremap <leader><C-w> <C-o>:update<CR>
 " edit
 nnoremap <leader>ev :e $HOME/.vimrc<CR>
 nnoremap <leader>ef :e $HOME/.vim/plugin/functions.vim<CR>
-nnoremap <leader>et :execute ":e $HOME/.vim/colors/" . g:mytheme . ".vim"<CR>
+nnoremap <leader>et :e $HOME/.vim/colors/plan9.vim<CR>
 nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
 
 " source
 nnoremap <leader>sv :source $HOME/.vimrc<CR>
 nnoremap <leader>sV :let g:loaded_vimrc=0<CR>:source $HOME/.vimrc<CR>
-nnoremap <leader>st :let g:loaded_plan9=0<CR>:execute ":colorscheme " . g:mytheme<CR>
+nnoremap <leader>st :let g:loaded_plan9=0<CR>:colorscheme plan9<CR>
 nnoremap <leader>sf :let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
 nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
                    \:let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
@@ -421,7 +445,7 @@ nnoremap <leader>tgf :call FoldColumnToggle()<CR>
 nnoremap <leader>tgz :call FoldToggle()<CR>
 
 " :sh
-if has('gui_running')
+if s:gui
   nnoremap <leader>sh :call SH()<CR>
   command! SH :call SH()
 else
@@ -437,22 +461,22 @@ nnoremap <leader>fm :call FormatLanguage()<CR>
 command! FormatLanguage :call FormatLanguage()
 nnoremap <leader>; mt<ESC>$a;<ESC>`t
 nnoremap <silent><leader><CR> :below terminal<CR>
-if has("gui_running")
+if s:gui
   nnoremap <silent><leader><C-CR> :below terminal<CR>
 endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
 
 " move
-nnoremap <leader><C-j> :move .+1<CR>==
-nnoremap <leader><C-k> :move .-2<CR>==
-inoremap <leader><C-j> <Esc>:move .+1<CR>==gi
-inoremap <leader><C-k> <Esc>:move .-2<CR>==gi
-vnoremap <leader><C-j> :move '>+1<CR>gv=gv
-vnoremap <leader><C-k> :move '<-2<CR>gv=gv
+nnoremap <leader><C-d> :move .+1<CR>==
+nnoremap <leader><C-u> :move .-2<CR>==
+inoremap <leader><C-d> <Esc>:move .+1<CR>==gi
+inoremap <leader><C-u> <Esc>:move .-2<CR>==gi
+vnoremap <leader><C-d> :move '>+1<CR>gv=gv
+vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 
 " gui
-if has("gui_running")
+if s:gui
   map <S-Insert> <Nop>
   map! <S-Insert> <MiddleMouse>
   nnoremap <leader><S-F10> :call GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
@@ -460,15 +484,17 @@ if has("gui_running")
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
-tnoremap <C-[> <C-w>N
+" tnoremap <C-[> <C-w>N
+tnoremap <expr> <C-[> (&ft ==# "fzf") ? "<Esc>" : "<C-w>N"
 
 " buffers
 nnoremap <leader>n :bnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
 nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
-nnoremap <leader><C-g> 2<C-g>
+nnoremap <leader><leader> :b #<CR>
 nnoremap <leader><Space> :call CycleBuffers()<CR>
+nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
 nnoremap <leader>bw :bw<CR>
@@ -484,7 +510,7 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
-if has("eval")
+if s:eval
   " go to N buffer (up to 9 for now)
   for s:i in range(1, 9)
     if s:i <= 9
@@ -551,14 +577,16 @@ nnoremap <leader>cw :close<CR>
 nnoremap <leader>ch :helpclose<CR>
 nnoremap <leader>ct :tabclose<CR>
 command! SwapWindow :execute "normal! \<C-w>x"
-nnoremap <leader><C-i> :resize +5<CR>
-nnoremap <leader><C-d> :resize -5<CR>
+nnoremap <leader><C-j> :resize +5<CR>
+nnoremap <leader><C-k> :resize -5<CR>
 nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
 
 " scratch buffer
 nnoremap <silent><leader>s<BS> :call ScratchBuffer()<CR>
 nnoremap <silent><leader>s<CR> :call ScratchTerminal()<CR>
+nnoremap <silent><leader>sc :call ScratchBuffer()<CR>
+nnoremap <silent><leader>sz :call ScratchTerminal()<CR>
 command! ScratchBuffer :call ScratchBuffer()
 command! ScratchTerminal :call ScratchTerminal()
 
@@ -573,7 +601,7 @@ command! -nargs=1 Et call EditTop(<f-args>)
 command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
 
 " vim events
-if !has('gui_running')
+if !s:gui
   autocmd!
   " reset the cursor shape and redraw the screen
   autocmd VimEnter * startinsert | stopinsert | redraw!
@@ -583,24 +611,21 @@ if !has('gui_running')
 endif
 
 " go to last edit cursor position when opening a file
-if has("eval")
+if s:eval
   augroup event_buffer
   autocmd!
   autocmd BufReadPost * call GoLastEditCursorPos()
   augroup END
 endif
 
-" set custom theme
-if &term =~ "-256color" || has('gui_running')
-\ && exists("g:mytheme") && g:mytheme ==# "plan9" && !exists("g:loaded_plan9")
-  set background=light
-  execute "colorscheme " . g:mytheme
-elseif exists("g:mytheme") && g:mytheme !=# "plan9"
-  execute "colorscheme " . g:mytheme
+" set theme
+if s:eval
+  execute "set background=" . s:background
+  execute "colorscheme " . s:colorscheme
 endif
 
 " load local config
-if has("eval")
+if s:eval
   let s:vimrc_local = $HOME."/.vimrc.local"
   if filereadable(s:vimrc_local)
     execute "source " . s:vimrc_local
