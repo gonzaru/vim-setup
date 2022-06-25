@@ -8,5 +8,5 @@ endif
 let b:did_ftplugin = 1
 
 " conf
-syntax off
+" syntax off
 setlocal autoindent

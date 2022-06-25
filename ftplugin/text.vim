@@ -7,5 +7,5 @@ endif
 let b:did_ftplugin = 1
 
 " text
-syntax off
+" syntax off
 setlocal autoindent

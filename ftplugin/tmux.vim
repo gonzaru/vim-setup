@@ -9,4 +9,4 @@ let b:did_ftplugin = 1
 
 " see $VIMRUNTIME/ftplugin/tmux.vim
 " tmux
-syntax off
+" syntax off

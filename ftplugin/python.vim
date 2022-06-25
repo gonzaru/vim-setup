@@ -11,7 +11,7 @@ let b:did_ftplugin = 1
 syntax on
 syntax region Comment start=/'''/ end=/'''/
 syntax region Comment start=/"""/ end=/"""/
-setlocal signcolumn=yes
+setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>

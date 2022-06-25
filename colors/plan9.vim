@@ -38,13 +38,13 @@ endif
 " colorscheme
 let g:colors_name = "plan9"
 
-highlight! Normal guibg=#ffffd7 guifg=black ctermbg=230 ctermfg=black gui=NONE cterm=NONE term=NONE
+highlight! Normal guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
 
 highlight! MatchParen guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
 
 highlight! Visual guifg=black guibg=#ffffaf  ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 
-highlight! WildMenu guibg=#ffffaf guifg=black ctermbg=lightyellow ctermfg=black gui=NONE cterm=NONE term=NONE
+highlight! WildMenu guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 
 " split windows
 highlight! StatusLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
@@ -55,11 +55,13 @@ highlight! VertSplit guifg=white guibg=black ctermfg=white ctermbg=black gui=NON
 highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
 highlight! CursorLine guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 gui=NONE cterm=NONE term=NONE
 highlight! CursorLineNR guifg=white guibg=#5f5f5f ctermfg=white ctermbg=black gui=bold cterm=bold term=NONE
+highlight! link CursorColumn CursorLine
 
 highlight! ColorColumn guifg=black guibg=#ffd75f ctermfg=black ctermbg=221 gui=NONE cterm=NONE term=NONE
 
-highlight! SpellBad guifg=black guibg=#ff8787 ctermfg=black ctermbg=210 gui=underline,italic cterm=underline,italic term=bold
-highlight! SpellCap guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=underline,italic cterm=underline,italic term=bold
+highlight! SpellBad guifg=black guibg=#ff8787 ctermfg=black ctermbg=210 gui=NONE cterm=NONE term=NONE
+highlight! SpellRare guifg=pink guibg=#ff8787" ctermfg=black ctermbg=210 gui=underline cterm=underline term=NONE
+highlight! SpellCap guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=underline cterm=underline term=NONE
 
 highlight! Search guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 

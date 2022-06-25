@@ -16,16 +16,18 @@ endif
 
 " config variables
 if s:eval
-  let s:colorscheme = "plan9"                                      " theme
-  let s:background = "light"                                       " background
-  let s:hostname = hostname()                                      " hostname
-  let s:mac = has('mac')                                           " mac
-  let s:gui = has('gui_running')                                   " gui
-  let s:macvim = has('gui_macvim')                                 " macvim
-  let s:xterm = !empty($XTERM_VERSION)                             " xterm
-  let s:tmux = !empty($TMUX) || &term =~# "tmux"                   " tmux
-  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")   " screen
-  let s:macterm = !s:screen && $TERM_PROGRAM ==# "Apple_Terminal"  " terminal.app
+  let s:colorscheme = "plan9"                                           " theme
+  let s:background = "light"                                            " background
+  let s:hostname = hostname()                                           " hostname
+  let s:mac = has('mac')                                                " mac
+  let s:gui = has('gui_running')                                        " gui
+  let s:macvim = has('gui_macvim')                                      " macvim
+  " let s:vim_terminal = !empty($VIM_TERMINAL)                          " vim terminal mode
+  let s:xterm = !empty($XTERM_VERSION)                                  " xterm
+  let s:apple_terminal = $TERM_PROGRAM ==# "Apple_Terminal"             " terminal.app
+  let s:alacritty = !empty($ALACRITTY_SOCKET) || &term =~# "alacritty"  " alacritty
+  let s:tmux = !empty($TMUX) || &term =~# "tmux"                        " tmux
+  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")        " screen
 endif
 
 " don't load defaults.vim
@@ -94,11 +96,16 @@ set linespace=0     " number of pixel lines inserted between characters (default
 
 " vim
 if !s:gui
+  " viminfo with vim version
+  execute "set viminfofile=".$HOME."/.viminfo_".v:version
+
   " cursor shapes
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
-  if s:mac && !s:xterm
+  if s:mac && s:apple_terminal
+  \ || ((s:screen && $SCREEN_PARENT_TERM_PROGRAM ==# "Apple_Terminal")
+  \ || (s:tmux && $TMUX_PARENT_TERM_PROGRAM ==# "Apple_Terminal"))
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
@@ -108,28 +115,28 @@ if !s:gui
     let &t_EI.="\eP\e[2 q\e\\"
   endif
 
-  " screen/tmux mouse codes
-  if match(&term, '^\(screen\|tmux\)') != -1
+  " screen/tmux/alacritty mouse codes
+  if match(&term, '^\(screen\|tmux\|alacritty\)') != -1
     if s:eval
       let s:code_ttymouse = s:mac ? "sgr" : "xterm2"
       execute "set ttymouse=" . s:code_ttymouse
     endif
   endif
 
-  " automatically is on when term is xterm or screen/tmux (fast terminal)
-  if match(&term, '^\(xterm\|screen\|tmux\)') != -1
+  " automatically is on when term is xterm/screen (fast terminal)
+  if match(&term, '^\(xterm\|screen\|tmux\|alacritty\)') != -1
     set ttyfast
   endif
 
-  " italic
-  if &term =~# "xterm" && !s:screen && !s:tmux
+  " italic fonts support
+  if (s:xterm || s:apple_terminal) && !s:screen && !s:tmux
     let &t_ZH="\e[3m"
     let &t_ZR="\e[23m"
   endif
 
   " 24-bit terminal color
-  if has('termguicolors') && &t_Co == 256
-    if (s:xterm && !s:screen) || s:tmux
+  if has('termguicolors') && &t_Co >= 256
+    if (s:xterm || s:alacritty) && !s:screen
       " :help xterm-true-color
       let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
       let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
@@ -143,11 +150,14 @@ endif
 " gui
 if s:gui
   if s:macvim
+    " viminfo with macvim version
+    execute "set viminfofile=".$HOME."/.viminfo_macvim_".v:version
     let s:gui_fontsize = s:hostname ==# "aiur" ? 14 : 16
     execute "set guifont=Menlo\\ Regular:h" . s:gui_fontsize
-    set viminfofile=$HOME/.viminfo_macvim  " separate viminfo
     set antialias                          " smooth fonts
   else
+    " viminfo with vim version (same as non-gui)
+    execute "set viminfofile=".$HOME."/.viminfo_".v:version
     set guifont=DejaVu\ Sans\ Mono\ 12     " gui font
   endif
   set guioptions=acM               " do not load menus for gui (default aegimrLtT)
@@ -208,7 +218,7 @@ set path+=**                 " set path for finding files with :find
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 " disable background color erase (BCE)
-if &term =~# "-256color" && &t_Co == 256
+if &term =~# "-256color" && &t_Co >= 256
   set t_ut=
 endif
 
@@ -351,6 +361,9 @@ endif
 
 " signs
 if has("signs")
+  " draw the signcolumn
+  set signcolumn=auto
+
   " sh
   sign define sh_error text=✘ texthl=SyntaxErrorSH
   sign define sh_errorplus text=↪+ texthl=SyntaxErrorPlus
@@ -395,6 +408,10 @@ if s:eval
   " alternative second leader
   let maplocalleader = "\<C-\>"
 endif
+
+
+" the key that starts a <C-w> command in a terminal mode
+set termwinkey=<C-s>
 
 " disable arrow keys
 " call DisableArrowKeys()
@@ -484,8 +501,9 @@ if s:gui
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
+" * avoid to use <Esc> mappings in terminal mode
 " tnoremap <C-[> <C-w>N
-tnoremap <expr> <C-[> (&ft ==# "fzf") ? "<Esc>" : "<C-w>N"
+" tnoremap <expr> <C-[> (&ft ==# "fzf") ? "<Esc>" : "<C-w>N"
 
 " buffers
 nnoremap <leader>n :bnext<CR>
@@ -510,14 +528,14 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
-if s:eval
-  " go to N buffer (up to 9 for now)
-  for s:i in range(1, 9)
-    if s:i <= 9
-      execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
-    endif
-  endfor
-endif
+" if s:eval
+"   " go to N buffer (up to 9 for now)
+"   for s:i in range(1, 9)
+"     if s:i <= 9
+"       execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
+"     endif
+"   endfor
+" endif
 
 " all buffers except the current one
 command! BufferDeleteListedExceptCurrent :call BufferRemoveAllExceptCurrent('delete')
@@ -602,11 +620,12 @@ command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
 
 " vim events
 if !s:gui
+  augroup event_vim
   autocmd!
   " reset the cursor shape and redraw the screen
   autocmd VimEnter * startinsert | stopinsert | redraw!
   " reset the terminal
-  autocmd VimLeave * silent !printf '\e[0m'
+  " autocmd VimLeave * silent !printf '\e[0m'
   augroup END
 endif
 
@@ -618,16 +637,16 @@ if s:eval
   augroup END
 endif
 
-" set theme
-if s:eval
-  execute "set background=" . s:background
-  execute "colorscheme " . s:colorscheme
-endif
-
 " load local config
 if s:eval
   let s:vimrc_local = $HOME."/.vimrc.local"
   if filereadable(s:vimrc_local)
     execute "source " . s:vimrc_local
   endif
+endif
+
+" set theme
+if s:eval
+  execute "set background=" . s:background
+  execute "colorscheme " . s:colorscheme
 endif
