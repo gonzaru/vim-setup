@@ -16,24 +16,25 @@ endif
 
 " config variables
 if s:eval
-  let s:colorscheme = "plan9"                                                     " theme
-  let s:background = "light"                                                      " background
-  let s:hostname = hostname()                                                     " hostname
-  let s:mac = has('mac')                                                          " mac
-  let s:gui = has('gui_running')                                                  " gui
-  let s:macvim = has('gui_macvim')                                                " macvim
-  " let s:vim_terminal = !empty($VIM_TERMINAL)                                    " vim terminal mode
-  let s:xterm = !empty($XTERM_VERSION)                                            " xterm
-  let s:xterm_screen = !empty($SCREEN_PARENT_XTERM_VERSION)                       " xterm + screen
-  let s:xterm_tmux = !empty($TMUX_PARENT_XTERM_VERSION)                           " xterm + tmux
-  let s:apple_terminal = $TERM_PROGRAM ==# "Apple_Terminal"                       " terminal.app
-  let s:apple_terminal_screen = $SCREEN_PARENT_TERM_PROGRAM ==# "Apple_Terminal"  " terminal.app + screen
-  let s:apple_terminal_tmux = $TMUX_PARENT_TERM_PROGRAM ==# "Apple_Terminal"      " terminal.app + tmux
-  let s:alacritty = &term =~# "alacritty"                                         " alacritty
-  let s:alacritty_screen = !empty($SCREEN_PARENT_ALACRITTY_SOCKET)                " alacritty + screen
-  let s:alacritty_tmux = !empty($TMUX_PARENT_ALACRITTY_SOCKET)                    " alacritty + tmux
-  let s:tmux = !empty($TMUX) || &term =~# "tmux"                                  " tmux
-  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")                  " screen
+  let s:colorscheme = "plan9"                                                                 " theme
+  let s:background = "light"                                                                  " background
+  let s:hostname = hostname()                                                                 " hostname
+  let s:mac = has('mac')                                                                      " mac
+  let s:gui = has('gui_running')                                                              " gui
+  let s:macvim = has('gui_macvim')                                                            " macvim
+  let s:tmux = !empty($TMUX) || &term =~# "tmux"                                              " tmux
+  let s:screen = (!empty($STY) || &term =~# "screen") && !s:tmux                              " screen
+  let s:multiplexer = s:screen || s:tmux                                                      " multiplexer
+  " let s:vim_terminal = !empty($VIM_TERMINAL)                                                " vim terminal mode
+  let s:xterm = !empty($XTERM_VERSION) && !s:multiplexer                                      " xterm
+  let s:xterm_screen = !empty($SCREEN_PARENT_XTERM_VERSION) && s:screen                       " xterm + screen
+  let s:xterm_tmux = !empty($TMUX_PARENT_XTERM_VERSION) && s:tmux                             " xterm + tmux
+  let s:apple_terminal = $TERM_PROGRAM ==# "Apple_Terminal" && !s:multiplexer                 " terminal.app
+  let s:apple_terminal_screen = $SCREEN_PARENT_TERM_PROGRAM ==# "Apple_Terminal" && s:screen  " terminal.app + screen
+  let s:apple_terminal_tmux = $TMUX_PARENT_TERM_PROGRAM ==# "Apple_Terminal" && s:tmux        " terminal.app + tmux
+  let s:alacritty = &term =~# "alacritty" && !s:multiplexer                                   " alacritty
+  let s:alacritty_screen = $SCREEN_PARENT_TERM =~# "alacritty" && s:screen                    " alacritty + screen
+  let s:alacritty_tmux = $TMUX_PARENT_TERM =~# "alacritty" && s:tmux                          " alacritty + tmux
 endif
 
 " don't load defaults.vim
@@ -109,11 +110,12 @@ if !s:gui
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
-  if s:mac && (s:apple_terminal || s:apple_terminal_screen || s:apple_terminal_tmux)
+  if s:mac && (s:apple_terminal || s:apple_terminal_screen || s:apple_terminal_tmux
+  \ || s:alacritty || s:alacritty_screen || s:alacritty_tmux)
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
-  else
+  elseif s:xterm || s:xterm_screen || s:xterm_tmux
     let &t_SI.="\eP\e[6 q\e\\"
     let &t_SR.="\eP\e[4 q\e\\"
     let &t_EI.="\eP\e[2 q\e\\"
@@ -133,14 +135,14 @@ if !s:gui
   endif
 
   " italic fonts support
-  if (s:xterm || s:apple_terminal) && !s:screen && !s:tmux
+  if (s:xterm || s:apple_terminal) && !s:multiplexer
     let &t_ZH="\e[3m"
     let &t_ZR="\e[23m"
   endif
 
   " 24-bit terminal color
   if has('termguicolors') && &t_Co >= 256
-    if (s:xterm || s:alacritty) && !s:screen
+    if (s:xterm || s:xterm_tmux || s:alacritty || s:alacritty_tmux) && !s:screen
       " :help xterm-true-color
       let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
       let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
@@ -222,9 +224,9 @@ set path+=**                 " set path for finding files with :find
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 " disable background color erase (BCE)
-if &term =~# "-256color" && &t_Co >= 256
-  set t_ut=
-endif
+" if &term =~# "-256color" && &t_Co >= 256
+  " set t_ut=
+" endif
 
 " default shell
 if !empty($SHELL)&& executable($SHELL)
@@ -628,8 +630,10 @@ if !s:gui
   autocmd!
   " reset the cursor shape and redraw the screen
   autocmd VimEnter * startinsert | stopinsert | redraw!
-  " reset the terminal
-  " autocmd VimLeave * silent !printf '\e[0m'
+  " clear the terminal on exit
+  if s:xterm
+    autocmd VimLeave * silent !printf '\e[0m'
+  endif
   augroup END
 endif
 
