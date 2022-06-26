@@ -21,7 +21,6 @@ setlocal softtabstop=4
 setlocal shiftwidth=4
 setlocal shiftround
 setlocal noexpandtab
-setlocal smartindent
 setlocal keywordprg=go\ doc
 " setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build

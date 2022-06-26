@@ -16,18 +16,24 @@ endif
 
 " config variables
 if s:eval
-  let s:colorscheme = "plan9"                                           " theme
-  let s:background = "light"                                            " background
-  let s:hostname = hostname()                                           " hostname
-  let s:mac = has('mac')                                                " mac
-  let s:gui = has('gui_running')                                        " gui
-  let s:macvim = has('gui_macvim')                                      " macvim
-  " let s:vim_terminal = !empty($VIM_TERMINAL)                          " vim terminal mode
-  let s:xterm = !empty($XTERM_VERSION)                                  " xterm
-  let s:apple_terminal = $TERM_PROGRAM ==# "Apple_Terminal"             " terminal.app
-  let s:alacritty = !empty($ALACRITTY_SOCKET) || &term =~# "alacritty"  " alacritty
-  let s:tmux = !empty($TMUX) || &term =~# "tmux"                        " tmux
-  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")        " screen
+  let s:colorscheme = "plan9"                                                     " theme
+  let s:background = "light"                                                      " background
+  let s:hostname = hostname()                                                     " hostname
+  let s:mac = has('mac')                                                          " mac
+  let s:gui = has('gui_running')                                                  " gui
+  let s:macvim = has('gui_macvim')                                                " macvim
+  " let s:vim_terminal = !empty($VIM_TERMINAL)                                    " vim terminal mode
+  let s:xterm = !empty($XTERM_VERSION)                                            " xterm
+  let s:xterm_screen = !empty($SCREEN_PARENT_XTERM_VERSION)                       " xterm + screen
+  let s:xterm_tmux = !empty($TMUX_PARENT_XTERM_VERSION)                           " xterm + tmux
+  let s:apple_terminal = $TERM_PROGRAM ==# "Apple_Terminal"                       " terminal.app
+  let s:apple_terminal_screen = $SCREEN_PARENT_TERM_PROGRAM ==# "Apple_Terminal"  " terminal.app + screen
+  let s:apple_terminal_tmux = $TMUX_PARENT_TERM_PROGRAM ==# "Apple_Terminal"      " terminal.app + tmux
+  let s:alacritty = &term =~# "alacritty"                                         " alacritty
+  let s:alacritty_screen = !empty($SCREEN_PARENT_ALACRITTY_SOCKET)                " alacritty + screen
+  let s:alacritty_tmux = !empty($TMUX_PARENT_ALACRITTY_SOCKET)                    " alacritty + tmux
+  let s:tmux = !empty($TMUX) || &term =~# "tmux"                                  " tmux
+  let s:screen = !s:tmux && (!empty($STY) || &term =~# "screen")                  " screen
 endif
 
 " don't load defaults.vim
@@ -103,9 +109,7 @@ if !s:gui
   " &t_SI = blinking vertical bar (INSERT MODE)
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
-  if s:mac && s:apple_terminal
-  \ || ((s:screen && $SCREEN_PARENT_TERM_PROGRAM ==# "Apple_Terminal")
-  \ || (s:tmux && $TMUX_PARENT_TERM_PROGRAM ==# "Apple_Terminal"))
+  if s:mac && (s:apple_terminal || s:apple_terminal_screen || s:apple_terminal_tmux)
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
@@ -361,7 +365,7 @@ endif
 
 " signs
 if has("signs")
-  " draw the signcolumn
+  " draw only the sign column if contains signs
   set signcolumn=auto
 
   " sh
