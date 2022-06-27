@@ -21,6 +21,9 @@ setlocal shiftround
 setlocal expandtab
 setlocal makeprg=sh\ -n\ %
 nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('sh','cur')<CR>
+nnoremap <buffer><leader>ec :call CycleSignsShowDebugInfo('sh','cur')<CR>
 nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('sh','prev')<CR>
+nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('sh','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('sh','next')<CR>
+nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('sh','next')<CR>
 call matchadd('ColorColumn', '\%120v', 10)

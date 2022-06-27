@@ -26,6 +26,9 @@ setlocal keywordprg=go\ doc
 setlocal makeprg=go\ build
 nnoremap <buffer><leader>K :call Doc("go")<CR>:echo v:errmsg<CR>
 nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('go','cur')<CR>
+nnoremap <buffer><leader>ec :call CycleSignsShowDebugInfo('go','cur')<CR>
 nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('go','prev')<CR>
+nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('go','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('go','next')<CR>
+nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('go','next')<CR>
 call matchadd('ColorColumn', '\%120v', 10)

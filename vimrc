@@ -221,12 +221,8 @@ set nofoldenable             " when off, all folds are open
 set foldmethod=manual        " disable automatic folding
 set cursorline               " mark with another color the current cursor line
 set path+=**                 " set path for finding files with :find
+set t_ut=                    " disable background color erase (BCE)
 " set t_ti= t_te=            " do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
-
-" disable background color erase (BCE)
-" if &term =~# "-256color" && &t_Co >= 256
-  " set t_ut=
-" endif
 
 " default shell
 if !empty($SHELL)&& executable($SHELL)

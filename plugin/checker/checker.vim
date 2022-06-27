@@ -221,7 +221,8 @@ function! s:SHShellCheckNoExec() abort
     throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
   endif
   if !filereadable(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-    throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
+    " throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
+    return
   endif
   call RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
   let l:terrors = 0
@@ -322,7 +323,8 @@ function! s:PYPep8NoExec() abort
     throw "Error: (PYPep8NoExec) " . l:curbufname . " is not a valid python file!"
   endif
   if !filereadable(s:checkerfiles["python"]["pep8"]["syntax"])
-    throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
+    " throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
+    return
   endif
   call RemoveSignsName(l:curbufnr, "py_pep8error")
   let l:terrors = 0
@@ -433,7 +435,8 @@ function! s:GOVetNoExec() abort
     throw "Error: (GOVetNoExec) " . l:curbufname . " is not a valid go file!"
   endif
   if !filereadable(s:checkerfiles["go"]["govet"]["syntax"])
-    throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
+    " throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
+    return
   endif
   call RemoveSignsName(l:curbufnr, "go_veterror")
   let l:errout = trim(system("grep '^vet: ' " . s:checkerfiles["go"]["govet"]["syntax"] . " | cut -d ':' -f3- | head -n1"))

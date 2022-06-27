@@ -30,6 +30,9 @@ setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
 nnoremap <buffer><leader>K :call Doc("python")<CR>:echo v:errmsg<CR>
 nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('py','cur')<CR>
+nnoremap <buffer><leader>ec :call CycleSignsShowDebugInfo('py','cur')<CR>
 nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('py','prev')<CR>
+nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('py','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('py','next')<CR>
+nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('py','next')<CR>
 call matchadd('ColorColumn', '\%79v', 10)
