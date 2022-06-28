@@ -17,7 +17,7 @@
 " 210 looks a red light color
 " 98 with bold for numbers
 
-" do not read the file if is already loaded
+" do not read the file if it is already loaded
 if exists('g:loaded_plan9') && g:loaded_plan9 == 1
   finish
 endif

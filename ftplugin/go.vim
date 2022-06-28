@@ -2,7 +2,7 @@
 " Distributed under the terms of the GNU General Public License v3
 
 " did_ftplugin_go_vim name to avoid collision with another plugins
-" do not read the file if is already loaded
+" do not read the file if it is already loaded
 if exists("b:did_ftplugin_go_vim")
   finish
 endif

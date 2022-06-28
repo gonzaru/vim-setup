@@ -1,7 +1,7 @@
 " by Gonzaru
 " Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if is already loaded
+" do not read the file if it is already loaded
 if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
   echohl WarningMsg
   echom "Warning: file vimrc is already loaded"
@@ -57,6 +57,12 @@ if s:eval
   let g:loaded_vimballPlugin = 1     " vimballPlugin.vim
   let g:loaded_zip = 1               " zip.vim
   let g:loaded_zipPlugin = 1         " zipPlugin.vim
+endif
+
+" enable custom plugins
+if s:eval
+  let g:checker_enabled = 1  " checker plugin
+  let g:se_enabled = 1       " se plugin (simple explorer)
 endif
 
 " set shell $PATH for MacVim if it is lauched without using a terminal
@@ -418,9 +424,11 @@ set termwinkey=<C-s>
 " disable arrow keys
 " call DisableArrowKeys()
 
-" Se plugin (simple explorer)
-nnoremap <leader>ex :call SeToggle()<CR>
-command! SeToggle :call SeToggle()
+" se plugin (simple explorer)
+if get(g:, "se_enabled")
+  nnoremap <leader>ex :call SeToggle()<CR>
+  command! SeToggle :call SeToggle()
+endif
 
 " save
 nnoremap <leader><C-w> :update<CR>

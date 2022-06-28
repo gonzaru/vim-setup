@@ -5,8 +5,8 @@
 
 " See also ../../ftplugin/se.vim
 
-" do not read the file if is already loaded
-if exists('g:loaded_se') && g:loaded_se == 1
+" do not read the file if it is already loaded or se is not enabled
+if get(g:, 'loaded_se') == 1 || get(g:, 'se_enabled') == 0
   finish
 endif
 let g:loaded_se = 1

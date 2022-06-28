@@ -9,7 +9,7 @@
 " l:  local function variables
 " v:  Vim variables.
 
-" do not read the file if is already loaded
+" do not read the file if it is already loaded
 if exists('g:loaded_functions') && g:loaded_functions == 1
   finish
 endif
@@ -489,12 +489,15 @@ function! MyStatusLine()
   else
     let l:sname = l:cchars . l:tname
   endif
-  if &filetype ==# "sh" && (executable("sh") || executable("bash")) && executable("shellcheck")
-    let l:output = CheckerStatusLine("sh")
-  elseif &filetype ==# "python" && executable("python3") && executable("pep8")
-    let l:output = CheckerStatusLine("python")
-  elseif &filetype ==# "go" && executable("go") && executable("gofmt")
-    let l:output = CheckerStatusLine("go")
+  " TODO: checker plugin
+  if get(g:, "checker_enabled")
+    if &filetype ==# "sh" && (executable("sh") || executable("bash")) && executable("shellcheck")
+      let l:output = CheckerStatusLine("sh")
+    elseif &filetype ==# "python" && executable("python3") && executable("pep8")
+      let l:output = CheckerStatusLine("python")
+    elseif &filetype ==# "go" && executable("go") && executable("gofmt")
+      let l:output = CheckerStatusLine("go")
+    endif
   endif
   if !empty(l:output)
     let l:output = " " . l:output

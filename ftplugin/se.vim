@@ -1,7 +1,8 @@
 " by Gonzaru
 " Distributed under the terms of the GNU General Public License v3
 
-if exists("b:did_ftplugin")
+" do not read the file if it is already loaded or se is not enabled
+if exists("b:did_ftplugin") || get(g:, "se_enabled") == 0
   finish
 endif
 let b:did_ftplugin = 1
