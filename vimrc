@@ -106,6 +106,8 @@ set showcmd         " show command on the last line of screen (ex: see visual mo
 set esckeys         " allow usage of cursor keys within insert mode
 set lazyredraw      " on: redraw only when needed, nice for editing macros
 set linespace=0     " number of pixel lines inserted between characters (default is 0)
+set autoread        " automatically read the file if it has been modified externally
+" set autowrite     " write automatically the contents of the file if it has been modified (:make, <C-]> etc.)
 
 " vim
 if !s:gui
@@ -252,6 +254,15 @@ endif
 " prevents that the langmap option applies to characters (from defaults.vim)
 if has("langmap") && exists("+langremap")
   set nolangremap
+endif
+
+" wildmenu
+if has("wildmenu")
+  set wildmenu               " enchange command line completion
+  set wildmode=longest,full  " default
+  if v:version >= 900 || (v:version == 802 && has('patch4325'))
+    set wildoptions=pum      " (pum) the completion matches are shown in a popup menu
+  endif
 endif
 
 " statusline

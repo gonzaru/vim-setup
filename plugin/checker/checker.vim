@@ -169,7 +169,7 @@ function! g:SHCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   let s:sh_error = 0
-  if s:BufferIsEmpty()
+  if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
   if &filetype !=# "sh"
@@ -277,7 +277,7 @@ function! g:PYCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   let s:py_error = 0
-  if s:BufferIsEmpty()
+  if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
   if &filetype !=# "python"
@@ -382,7 +382,7 @@ function! g:GOCheck(mode) abort
   let l:curbufname = bufname('%')
   " let l:curline = line('.')
   let s:go_error = 0
-  if s:BufferIsEmpty()
+  if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
   if &filetype !=# "go"
