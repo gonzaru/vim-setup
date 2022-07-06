@@ -53,8 +53,9 @@ highlight! StatusLineNC guifg=white guibg=gray ctermfg=white ctermbg=gray gui=NO
 " vertical split color
 highlight! VertSplit guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
-highlight! CursorLine guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 gui=NONE cterm=NONE term=NONE
-highlight! CursorLineNR guifg=white guibg=#5f5f5f ctermfg=white ctermbg=black gui=bold cterm=bold term=NONE
+highlight! CursorLine guifg=NONE guibg=#d7d7af ctermfg=NONE ctermbg=187 gui=NONE cterm=NONE term=NONE
+" highlight! CursorLineNR guifg=white guibg=#5f5f5f ctermfg=white ctermbg=black gui=bold cterm=bold term=NONE
+highlight! CursorLineNR guifg=#4a4a4a  guibg=#d7d7af ctermfg=238 ctermbg=187 gui=bold cterm=bold term=NONE
 highlight! link CursorColumn CursorLine
 
 highlight! ColorColumn guifg=black guibg=#ffd75f ctermfg=black ctermbg=221 gui=NONE cterm=NONE term=NONE
@@ -107,41 +108,41 @@ highlight! StatusLineTerm guifg=white guibg=#005f00 ctermfg=white ctermbg=22 gui
 highlight! link StatusLineTermNC StatusLineNC
 
 " :help syntax
-highlight! Boolean guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Character guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Comment guifg=grey39 guibg=#ffffd7 ctermfg=241 ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Conditional guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Constant guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Debug guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Define guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Delimiter guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Error guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Exception guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Float guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Function guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Identifier guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Ignore guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Include guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Keyword guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Label guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Macro guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Number guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Operator guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! PreCondit guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! PreProc guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Repeat guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Special guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! SpecialChar guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! SpecialComment guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Statement guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! StorageClass guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! String guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Structure guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Tag guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Todo guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Type guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Typedef guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
-highlight! Underlined guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
+highlight! link Boolean Normal
+highlight! link Character Normal
+highlight! link Comment Normal
+highlight! link Conditional Normal
+highlight! link Constant Normal
+highlight! link Debug Normal
+highlight! link Define Normal
+highlight! link Delimiter Normal
+highlight! link Error Normal
+highlight! link Exception Normal
+highlight! link Float Normal
+highlight! link Function Normal
+highlight! link Identifier Normal
+highlight! link Ignore Normal
+highlight! link Include Normal
+highlight! link Keyword Normal
+highlight! link Label Normal
+highlight! link Macro Normal
+highlight! link Number Normal
+highlight! link Operator Normal
+highlight! link PreCondit Normal
+highlight! link PreProc Normal
+highlight! link Repeat Normal
+highlight! link Special Normal
+highlight! link SpecialChar Normal
+highlight! link SpecialComment Normal
+highlight! link Statement Normal
+highlight! link StorageClass Normal
+highlight! link String Normal
+highlight! link Structure Normal
+highlight! link Tag Normal
+highlight! link Todo Normal
+highlight! link Type Normal
+highlight! link Typedef Normal
+highlight! link Underlined Normal
 
 " signs column
 highlight! SignColumn guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
@@ -154,23 +155,50 @@ highlight! SyntaxError guifg=black guibg=#ff0000 ctermfg=black ctermbg=9 gui=NON
 highlight! SyntaxWarning guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 highlight! SyntaxErrorPlus guifg=#800000 guibg=#ffffff ctermfg=1 ctermbg=15 gui=NONE cterm=NONE term=NONE
 
-highlight! SyntaxGoodSH guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorSH guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+" checker sh
+highlight! link SyntaxGoodSH Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorSH guifg=#ff0000 guibg=NONE ctermfg=196 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorSH guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+endif
 
-highlight! SyntaxGoodSHELLCHECK guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorSHELLCHECK guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 gui=NONE cterm=NONE term=NONE
+highlight! link SyntaxGoodSHELLCHECK Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorSHELLCHECK guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorSHELLCHECK guifg=#cc7832 guibg=#d7d7af ctermfg=172 ctermbg=187 gui=NONE cterm=NONE term=NONE
+endif
 
-highlight! SyntaxGoodPY guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorPY guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+" checker python
+highlight! link SyntaxGoodPY Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorPY guifg=#ff0000 guibg=NONE ctermfg=196 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorPY guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+endif
 
-highlight! SyntaxGoodPEP8 guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorPEP8 guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 gui=NONE cterm=NONE term=NONE
+highlight! link SyntaxGoodPEP8 Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorPEP8 guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorPEP8 guifg=#cc7832 guibg=#d7d7af ctermfg=172 ctermbg=187 gui=NONE cterm=NONE term=NONE
+endif
 
-highlight! SyntaxGoodGO guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorGO guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+" checker go
+highlight! link SyntaxGoodGO Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorGO guifg=#ff0000 guibg=NONE ctermfg=196 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorGO guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+endif
 
-highlight! SyntaxGoodGOVET guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! SyntaxErrorGOVET guifg=black guibg=#d7d7af ctermfg=black ctermbg=187 gui=NONE cterm=NONE term=NONE
+highlight! link SyntaxGoodGOVET Normal
+if &signcolumn ==# "number"
+  highlight! SyntaxErrorGOVET guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+else
+  highlight! SyntaxErrorGOVET guifg=#cc7832 guibg=#d7d7af ctermfg=172 ctermbg=187 gui=NONE cterm=NONE term=NONE
+endif
 
 " statusline
 highlight! SyntaxFoldLevel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
