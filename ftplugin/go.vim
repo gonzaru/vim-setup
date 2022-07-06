@@ -12,7 +12,7 @@ let b:did_ftplugin_go_vim = 1
 " Go
 syntax on
 setlocal formatoptions-=t
-setlocal signcolumn=auto
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal nowrap

@@ -11,7 +11,7 @@ let b:did_ftplugin = 1
 " JavaScript
 syntax on
 setlocal formatoptions-=t
-setlocal signcolumn=yes
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>

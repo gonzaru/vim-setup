@@ -9,7 +9,7 @@ let b:did_ftplugin = 1
 " see $VIMRUNTIME/ftplugin/sh.vim
 " sh
 syntax on
-setlocal signcolumn=auto
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>

@@ -10,7 +10,7 @@ let b:did_ftplugin = 1
 " see $VIMRUNTIME/ftplugin/php.vim
 " PHP
 syntax on
-setlocal signcolumn=yes
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>

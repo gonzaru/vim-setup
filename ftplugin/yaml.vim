@@ -10,7 +10,7 @@ let b:did_ftplugin = 1
 " YAML
 syntax on
 setlocal formatoptions-=t
-setlocal signcolumn=yes
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>

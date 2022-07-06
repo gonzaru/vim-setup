@@ -13,7 +13,7 @@ syntax on
 setlocal formatoptions-=t
 setlocal comments=
 setlocal commentstring=
-setlocal signcolumn=yes
+" setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
 setlocal matchpairs-=<:>
