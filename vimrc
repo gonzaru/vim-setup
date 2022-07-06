@@ -35,6 +35,9 @@ if s:eval
   let s:alacritty = &term =~# "alacritty" && !s:multiplexer                                   " alacritty
   let s:alacritty_screen = $SCREEN_PARENT_TERM =~# "alacritty" && s:screen                    " alacritty + screen
   let s:alacritty_tmux = $TMUX_PARENT_TERM =~# "alacritty" && s:tmux                          " alacritty + tmux
+  let s:kitty = &term =~# "xterm-kitty" && !s:multiplexer                                     " kitty
+  let s:kitty_screen = $SCREEN_PARENT_TERM =~# "xterm-kitty" && s:screen                      " kitty + screen
+  let s:kitty_tmux = $TMUX_PARENT_TERM =~# "xterm-kitty" && s:tmux                            " kitty + tmux
 endif
 
 " don't load defaults.vim
@@ -119,7 +122,8 @@ if !s:gui
   " &t_SR = blinking underscore   (REPLACE MODE)
   " &t_EI = blinking block        (NORMAL MODE)
   if s:mac && (s:apple_terminal || s:apple_terminal_screen || s:apple_terminal_tmux
-  \ || s:alacritty || s:alacritty_screen || s:alacritty_tmux)
+  \ || s:alacritty || s:alacritty_screen || s:alacritty_tmux
+  \ || s:kitty || s:kitty_screen || s:kitty_tmux)
     let &t_SI.="\eP\e[5 q\e\\"
     let &t_SR.="\eP\e[3 q\e\\"
     let &t_EI.="\eP\e[1 q\e\\"
@@ -150,7 +154,7 @@ if !s:gui
 
   " 24-bit terminal color
   if has('termguicolors') && &t_Co >= 256
-    if (s:xterm || s:xterm_tmux || s:alacritty || s:alacritty_tmux) && !s:screen
+    if (s:xterm || s:xterm_tmux || s:alacritty || s:alacritty_tmux || s:kitty || s:kitty_tmux) && !s:screen
       " :help xterm-true-color
       let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
       let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
@@ -260,7 +264,7 @@ endif
 if has("wildmenu")
   set wildmenu               " enchange command line completion
   set wildmode=longest,full  " default
-  if v:version >= 900 || (v:version == 802 && has('patch4325'))
+  if has("patch-8.2.4325")
     set wildoptions=pum      " (pum) the completion matches are shown in a popup menu
   endif
 endif
@@ -381,7 +385,11 @@ endif
 " signs
 if has("signs")
   " draw only the sign column if contains signs
-  set signcolumn=auto
+  if has("patch-8.1.1564")
+    set signcolumn=number
+  else
+    set signcolumn=auto
+  endif
 
   " sh
   sign define sh_error text=✘ texthl=SyntaxErrorSH
@@ -577,6 +585,9 @@ nnoremap <leader>cf :cfirst<CR>
 nnoremap <leader>ce :clast<CR>
 nnoremap <leader>cx :call setqflist([], 'r')<CR>
 nnoremap <leader>lx :call setloclist(0, [], 'r')<CR>
+
+" popup window
+nnoremap <leader>cP :call popup_clear(1)<CR>
 
 " comment/uncomment by language
 nnoremap <leader>/ :call CommentByLanguage()<CR>
