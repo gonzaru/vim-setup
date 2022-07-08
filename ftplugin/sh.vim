@@ -8,6 +8,8 @@ let b:did_ftplugin = 1
 
 " see $VIMRUNTIME/ftplugin/sh.vim
 " sh
+" :help ft-posix-syntax
+let g:is_posix = 1
 syntax on
 " setlocal signcolumn=auto
 setlocal number
