@@ -46,8 +46,8 @@ endfunction
 function! SeToggle() abort
   let l:sb = s:SeGetBufId()
   if l:sb
+    let l:bufinfo = getbufinfo(l:sb)
     if l:bufinfo[0].hidden
-      let l:bufinfo = getbufinfo(l:sb)
       setlocal nosplitright
       execute "vertical sbuffer " . l:sb
       setlocal splitright
@@ -57,9 +57,9 @@ function! SeToggle() abort
       if win_getid() != bufwinid(l:sb)
         call win_gotoid(bufwinid(l:sb))
       endif
-    endif
-    if &filetype ==# "se"
-      close
+      if &filetype ==# "se"
+        close
+      endif
     endif
   else
     call SeList()
