@@ -16,8 +16,8 @@ endif
 
 " config variables
 if s:eval
-  let s:colorscheme = "plan9"                                                                 " theme
-  let s:background = "light"                                                                  " background
+  let s:colorscheme = "darkula"                                                               " theme
+  let s:background = "dark"                                                                   " background
   let s:hostname = hostname()                                                                 " hostname
   let s:mac = has('mac')                                                                      " mac
   let s:gui = has('gui_running')                                                              " gui
