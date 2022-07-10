@@ -104,7 +104,7 @@ function! SeList() abort
     vertical new
     silent file se
     setlocal splitright
-    setfiletype se
+    setlocal filetype=se
     if s:se_oldcwd && s:se_oldcwd != '.'
       execute "lcd " . fnameescape(s:se_oldcwd)
     endif

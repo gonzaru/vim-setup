@@ -9,7 +9,11 @@ let b:did_ftplugin = 1
 " see $VIMRUNTIME/ftplugin/sh.vim
 " sh
 " :help ft-posix-syntax
-let g:is_posix = 1
+if getline(1) =~# "bash"
+  let g:is_bash = 1
+else
+  let g:is_posix = 1
+endif
 syntax on
 " setlocal signcolumn=auto
 setlocal number

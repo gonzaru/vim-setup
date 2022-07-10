@@ -42,7 +42,7 @@ highlight! Normal guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE c
 
 highlight! MatchParen guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
 
-highlight! Visual guifg=black guibg=#ffffaf  ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
+highlight! Visual guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 
 highlight! WildMenu guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 
@@ -55,7 +55,7 @@ highlight! VertSplit guifg=white guibg=black ctermfg=white ctermbg=black gui=NON
 highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
 highlight! CursorLine guifg=NONE guibg=#d7d7af ctermfg=NONE ctermbg=187 gui=NONE cterm=NONE term=NONE
 " highlight! CursorLineNR guifg=white guibg=#5f5f5f ctermfg=white ctermbg=black gui=bold cterm=bold term=NONE
-highlight! CursorLineNR guifg=#4a4a4a  guibg=#d7d7af ctermfg=238 ctermbg=187 gui=bold cterm=bold term=NONE
+highlight! CursorLineNR guifg=#4a4a4a guibg=#d7d7af ctermfg=238 ctermbg=187 gui=bold cterm=bold term=NONE
 highlight! link CursorColumn CursorLine
 
 highlight! ColorColumn guifg=black guibg=#ffd75f ctermfg=black ctermbg=221 gui=NONE cterm=NONE term=NONE

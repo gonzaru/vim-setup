@@ -31,4 +31,19 @@ nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('go','prev')<CR>
 nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('go','prev')<CR>
 nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('go','next')<CR>
 nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('go','next')<CR>
+inoremap <silent><buffer><expr> . GoInsAutoComplete()
+function! GoInsAutoComplete()
+  if &omnifunc !=# "go#complete#Complete"
+    return '.'
+  endif
+  let l:curline = getline('.')
+  let l:curcol = col('.')
+  if !empty(trim(l:curline)) && l:curcol > 1
+    " previous char [a-zA-Z0-9_]+
+    if strcharpart(l:curline[l:curcol - 2:], 0, 1) =~ '\h\|\d'
+      return ".\<C-X>\<C-O>"
+    endif
+  endif
+  return '.'
+endfunction
 call matchadd('ColorColumn', '\%120v', 10)

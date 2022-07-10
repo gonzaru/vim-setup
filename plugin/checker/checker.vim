@@ -177,7 +177,7 @@ function! g:SHCheck(mode) abort
   endif
   call RemoveSignsName(l:curbufnr, "sh_error")
   call RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
-  let l:theshell = getline(1) =~# "bash$" ? "bash" : "sh"
+  let l:theshell = getline(1) =~# "bash" ? "bash" : "sh"
   if a:mode ==# "read"
     let l:check_file = l:curbufname
   elseif a:mode ==# "write"

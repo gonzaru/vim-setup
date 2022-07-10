@@ -220,6 +220,7 @@ set cpoptions-=aA            " don't set '#' alterative file for :read and :writ
 set laststatus=2             " to display the status line always
 set display=lastline         " the last line in a window will be displayed if possible
 set ignorecase               " case-insensitive search (also affects if == 'var', use if ==# 'var')
+set noinfercase              " when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set smartcase                " except if start with capital letter
 set tagcase=followscs        " default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
 set hlsearch                 " to highlight all search matches
@@ -264,6 +265,7 @@ endif
 if has("wildmenu")
   set wildmenu               " enchange command line completion
   set wildmode=longest,full  " default
+  set wildignorecase         " case is ignored when completing files and directories
   if has("patch-8.2.4325")
     set wildoptions=pum      " (pum) the completion matches are shown in a popup menu
   endif
@@ -351,10 +353,9 @@ set omnifunc=syntaxcomplete#Complete
 set completefunc=syntaxcomplete#Complete
 
 " completion
+set completeopt=menuone,noinsert
 if has('popupwin')
-  set completeopt=menuone,noinsert,popup  " popup extra info, like using omnicompletion
-else
-  set completeopt=menuone,noinsert
+  set completeopt+=popup  " popup extra info, like using omnicompletion
 endif
 if exists('+completepopup')
   set completepopup+=highlight:InfoPopup  " see InfoPopUp in theme
@@ -456,19 +457,24 @@ inoremap <leader><C-w> <C-o>:update<CR>
 " edit
 nnoremap <leader>ev :e $HOME/.vimrc<CR>
 nnoremap <leader>ef :e $HOME/.vim/plugin/functions.vim<CR>
-nnoremap <leader>et :e $HOME/.vim/colors/plan9.vim<CR>
+nnoremap <leader>et :execute "e $HOME/.vim/colors/".g:colors_name.".vim"<CR>
 nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
+
+" completion
+" :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
+" inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
 " source
 nnoremap <leader>sv :source $HOME/.vimrc<CR>
 nnoremap <leader>sV :let g:loaded_vimrc=0<CR>:source $HOME/.vimrc<CR>
-nnoremap <leader>st :let g:loaded_plan9=0<CR>:colorscheme plan9<CR>
+nnoremap <leader>st :Theme<CR>
 nnoremap <leader>sf :let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
 nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
                    \:let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
                    \:let g:loaded_checker=0<CR>:source $HOME/.vim/plugin/checker/checker.vim<CR>
                    \:let g:loaded_se=0<CR>:source $HOME/.vim/plugin/se/se.vim<CR>
+                   \:Theme<CR>
 
 " toggle
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
@@ -481,6 +487,8 @@ nnoremap <leader>tgl :setlocal list! list?<CR>
 nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
 nnoremap <leader>tgp :setlocal paste! paste?<CR>
 nnoremap <leader>tgd :call DiffToggle()<CR>
+nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgW :set autowrite! autowrite? \| echon " (set)"<CR>
 nnoremap <leader>* :nohlsearch<CR>
 nnoremap <silent><leader>tgs :call SyntaxToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
 nnoremap <leader>tgb :call BackgroundToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
@@ -649,6 +657,18 @@ command! -nargs=1 Et call EditTop(<f-args>)
 
 " plan9 theme
 command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
+
+" darkula theme
+command! Darkula :let g:loaded_darkula=0 | set background=dark | colorscheme darkula
+
+" reload the current theme
+command! Theme if g:colors_name ==# "plan9"
+            \|   silent execute ":normal! :Plan9\<CR>"
+            \| elseif g:colors_name ==# "darkula"
+            \|   silent execute ":normal! :Darkula\<CR>"
+            \| else
+            \|   silent execute "colorscheme " . g:colors_name
+            \| endif
 
 " vim events
 if !s:gui
