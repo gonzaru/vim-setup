@@ -15,6 +15,31 @@ if exists('g:loaded_functions') && g:loaded_functions == 1
 endif
 let g:loaded_functions = 1
 
+" automatic close of chars [,(,[
+function! AutoCloseChars(mode, nr)
+  let l:key = {'tab': 9, 'enter': 13, 'quote': 34, 'apostrophe': 39}
+  if !get(g:, "autoclosechars_enabled")
+    return nr2char(a:nr)
+  endif
+  if a:mode ==# "braceleft" && a:nr == l:key['enter']
+    return "\<CR>}\<ESC>O"
+  elseif a:mode ==# "braceleft" && a:nr == l:key['tab']
+    return "}\<left>"
+  elseif a:mode ==# "parenleft" && a:nr == l:key['enter']
+    return "\<CR>)\<ESC>O"
+  elseif a:mode ==# "parenleft" && (a:nr == l:key['tab'] || a:nr == l:key['quote'])
+    return "\"\")\<left>\<left>"
+  elseif a:mode ==# "parenleft" && a:nr == l:key['apostrophe']
+    return "'')\<left>\<left>"
+  elseif a:mode ==# "bracketleft" && (a:nr == l:key['tab'] || a:nr == l:key['quote'])
+    return "\"\"]\<left>\<left>"
+  elseif a:mode ==# "bracketleft" && a:nr == l:key['apostrophe']
+    return "'']\<left>\<left>"
+  else
+    return nr2char(a:nr)
+  endif
+endfunc
+
 " toggle background
 function! BackgroundToggle()
   let l:new_background = &background ==# "dark" ? "light" : "dark"

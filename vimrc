@@ -62,10 +62,11 @@ if s:eval
   let g:loaded_zipPlugin = 1         " zipPlugin.vim
 endif
 
-" enable custom plugins
+" enable custom functions and plugins
 if s:eval
-  let g:checker_enabled = 1  " checker plugin
-  let g:se_enabled = 1       " se plugin (simple explorer)
+  let g:autoclosechars_enabled = 1  " automatic close of chars
+  let g:checker_enabled = 1         " checker plugin
+  let g:se_enabled = 1              " se plugin (simple explorer)
 endif
 
 " set shell $PATH for MacVim if it is lauched without using a terminal
@@ -198,7 +199,7 @@ if has("syntax")
 endif
 
 " global settings
-set ruler                    " show line & column number
+set ruler                    " show line and column number
 set magic                    " use extended regexp in search patterns
 set modelines=0              " do not use modelines
 set nomodeline               " avoid modeline vulnerability
@@ -528,6 +529,19 @@ inoremap <leader><C-d> <Esc>:move .+1<CR>==gi
 inoremap <leader><C-u> <Esc>:move .-2<CR>==gi
 vnoremap <leader><C-d> :move '>+1<CR>gv=gv
 vnoremap <leader><C-u> :move '<-2<CR>gv=gv
+
+" automatic close of chars
+if get(g:, "autoclosechars_enabled")
+  " inoremap ' ''<left>
+  " inoremap " ""<left>
+  " inoremap ( ()<left>
+  " inoremap [ []<left>
+  " inoremap { {}<left>
+  " inoremap {<CR> {<CR>}<ESC>O
+  inoremap [ [<C-r>=AutoCloseChars("bracketleft", getchar())<CR>
+  inoremap ( (<C-r>=AutoCloseChars("parenleft", getchar())<CR>
+  inoremap { {<C-r>=AutoCloseChars("braceleft", getchar())<CR>
+endif
 
 " gui
 if s:gui
