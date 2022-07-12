@@ -478,6 +478,7 @@ nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
                    \:Theme<CR>
 
 " toggle
+nnoremap <leader>tga :call AutoCloseCharsToggle()<CR>:echo v:statusmsg<CR>
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
@@ -487,7 +488,7 @@ nnoremap <leader>tgJ :set joinspaces! joinspaces? \| echon " (set)"<CR>
 nnoremap <leader>tgl :setlocal list! list?<CR>
 nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
 nnoremap <leader>tgp :setlocal paste! paste?<CR>
-nnoremap <leader>tgd :call DiffToggle()<CR>
+nnoremap <leader>tgd :call DiffToggle()<CR>:echo v:statusmsg<CR>
 nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgW :set autowrite! autowrite? \| echon " (set)"<CR>
 nnoremap <leader>* :nohlsearch<CR>
@@ -495,9 +496,9 @@ nnoremap <silent><leader>tgs :call SyntaxToggle()<CR>:redraw!<CR>:echo v:statusm
 nnoremap <leader>tgb :call BackgroundToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
 
 " sign, fold
-nnoremap <leader>tgc :call SignColumnToggle()<CR>
-nnoremap <leader>tgf :call FoldColumnToggle()<CR>
-nnoremap <leader>tgz :call FoldToggle()<CR>
+nnoremap <leader>tgc :call SignColumnToggle()<CR>:echo v:statusmsg<CR>
+nnoremap <leader>tgf :call FoldColumnToggle()<CR>:echo v:statusmsg<CR>
+nnoremap <leader>tgz :call FoldToggle()<CR>:echo v:statusmsg<CR>
 
 " :sh
 if s:gui

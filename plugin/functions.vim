@@ -40,6 +40,12 @@ function! AutoCloseChars(mode, nr)
   endif
 endfunc
 
+" toggle automatic close of chars
+function! AutoCloseCharsToggle()
+  let g:autoclosechars_enabled = !get(g:, "autoclosechars_enabled")
+  let v:statusmsg = "autoclosechars=" . g:autoclosechars_enabled
+endfunction
+
 " toggle background
 function! BackgroundToggle()
   let l:new_background = &background ==# "dark" ? "light" : "dark"
@@ -137,6 +143,7 @@ function! DiffToggle()
   else
     diffthis
   endif
+  let v:statusmsg = "diff=" . &diff
 endfunction
 
 " checks if directory is empty
@@ -283,6 +290,7 @@ function! FoldToggle()
   else
     execute "normal zR"
   endif
+  let v:statusmsg = "foldlevel=" . &foldlevel
 endfunction
 
 " format language
