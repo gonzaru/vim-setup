@@ -4,9 +4,9 @@
 " My darkula theme :)
 
 " do not read the file if it is already loaded
-if exists('g:loaded_darkula') && g:loaded_darkula == 1
-  finish
-endif
+if get(g:, 'loaded_darkula') == 1 && get(g:, 'colors_name') ==# "darkula"
+   finish
+ endif
 let g:loaded_darkula = 1
 
 " dark background

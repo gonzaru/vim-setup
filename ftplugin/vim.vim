@@ -22,3 +22,6 @@ setlocal expandtab
 setlocal textwidth=0
 setlocal tags=$HOME/.vim/tags
 setlocal keywordprg=:help
+if get(g:, "autoendstructs_enabled")
+  inoremap <buffer><CR> <Plug>(autoendstructs-end)
+endif

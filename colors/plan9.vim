@@ -18,8 +18,8 @@
 " 98 with bold for numbers
 
 " do not read the file if it is already loaded
-if exists('g:loaded_plan9') && g:loaded_plan9 == 1
-  finish
+if get(g:, 'loaded_plan9') == 1 && get(g:, 'colors_name') ==# "plan9"
+   finish
 endif
 let g:loaded_plan9 = 1
 

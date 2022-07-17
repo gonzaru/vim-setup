@@ -62,10 +62,18 @@ if s:eval
   let g:loaded_zipPlugin = 1         " zipPlugin.vim
 endif
 
-" enable custom functions and plugins
+" enable custom plugins
 if s:eval
+  let g:arrowkeys_enabled = 1       " enable/disable arrow keys
   let g:autoclosechars_enabled = 1  " automatic close of chars
+  let g:autoendstructs_enabled = 1  " automatic end of structures
+  let g:bufferonly_enabled = 1      " remove all buffers except the current one
   let g:checker_enabled = 1         " checker plugin
+  let g:commentarium_enabled = 1    " comment by language
+  let g:cyclebuffers_enabled = 1    " cycle between buffers
+  let g:misc_enabled = 1            " miscelania functions
+  let g:runprg_enabled = 1          " run programs
+  let g:scratch_enabled = 1         " scratch stuff
   let g:se_enabled = 1              " se plugin (simple explorer)
 endif
 
@@ -277,8 +285,10 @@ if s:eval
   let g:statusline_base = &statusline
 endif
 set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
-set tabline=%!MyTabLine()  " my custom tabline (see :help setting-tabline)
-set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
+if get(g:, "misc_enabled")
+  set tabline=%!g:MiscMyTabLine()  " my custom tabline (see :help setting-tabline)
+  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{g:MiscMyStatusLine()}\ %-14.(%l,%c%V%)\ %P
+endif
 
 " utf-8 support
 if has("multi_byte")
@@ -442,13 +452,19 @@ endif
 " the key that starts a <C-w> command in a terminal mode
 set termwinkey=<C-s>
 
-" disable arrow keys
-" call DisableArrowKeys()
+" arrow keys
+if get(g:, "arrowkeys_enabled")
+  nnoremap <leader>ae <Plug>(arrowkeys-enable)
+  nnoremap <leader>ad <Plug>(arrowkeys-disable)
+  command! ArrowKeysEnable :normal! <Plug>(arrowkeys-enable)
+  command! ArrowKeysDisable :normal! <Plug>(arrowkeys-disable)
+endif
 
 " se plugin (simple explorer)
 if get(g:, "se_enabled")
-  nnoremap <leader>ex :call SeToggle()<CR>
-  command! SeToggle :call SeToggle()
+  let g:se_winsize = 20
+  nnoremap <leader>se <Plug>(se-toggle)
+  command! SeToggle :normal! <Plug>(se-toggle)
 endif
 
 " save
@@ -457,7 +473,8 @@ inoremap <leader><C-w> <C-o>:update<CR>
 
 " edit
 nnoremap <leader>ev :e $HOME/.vimrc<CR>
-nnoremap <leader>ef :e $HOME/.vim/plugin/functions.vim<CR>
+nnoremap <leader>em :e $HOME/.vim/plugin/misc.vim<CR>
+nnoremap <leader>eM :e $HOME/.vim/autoload/misc.vim<CR>
 nnoremap <leader>et :execute "e $HOME/.vim/colors/".g:colors_name.".vim"<CR>
 nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
@@ -470,15 +487,30 @@ nnoremap <leader>eb :browse oldfiles<CR>
 nnoremap <leader>sv :source $HOME/.vimrc<CR>
 nnoremap <leader>sV :let g:loaded_vimrc=0<CR>:source $HOME/.vimrc<CR>
 nnoremap <leader>st :Theme<CR>
-nnoremap <leader>sf :let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
+" nnoremap <leader>sm :let g:loaded_misc=0<CR>:source $HOME/.vim/plugin/misc.vim<CR>
+nnoremap <leader>sM :let g:autoloaded_misc=0<CR>:source $HOME/.vim/autoload/misc.vim<CR>
 nnoremap <leader>sa :let g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>
-                   \:let g:loaded_functions=0<CR>:source $HOME/.vim/plugin/functions.vim<CR>
-                   \:let g:loaded_checker=0<CR>:source $HOME/.vim/plugin/checker/checker.vim<CR>
-                   \:let g:loaded_se=0<CR>:source $HOME/.vim/plugin/se/se.vim<CR>
                    \:Theme<CR>
+                  "\:let g:loaded_misc=0<CR>:source $HOME/.vim/plugin/misc.vim<CR>
+                  "\:let g:autoloaded_misc=0<CR>:source $HOME/.vim/autoload/misc.vim<CR>
+                  "\:let g:loaded_checker=0<CR>:source $HOME/.vim/plugin/checker.vim<CR>
+                  "\:let g:loaded_se=0<CR>:source $HOME/.vim/plugin/se.vim<CR>
+                  "\:let g:loaded_arrowkeys=0<CR>:source $HOME/.vim/plugin/arrowkeys.vim<CR>
+                  "\:let g:loaded_bufferonly=0<CR>:source $HOME/.vim/plugin/bufferonly.vim<CR>
+                  "\:let g:loaded_cyclebuffers=0<CR>:source $HOME/.vim/plugin/cyclebuffers.vim<CR>
+                  "\:let g:loaded_scratch=0<CR>:source $HOME/.vim/plugin/scratch.vim<CR>
+                  "\:let g:loaded_runprg=0<CR>:source $HOME/.vim/plugin/runprg.vim<CR>
+                  "\:let g:loaded_commentarium=0<CR>:source $HOME/.vim/plugin/commentarium.vim<CR>
+                  "\:let g:loaded_autoclosechars=0<CR>:source $HOME/.vim/plugin/autoclosechars.vim<CR>
+                  "\:let g:loaded_autoendstructs=0<CR>:source $HOME/.vim/plugin/autoendstructs.vim<CR>
 
 " toggle
-nnoremap <leader>tga :call AutoCloseCharsToggle()<CR>:echo v:statusmsg<CR>
+if get(g:, "autoclosechars_enabled")
+  nnoremap <leader>tga <Plug>(autoclosechars-toggle):echo v:statusmsg<CR>
+endif
+if get(g:, "autoendstructs_enabled")
+  nnoremap <leader>tge <Plug>(autoendstructs-toggle):echo v:statusmsg<CR>
+endif
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
@@ -488,33 +520,45 @@ nnoremap <leader>tgJ :set joinspaces! joinspaces? \| echon " (set)"<CR>
 nnoremap <leader>tgl :setlocal list! list?<CR>
 nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
 nnoremap <leader>tgp :setlocal paste! paste?<CR>
-nnoremap <leader>tgd :call DiffToggle()<CR>:echo v:statusmsg<CR>
+if get(g:, "misc_enabled")
+  nnoremap <leader>tgd :call misc#DiffToggle()<CR>:echo v:statusmsg<CR>
+endif
 nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgW :set autowrite! autowrite? \| echon " (set)"<CR>
 nnoremap <leader>* :nohlsearch<CR>
-nnoremap <silent><leader>tgs :call SyntaxToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
-nnoremap <leader>tgb :call BackgroundToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
+if get(g:, "misc_enabled")
+  nnoremap <silent><leader>tgs :call misc#SyntaxToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgb :call misc#BackgroundToggle()<CR>:redraw!<CR>:echo v:statusmsg<CR>
+endif
 
 " sign, fold
-nnoremap <leader>tgc :call SignColumnToggle()<CR>:echo v:statusmsg<CR>
-nnoremap <leader>tgf :call FoldColumnToggle()<CR>:echo v:statusmsg<CR>
-nnoremap <leader>tgz :call FoldToggle()<CR>:echo v:statusmsg<CR>
+if get(g:, "misc_enabled")
+  nnoremap <leader>tgc :call misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgf :call misc#FoldColumnToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgz :call misc#FoldToggle()<CR>:echo v:statusmsg<CR>
+endif
 
 " :sh
 if s:gui
-  nnoremap <leader>sh :call SH()<CR>
-  command! SH :call SH()
+  if get(g:, "misc_enabled")
+    nnoremap <leader>sh :call misc#SH()<CR>
+    command! SH :call misc#SH()
+  endif
 else
   nnoremap <leader>sh :sh<CR>
 endif
 
 " run
-nnoremap <leader>ru :call Run()<CR>
-command! Run :call Run()
-nnoremap <leader>rU :call RunInWindow()<CR>
-command! RunWindow :call RunInWindow()
-nnoremap <leader>fm :call FormatLanguage()<CR>
-command! FormatLanguage :call FormatLanguage()
+if get(g:, "runprg_enabled")
+  nnoremap <leader>ru <Plug>(runprg-laststatus)
+  nnoremap <leader>rU <Plug>(runprg-window)
+  command! Run :normal! <Plug>(runprg-laststatus)
+  command! RunWindow :normal! <Plug>(runprg-window)
+endif
+if get(g:, "misc_enabled")
+  nnoremap <leader>fm :call misc#FormatLanguage()<CR>
+  command! FormatLanguage :call misc#FormatLanguage()
+endif
 nnoremap <leader>; mt<ESC>$a;<ESC>`t
 nnoremap <silent><leader><CR> :below terminal<CR>
 if s:gui
@@ -532,24 +576,26 @@ vnoremap <leader><C-d> :move '>+1<CR>gv=gv
 vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 
 " automatic close of chars
+" inoremap ' ''<left>
+" inoremap " ""<left>
+" inoremap ( ()<left>
+" inoremap [ []<left>
+" inoremap { {}<left>
+" inoremap {<CR> {<CR>}<ESC>O
 if get(g:, "autoclosechars_enabled")
-  " inoremap ' ''<left>
-  " inoremap " ""<left>
-  " inoremap ( ()<left>
-  " inoremap [ []<left>
-  " inoremap { {}<left>
-  " inoremap {<CR> {<CR>}<ESC>O
-  inoremap [ [<C-r>=AutoCloseChars("bracketleft", getchar())<CR>
-  inoremap ( (<C-r>=AutoCloseChars("parenleft", getchar())<CR>
-  inoremap { {<C-r>=AutoCloseChars("braceleft", getchar())<CR>
+  inoremap [ [<Plug>(autoclosechars-bracketleft)
+  inoremap ( (<Plug>(autoclosechars-parenleft)
+  inoremap { {<Plug>(autoclosechars-braceleft)
 endif
 
 " gui
 if s:gui
   map <S-Insert> <Nop>
   map! <S-Insert> <MiddleMouse>
-  nnoremap <leader><S-F10> :call GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
-  command! GuiMenuBarToggle :call GuiMenuBarToggle()
+  if get(g:, "misc_enabled")
+    nnoremap <leader><S-F10> :call misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
+    command! GuiMenuBarToggle :call misc#GuiMenuBarToggle()
+  endif
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
@@ -563,7 +609,9 @@ nnoremap <leader><C-n> :bnext<CR>
 nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
 nnoremap <leader><leader> :b #<CR>
-nnoremap <leader><Space> :call CycleBuffers()<CR>
+if get(g:, "cyclebuffers_enabled")
+  nnoremap <leader><Space> <Plug>(cyclebuffers)
+endif
 nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
@@ -572,8 +620,10 @@ nnoremap <leader>bW :bw!<CR>
 nnoremap <leader>ba :ball<CR>
 nnoremap <leader>bs :sall<CR>
 nnoremap <leader>bv :vertical ball<CR>
-nnoremap <leader>bo :call BufferRemoveAllExceptCurrent('delete')<CR>
-nnoremap <leader>bO :call BufferRemoveAllExceptCurrent('wipe')<CR>
+if get(g:, "bufferonly_enabled")
+  nnoremap <leader>bo <Plug>(bufferonly-delete)
+  nnoremap <leader>bO <Plug>(bufferonly-wipe)
+endif
 nnoremap <leader>bf :bfirst<CR>
 nnoremap <leader>bl :blast<CR>
 nnoremap <leader>bn :bnext<CR>
@@ -583,16 +633,18 @@ nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 " if s:eval
 "   " go to N buffer (up to 9 for now)
 "   for s:i in range(1, 9)
-"     if s:i <= 9
-"       execute "nnoremap <leader>b".s:i." :call GoBufferPos(".s:i.")<CR>"
+"     if s:i <= 9 && get(g:, "misc_enabled")
+"       execute "nnoremap <leader>b".s:i." :call misc#GoBufferPos(".s:i.")<CR>"
 "     endif
 "   endfor
 " endif
 
-" all buffers except the current one
-command! BufferDeleteListedExceptCurrent :call BufferRemoveAllExceptCurrent('delete')
-command! BufferWipeListedExceptCurrent :call BufferRemoveAllExceptCurrent('wipe')
-command! BufferWipeAllExceptCurrent :call BufferRemoveAllExceptCurrent('wipe!')
+" remove all buffers except the current one
+if get(g:, "bufferonly_enabled")
+  command! BufferOnlyDelete :normal! <PLug>(bufferonly-delete)
+  command! BufferOnlyWipe :normal! <Plug>(bufferonly-wipe)
+  command! -bang BufferOnlyWipe :normal! <Plug>(bufferonly-wipe!)
+endif
 
 " quickfix
 nnoremap <leader>cn :cnext<CR>
@@ -613,8 +665,10 @@ nnoremap <leader>lx :call setloclist(0, [], 'r')<CR>
 nnoremap <leader>cP :call popup_clear(1)<CR>
 
 " comment/uncomment by language
-nnoremap <leader>/ :call CommentByLanguage()<CR>
-nnoremap <leader>? :call UncommentByLanguage()<CR>
+if get(g:, "commentarium_enabled")
+  nnoremap <leader>/ <Plug>(commentarium-do)
+  nnoremap <leader>? <Plug>(commentarium-undo)
+endif
 vnoremap <leader>* <ESC>'<<ESC>O/*<ESC>'><ESC>o*/<ESC>
 vnoremap <leader>/ <ESC>:'<,'>s/^/\/\/ /e<ESC>
 vnoremap <leader>? <ESC>:'<,'>s/\/\///g<ESC>gv=
@@ -622,10 +676,14 @@ vnoremap <leader>? <ESC>:'<,'>s/\/\///g<ESC>gv=
 " case sensitive/insensitive
 nnoremap <leader>ss /\C
 nnoremap <leader>si /\c
-nnoremap <leader>sl :call MenuLanguageSpell()<CR>
+if get(g:, "misc_enabled")
+  nnoremap <leader>sl :call misc#MenuLanguageSpell()<CR>
+endif
 
 " diff original file with unwritted changes
-nnoremap <silent><localleader>dt :call DiffToggle()<CR>
+if get(g:, "misc_enabled")
+  nnoremap <silent><localleader>dt :call misc#DiffToggle()<CR>
+endif
 nnoremap <localleader>de :diffthis<CR>
 nnoremap <localleader>dw :window diffthis<CR>
 nnoremap <localleader>dd :diffoff<CR>
@@ -655,20 +713,26 @@ nnoremap <leader><C-k> :resize -5<CR>
 nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
 
-" scratch buffer
-nnoremap <silent><leader>s<BS> :call ScratchBuffer()<CR>
-nnoremap <silent><leader>s<CR> :call ScratchTerminal()<CR>
-nnoremap <silent><leader>sc :call ScratchBuffer()<CR>
-nnoremap <silent><leader>sz :call ScratchTerminal()<CR>
-command! ScratchBuffer :call ScratchBuffer()
-command! ScratchTerminal :call ScratchTerminal()
+" scratch
+if get(g:, "scratch_enabled")
+  nnoremap <silent><leader>s<BS> <Plug>(scratch-buffer)
+  nnoremap <silent><leader>s<CR> <Plug>(scratch-terminal)
+  nnoremap <silent><leader>sc <Plug>(scratch-buffer)
+  nnoremap <silent><leader>sz <Plug>(scratch-terminal)
+  command! ScratchBuffer :normal! <Plug>(scratch-buffer)
+  command! ScratchTerminal :normal! <Plug>(scratch-terminal)
+endif
 
 " menu misc
-nnoremap <silent><leader><F10> :call MenuMisc()<CR>
-command! MenuMisc :call MenuMisc()
+if get(g:, "misc_enabled")
+  nnoremap <silent><leader><F10> :call misc#MenuMisc()<CR>
+  command! MenuMisc :call misc#MenuMisc()
+endif
 
 " edit using a top window
-command! -nargs=1 Et call EditTop(<f-args>)
+if get(g:, "misc_enabled")
+  command! -nargs=1 Et call misc#EditTop(<f-args>)
+endif
 
 " plan9 theme
 command! Plan9 :let g:loaded_plan9=0 | set background=light | colorscheme plan9
@@ -678,9 +742,9 @@ command! Darkula :let g:loaded_darkula=0 | set background=dark | colorscheme dar
 
 " reload the current theme
 command! Theme if g:colors_name ==# "plan9"
-            \|   silent execute ":normal! :Plan9\<CR>"
+            \|   silent execute "normal! :Plan9\<CR>"
             \| elseif g:colors_name ==# "darkula"
-            \|   silent execute ":normal! :Darkula\<CR>"
+            \|   silent execute "normal! :Darkula\<CR>"
             \| else
             \|   silent execute "colorscheme " . g:colors_name
             \| endif
@@ -702,7 +766,9 @@ endif
 if s:eval
   augroup event_buffer
   autocmd!
-  autocmd BufReadPost * call GoLastEditCursorPos()
+  if get(g:, "misc_enabled")
+    autocmd BufReadPost * :execute "normal! \<Plug>(misc-golasteditcursor)"
+  endif
   augroup END
 endif
 

@@ -24,13 +24,13 @@ setlocal noexpandtab
 setlocal keywordprg=go\ doc
 " setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
-nnoremap <buffer><leader>K :call Doc("go")<CR>:echo v:errmsg<CR>
-nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('go','cur')<CR>
-nnoremap <buffer><leader>ec :call CycleSignsShowDebugInfo('go','cur')<CR>
-nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('go','prev')<CR>
-nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('go','prev')<CR>
-nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('go','next')<CR>
-nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('go','next')<CR>
+nnoremap <buffer><leader>K :call misc#Doc("go")<CR>:echo v:errmsg<CR>
+nnoremap <buffer><F6> :call checker#CycleSignsShowDebugInfo('go','cur')<CR>
+nnoremap <buffer><leader>ec :call checker#CycleSignsShowDebugInfo('go','cur')<CR>
+nnoremap <buffer><F7> :call checker#CycleSignsShowDebugInfo('go','prev')<CR>
+nnoremap <buffer><leader>ep :call checker#CycleSignsShowDebugInfo('go','prev')<CR>
+nnoremap <buffer><F8> :call checker#CycleSignsShowDebugInfo('go','next')<CR>
+nnoremap <buffer><leader>en :call checker#CycleSignsShowDebugInfo('go','next')<CR>
 inoremap <silent><buffer><expr> . GoInsAutoComplete()
 function! GoInsAutoComplete()
   if &omnifunc !=# "go#complete#Complete"

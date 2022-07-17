@@ -7,9 +7,9 @@ if get(g:, "checker_enabled")
     augroup checker_sh
     autocmd!
     " autocmd DiffUpdated FileType sh let b:checker_enabled=0
-    autocmd BufWinEnter,FileType sh if !&diff && !exists('b:fugitive_type') | call SHCheck("read") | call SHShellCheckAsync() | endif
-    autocmd FileType sh autocmd BufWritePre <buffer> call SHCheck("write")
-    autocmd FileType sh autocmd BufWritePost <buffer> call SHShellCheckAsync()
+    autocmd BufWinEnter,FileType sh if !&diff && !exists('b:fugitive_type') | call checker#SHCheck("read") | call checker#SHShellCheckAsync() | endif
+    autocmd FileType sh autocmd BufWritePre <buffer> call checker#SHCheck("write")
+    autocmd FileType sh autocmd BufWritePost <buffer> call checker#SHShellCheckAsync()
     augroup END
   endif
 endif

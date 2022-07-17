@@ -28,11 +28,11 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 setlocal omnifunc=python3complete#Complete
 setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
-nnoremap <buffer><leader>K :call Doc("python")<CR>:echo v:errmsg<CR>
-nnoremap <buffer><F6> :call CycleSignsShowDebugInfo('py','cur')<CR>
-nnoremap <buffer><leader>ec :call CycleSignsShowDebugInfo('py','cur')<CR>
-nnoremap <buffer><F7> :call CycleSignsShowDebugInfo('py','prev')<CR>
-nnoremap <buffer><leader>ep :call CycleSignsShowDebugInfo('py','prev')<CR>
-nnoremap <buffer><F8> :call CycleSignsShowDebugInfo('py','next')<CR>
-nnoremap <buffer><leader>en :call CycleSignsShowDebugInfo('py','next')<CR>
+nnoremap <buffer><leader>K :call misc#Doc("python")<CR>:echo v:errmsg<CR>
+nnoremap <buffer><F6> :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
+nnoremap <buffer><leader>ec :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
+nnoremap <buffer><F7> :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
+nnoremap <buffer><leader>ep :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
+nnoremap <buffer><F8> :call checker#CycleSignsShowDebugInfo('py','next')<CR>
+nnoremap <buffer><leader>en :call checker#CycleSignsShowDebugInfo('py','next')<CR>
 call matchadd('ColorColumn', '\%79v', 10)

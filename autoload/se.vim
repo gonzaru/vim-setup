@@ -6,12 +6,30 @@
 " See also ../../ftplugin/se.vim
 
 " do not read the file if it is already loaded or se is not enabled
-if get(g:, 'loaded_se') == 1 || get(g:, 'se_enabled') == 0
+if get(g:, 'autoloaded_se') == 1 || get(g:, 'se_enabled') == 0 || &cp
   finish
 endif
-let g:loaded_se = 1
-let g:se_winsize = 20
+let g:autoloaded_se = 1
+let s:se_winsize = exists('g:se_winsize') ? get(g:, 'se_winsize') : 20
 let s:se_oldcwd = ""
+
+" prints error message and saves the message in the message-history
+function! s:EchoErrorMsg(msg)
+  if !empty(a:msg)
+    echohl ErrorMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
+
+" prints warning message and saves the message in the message-history
+function! s:EchoWarningMsg(msg)
+  if !empty(a:msg)
+    echohl WarningMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
 
 " returns an indicator that identifies a file (*/=@|)
 function! s:FileIndicator(file)
@@ -43,7 +61,7 @@ function! s:SeGetBufId() abort
 endfunction
 
 " toggles Se
-function! SeToggle() abort
+function! se#SeToggle() abort
   let l:sb = s:SeGetBufId()
   if l:sb
     let l:bufinfo = getbufinfo(l:sb)
@@ -52,7 +70,7 @@ function! SeToggle() abort
       execute "vertical sbuffer " . l:sb
       setlocal splitright
       execute "lcd " . fnameescape(s:se_oldcwd)
-      execute "vertical resize " . g:se_winsize
+      execute "vertical resize " . s:se_winsize
     else
       if win_getid() != bufwinid(l:sb)
         call win_gotoid(bufwinid(l:sb))
@@ -62,7 +80,7 @@ function! SeToggle() abort
       endif
     endif
   else
-    call SeList()
+    call se#SeList()
   endif
 endfunction
 
@@ -91,12 +109,12 @@ function! s:SeListPopulate() abort
   if !len(l:lsf)
     call deletebufline('%', '$')
     call cursor(1, 1)
-    call EchoWarningMsg("Warning: directory is empty")
+    call s:EchoWarningMsg("Warning: directory is empty")
   endif
 endfunction
 
 " lists Se
-function! SeList() abort
+function! se#SeList() abort
   let l:sb = s:SeGetBufId()
   if !l:sb
     let s:se_oldcwd = fnamemodify(bufname('%'), ":~:h")
@@ -109,7 +127,7 @@ function! SeList() abort
       execute "lcd " . fnameescape(s:se_oldcwd)
     endif
     call s:SeListPopulate()
-    execute ":vertical resize " . g:se_winsize
+    execute ":vertical resize " . s:se_winsize
   else
     if win_getid() != bufwinid(l:sb)
       call win_gotoid(bufwinid(l:sb))
@@ -125,7 +143,7 @@ function! SeList() abort
 endfunction
 
 " follows Se file
-function! SeFollowFile() abort
+function! se#SeFollowFile() abort
   let l:sewinid = win_getid()
   call win_gotoid(win_getid(winnr('#')))
   let l:prevfile = bufname('%')
@@ -133,7 +151,7 @@ function! SeFollowFile() abort
   let l:prevtailfile = fnamemodify(prevfile, ":t")
   call win_gotoid(l:sewinid)
   execute ":lcd " . fnameescape(l:prevcwd)
-  call SeList()
+  call se#SeList()
   call s:SeSearchFile(l:prevtailfile)
 endfunction
 
@@ -145,15 +163,15 @@ function! s:SeSearchFile(file) abort
 endfunction
 
 " refresh Se list
-function! SeRefreshList() abort
+function! se#SeRefreshList() abort
   let l:se_prevline = substitute(fnameescape(getline('.')), '*$', "", "")
   call cursor(2, 1)
-  call SeList()
+  call se#SeList()
   call s:SeSearchFile(l:se_prevline)
 endfunction
 
 " goes to file
-function! SeGofile(mode) abort
+function! se#SeGofile(mode) abort
   let l:curline = substitute(getline('.'), '*$', "", "")
   let l:firstchar = matchstr(l:curline, "^.")
   let l:lastchar = matchstr(l:curline, ".$")
@@ -165,24 +183,24 @@ function! SeGofile(mode) abort
       let l:oldcwd = "/"
     endtry
     execute "lcd " . getcwd(winnr()) . "/" . fnameescape(split(l:curline, " ")[0])
-    call SeList()
+    call se#SeList()
     call s:SeSearchFile(l:oldcwd)
   elseif a:mode ==# "edit" && l:lastchar == '/' && isdirectory(l:curline)
     execute "lcd " . getcwd(winnr()) . "/" . fnameescape(l:curline)
-    call SeList()
+    call se#SeList()
   elseif a:mode ==# "edit" && l:lastchar == '@' && isdirectory(resolve(substitute(l:curline, '@$', "", "")))
     execute "lcd " . fnameescape(resolve(substitute(l:curline, '@$', "", "")))
-    call SeList()
+    call se#SeList()
   else
     if l:lastchar == '@'
       let l:curline = resolve(substitute(l:curline, '@$', "", ""))
       if !filereadable(l:curline)
-        call EchoErrorMsg("Error: symlink is broken")
+        call s:EchoErrorMsg("Error: symlink is broken")
         return
       endif
     endif
     if !filereadable(l:curline)
-      call EchoErrorMsg("Error: file is no longer available")
+      call s:EchoErrorMsg("Error: file is no longer available")
       return
     endif
     let l:mode_list = ["edit", "editk", "pedit", "split"]

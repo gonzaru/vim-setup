@@ -2,5 +2,5 @@ backups/
 sessions/
 tmp/
 undodir/
-autoload/
+autoload/plug.vim
 bundle/

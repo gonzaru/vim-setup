@@ -2,10 +2,28 @@
 " Distributed under the terms of the GNU General Public License v3
 
 " do not read the file if it is already loaded or checker is not enabled
-if get(g:, "loaded_checker") == 1 || get(g:, "checker_enabled") == 0
+if get(g:, 'autoloaded_checker') == 1 || get(g:, 'checker_enabled') == 0 || &cp
   finish
 endif
-let g:loaded_checker = 1
+let g:autoloaded_checker = 1
+
+" prints error message and saves the message in the message-history
+function! s:EchoErrorMsg(msg)
+  if !empty(a:msg)
+    echohl ErrorMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
+
+" prints warning message and saves the message in the message-history
+function! s:EchoWarningMsg(msg)
+  if !empty(a:msg)
+    echohl WarningMsg
+    echom  a:msg
+    echohl None
+  endif
+endfunction
 
 " user tmp directory
 function! s:UserTempDir() abort
@@ -62,7 +80,7 @@ function! s:BufferIsEmpty() abort
 endfunction
 
 " shows debug information
-function! g:CycleSignsShowDebugInfo(type, mode) abort
+function! checker#CycleSignsShowDebugInfo(type, mode) abort
   let l:curbuf = winbufnr(winnr())
   let l:curline = line('.')
   let l:curcycleline = 0
@@ -70,12 +88,12 @@ function! g:CycleSignsShowDebugInfo(type, mode) abort
   let l:prevcycleline = 0
   let l:signameline = ""
   if index(s:allowed_types, a:type) == -1
-    call EchoErrorMsg("Error: debug information for filetype '" . a:type . "' is not supported")
+    call s:EchoErrorMsg("Error: debug information for filetype '" . a:type . "' is not supported")
     return
   endif
   let l:signs = sign_getplaced(l:curbuf)[0].signs
   if empty(l:signs)
-    call EchoWarningMsg("Warning: signs not found in the current buffer")
+    call s:EchoWarningMsg("Warning: signs not found in the current buffer")
     return
   endif
   for l:sign in l:signs
@@ -102,25 +120,25 @@ function! g:CycleSignsShowDebugInfo(type, mode) abort
       try
         call sign_jump(l:curcycleline, '', l:curbuf)
       catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
+        call s:EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
         return
       endtry
     elseif l:nextcycleline
       try
         call sign_jump(l:nextcycleline, '', l:curbuf)
       catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:nextcycleline)
+        call s:EchoWarningMsg("Warning: sign id not found in line " . l:nextcycleline)
         return
       endtry
     elseif l:prevcycleline
       try
         call sign_jump(l:prevcycleline, '', l:curbuf)
       catch
-        call EchoWarningMsg("Warning: sign id not found in line " . l:prevcycleline)
+        call s:EchoWarningMsg("Warning: sign id not found in line " . l:prevcycleline)
         return
       endtry
     else
-      call EchoErrorMsg("Error: sign jump line not found")
+      call s:EchoErrorMsg("Error: sign jump line not found")
       return
     endif
     if index(s:allowed_types, a:type) >= 0
@@ -130,7 +148,7 @@ function! g:CycleSignsShowDebugInfo(type, mode) abort
 endfunction
 
 " statusline checker output
-function! g:CheckerStatusLine(type) abort
+function! checker#StatusLine(type) abort
   if index(s:allowed_types, a:type) == -1
     return ""
   endif
@@ -165,7 +183,7 @@ endfunction
 """ SH """
 
 " sh check
-function! g:SHCheck(mode) abort
+function! checker#SHCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   let s:sh_error = 0
@@ -175,8 +193,8 @@ function! g:SHCheck(mode) abort
   if &filetype !=# "sh"
     throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
   endif
-  call RemoveSignsName(l:curbufnr, "sh_error")
-  call RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
+  call s:RemoveSignsName(l:curbufnr, "sh_error")
+  call s:RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
   let l:theshell = getline(1) =~# "bash" ? "bash" : "sh"
   if a:mode ==# "read"
     let l:check_file = l:curbufname
@@ -224,7 +242,7 @@ function! s:SHShellCheckNoExec() abort
     " throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
     return
   endif
-  call RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
+  call s:RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
   let l:terrors = 0
   for l:line in readfile(s:checkerfiles["sh"]["shellcheck"]["syntax"])
     if l:line =~# "^In "
@@ -241,11 +259,11 @@ function! s:SHShellCheckNoExec() abort
 endfunction
 
 " sh shellcheck async
-function! g:SHShellCheckAsync() abort
-  " depends on SHCheck()
+function! checker#SHShellCheckAsync() abort
+  " depends on checker#SHCheck()
   if exists("s:sh_error") && s:sh_error
-    call EchoErrorMsg("Error: (SHCheck) previous function contains errors")
-    call EchoErrorMsg("Error: (SHShellCheckAsync) detected error"
+    call s:EchoErrorMsg("Error: (SHCheck) previous function contains errors")
+    call s:EchoErrorMsg("Error: (SHShellCheckAsync) detected error"
     return
   endif
   if &filetype ==# "sh" && !s:BufferIsEmpty()
@@ -273,7 +291,7 @@ endfunction
 """ PYTHON """
 
 " python check
-function! g:PYCheck(mode) abort
+function! checker#PYCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   let s:py_error = 0
@@ -283,8 +301,8 @@ function! g:PYCheck(mode) abort
   if &filetype !=# "python"
     throw "error: (PYcheck) " . l:curbufname . " is not a valid python file!"
   endif
-  call RemoveSignsName(l:curbufnr, "py_error")
-  call RemoveSignsName(l:curbufnr, "py_pep8error")
+  call s:RemoveSignsName(l:curbufnr, "py_error")
+  call s:RemoveSignsName(l:curbufnr, "py_pep8error")
   if a:mode ==# "read"
     let l:check_file = l:curbufname
   elseif a:mode ==# "write"
@@ -326,7 +344,7 @@ function! s:PYPep8NoExec() abort
     " throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
     return
   endif
-  call RemoveSignsName(l:curbufnr, "py_pep8error")
+  call s:RemoveSignsName(l:curbufnr, "py_pep8error")
   let l:terrors = 0
   for l:line in readfile(s:checkerfiles["python"]["pep8"]["syntax"])
     " pep8 shows now a warning that has been renamed to pycodestyle
@@ -345,11 +363,11 @@ function! s:PYPep8NoExec() abort
 endfunction
 
 " python pep8 async
-function! g:PYPep8Async() abort
-   " depends on PYCheck()
+function! checker#PYPep8Async() abort
+   " depends on checker#PYCheck()
   if exists("s:py_error") && s:py_error
-    call EchoErrorMsg("Error: (PYCheck) previous function contains errors")
-    call EchoErrorMsg("Error: (PYPep8Aysnc) detected error")
+    call s:EchoErrorMsg("Error: (PYCheck) previous function contains errors")
+    call s:EchoErrorMsg("Error: (PYPep8Aysnc) detected error")
     return
   endif
   if &filetype ==# "python" && !s:BufferIsEmpty()
@@ -377,7 +395,7 @@ endfunction
 """ GO """
 
 " go check
-function! g:GOCheck(mode) abort
+function! checker#GOCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   " let l:curline = line('.')
@@ -394,8 +412,8 @@ function! g:GOCheck(mode) abort
   " TODO: recheck
   " sign_unplace() does not support 'name' : 'error_name'
   " call sign_unplace('', {'buffer' : l:curbufnr, 'id' : l:curline})
-  call RemoveSignsName(l:curbufnr, "go_error")
-  call RemoveSignsName(l:curbufnr, "go_veterror")
+  call s:RemoveSignsName(l:curbufnr, "go_error")
+  call s:RemoveSignsName(l:curbufnr, "go_veterror")
   if a:mode ==# "read"
     let l:check_file = l:curbufname
   elseif a:mode ==# "write"
@@ -438,7 +456,7 @@ function! s:GOVetNoExec() abort
     " throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
     return
   endif
-  call RemoveSignsName(l:curbufnr, "go_veterror")
+  call s:RemoveSignsName(l:curbufnr, "go_veterror")
   let l:errout = trim(system("grep '^vet: ' " . s:checkerfiles["go"]["govet"]["syntax"] . " | cut -d ':' -f3- | head -n1"))
   " some errors are with ^filename (not ^vet)
   if empty(l:errout)
@@ -454,11 +472,11 @@ function! s:GOVetNoExec() abort
 endfunction
 
 " go vet async
-function! g:GOVetAsync() abort
-  " depends on GoCheck()
+function! checker#GOVetAsync() abort
+  " depends on checker#GoCheck()
    if exists("s:go_error") && s:go_error
-     call EchoErrorMsg("Error: (GOCheck) previous function contains errors")
-     call EchoErrorMsg("Error: (GOVetAsync) detected error")
+     call s:EchoErrorMsg("Error: (GOCheck) previous function contains errors")
+     call s:EchoErrorMsg("Error: (GOVetAsync) detected error")
      return
   endif
   if &filetype ==# "go" && !s:BufferIsEmpty()
@@ -481,6 +499,19 @@ function! ExitHandlerGOVet(job, status) abort
     endif
     redraw!
   endif
+endfunction
+
+" remove signs
+function! s:RemoveSignsName(buf, name)
+  let l:signs = sign_getplaced(a:buf)[0].signs
+  if empty(l:signs)
+    return
+  endif
+  for l:sign in l:signs
+    if l:sign.name ==# a:name
+      call sign_unplace('', {'buffer' : a:buf, 'id' : l:sign.id})
+    endif
+  endfor
 endfunction
 
 " shows debug information
