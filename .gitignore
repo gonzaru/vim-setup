@@ -1,6 +1,7 @@
+autoload/plug.vim
 backups/
+bundle/
+pack/bundle
 sessions/
 tmp/
 undodir/
-autoload/plug.vim
-bundle/

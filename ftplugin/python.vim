@@ -1,6 +1,7 @@
 " by Gonzaru
 " Distributed under the terms of the GNU General Public License v3
 
+" do not read the file if it is already loaded
 if exists("b:did_ftplugin")
   finish
 endif
@@ -28,11 +29,13 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 setlocal omnifunc=python3complete#Complete
 setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
-nnoremap <buffer><leader>K :call misc#Doc("python")<CR>:echo v:errmsg<CR>
-nnoremap <buffer><F6> :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
-nnoremap <buffer><leader>ec :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
-nnoremap <buffer><F7> :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
-nnoremap <buffer><leader>ep :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
-nnoremap <buffer><F8> :call checker#CycleSignsShowDebugInfo('py','next')<CR>
-nnoremap <buffer><leader>en :call checker#CycleSignsShowDebugInfo('py','next')<CR>
+if get(g:, "checker_enabled")
+  nnoremap <buffer><leader>K :call misc#Doc("python")<CR>:echo v:errmsg<CR>
+  nnoremap <buffer><F6> :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
+  nnoremap <buffer><leader>ec :call checker#CycleSignsShowDebugInfo('py','cur')<CR>
+  nnoremap <buffer><F7> :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
+  nnoremap <buffer><leader>ep :call checker#CycleSignsShowDebugInfo('py','prev')<CR>
+  nnoremap <buffer><F8> :call checker#CycleSignsShowDebugInfo('py','next')<CR>
+  nnoremap <buffer><leader>en :call checker#CycleSignsShowDebugInfo('py','next')<CR>
+endif
 call matchadd('ColorColumn', '\%79v', 10)
