@@ -2,10 +2,12 @@
 " Distributed under the terms of the GNU General Public License v3
 
 " do not read the file if it is already loaded or checker is not enabled
-if get(g:, 'autoloaded_checker') == 1 || get(g:, 'checker_enabled') == 0 || &cp
+if exists('g:autoloaded_checker') || !get(g:, 'checker_enabled') || &cp
   finish
 endif
 let g:autoloaded_checker = 1
+
+" global errors
 let g:checker_sh_error = 0
 let g:checker_sc_error = 0
 let g:checker_py_error = 0

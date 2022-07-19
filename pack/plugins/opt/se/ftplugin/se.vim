@@ -14,6 +14,8 @@ setlocal winfixwidth
 setlocal noconfirm
 setlocal nocursorline
 setlocal nocursorcolumn
+setlocal nospell
+setlocal nolist
 setlocal splitright
 setlocal noswapfile
 setlocal nobuflisted

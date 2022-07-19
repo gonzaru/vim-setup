@@ -10,7 +10,7 @@
 " v:  Vim variables.
 
 " do not read the file if it is already loaded
-if get(g:, 'autoloaded_misc') == 1 || get(g:, 'misc_enabled') == 0 || &cp
+if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled') || &cp
   finish
 endif
 let g:autoloaded_misc = 1

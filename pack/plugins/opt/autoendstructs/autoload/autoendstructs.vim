@@ -2,7 +2,7 @@
 " Distributed under the terms of the GNU General Public License v3
 
 " do not read the file if it is already loaded
-if get(g:, 'autoloaded_autoendstructs') == 1 || !get(g:, 'autoendstructs_enabled') || &cp
+if exists('g:autoloaded_autoendstructs') || !get(g:, 'autoendstructs_enabled') || &cp
   finish
 endif
 let g:autoloaded_autoendstructs = 1

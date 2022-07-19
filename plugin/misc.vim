@@ -10,7 +10,7 @@
 " v:  Vim variables.
 
 " do not read the file if it is already loaded
-if get(g:, 'loaded_misc') == 1 || get(g:, 'misc_enabled') == 0 || &cp
+if exists('g:loaded_misc') || !get(g:, 'misc_enabled') || &cp
   finish
 endif
 let g:loaded_misc = 1
@@ -20,7 +20,7 @@ let g:loaded_misc = 1
 " go to last edit cursor position
 function! s:GoLastEditCursorPos()
   let l:lastcursorline = line("'\"")
-  if l:lastcursorline >= 1 && l:lastcursorline <= line("$")
+  if l:lastcursorline >= 1 && l:lastcursorline <= line("$") && &ft !~# "commit"
     execute "normal! g`\""
   endif
 endfunction
