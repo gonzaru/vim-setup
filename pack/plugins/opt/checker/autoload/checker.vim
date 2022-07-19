@@ -6,6 +6,12 @@ if get(g:, 'autoloaded_checker') == 1 || get(g:, 'checker_enabled') == 0 || &cp
   finish
 endif
 let g:autoloaded_checker = 1
+let g:checker_sh_error = 0
+let g:checker_sc_error = 0
+let g:checker_py_error = 0
+let g:checker_pep8_error = 0
+let g:checker_go_error = 0
+let g:checker_gv_error = 0
 
 " prints error message and saves the message in the message-history
 function! s:EchoErrorMsg(msg)
@@ -147,46 +153,13 @@ function! checker#CycleSignsShowDebugInfo(type, mode) abort
   endif
 endfunction
 
-" statusline checker output
-function! checker#StatusLine(type) abort
-  if index(s:allowed_types, a:type) == -1
-    return ""
-  endif
-  if a:type ==# "sh"
-    if exists("s:sh_error") && s:sh_error
-      let l:output = "[SH=".s:sh_error."]{SC}"
-    elseif exists("s:sc_error") && s:sc_error
-      let l:output = "[SH][SC=".s:sc_error."]"
-    else
-      let l:output = "[SH][SC]"
-    endif
-  elseif a:type ==# "python"
-    if exists("s:py_error") && s:py_error
-      let l:output = "[PY=".s:py_error."]{P8}"
-    elseif exists("s:pep8_error") && s:pep8_error
-      let l:output = "[PY][P8=".s:pep8_error."]"
-    else
-      let l:output = "[PY][P8]"
-    endif
-  elseif a:type ==# "go"
-    if exists("s:go_error") && s:go_error
-      let l:output = "[GO=".s:go_error."]{GV}"
-    elseif exists("s:gv_error") && s:gv_error
-      let l:output = "[GO][GV=".s:gv_error."]"
-    else
-      let l:output = "[GO][GV]"
-    endif
-  endif
-  return l:output
-endfunction
-
 """ SH """
 
 " sh check
 function! checker#SHCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
-  let s:sh_error = 0
+  let g:checker_sh_error = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
@@ -208,7 +181,7 @@ function! checker#SHCheck(mode) abort
     call system("bash --norc -n " . l:check_file . " > " . s:checkerfiles["sh"]["sh"]["syntax"] . " 2>&1")
   endif
   if v:shell_error != 0
-    let s:sh_error = 1
+    let g:checker_sh_error = 1
     let l:errout = join(readfile(s:checkerfiles["sh"]["sh"]["syntax"]))
     let l:errline = substitute(trim(split(l:errout, ":")[1]), "^line ", "", "")
     echo l:errline
@@ -234,7 +207,7 @@ endfunction
 function! s:SHShellCheckNoExec() abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
-  let s:sc_error = 0
+  let g:checker_sc_error = 0
   if &filetype !=# "sh"
     throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
   endif
@@ -254,14 +227,14 @@ function! s:SHShellCheckNoExec() abort
     endif
   endfor
   if l:terrors
-    let s:sc_error = l:terrors
+    let g:checker_sc_error = l:terrors
   endif
 endfunction
 
 " sh shellcheck async
 function! checker#SHShellCheckAsync() abort
   " depends on checker#SHCheck()
-  if exists("s:sh_error") && s:sh_error
+  if g:checker_sh_error
     call s:EchoErrorMsg("Error: (SHCheck) previous function contains errors")
     call s:EchoErrorMsg("Error: (SHShellCheckAsync) detected error"
     return
@@ -294,7 +267,7 @@ endfunction
 function! checker#PYCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
-  let s:py_error = 0
+  let g:checker_py_error = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
@@ -311,7 +284,7 @@ function! checker#PYCheck(mode) abort
   endif
   call system("python3 -c \"import ast; ast.parse(open('". l:check_file ."').read())\" > " . s:checkerfiles["python"]["python"]["syntax"] . " 2>&1")
   if v:shell_error != 0
-    let s:py_error = 1
+    let g:checker_py_error = 1
     let l:errout = readfile(s:checkerfiles["python"]["python"]["syntax"])
     let l:errline = split(l:errout[4], ", line ")[1]
     if !empty(l:errline)
@@ -336,7 +309,7 @@ endfunction
 function! s:PYPep8NoExec() abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
-  let s:pep8_error = 0
+  let g:checker_pep8_error = 0
   if &filetype !=# "python"
     throw "Error: (PYPep8NoExec) " . l:curbufname . " is not a valid python file!"
   endif
@@ -358,14 +331,14 @@ function! s:PYPep8NoExec() abort
     let l:terrors += 1
   endfor
   if l:terrors
-    let s:pep8_error = l:terrors
+    let g:checker_pep8_error = l:terrors
   endif
 endfunction
 
 " python pep8 async
 function! checker#PYPep8Async() abort
    " depends on checker#PYCheck()
-  if exists("s:py_error") && s:py_error
+  if g:checker_py_error
     call s:EchoErrorMsg("Error: (PYCheck) previous function contains errors")
     call s:EchoErrorMsg("Error: (PYPep8Aysnc) detected error")
     return
@@ -399,7 +372,7 @@ function! checker#GOCheck(mode) abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
   " let l:curline = line('.')
-  let s:go_error = 0
+  let g:checker_go_error = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
   endif
@@ -423,7 +396,7 @@ function! checker#GOCheck(mode) abort
   " send to stderr, goftm puts all output file in stdout
   call system("gofmt -e " . l:check_file . " 2>  " . s:checkerfiles["go"]["gofmt"]["syntax"])
   if v:shell_error != 0
-    let s:go_error = 1
+    let g:checker_go_error = 1
     let l:errout = trim(system("cut -d ':' -f2- " . s:checkerfiles["go"]["gofmt"]["syntax"] . " | head -n1"))
     let l:errline = split(l:errout, ":")[0]
     if !empty(l:errline)
@@ -448,7 +421,7 @@ endfunction
 function! s:GOVetNoExec() abort
   let l:curbufnr = winbufnr(winnr())
   let l:curbufname = bufname('%')
-  let s:gv_error = 0
+  let g:checker_gv_error = 0
   if &filetype !=# "go"
     throw "Error: (GOVetNoExec) " . l:curbufname . " is not a valid go file!"
   endif
@@ -463,7 +436,7 @@ function! s:GOVetNoExec() abort
     let l:errout = trim(system("grep ^" . l:curbufname . ":" . " " . s:checkerfiles["go"]["govet"]["syntax"] . " | cut -d ':' -f2- | head -n1"))
   endif
   if !empty(l:errout)
-    let s:gv_error = 1
+    let g:checker_gv_error = 1
     let l:errline = split(l:errout, ":")[0]
     if !empty(l:errline)
       call sign_place(l:errline, '', 'go_veterror', l:curbufnr, {'lnum' : l:errline})
@@ -474,7 +447,7 @@ endfunction
 " go vet async
 function! checker#GOVetAsync() abort
   " depends on checker#GoCheck()
-   if exists("s:go_error") && s:go_error
+   if g:checker_go_error
      call s:EchoErrorMsg("Error: (GOCheck) previous function contains errors")
      call s:EchoErrorMsg("Error: (GOVetAsync) detected error")
      return

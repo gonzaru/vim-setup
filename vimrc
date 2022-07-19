@@ -75,6 +75,8 @@ if s:eval
   let g:runprg_enabled = 1          " run programs
   let g:scratch_enabled = 1         " scratch stuff
   let g:se_enabled = 1              " se plugin (simple explorer)
+  let g:statusline_enabled = 1      " statusline
+  let g:tabline_enabled = 1         " tab page
   " add plugins
   let s:plugins1 = ['arrowkeys', 'autoclosechars', 'autoendstructs', 'bufferonly', 'checker']
   let s:plugins2 = ['commentarium', 'cyclebuffers', 'runprg', 'scratch', 'se']
@@ -295,8 +297,16 @@ if s:eval
 endif
 set showtabline=1          " to show tab only if there are at least two tabs (2 to show tab always) (default 1)
 if g:misc_enabled
-  set tabline=%!g:MiscMyTabLine()  " my custom tabline (see :help setting-tabline)
-  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{g:MiscMyStatusLine()}\ %-14.(%l,%c%V%)\ %P
+  " custom tabline (see :help setting-tabline)
+  if get(g:, "tabline_enabled")
+    set tabline=%!g:tabline#MyTabLine()
+  endif
+  " custom statusline
+  if get(g:, "statusline_enabled")
+    set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{statusline#MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
+  else
+    set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
+  endif
 endif
 
 " utf-8 support
