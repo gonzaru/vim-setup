@@ -7,10 +7,56 @@ if exists('g:autoloaded_statusline') || !get(g:, 'statusline_enabled') || &cp
 endif
 let g:autoloaded_statusline = 1
 
+" global variables
+let s:statusline_full = ''
+let g:statusline_showgitbranch = get(g:, 'statusline_showgitbranch', 1)
+
+" draw statusline
+function! statusline#Draw()
+  return get(s:, 'statusline_full', '')
+endfunction
+
+" show git branch
+function! statusline#GitBranch()
+  let l:branch = ""
+  let l:filepath = resolve(expand('%:p'))
+  " file or directory does not exist
+  if !empty(l:filepath) && empty(getftype(l:filepath))
+    return ''
+  endif
+  " empty file or directory
+  if empty(l:filepath) && empty(&filetype)
+    let l:filepath = resolve(getcwd())
+  endif
+  let l:ftype = getftype(l:filepath)
+  let l:filehead = l:filepath
+  if l:ftype ==# "file"
+    let l:filehead = fnamemodify(l:filepath, ':h')
+  endif
+  if getftype(l:filehead) !=# "dir"
+    return 'DEBUG_UNSUPPORTED_FILE: ' . l:filehead
+  endif
+  let l:gitroot = l:filehead
+  " s:GitValidRepo(l:gitroot)
+  let l:ret = systemlist("cd " . l:gitroot . " && git rev-parse --abbrev-ref HEAD")
+  if !v:shell_error && !empty(l:ret)
+    let l:branch = l:ret[0]
+  endif
+  return l:branch
+endfunction
+
+" checks if it is a valid git repo
+function! s:GitValidRepo(dir)
+  call system("cd " . a:dir . " && git -C . rev-parse 2>/dev/null")
+  return v:shell_error == 0 ? 1 : 0
+endfunction
+
 " my statusline
 function! statusline#MyStatusLine()
-  let l:output = ""
-  let l:dirname = fnamemodify(getcwd(), ":~")
+  let l:gitbranch = ""
+  let l:cwddirname = fnamemodify(getcwd(), ":~")
+  let l:filehead = expand('%:p:h')
+  let l:dirname = fnamemodify(!empty(l:filehead) ? l:filehead : l:cwddirname, ":~")
   let l:tname = fnamemodify(l:dirname, ":t")
   let l:cchars = ""
   let l:name_len = len(split(l:dirname, "/"))
@@ -30,51 +76,12 @@ function! statusline#MyStatusLine()
   else
     let l:sname = l:cchars . l:tname
   endif
-  if get(g:, "checker_enabled") && get(g:, "autoloaded_checker")
-    if &filetype ==# "sh" && (executable("sh") || executable("bash")) && executable("shellcheck")
-      let l:output = statusline#Checker("sh")
-    elseif &filetype ==# "python" && executable("python3") && executable("pep8")
-      let l:output = statusline#Checker("python")
-    elseif &filetype ==# "go" && executable("go") && executable("gofmt")
-      let l:output = statusline#Checker("go")
+  if get(g:, 'statusline_showgitbranch')
+    let l:gitbranch = statusline#GitBranch()
+    if !empty(l:gitbranch)
+      let l:gitbranch = "[" .l:gitbranch. "] "
     endif
   endif
-  if !empty(l:output)
-    let l:output = " " . l:output
-  endif
-  return l:sname . '$' . l:output
-endfunction
-
-" statusline checker plugin output
-function! statusline#Checker(type) abort
-  let l:allowed_types = ["sh", "python", "go"]
-  if index(l:allowed_types, a:type) == -1
-    return ""
-  endif
-  if a:type ==# "sh"
-    if get(g:, "checker_sh_error")
-      let l:output = "[SH=".g:checker_sh_error."]{SC}"
-    elseif get(g:, "checker_sc_error")
-      let l:output = "[SH][SC=".g:checker_sc_error."]"
-    else
-      let l:output = "[SH][SC]"
-    endif
-  elseif a:type ==# "python"
-    if get(g:, "checker_py_error")
-      let l:output = "[PY=".g:checker_py_error."]{P8}"
-    elseif get(g:, "checker_pep8_error")
-      let l:output = "[PY][P8=".g:checker_pep8_error."]"
-    else
-      let l:output = "[PY][P8]"
-    endif
-  elseif a:type ==# "go"
-    if get(g:, "checker_go_error")
-      let l:output = "[GO=".g:checker_go_error."]{GV}"
-    elseif get(g:, "checker_gv_error")
-      let l:output = "[GO][GV=".g:checker_gv_error."]"
-    else
-      let l:output = "[GO][GV]"
-    endif
-  endif
-  return l:output
+  let s:statusline_full = l:gitbranch . l:cwddirname . "$ " . l:sname . '%'
+  return s:statusline_full
 endfunction

@@ -303,7 +303,7 @@ if g:misc_enabled
   endif
   " custom statusline
   if get(g:, "statusline_enabled")
-    set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{statusline#MyStatusLine()}\ %-14.(%l,%c%V%)\ %P
+    set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{statusline#Draw()}\ %-14.(%l,%c%V%)\ %P
   else
     set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
   endif
@@ -722,23 +722,23 @@ command! Theme if g:colors_name ==# "plan9"
 " vim events
 if !s:gui
   augroup event_vim
-  autocmd!
-  " reset the cursor shape and redraw the screen
-  autocmd VimEnter * startinsert | stopinsert | redraw!
-  " clear the terminal on exit
-  if s:xterm
-    autocmd VimLeave * silent !printf '\e[0m'
-  endif
+    autocmd!
+    " reset the cursor shape and redraw the screen
+    autocmd VimEnter * startinsert | stopinsert | redraw!
+    " clear the terminal on exit
+    if s:xterm
+      autocmd VimLeave * silent !printf '\e[0m'
+    endif
   augroup END
 endif
 
 " go to last edit cursor position when opening a file
 if s:eval
   augroup event_buffer
-  autocmd!
-  if g:misc_enabled
-    autocmd BufReadPost * :execute "normal! \<Plug>(misc-golasteditcursor)"
-  endif
+    autocmd!
+    if g:misc_enabled
+      autocmd BufReadPost * :execute "normal! \<Plug>(misc-golasteditcursor)"
+    endif
   augroup END
 endif
 

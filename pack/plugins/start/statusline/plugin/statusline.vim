@@ -7,6 +7,11 @@ if exists('g:loaded_statusline') || !get(g:, 'statusline_enabled') || &cp
 endif
 let g:loaded_statusline = 1
 
+augroup statusline_mystatusline
+  autocmd!
+  autocmd BufNewFile,BufEnter,BufReadPost,CmdlineLeave,ShellCmdPost * call statusline#MyStatusLine()
+augroup END
+
 " see ../autoload/statusline.vim
 
 " TODO:
