@@ -8,8 +8,10 @@ endif
 let g:autoloaded_statusline = 1
 
 " global variables
-let s:statusline_full = ''
 let g:statusline_showgitbranch = get(g:, 'statusline_showgitbranch', 1)
+
+" script local variables
+let s:statusline_full = ''
 
 " draw statusline
 function! statusline#Draw()
