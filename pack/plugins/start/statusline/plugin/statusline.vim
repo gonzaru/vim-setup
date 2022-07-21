@@ -9,7 +9,7 @@ let g:loaded_statusline = 1
 
 augroup statusline_mystatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,BufReadPost,CmdlineLeave,ShellCmdPost * call statusline#MyStatusLine()
+  autocmd BufNewFile,BufEnter,CmdlineLeave,ShellCmdPost,DirChanged,VimResume * call statusline#MyStatusLine(expand('<afile>:p'))
 augroup END
 
 " see ../autoload/statusline.vim

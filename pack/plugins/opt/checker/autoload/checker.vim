@@ -158,9 +158,9 @@ endfunction
 """ SH """
 
 " sh check
-function! checker#SHCheck(mode) abort
+function! checker#SHCheck(file, mode) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   let s:checker_sh_errors = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
@@ -209,9 +209,9 @@ function! checker#SHCheck(mode) abort
 endfunction
 
 " sh shellcheck (no exec)
-function! s:SHShellCheckNoExec() abort
+function! s:SHShellCheckNoExec(file) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   let s:checker_sc_errors = 0
   if &filetype !=# "sh"
     throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
@@ -237,7 +237,7 @@ function! s:SHShellCheckNoExec() abort
 endfunction
 
 " sh shellcheck async
-function! checker#SHShellCheckAsync() abort
+function! checker#SHShellCheckAsync(file) abort
   " depends on checker#SHCheck()
   if s:checker_sh_errors
     call s:EchoErrorMsg("Error: (SHCheck) previous function contains errors")
@@ -245,38 +245,35 @@ function! checker#SHShellCheckAsync() abort
     return
   endif
   if &filetype ==# "sh" && !s:BufferIsEmpty()
-    let l:job = job_start("shellcheck --color=never " . bufname('%'), {"out_cb": "OutHandlerSHShellCheck", "err_cb": "ErrHandlerSHShellCheck", "exit_cb": "ExitHandlerSHShellCheck", "out_io": "file", "out_name": s:checkerfiles["sh"]["shellcheck"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("shellcheck --color=never " . a:file, {"out_cb": "checker#OutHandlerSHShellCheck", "err_cb": "checker#ErrHandlerSHShellCheck", "exit_cb": "checker#ExitHandlerSHShellCheck", "out_io": "file", "out_name": s:checkerfiles["sh"]["shellcheck"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! OutHandlerSHShellCheck(channel, message) abort
+function!  checker#OutHandlerSHShellCheck(channel, message) abort
 endfunction
 
-function! ErrHandlerSHShellCheck(channel, message) abort
+function! checker#ErrHandlerSHShellCheck(channel, message) abort
 endfunction
 
-function! ExitHandlerSHShellCheck(job, status) abort
-  call s:SHShellCheckNoExec()
+function! checker#ExitHandlerSHShellCheck(job, status) abort
+  let l:file = job_info(a:job)["cmd"][-1]
+  call s:SHShellCheckNoExec(l:file)
   if filereadable(s:checkerfiles["sh"]["shellcheck"]["syntax"])
     if !getfsize(s:checkerfiles["sh"]["shellcheck"]["syntax"])
       call delete(s:checkerfiles["sh"]["shellcheck"]["syntax"])
     endif
     " update local statusline
     let l:newstatusline = substitute(&statusline, '^\[SH=\d\]\[SC=\d\?{\?}\?\] ', "", "")
-    if s:checker_sh_errors || s:checker_sc_errors
-      let &l:statusline="[SH=".s:checker_sh_errors."][SC=".s:checker_sc_errors."] " . l:newstatusline
-    else
-      let &l:statusline=l:newstatusline
-    endif
+    let &l:statusline="[SH=".s:checker_sh_errors."][SC=".s:checker_sc_errors."] " . l:newstatusline
   endif
 endfunction
 
 """ PYTHON """
 
 " python check
-function! checker#PYCheck(mode) abort
+function! checker#PYCheck(file, mode) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   let s:checker_py_errors = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
     return
@@ -319,9 +316,9 @@ function! checker#PYCheck(mode) abort
 endfunction
 
 " python pep8 (no exec)
-function! s:PYPep8NoExec() abort
+function! s:PYPep8NoExec(file) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   let s:checker_pep8_errors = 0
   if &filetype !=# "python"
     throw "Error: (PYPep8NoExec) " . l:curbufname . " is not a valid python file!"
@@ -349,7 +346,7 @@ function! s:PYPep8NoExec() abort
 endfunction
 
 " python pep8 async
-function! checker#PYPep8Async() abort
+function! checker#PYPep8Async(file) abort
    " depends on checker#PYCheck()
   if s:checker_py_errors
     call s:EchoErrorMsg("Error: (PYCheck) previous function contains errors")
@@ -357,38 +354,35 @@ function! checker#PYPep8Async() abort
     return
   endif
   if &filetype ==# "python" && !s:BufferIsEmpty()
-    let l:job = job_start("pep8 " . bufname('%'), {"out_cb": "OutHandlerPYPep8", "err_cb": "ErrHandlerPYPep8", "exit_cb": "ExitHandlerPYPep8", "out_io": "file", "out_name": s:checkerfiles["python"]["pep8"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("pep8 " . a:file, {"out_cb": "checker#OutHandlerPYPep8", "err_cb": "checker#ErrHandlerPYPep8", "exit_cb": "checker#ExitHandlerPYPep8", "out_io": "file", "out_name": s:checkerfiles["python"]["pep8"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! OutHandlerPYPep8(channel, message) abort
+function! checker#OutHandlerPYPep8(channel, message) abort
 endfunction
 
-function! ErrHandlerPYPep8(channel, message) abort
+function! checker#ErrHandlerPYPep8(channel, message) abort
 endfunction
 
-function! ExitHandlerPYPep8(job, status) abort
-  call s:PYPep8NoExec()
+function! checker#ExitHandlerPYPep8(job, status) abort
+  let l:file = job_info(a:job)["cmd"][-1]
+  call s:PYPep8NoExec(l:file)
   if filereadable(s:checkerfiles["python"]["pep8"]["syntax"])
     if !getfsize(s:checkerfiles["python"]["pep8"]["syntax"])
       call delete(s:checkerfiles["python"]["pep8"]["syntax"])
     endif
     " update local statusline
     let l:newstatusline = substitute(&statusline, '^\[PY=\d\]\[P8=\d\?{\?}\?\] ', "", "")
-    if s:checker_py_errors || s:checker_pep8_errors
-      let &l:statusline="[PY=".s:checker_py_errors."][P8=".s:checker_pep8_errors."] " . l:newstatusline
-    else
-      let &l:statusline=l:newstatusline
-    endif
+    let &l:statusline="[PY=".s:checker_py_errors."][P8=".s:checker_pep8_errors."] " . l:newstatusline
   endif
 endfunction
 
 """ GO """
 
 " go check
-function! checker#GOCheck(mode) abort
+function! checker#GOCheck(file, mode) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   " let l:curline = line('.')
   let s:checker_go_errors = 0
   if s:BufferIsEmpty() || !filereadable(l:curbufname)
@@ -439,9 +433,9 @@ function! checker#GOCheck(mode) abort
 endfunction
 
 " go vet (no exec)
-function! s:GOVetNoExec() abort
+function! s:GOVetNoExec(file) abort
   let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = bufname('%')
+  let l:curbufname = a:file
   let s:checker_gv_errors = 0
   if &filetype !=# "go"
     throw "Error: (GOVetNoExec) " . l:curbufname . " is not a valid go file!"
@@ -466,7 +460,7 @@ function! s:GOVetNoExec() abort
 endfunction
 
 " go vet async
-function! checker#GOVetAsync() abort
+function! checker#GOVetAsync(file) abort
   " depends on checker#GoCheck()
    if s:checker_go_errors
      call s:EchoErrorMsg("Error: (GOCheck) previous function contains errors")
@@ -474,29 +468,26 @@ function! checker#GOVetAsync() abort
      return
   endif
   if &filetype ==# "go" && !s:BufferIsEmpty()
-    let l:job = job_start("go vet " . bufname('%'), {"out_cb": "OutHandlerGOVet", "err_cb": "ErrHandlerGOVet", "exit_cb": "ExitHandlerGOVet", "out_io": "file", "out_name": s:checkerfiles["go"]["govet"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+    let l:job = job_start("go vet " . a:file, {"out_cb": "checker#OutHandlerGOVet", "err_cb": "checker#ErrHandlerGOVet", "exit_cb": "checker#ExitHandlerGOVet", "out_io": "file", "out_name": s:checkerfiles["go"]["govet"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
   endif
 endfunction
 
-function! OutHandlerGOVet(channel, message) abort
+function! checker#OutHandlerGOVet(channel, message) abort
 endfunction
 
-function! ErrHandlerGOVet(channel, message) abort
+function! checker#ErrHandlerGOVet(channel, message) abort
 endfunction
 
-function! ExitHandlerGOVet(job, status) abort
-  call s:GOVetNoExec()
+function! checker#ExitHandlerGOVet(job, status) abort
+  let l:file = job_info(a:job)["cmd"][-1]
+  call s:GOVetNoExec(l:file)
   if filereadable(s:checkerfiles["go"]["govet"]["syntax"])
     if !getfsize(s:checkerfiles["go"]["govet"]["syntax"])
       call delete(s:checkerfiles["go"]["govet"]["syntax"])
     endif
     " update local statusline
     let l:newstatusline = substitute(&statusline, '^\[GO=\d\]\[GV=\d\?{\?}\?\] ', "", "")
-    if s:checker_go_errors || s:checker_gv_errors
-      let &l:statusline="[GO=".s:checker_go_errors."][GV=".s:checker_gv_errors."] " . l:newstatusline
-    else
-      let &l:statusline=l:newstatusline
-    endif
+    let &l:statusline="[GO=".s:checker_go_errors."][GV=".s:checker_gv_errors."] " . l:newstatusline
   endif
 endfunction
 

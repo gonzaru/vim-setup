@@ -12,12 +12,12 @@ if (executable("sh") || executable("bash")) && executable("shellcheck")
   augroup checker_sh
     autocmd!
     " autocmd DiffUpdated FileType sh let b:checker_enabled=0
-    autocmd BufWinEnter,FileType sh if &filetype ==# "sh" && !&diff && !exists('b:fugitive_type')
-                                 \|   call checker#SHCheck("read")
-                                 \|   call checker#SHShellCheckAsync()
-                                 \| endif
-    autocmd FileType sh autocmd BufWritePre <buffer> call checker#SHCheck("write")
-    autocmd FileType sh autocmd BufWritePost <buffer> call checker#SHShellCheckAsync()
+    autocmd FileType sh autocmd BufWinEnter <buffer> if !&diff && !exists('b:fugitive_type')
+                                                  \|   call checker#SHCheck(expand('<afile>:p'), "read")
+                                                  \|   call checker#SHShellCheckAsync(expand('<afile>:p'))
+                                                  \| endif
+    autocmd FileType sh autocmd BufWritePost <buffer> call checker#SHCheck(expand('<afile>:p'), "write")
+                                                   \| call checker#SHShellCheckAsync(expand('<afile>:p'))
   augroup END
 endif
 
@@ -26,12 +26,12 @@ if executable("python3") && executable("pep8")
   augroup checker_python
     autocmd!
     " autocmd DiffUpdated FileType python let b:checker_enabled=0
-    autocmd BufWinEnter,FileType python if &filetype ==# "python" && !&diff && !exists('b:fugitive_type')
-                                     \|   call checker#PYCheck("read")
-                                     \|   call checker#PYPep8Async()
-                                     \| endif
-    autocmd FileType python autocmd BufWritePre <buffer> call checker#PYCheck("write")
-    autocmd FileType python autocmd BufWritePost <buffer> call checker#PYPep8Async()
+    autocmd FileType python autocmd BufWinEnter <buffer> if !&diff && !exists('b:fugitive_type')
+                                                      \|   call checker#PYCheck(expand('<afile>:p'), "read")
+                                                      \|   call checker#PYPep8Async(expand('<afile>:p'))
+                                                      \| endif
+    autocmd FileType python autocmd BufWritePost <buffer> call checker#PYCheck(expand('<afile>:p'), "write")
+                                                       \| call checker#PYPep8Async(expand('<afile>:p'))
   augroup END
 endif
 
@@ -40,12 +40,12 @@ if executable("go") && executable("gofmt")
   augroup checker_go
     autocmd!
     " autocmd DiffUpdated *.go let b:checker_enabled=0
-    autocmd BufWinEnter *.go if &filetype ==# "go" && !&diff && !exists('b:fugitive_type')
-                          \|   call checker#GOCheck("read")
-                          \|   call checker#GOVetAsync()
-                          \| endif
-    autocmd BufWritePre *.go call checker#GOCheck("write")
-    autocmd BufWritePost *.go call checker#GOVetAsync()
+    autocmd FileType go autocmd BufWinEnter <buffer> if !&diff && !exists('b:fugitive_type')
+                                                  \|   call checker#GOCheck(expand('<afile>:p'), "read")
+                                                  \|   call checker#GOVetAsync(expand('<afile>:p'))
+                                                  \| endif
+    autocmd FileType go autocmd BufWritePost <buffer> call checker#GOCheck(expand('<afile>:p'), "write")
+                                                   \| call checker#GOVetAsync(expand('<afile>:p'))
   augroup END
 endif
 

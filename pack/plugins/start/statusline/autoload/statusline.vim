@@ -54,10 +54,10 @@ function! s:GitValidRepo(dir)
 endfunction
 
 " my statusline
-function! statusline#MyStatusLine()
+function! statusline#MyStatusLine(file)
   let l:gitbranch = ""
+  let l:filehead = fnamemodify(a:file, ":h")
   let l:cwddirname = fnamemodify(getcwd(), ":~")
-  let l:filehead = expand('%:p:h')
   let l:dirname = fnamemodify(!empty(l:filehead) ? l:filehead : l:cwddirname, ":~")
   let l:tname = fnamemodify(l:dirname, ":t")
   let l:cchars = ""
