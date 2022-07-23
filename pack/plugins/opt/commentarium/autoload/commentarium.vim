@@ -1,112 +1,120 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:autoloaded_commentarium') || !get(g:, 'commentarium_enabled') || &cp
   finish
 endif
-let g:autoloaded_commentarium = 1
+g:autoloaded_commentarium = 1
 
-" prints error message and saves the message in the message-history
-function! s:EchoErrorMsg(msg)
-  if !empty(a:msg)
+# prints error message and saves the message in the message-history
+def EchoErrorMsg(msg: string)
+  if !empty(msg)
     echohl ErrorMsg
-    echom  a:msg
+    echom  msg
     echohl None
   endif
-endfunction
+enddef
 
-" comment by language
-function! commentarium#DoComment()
-  let l:curline = line('.')
-  let l:curcol = col('.')
+# comment by language
+export def DoComment()
+  var curcol = col('.')
+  var curline = line('.')
   if index(["c", "cpp", "java", "sql"], &filetype) >= 0
     execute "normal! I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>"
-    call cursor(l:curline, l:curcol + 3)
+    cursor(curline, curcol + 3)
   elseif index(["go", "php", "javascript"], &filetype) >= 0
     execute "normal! I//\<SPACE>"
-    call cursor(l:curline, l:curcol + 3)
-  elseif &filetype ==# "vim"
-    execute "normal! I\"\<SPACE>\<ESC>"
-    call cursor(l:curline, l:curcol + 2)
+    cursor(curline, curcol + 3)
+  elseif &filetype == "vim"
+    # TODO: detect correctly if running inside a vim9script
+    if getline(1) =~ '^vim9script'
+      execute "normal! I#\<SPACE>\<ESC>"
+    else
+      execute "normal! I\"\<SPACE>\<ESC>"
+    endif
+    cursor(curline, curcol + 2)
   elseif index(["sh", "perl", "python"], &filetype) >= 0
     execute "normal! I#\<SPACE>\<ESC>"
-    call cursor(l:curline, l:curcol + 2)
+    cursor(curline, curcol + 2)
   elseif index(["html", "xml"], &filetype) >= 0
     execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
-    call cursor(l:curline, l:curcol + 5)
+    cursor(curline, curcol + 5)
   else
-    call s:EchoErrorMsg("Error: commenting filetype '" . &filetype . "' is not supported")
+    EchoErrorMsg("Error: commenting filetype '" .. &filetype .. "' is not supported")
   endif
-endfunction
+enddef
 
-" uncomment by language
-function! commentarium#UndoComment()
-  let l:curline = line('.')
-  let l:curcol = col('.')
+# uncomment by language
+export def UndoComment(): void
+  var curcol = col('.')
+  var curline = line('.')
+  var trimline: string
+  var num: number
   if index(["c", "cpp", "java", "sql"], &filetype) >= 0
     execute "normal! ^"
-    let l:trimline = trim(getline('.'), " ", 0)
-    if l:trimline[0:1] != "/*" || l:trimline[-2:-1] != "*/"
-      call cursor(l:curline, l:curcol)
+    trimline = trim(getline('.'), " ", 0)
+    if trimline[0 : 1] != "/*" || trimline[-2 : -1] != "*/"
+      cursor(curline, curcol)
       return
     endif
-    let l:num = 2
-    if l:trimline[0:2] == "/* " && l:trimline[-3:-1] == " */"
-      let l:num = 3
+    num = 2
+    if trimline[0 : 2] == "/* " && trimline[-3 : -1] == " */"
+      num = 3
     endif
-    execute "normal! ".l:num."x$".(l:num - 1)."h".l:num."x"
-    call cursor(l:curline, l:curcol - l:num)
+    execute "normal! " .. num .. "x$" .. (num - 1) .. "h" .. num .. "x"
+    cursor(curline, curcol - num)
   elseif index(["go", "php", "javascript"], &filetype) >= 0
     execute "normal! ^"
-    let l:trimline = trim(getline('.'), " ", 1)
-    if l:trimline[0:1] != "//"
-      call cursor(l:curline, l:curcol)
+    trimline = trim(getline('.'), " ", 1)
+    if trimline[0 : 1] != "//"
+      cursor(curline, curcol)
       return
     endif
-    let l:num = 2
-    if l:trimline[0:2] == "// " && l:trimline[3] != " "
-      let l:num = 3
+    num = 2
+    if trimline[0 : 2] == "// " && trimline[3] != " "
+      num = 3
     endif
-    execute "normal! ".l:num."x"
-    call cursor(l:curline, l:curcol - l:num)
-  elseif &filetype ==# "vim"
+    execute "normal! " .. num .. "x"
+    cursor(curline, curcol - num)
+  elseif &filetype == "vim"
     execute "normal! ^"
-    let l:trimline = trim(getline('.'), " ", 1)
-    if l:trimline[0] != '"'
-      call cursor(l:curline, l:curcol)
+    trimline = trim(getline('.'), " ", 1)
+    if trimline[0] != '"' && trimline[0] != '#'
+      cursor(curline, curcol)
       return
     endif
-    let l:num = 1
-    if l:trimline[0:1] == '" ' || l:trimline[0:2] == '"  '
-      let l:num = 2
+    num = 1
+    if trimline[0 : 1] =~ '^"\|# ' || trimline[0 : 2] =~ '^"\|#  '
+      num = 2
     endif
-    execute "normal! ".l:num."x"
-    call cursor(l:curline, l:curcol - l:num)
+    execute "normal! " .. num .. "x"
+    cursor(curline, curcol - num)
   elseif index(["sh", "perl", "python"], &filetype) >= 0
     execute "normal! ^"
-    let l:trimline = trim(getline('.'), " ", 1)
-    if l:trimline[0] != "#"
-      call cursor(l:curline, l:curcol)
+    trimline = trim(getline('.'), " ", 1)
+    if trimline[0] != "#"
+      cursor(curline, curcol)
       return
     endif
-    let l:num = 1
-    if l:trimline[0:1] == "# " || l:trimline[0:2] == "#  "
-      let l:num = 2
+    num = 1
+    if trimline[0 : 1] == "# " || trimline[0 : 2] == "#  "
+      num = 2
     endif
-    execute "normal! ".l:num."x"
-    call cursor(l:curline, l:curcol - l:num)
+    execute "normal! " .. num .. "x"
+    cursor(curline, curcol - num)
   elseif index(["html", "xml"], &filetype) >= 0
     execute "normal! ^"
-    let l:trimline = trim(getline('.'), " ", 0)
-    if l:trimline[0:4] != "<!-- " || l:trimline[-4:-1] != " -->"
-      call cursor(l:curline, l:curcol)
+    trimline = trim(getline('.'), " ", 0)
+    if trimline[0 : 4] != "<!-- " || trimline[-4 : -1] != " -->"
+      cursor(curline, curcol)
       return
     endif
-    let l:num = 5
-    execute "normal! ".l:num."x$xxxx"
-    call cursor(l:curline, l:curcol - l:num)
+    num = 5
+    execute "normal! " .. num .. "x$xxxx"
+    cursor(curline, curcol - num)
   else
-    call s:EchoErrorMsg("Error: uncommenting filetype '" . &filetype . "' is not supported")
+    EchoErrorMsg("Error: uncommenting filetype '" .. &filetype .. "' is not supported")
   endif
-endfunction
+enddef

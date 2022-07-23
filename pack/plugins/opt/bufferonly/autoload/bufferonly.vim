@@ -1,36 +1,38 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:autoloaded_bufferonly') || !get(g:, 'bufferonly_enabled') || &cp
   finish
 endif
-let g:autoloaded_bufferonly = 1
+g:autoloaded_bufferonly = 1
 
-" remove all buffers except the current one
-function! bufferonly#RemoveAllExceptCurrent(mode)
-  let l:curbufid = winbufnr(winnr())
-  if a:mode ==# 'delete' || a:mode ==# 'wipe'
-    let l:bufinfo = getbufinfo({'buflisted':1})
-  elseif a:mode ==# 'wipe!'
-    let l:bufinfo = getbufinfo()
+# remove all buffers except the current one
+export def RemoveAllExceptCurrent(mode: string)
+  var bufinfo: list<dict<any>>
+  var curbufid = winbufnr(winnr())
+  if mode == 'delete' || mode == 'wipe'
+    bufinfo = getbufinfo({'buflisted': 1})
+  elseif mode == 'wipe!'
+    bufinfo = getbufinfo()
   endif
-  for l:b in l:bufinfo
-    if l:b.bufnr == l:curbufid
+  for b in bufinfo
+    if b.bufnr == curbufid
       continue
     endif
-    if getbufvar(l:b.bufnr, '&buftype') ==# 'terminal' && term_getstatus(l:b.bufnr) ==# 'running,normal'
-      if a:mode ==# "delete"
-        execute "bd! " . l:b.bufnr
-      elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
-        execute "bw! " . l:b.bufnr
+    if getbufvar(b.bufnr, '&buftype') == 'terminal' && term_getstatus(b.bufnr) == 'running,normal'
+      if mode == "delete"
+        execute "bd! " .. b.bufnr
+      elseif mode == "wipe" || mode == "wipe!"
+        execute "bw! " .. b.bufnr
       endif
     else
-      if a:mode ==# "delete"
-        execute "bd " . l:b.bufnr
-      elseif a:mode ==# "wipe" || a:mode ==# "wipe!"
-        execute "bw " . l:b.bufnr
+      if mode == "delete"
+        execute "bd " .. b.bufnr
+      elseif mode == "wipe" || mode == "wipe!"
+        execute "bw " .. b.bufnr
       endif
     endif
   endfor
-endfunction
+enddef

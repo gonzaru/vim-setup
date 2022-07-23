@@ -1,38 +1,60 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:autoloaded_autoendstructs') || !get(g:, 'autoendstructs_enabled') || &cp
   finish
 endif
-let g:autoloaded_autoendstructs = 1
+g:autoloaded_autoendstructs = 1
 
-" automatic end of structures
-function! autoendstructs#End()
-  if !get(g:, "autoendstructs_enabled") || &filetype !~# 'vim\|sh'
+# automatic end of structures
+export def End(): string
+  var curcharpos: string
+  var dend: dict<dict<string>>
+  var firstword: string
+  var lastword: string
+  var line: string
+  var linelist: list<string>
+  if !get(g:, "autoendstructs_enabled") || index(['vim', 'sh'], &filetype) == -1
     return "\<CR>"
   endif
-  let s:end = {
-    \ 'vim': { 'if': 'endif', 'while': 'endwhile', 'for': 'endfor', 'try': 'endtry', 'function': 'endfunction', 'function!': 'endfunction', 'def': 'enddef' },
-    \ 'sh': { 'if': 'fi', 'while': 'done', 'for': 'done', 'until': 'done', 'case': 'esac' }
-  \ }
-  let l:line = getline('.')
-  if empty(trim(l:line))
+  dend = {
+    'vim': {
+        'if': 'endif',
+        'while': 'endwhile',
+        'for': 'endfor',
+        'try': 'endtry',
+        'function': 'endfunction',
+        'function!': 'endfunction',
+        'def': 'enddef'
+      },
+    'sh': {
+      'if': 'fi',
+      'while': 'done',
+      'for': 'done',
+      'until': 'done',
+      'case': 'esac'
+     }
+  }
+  line = getline('.')
+  if empty(trim(line))
     return "\<CR>"
   endif
-  let l:curword = expand('<cword>')
-  let l:firstword = split(l:line, " ")[0]
-  let l:lastword = split(l:line, " ")[-1]
-  if &ft ==# 'vim' && has_key(s:end['vim'], l:firstword) && !has_key(s:end['vim'], l:curword)
-    return "\<CR>".s:end['vim'][l:firstword]."\<ESC>O"
-  elseif &ft ==# 'sh' && has_key(s:end['sh'], l:firstword) && index(['then', 'do', 'in'], l:lastword) >= 0
-    return "\<CR>".s:end['sh'][l:firstword]."\<ESC>O"
+  curcharpos = line[col('.') - 1]
+  linelist = split(line, " ")
+  firstword = linelist[0]
+  lastword = linelist[-1]
+  if &ft == 'vim' && has_key(dend['vim'], firstword) && empty(curcharpos)
+    return "\<CR>" .. dend['vim'][firstword] .. "\<ESC>O"
+  elseif &ft == 'sh' && has_key(dend['sh'], firstword) && index(['then', 'do', 'in'], lastword) >= 0 && empty(curcharpos)
+    return "\<CR>" .. dend['sh'][firstword] .. "\<ESC>O"
   endif
   return "\<CR>"
-endfunction
+enddef
 
-" toggle automatic end of structures
-function! autoendstructs#Toggle()
-  let g:autoendstructs_enabled = !get(g:, "autoendstructs_enabled")
-  let v:statusmsg = "autoendstructs=" . g:autoendstructs_enabled
-endfunction
+# toggle automatic end of structures
+export def Toggle()
+  g:autoendstructs_enabled = !get(g:, "autoendstructs_enabled")
+  v:statusmsg = "autoendstructs=" .. g:autoendstructs_enabled
+enddef

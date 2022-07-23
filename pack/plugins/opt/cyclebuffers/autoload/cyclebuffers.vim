@@ -1,43 +1,56 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:autoloaded_cyclebuffers') || !get(g:, 'cyclebuffers_enabled') || &cp
   finish
 endif
-let g:autoloaded_cyclebuffers = 1
+g:autoloaded_cyclebuffers = 1
 
-" prints warning message and saves the message in the message-history
-function! s:EchoWarningMsg(msg)
-  if !empty(a:msg)
+# prints warning message and saves the message in the message-history
+def EchoWarningMsg(msg: string)
+  if !empty(msg)
     echohl WarningMsg
-    echom  a:msg
+    echom  msg
     echohl None
   endif
-endfunction
+enddef
 
-" cycle between buffers
-function! cyclebuffers#Cycle()
-  let l:curbuf = substitute(bufname("%"), $HOME . "/" . $USER . "/", "~/", "")
-  let l:bufinfo = getbufinfo({'buflisted':1})
-  if len(l:bufinfo) == 1
-    call s:EchoWarningMsg("Warning: already using only one buffer")
+# cycle between buffers
+export def Cycle(): void
+  var curbuf = substitute(bufname("%"), $HOME .. "/" .. $USER .. "/", "~/", "")
+  var bufinfo = getbufinfo({'buflisted': 1})
+  var buflist: list<string>
+  var bul: list<string>
+  if len(bufinfo) == 1
+    EchoWarningMsg("Warning: already using only one buffer")
     return
   endif
-  let l:buflist = []
-  for l:buf in l:bufinfo
-    let l:bul = split(substitute(l:buf.name, $HOME . "/" . $USER . "/", "~/", ""))
-    call extend(l:buflist, l:bul)
+  buflist = []
+  for buf in bufinfo
+    bul = split(substitute(buf.name, $HOME .. "/" .. $USER .. "/", "~/", ""))
+    extend(buflist, bul)
   endfor
   topleft new
-  call appendbufline('%', 0, l:buflist)
-  call deletebufline('%', '$')
-  execute "resize " . line('$')
+  appendbufline('%', 0, buflist)
+  deletebufline('%', '$')
+  execute "resize " .. line('$')
   setlocal filetype=cb
-  for l:i in range(1, line('$'))
-    if l:curbuf ==# getline(l:i)
-      call cursor(l:i, 1)
+  for i in range(1, line('$'))
+    if curbuf == getline(i)
+      cursor(i, 1)
       break
     endif
   endfor
-endfunction
+enddef
+
+# go to the selected buffer
+export def SelectBuffer()
+  var curbufid = winbufnr(winnr())
+  var prevwinid = bufwinid('#')
+  var line = fnameescape(getline('.'))
+  close
+  win_gotoid(prevwinid)
+  execute "edit " .. line
+enddef

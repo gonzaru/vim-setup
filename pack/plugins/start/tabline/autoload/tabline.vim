@@ -1,94 +1,99 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:autoloaded_tabline') || !get(g:, 'tabline_enabled') || &cp
   finish
 endif
-let g:autoloaded_tabline = 1
+g:autoloaded_tabline = 1
 
-" my tabline
-function! tabline#MyTabLine()
-  let l:s = ''
-  for l:i in range(tabpagenr('$'))
-    if l:i + 1 == tabpagenr()
-      let l:s .= '%#TabLineSel#'
-    else
-      let l:s .= '%#TabLine#'
-    endif
-    let l:s .= '%' . (l:i + 1) . 'T'
-    let l:s .= ' %{tabline#MyTabLabel(' . (l:i + 1) . ')} '
-  endfor
-  let l:s .= '%#TabLineFill#%T'
-  return l:s
-endfunction
-
-" my tablabel
-function! tabline#MyTabLabel(arg)
-  let l:buflist = tabpagebuflist(a:arg)
-  let l:winnr = tabpagewinnr(a:arg)
-  let l:name = fnamemodify(bufname(buflist[l:winnr - 1]), ":~")
-  let l:tname = fnamemodify(l:name, ":t")
-  let l:cname = ''
-  let l:cchars = ''
-  " exception [No Name]
-  if empty(l:name)
-    let l:cchars = "[No Name]"
-    if getbufvar(l:buflist[l:winnr -1], "&modified")
-      if len(l:buflist) > 1
-        let l:cname = len(l:buflist) . "+" . " " . l:cchars
+# my tablabel
+def MyTabLabel(arg: number): string
+  var buflist = tabpagebuflist(arg)
+  var winnr = tabpagewinnr(arg)
+  var dirname = fnamemodify(bufname(buflist[winnr - 1]), ":~")
+  var dirnamelist = split(dirname, "/")
+  var nametail = fnamemodify(dirname, ":t")
+  var shortname: string
+  var dirchars: string
+  var namelen: number
+  var count: number
+  # exception [No Name]
+  if empty(dirname)
+    dirchars = "[No Name]"
+    if getbufvar(buflist[winnr - 1], "&modified")
+      if len(buflist) > 1
+        shortname = len(buflist) .. "+" .. " " .. dirchars
       else
-        let l:cname = "+" . " " . l:cchars
+        shortname = "+" .. " " .. dirchars
       endif
     else
-      if len(l:buflist) > 1
-        let l:cname = len(l:buflist) . " " . l:cchars
+      if len(buflist) > 1
+        shortname = len(buflist) .. " " .. dirchars
       else
-        let l:cname = l:cchars
+       shortname = dirchars
       endif
     endif
-    return l:cname
+    return shortname
   endif
-  let l:name_len = len(split(l:name, "/"))
-  let l:i = 0
-  for l:n in split(l:name, "/")
-    if l:i < l:name_len - 1
-      if l:n[0] == '.'
-        let l:cchars .= l:n[0:1] . "/"
+  namelen = len(dirnamelist)
+  count = 0
+  for d in dirnamelist
+    if count < namelen - 1
+      if d[0] == '.'
+        dirchars ..= d[0 : 1] .. "/"
       else
-        let l:cchars .= l:n[0] . "/"
+        dirchars ..= d[0] .. "/"
       endif
     endif
-    let l:i += 1
+    ++count
   endfor
-  if getbufvar(l:buflist[l:winnr -1], "&modified")
-    if len(l:buflist) > 1
-      if l:name[0] == "/"
-        let l:cname = len(l:buflist) . "+" . " " . "/" . l:cchars . l:tname
+  if getbufvar(buflist[winnr - 1 ], "&modified")
+    if len(buflist) > 1
+      if dirname[0] == "/"
+        shortname = len(buflist) .. "+" .. " " .. "/" .. dirchars .. nametail
       else
-        let l:cname = len(l:buflist) . "+" . " " . l:cchars . l:tname
+        shortname = len(buflist) .. "+" .. " " .. dirchars .. nametail
       endif
     else
-      if l:name[0] == "/"
-        let l:cname = "+" . " " . "/" . l:cchars . l:tname
+      if dirname[0] == "/"
+        dirname = "+" .. " " .. "/" .. dirchars .. nametail
       else
-        let l:cname = "+" . " " . l:cchars . l:tname
+        shortname = "+" .. " " .. dirchars .. nametail
       endif
     endif
   else
-    if len(l:buflist) > 1
-      if l:name[0] == "/"
-        let l:cname = len(l:buflist) . " " . "/" . l:cchars . l:tname
+    if len(buflist) > 1
+      if dirname[0] == "/"
+        shortname = len(buflist) .. " " .. "/" .. dirchars .. nametail
       else
-        let l:cname = len(l:buflist) . " " . l:cchars . l:tname
+        shortname = len(buflist) .. " " .. dirchars .. nametail
       endif
     else
-      if l:name[0] == "/"
-        let l:cname = "/" . l:cchars . l:tname
+      if dirname[0] == "/"
+        shortname = "/" .. dirchars .. nametail
       else
-        let l:cname = l:cchars . l:tname
+        shortname = dirchars .. nametail
       endif
     endif
   endif
-  return l:cname
-endfunction
+  return shortname
+enddef
+
+# my tabline
+export def MyTabLine(): string
+  var s: string
+  for i in range(tabpagenr('$'))
+    if i + 1 == tabpagenr()
+      s ..= '%#TabLineSel#'
+    else
+      s ..= '%#TabLine#'
+    endif
+    s ..= '%' .. (i + 1) .. 'T'
+    # s ..= ' %{MyTabLabel(' .. (i + 1) .. ')} '
+    s ..= ' %{' .. MyTabLabel->string() .. '(' .. (i + 1) .. ')} '
+  endfor
+  s ..= '%#TabLineFill#%T'
+  return s
+enddef

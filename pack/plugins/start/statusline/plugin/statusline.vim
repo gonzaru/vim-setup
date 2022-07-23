@@ -1,21 +1,28 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:loaded_statusline') || !get(g:, 'statusline_enabled') || &cp
   finish
 endif
-let g:loaded_statusline = 1
+g:loaded_statusline = 1
+
+# global variables
+if !exists('g:statusline_showgitbranch')
+  g:statusline_showgitbranch = 1
+endif
+
+# autoload
+import autoload '../autoload/statusline.vim'
 
 augroup statusline_mystatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,CmdlineLeave,ShellCmdPost,DirChanged,VimResume * call statusline#MyStatusLine(expand('<afile>:p'))
+  autocmd BufNewFile,BufEnter,CmdlineLeave,ShellCmdPost,DirChanged,VimResume * statusline.MyStatusLine(expand('<afile>:p'))
 augroup END
 
-" see ../autoload/statusline.vim
-
-" TODO:
-" set mappings
-" define mappings
-" if get(g:, 'statusline_no_mappings') == 0
-" endif
+# TODO:
+# set mappings
+# define mappings
+# if get(g:, 'statusline_no_mappings') == 0
+# endif

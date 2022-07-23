@@ -1,17 +1,26 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:loaded_autoendstructs') || !get(g:, 'autoendstructs_enabled') || &cp
   finish
 endif
-let g:loaded_autoendstructs = 1
+g:loaded_autoendstructs = 1
 
-" define mappings
-nnoremap <silent> <unique> <script> <Plug>(autoendstructs-toggle) :<C-u>call autoendstructs#Toggle()<CR>
-inoremap <silent> <unique> <script> <Plug>(autoendstructs-end) <C-r>=autoendstructs#End()<CR>
+# autoload
+import autoload '../autoload/autoendstructs.vim'
 
-" set mappings
+# define mappings
+nnoremap <silent> <unique> <script> <Plug>(autoendstructs-toggle) <ScriptCmd>autoendstructs.Toggle()<CR>
+inoremap <silent> <unique> <script> <Plug>(autoendstructs-end) <C-r>=<SID>autoendstructs.End()<CR>
+
+# set mappings
 if get(g:, 'autoendstructs_no_mappings') == 0
-  nnoremap <leader>tge <Plug>(autoendstructs-toggle):echo v:statusmsg<CR>
+  if empty(mapcheck("<leader>tge", "n"))
+    nnoremap <leader>tge <Plug>(autoendstructs-toggle):echo v:statusmsg<CR>
+  endif
+  command! AutoEndStructsEnable g:autoendstructs_enabled = 1
+  command! AutoEndStructsDisable g:autoendstructs_enabled = 0
+  command! AutoEndStructsToggle autoendstructs.Toggle()
 endif

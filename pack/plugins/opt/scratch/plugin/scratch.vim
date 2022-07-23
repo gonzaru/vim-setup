@@ -1,22 +1,34 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:loaded_scratch') || !get(g:, 'scratch_enabled') || &cp
   finish
 endif
-let g:loaded_scratch = 1
+g:loaded_scratch = 1
 
-" define mappings
-nnoremap <silent> <unique> <script> <Plug>(scratch-buffer) :<C-u>call scratch#Buffer()<CR>
-nnoremap <silent> <unique> <script> <Plug>(scratch-terminal) :<C-u>call scratch#Terminal()<CR>
+# autoload
+import autoload '../autoload/scratch.vim'
 
-" set mappings
+# define mappings
+nnoremap <silent> <unique> <script> <Plug>(scratch-buffer) <ScriptCmd>scratch.Buffer()<CR>
+nnoremap <silent> <unique> <script> <Plug>(scratch-terminal) <ScriptCmd>scratch.Terminal()<CR>
+
+# set mappings
 if get(g:, 'scratch_no_mappings') == 0
-  nnoremap <silent><leader>s<BS> <Plug>(scratch-buffer)
-  nnoremap <silent><leader>s<CR> <Plug>(scratch-terminal)
-  nnoremap <silent><leader>sc <Plug>(scratch-buffer)
-  nnoremap <silent><leader>sz <Plug>(scratch-terminal)
-  command! ScratchBuffer :call scratch#Buffer()
-  command! ScratchTerminal :call scratch#Terminal()
+  if empty(mapcheck("<leader>s<BS>", "n"))
+    nnoremap <silent><leader>s<BS> <Plug>(scratch-buffer)
+  endif
+  if empty(mapcheck("<leader>s<CR>", "n"))
+    nnoremap <silent><leader>s<CR> <Plug>(scratch-terminal)
+  endif
+  if empty(mapcheck("<leader>sc", "n"))
+    nnoremap <silent><leader>sc <Plug>(scratch-buffer)
+  endif
+  if empty(mapcheck("<leader>sz", "n"))
+    nnoremap <silent><leader>sz <Plug>(scratch-terminal)
+  endif
+  command! ScratchBuffer scratch.Buffer()
+  command! ScratchTerminal scratch.Terminal()
 endif

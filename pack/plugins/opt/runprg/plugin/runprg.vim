@@ -1,20 +1,28 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded
+# do not read the file if it is already loaded
 if exists('g:loaded_runprg') || !get(g:, 'runprg_enabled') || &cp
   finish
 endif
-let g:loaded_runprg = 1
+g:loaded_runprg = 1
 
-" define mappings
-nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) :<C-u>call runprg#Run()<CR>
-nnoremap <silent> <unique> <script> <Plug>(runprg-window) :<C-u>call runprg#RunWindow()<CR>
+# autoload
+import autoload '../autoload/runprg.vim'
 
-" set mappings
+# define mappings
+nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) <ScriptCmd>runprg.Run()<CR>
+nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow()<CR>
+
+# set mappings
 if get(g:, 'runprg_no_mappings') == 0
-  nnoremap <leader>ru <Plug>(runprg-laststatus)
-  nnoremap <leader>rU <Plug>(runprg-window)
-  command! Run :call runprg#Run()
-  command! RunWindow :call runprg#RunWindow()
+  if empty(mapcheck("<leader>ru", "n"))
+    nnoremap <leader>ru <Plug>(runprg-laststatus)
+  endif
+  if empty(mapcheck("<leader>rU", "n"))
+    nnoremap <leader>rU <Plug>(runprg-window)
+  endif
+  command! Run runprg.Run()
+  command! RunWindow runprg.RunWindow()
 endif

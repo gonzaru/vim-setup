@@ -1,561 +1,698 @@
-" by Gonzaru
-" Distributed under the terms of the GNU General Public License v3
+vim9script
+# by Gonzaru
+# Distributed under the terms of the GNU General Public License v3
 
-" do not read the file if it is already loaded or checker is not enabled
+# do not read the file if it is already loaded or checker is not enabled
 if exists('g:autoloaded_checker') || !get(g:, 'checker_enabled') || &cp
   finish
 endif
-let g:autoloaded_checker = 1
+g:autoloaded_checker = 1
 
-" script local errors
-let s:checker_sh_errors = 0
-let s:checker_sc_errors = 0
-let s:checker_py_errors = 0
-let s:checker_pep8_errors = 0
-let s:checker_go_errors = 0
-let s:checker_gv_errors = 0
+# checker errors
+final CHECKER_ERRORS = {
+  'sh': {
+    'sh': 0,
+    'shellcheck': 0
+  },
+  'python': {
+    'python': 0,
+    'pep8': 0
+  },
+  'go': {
+    'gofmt': 0,
+    'govet': 0
+  }
+}
 
-" prints error message and saves the message in the message-history
-function! s:EchoErrorMsg(msg)
-  if !empty(a:msg)
+# job queues
+final JOB_QUEUE = {
+  'sh': {
+    'shellcheck': []
+  },
+  'python': {
+    'pep8': []
+  },
+  'go': {
+    'govet': []
+  }
+}
+
+# statusline regex
+const REGEX_STATUSLINE = {
+  'sh': '^\[SH=\d*\]\[SC=\d*N\?E\?\] ',
+  'python': '^\[PY=\d*\]\[P8=\d*N\?E\?\] ',
+  'go': '^\[GO=\d*\]\[GV=\d*N\?E\?\] '
+}
+
+# user tmp directory
+const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
+
+# checker files
+const CHECKER_FILES = {
+  'sh': {
+    'sh': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_sh_sh_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_sh_sh_syntax.txt"
+    },
+    'shellcheck': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_sh_shellcheck_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_sh_shellcheck_syntax.txt"
+    }
+  },
+  'python': {
+    'python': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_python_python_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_python_python_syntax.txt"
+    },
+    'pep8': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_python_pep8_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_python_pep8_syntax.txt"
+    }
+  },
+  'go': {
+    'gofmt': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_go_gofmt_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_go_gofmt_syntax.txt"
+    },
+    'govet': {
+      'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_go_govet_buffer.txt",
+      'syntax': TMPDIR .. "/" .. $USER .. "-vim-checker_go_govet_syntax.txt"
+    }
+  }
+}
+
+# prints error message and saves the message in the message-history
+def EchoErrorMsg(msg: string)
+  if !empty(msg)
     echohl ErrorMsg
-    echom  a:msg
+    echom  msg
     echohl None
   endif
-endfunction
+enddef
 
-" prints warning message and saves the message in the message-history
-function! s:EchoWarningMsg(msg)
-  if !empty(a:msg)
+# prints warning message and saves the message in the message-history
+def EchoWarningMsg(msg: string)
+  if !empty(msg)
     echohl WarningMsg
-    echom  a:msg
+    echom  msg
     echohl None
   endif
-endfunction
+enddef
 
-" user tmp directory
-function! s:UserTempDir() abort
-  let l:tmp = "/tmp"
-  if !empty($TMPDIR)
-    let l:tmp = $TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")
-  endif
-  return l:tmp
-endfunction
-
-" allowed file types
- let s:allowed_types = ["sh", "python", "go"]
-
-" user tmp dir
-let s:tmp = s:UserTempDir()
-
-" sh, python, go
-let s:checkerfiles = {
-  \'sh' : {
-    \'sh' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_sh_sh_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_sh_sh_syntax.txt"
-    \},
-    \'shellcheck' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_sh_shellcheck_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_sh_shellcheck_syntax.txt"
-    \}
-  \},
-  \'python' : {
-    \'python' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_python_python_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_python_python_syntax.txt"
-    \},
-    \'pep8' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_python_pep8_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_python_pep8_syntax.txt"
-    \}
-  \},
-  \'go' : {
-    \'gofmt' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_go_gofmt_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_go_gofmt_syntax.txt"
-    \},
-    \'govet' : {
-      \'buffer' :  s:tmp."/".$USER."-vim-checker_go_govet_buffer.txt",
-      \'syntax' : s:tmp."/".$USER."-vim-checker_go_govet_syntax.txt"
-    \}
-  \}
-\}
-
-" tells if buffer is empty
-function! s:BufferIsEmpty() abort
+# tells if buffer is empty
+def BufferIsEmpty(): bool
   return line('$') == 1 && empty(getline(1))
-endfunction
+enddef
 
-" shows debug information
-function! checker#CycleSignsShowDebugInfo(type, mode) abort
-  let l:curbuf = winbufnr(winnr())
-  let l:curline = line('.')
-  let l:curcycleline = 0
-  let l:nextcycleline = 0
-  let l:prevcycleline = 0
-  let l:signameline = ""
-  if index(s:allowed_types, a:type) == -1
-    call s:EchoErrorMsg("Error: debug information for filetype '" . a:type . "' is not supported")
+# remove signs
+# sign_unplace() does not support 'name' : 'error_name'
+# deprecated: now sign_unplace() has support to unplace by name
+# def RemoveSignsName(buf: number, name: string)
+#   var signs = sign_getplaced(buf)[0].signs
+#   if empty(signs)
+#     return
+#   endif
+#   for sign in signs
+#     if sign.name == name
+#       sign_unplace('', {'buffer': buf, 'id': sign.id})
+#     endif
+#   endfor
+# enddef
+
+# """ SH """
+
+# sh check
+export def SHCheck(file: string, mode: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var theshell: string
+  var check_file: string
+  var errout: string
+  var errline: number
+  var prevstatusline: string
+  if !get(g:, 'checker_enabled')
     return
   endif
-  let l:signs = sign_getplaced(l:curbuf)[0].signs
-  if empty(l:signs)
-    call s:EchoWarningMsg("Warning: signs not found in the current buffer")
+  if BufferIsEmpty() || !filereadable(curbufname)
     return
   endif
-  for l:sign in l:signs
-    let l:cycleline = l:sign.lnum
-    if a:mode ==# 'cur'
-      let l:curcycleline = l:curline
-      let l:signameline = l:sign.name
-      break
-    elseif a:mode ==# 'next'
-      if l:curline < l:cycleline
-        let l:nextcycleline = l:cycleline
-        let l:signameline = l:sign.name
-        break
-      endif
-    elseif a:mode ==# 'prev'
-      if l:curline > l:cycleline
-        let l:prevcycleline = l:cycleline
-        let l:signameline = l:sign.name
-      endif
-    endif
-  endfor
-  if l:curcycleline || l:nextcycleline || l:prevcycleline
-    if l:curcycleline
-      try
-        call sign_jump(l:curcycleline, '', l:curbuf)
-      catch
-        call s:EchoWarningMsg("Warning: sign id not found in line " . l:curcycleline)
-        return
-      endtry
-    elseif l:nextcycleline
-      try
-        call sign_jump(l:nextcycleline, '', l:curbuf)
-      catch
-        call s:EchoWarningMsg("Warning: sign id not found in line " . l:nextcycleline)
-        return
-      endtry
-    elseif l:prevcycleline
-      try
-        call sign_jump(l:prevcycleline, '', l:curbuf)
-      catch
-        call s:EchoWarningMsg("Warning: sign id not found in line " . l:prevcycleline)
-        return
-      endtry
-    else
-      call s:EchoErrorMsg("Error: sign jump line not found")
-      return
-    endif
-    if index(s:allowed_types, a:type) >= 0
-      call s:ShowDebugInfo(l:signameline, a:type)
-    endif
+  if &filetype != "sh"
+    throw "Error: (SHCheck) " .. curbufname .. " is not a valid sh file!"
   endif
-endfunction
-
-""" SH """
-
-" sh check
-function! checker#SHCheck(file, mode) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  let s:checker_sh_errors = 0
-  if s:BufferIsEmpty() || !filereadable(l:curbufname)
-    return
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['sh']})
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
+  CHECKER_ERRORS['sh']['sh'] = 0
+  theshell = getline(1) =~ "bash" ? "bash" : "sh"
+  if mode == "read"
+    check_file = curbufname
+  elseif mode == "write"
+    silent execute "write! " .. CHECKER_FILES["sh"]["sh"]["buffer"]
+    check_file = CHECKER_FILES["sh"]["sh"]["buffer"]
   endif
-  if &filetype !=# "sh"
-    throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
-  endif
-  call s:RemoveSignsName(l:curbufnr, "sh_error")
-  call s:RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
-  let l:theshell = getline(1) =~# "bash" ? "bash" : "sh"
-  if a:mode ==# "read"
-    let l:check_file = l:curbufname
-  elseif a:mode ==# "write"
-    silent execute "write! " . s:checkerfiles["sh"]["sh"]["buffer"]
-    let l:check_file = s:checkerfiles["sh"]["sh"]["buffer"]
-  endif
-  if l:theshell ==# "sh"
-    call system("sh -n " . l:check_file . " > " . s:checkerfiles["sh"]["sh"]["syntax"] . " 2>&1")
-  elseif l:theshell ==# "bash"
-    call system("bash --norc -n " . l:check_file . " > " . s:checkerfiles["sh"]["sh"]["syntax"] . " 2>&1")
+  if theshell == "sh"
+    system("sh -n " .. check_file .. " > " .. CHECKER_FILES["sh"]["sh"]["syntax"] .. " 2>&1")
+  elseif theshell == "bash"
+    system("bash --norc -n " .. check_file .. " > " .. CHECKER_FILES["sh"]["sh"]["syntax"] .. " 2>&1")
   endif
   if v:shell_error != 0
-    let s:checker_sh_errors = 1
-    let l:errout = join(readfile(s:checkerfiles["sh"]["sh"]["syntax"]))
-    let l:errline = substitute(trim(split(l:errout, ":")[1]), "^line ", "", "")
-    echo l:errline
-    if !empty(l:errline)
-      call sign_place(l:errline, '', 'sh_error', l:curbufnr, {'lnum' : l:errline})
-      call cursor(l:errline, 1)
+    CHECKER_ERRORS['sh']['sh'] = 1
+    errout = join(readfile(CHECKER_FILES["sh"]["sh"]["syntax"]))
+    errline = str2nr(substitute(trim(split(errout, ":")[1]), "^line ", "", ""))
+    if !empty(errline)
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['sh'], curbufnr, {'lnum': errline})
+      cursor(errline, 1)
     endif
-    if a:mode ==# "write" && filereadable(s:checkerfiles["sh"]["sh"]["buffer"])
-      call delete(s:checkerfiles["sh"]["sh"]["buffer"])
+    if mode == "write" && filereadable(CHECKER_FILES["sh"]["sh"]["buffer"])
+      delete(CHECKER_FILES["sh"]["sh"]["buffer"])
     endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[SH=\d\]\[SC=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[SH=".s:checker_sh_errors."][SC={}] " . l:newstatusline
-    throw "Error: (".a:mode.") " . l:errout
-  endi
-  if a:mode ==# "write" && filereadable(s:checkerfiles["sh"]["sh"]["buffer"])
-    call delete(s:checkerfiles["sh"]["sh"]["buffer"])
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['sh'], "", "")
+    &l:statusline = "[SH=" .. CHECKER_ERRORS['sh']['sh'] .. "][SC=N] " .. prevstatusline
+    throw "Error: (" .. mode .. ") " .. errout
   endif
-  if filereadable(s:checkerfiles["sh"]["sh"]["syntax"])
-  \&& !getfsize(s:checkerfiles["sh"]["sh"]["syntax"])
-    call delete(s:checkerfiles["sh"]["sh"]["syntax"])
+  if mode == "write" && filereadable(CHECKER_FILES["sh"]["sh"]["buffer"])
+    delete(CHECKER_FILES["sh"]["sh"]["buffer"])
   endif
-endfunction
+  if filereadable(CHECKER_FILES["sh"]["sh"]["syntax"]) && !getfsize(CHECKER_FILES["sh"]["sh"]["syntax"])
+    delete(CHECKER_FILES["sh"]["sh"]["syntax"])
+  endif
+enddef
 
-" sh shellcheck (no exec)
-function! s:SHShellCheckNoExec(file) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  let s:checker_sc_errors = 0
-  if &filetype !=# "sh"
-    throw "Error: (SHCheck) " . l:curbufname . " is not a valid sh file!"
+# sh shellcheck (no exec)
+def SHShellCheckNoExec(file: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var terrors: number
+  var errline: number
+  CHECKER_ERRORS['sh']['sc'] = 0
+  if &filetype != "sh"
+    throw "Error: (SHCheck) " .. curbufname .. " is not a valid sh file!"
   endif
-  if !filereadable(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-    " throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
+  if !filereadable(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
+    # throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
     return
   endif
-  call s:RemoveSignsName(l:curbufnr, "sh_shellcheckerror")
-  let l:terrors = 0
-  for l:line in readfile(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-    if l:line =~# "^In "
-      let l:errline = split(split(l:line, " ")[3], ":")[0]
-      if !empty(l:errline)
-        call sign_place(l:errline, '', 'sh_shellcheckerror', l:curbufnr, {'lnum' : l:errline})
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
+  terrors = 0
+  for line in readfile(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
+    if line =~ "^In "
+      errline = str2nr(split(split(line, " ")[3], ":")[0])
+      if !empty(errline)
+        sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['shellcheck'], curbufnr, {'lnum': errline})
       endif
-      let l:terrors += 1
+      terrors += 1
     endif
   endfor
-  if l:terrors
-    let s:checker_sc_errors = l:terrors
+  if terrors > 0
+    CHECKER_ERRORS['sh']['sc'] = terrors
   endif
-endfunction
+enddef
 
-" sh shellcheck async
-function! checker#SHShellCheckAsync(file) abort
-  " depends on checker#SHCheck()
-  if s:checker_sh_errors
-    call s:EchoErrorMsg("Error: (SHCheck) previous function contains errors")
-    call s:EchoErrorMsg("Error: (SHShellCheckAsync) detected error"
+# sh shellcheck async
+export def SHShellCheckAsync(file: string): void
+  var newjob: job
+  if !get(g:, 'checker_enabled')
     return
   endif
-  if &filetype ==# "sh" && !s:BufferIsEmpty()
-    let l:job = job_start("shellcheck --color=never " . a:file, {"out_cb": "checker#OutHandlerSHShellCheck", "err_cb": "checker#ErrHandlerSHShellCheck", "exit_cb": "checker#ExitHandlerSHShellCheck", "out_io": "file", "out_name": s:checkerfiles["sh"]["shellcheck"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+  # depends on checker#SHCheck()
+  if CHECKER_ERRORS['sh']['sh']
+    EchoErrorMsg("Error: (SHCheck) previous function contains errors")
+    EchoErrorMsg("Error: (SHShellCheckAsync) detected error")
+    return
   endif
-endfunction
+  if &filetype == "sh" && !BufferIsEmpty() && empty(JOB_QUEUE['sh']['shellcheck'])
+    newjob = job_start(
+      ['shellcheck', '--color=never', file],
+      {
+        "out_cb": "s:OutHandlerSHShellCheck",
+        "err_cb": "s:ErrHandlerSHShellCheck",
+        "exit_cb": "s:ExitHandlerSHShellCheck",
+        "out_io": "file",
+        "out_name": CHECKER_FILES["sh"]["shellcheck"]["syntax"],
+        "out_msg": 0,
+        "out_modifiable": 0,
+        "err_io": "out"
+      }
+    )
+    add(JOB_QUEUE['sh']['shellcheck'], job_info(newjob)['process'])
+  endif
+enddef
 
-function!  checker#OutHandlerSHShellCheck(channel, message) abort
-endfunction
+# def OutHandlerSHShellCheck(channel: channel, message: string)
+# enddef
 
-function! checker#ErrHandlerSHShellCheck(channel, message) abort
-endfunction
+# def ErrHandlerSHShellCheck(channel: channel, message: string)
+# enddef
 
-function! checker#ExitHandlerSHShellCheck(job, status) abort
-  let l:file = job_info(a:job)["cmd"][-1]
-  call s:SHShellCheckNoExec(l:file)
-  if filereadable(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-    if !getfsize(s:checkerfiles["sh"]["shellcheck"]["syntax"])
-      call delete(s:checkerfiles["sh"]["shellcheck"]["syntax"])
+def ExitHandlerSHShellCheck(job: job, status: number)
+  var file = job_info(job)["cmd"][-1]
+  var idx: number
+  var prevstatusline: string
+  SHShellCheckNoExec(file)
+  if filereadable(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
+    if !getfsize(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
+      delete(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
     endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[SH=\d\]\[SC=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[SH=".s:checker_sh_errors."][SC=".s:checker_sc_errors."] " . l:newstatusline
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['sh'], "", "")
+    &l:statusline = "[SH=" .. CHECKER_ERRORS['sh']['sh'] .. "][SC=" .. CHECKER_ERRORS['sh']['sc'] .. "] " .. prevstatusline
   endif
-endfunction
+  # job command with unexpected error
+  if !CHECKER_ERRORS['sh']['sc'] && job_info(job)["exitval"] != 0
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['sh'], "", "")
+    &l:statusline = "[SH=" .. CHECKER_ERRORS['sh']['sh'] .. "][SC=E] " .. prevstatusline
+  endif
+  idx = index(JOB_QUEUE['sh']['shellcheck'], job_info(job)["process"])
+  if idx >= 0
+    remove(JOB_QUEUE['sh']['shellcheck'], idx)
+  endif
+enddef
 
-""" PYTHON """
+# """ PYTHON """
 
-" python check
-function! checker#PYCheck(file, mode) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  let s:checker_py_errors = 0
-  if s:BufferIsEmpty() || !filereadable(l:curbufname)
+# python check
+export def PYCheck(file: string, mode: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var check_file: string
+  var errout: list<string>
+  var errline: number
+  var prevstatusline: string
+  if !get(g:, 'checker_enabled')
     return
   endif
-  if &filetype !=# "python"
-    throw "error: (PYcheck) " . l:curbufname . " is not a valid python file!"
+  if BufferIsEmpty() || !filereadable(curbufname)
+    return
   endif
-  call s:RemoveSignsName(l:curbufnr, "py_error")
-  call s:RemoveSignsName(l:curbufnr, "py_pep8error")
-  if a:mode ==# "read"
-    let l:check_file = l:curbufname
-  elseif a:mode ==# "write"
-    silent execute "write! " . s:checkerfiles["python"]["python"]["buffer"]
-    let l:check_file = s:checkerfiles["python"]["python"]["buffer"]
+  if &filetype != "python"
+    throw "error: (PYcheck) " .. curbufname .. " is not a valid python file!"
   endif
-  call system("python3 -c \"import ast; ast.parse(open('". l:check_file ."').read())\" > " . s:checkerfiles["python"]["python"]["syntax"] . " 2>&1")
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['python']})
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
+  CHECKER_ERRORS['python']['python'] = 0
+  if mode == "read"
+    check_file = curbufname
+  elseif mode == "write"
+    silent execute "write! " .. CHECKER_FILES["python"]["python"]["buffer"]
+    check_file = CHECKER_FILES["python"]["python"]["buffer"]
+  endif
+  system("python3 -c \"import ast; ast.parse(open('" .. check_file .. "').read())\" > " .. CHECKER_FILES["python"]["python"]["syntax"] .. " 2>&1")
   if v:shell_error != 0
-    let s:checker_py_errors = 1
-    let l:errout = readfile(s:checkerfiles["python"]["python"]["syntax"])
-    let l:errline = split(l:errout[4], ", line ")[1]
-    if !empty(l:errline)
-      call sign_place(l:errline, '', 'py_error', l:curbufnr, {'lnum' : l:errline})
-      call cursor(l:errline, 1)
+    CHECKER_ERRORS['python']['python'] = 1
+    errout = readfile(CHECKER_FILES["python"]["python"]["syntax"])
+    errline = str2nr(split(errout[4], ", line ")[1])
+    if !empty(errline)
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['python'], curbufnr, {'lnum': errline})
+      cursor(errline, 1)
     endif
-    if a:mode ==# "write" && filereadable(s:checkerfiles["python"]["python"]["buffer"])
-      call delete(s:checkerfiles["python"]["python"]["buffer"])
+    if mode == "write" && filereadable(CHECKER_FILES["python"]["python"]["buffer"])
+      delete(CHECKER_FILES["python"]["python"]["buffer"])
     endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[PY=\d\]\[P8=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[PY=".s:checker_py_errors."][P8={}] " . l:newstatusline
-    throw "Error: (".a:mode.") " . l:errout
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['python'], "", "")
+    &l:statusline = "[PY=" .. CHECKER_ERRORS['python']['python'] .. "][P8=N] " .. prevstatusline
+    throw "Error: (" .. mode .. ") " .. join(errout)
   endif
-  if a:mode ==# "write" && filereadable(s:checkerfiles["python"]["python"]["buffer"])
-    call delete(s:checkerfiles["python"]["python"]["buffer"])
+  if mode == "write" && filereadable(CHECKER_FILES["python"]["python"]["buffer"])
+    delete(CHECKER_FILES["python"]["python"]["buffer"])
   endif
-  if filereadable(s:checkerfiles["python"]["python"]["syntax"])
-  \&& !getfsize(s:checkerfiles["python"]["python"]["syntax"])
-    call delete(s:checkerfiles["python"]["python"]["syntax"])
+  if filereadable(CHECKER_FILES["python"]["python"]["syntax"]) && !getfsize(CHECKER_FILES["python"]["python"]["syntax"])
+    delete(CHECKER_FILES["python"]["python"]["syntax"])
   endif
-endfunction
+enddef
 
-" python pep8 (no exec)
-function! s:PYPep8NoExec(file) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  let s:checker_pep8_errors = 0
-  if &filetype !=# "python"
-    throw "Error: (PYPep8NoExec) " . l:curbufname . " is not a valid python file!"
+# python pep8 (no exec)
+def PYPep8NoExec(file: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var terrors: number
+  var errline: number
+  CHECKER_ERRORS['python']['pep8'] = 0
+  if &filetype != "python"
+    throw "Error: (PYPep8NoExec) " .. curbufname .. " is not a valid python file!"
   endif
-  if !filereadable(s:checkerfiles["python"]["pep8"]["syntax"])
-    " throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
+  if !filereadable(CHECKER_FILES["python"]["pep8"]["syntax"])
+    # throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
     return
   endif
-  call s:RemoveSignsName(l:curbufnr, "py_pep8error")
-  let l:terrors = 0
-  for l:line in readfile(s:checkerfiles["python"]["pep8"]["syntax"])
-    " pep8 shows now a warning that has been renamed to pycodestyle
-    if l:line !~# "^".l:curbufname.":"
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
+  terrors = 0
+  for line in readfile(CHECKER_FILES["python"]["pep8"]["syntax"])
+    # pep8 shows now a warning that has been renamed to pycodestyle
+    if line !~ "^" .. curbufname .. ":"
       continue
     endif
-    let l:errline = split(l:line, ":")[1]
-    if !empty(l:errline)
-      call sign_place(l:errline, '', 'py_pep8error', l:curbufnr, {'lnum' : l:errline})
+    errline = str2nr(split(line, ":")[1])
+    if !empty(errline)
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['pep8'], curbufnr, {'lnum': errline})
     endif
-    let l:terrors += 1
+    terrors += 1
   endfor
-  if l:terrors
-    let s:checker_pep8_errors = l:terrors
+  if terrors > 0
+    CHECKER_ERRORS['python']['pep8'] = terrors
   endif
-endfunction
+enddef
 
-" python pep8 async
-function! checker#PYPep8Async(file) abort
-   " depends on checker#PYCheck()
-  if s:checker_py_errors
-    call s:EchoErrorMsg("Error: (PYCheck) previous function contains errors")
-    call s:EchoErrorMsg("Error: (PYPep8Aysnc) detected error")
+# python pep8 async
+export def PYPep8Async(file: string): void
+  var newjob: job
+  if !get(g:, 'checker_enabled')
     return
   endif
-  if &filetype ==# "python" && !s:BufferIsEmpty()
-    let l:job = job_start("pep8 " . a:file, {"out_cb": "checker#OutHandlerPYPep8", "err_cb": "checker#ErrHandlerPYPep8", "exit_cb": "checker#ExitHandlerPYPep8", "out_io": "file", "out_name": s:checkerfiles["python"]["pep8"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
+  # depends on checker#PYCheck()
+  if CHECKER_ERRORS['python']['python']
+    EchoErrorMsg("Error: (PYCheck) previous function contains errors")
+    EchoErrorMsg("Error: (PYPep8Aysnc) detected error")
+    return
   endif
-endfunction
+  if &filetype == "python" && !BufferIsEmpty() && empty(JOB_QUEUE['python']['pep8'])
+    newjob = job_start(
+      ['pep8', file],
+      {
+        "out_cb": "s:OutHandlerPYPep8",
+        "err_cb": "s:ErrHandlerPYPep8",
+        "exit_cb": "s:ExitHandlerPYPep8",
+        "out_io": "file",
+        "out_name": CHECKER_FILES["python"]["pep8"]["syntax"],
+        "out_msg": 0,
+        "out_modifiable": 0,
+        "err_io": "out"
+      }
+    )
+    add(JOB_QUEUE['python']['pep8'], job_info(newjob)['process'])
+  endif
+enddef
 
-function! checker#OutHandlerPYPep8(channel, message) abort
-endfunction
+# def OutHandlerPYPep8(channel: channel, message: string)
+# enddef
 
-function! checker#ErrHandlerPYPep8(channel, message) abort
-endfunction
+# def ErrHandlerPYPep8(channel: channel, message: string)
+# enddef
 
-function! checker#ExitHandlerPYPep8(job, status) abort
-  let l:file = job_info(a:job)["cmd"][-1]
-  call s:PYPep8NoExec(l:file)
-  if filereadable(s:checkerfiles["python"]["pep8"]["syntax"])
-    if !getfsize(s:checkerfiles["python"]["pep8"]["syntax"])
-      call delete(s:checkerfiles["python"]["pep8"]["syntax"])
+def ExitHandlerPYPep8(job: job, status: number)
+  var file = job_info(job)["cmd"][-1]
+  var idx: number
+  var prevstatusline: string
+  PYPep8NoExec(file)
+  if filereadable(CHECKER_FILES["python"]["pep8"]["syntax"])
+    if !getfsize(CHECKER_FILES["python"]["pep8"]["syntax"])
+      delete(CHECKER_FILES["python"]["pep8"]["syntax"])
     endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[PY=\d\]\[P8=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[PY=".s:checker_py_errors."][P8=".s:checker_pep8_errors."] " . l:newstatusline
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['python'], "", "")
+    &l:statusline = "[PY=" .. CHECKER_ERRORS['python']['python'] .. "][P8=" .. CHECKER_ERRORS['python']['pep8'] .. "] " .. prevstatusline
   endif
-endfunction
+  # job command with unexpected error
+  if !CHECKER_ERRORS['python']['pep8'] && job_info(job)["exitval"] != 0
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['python'], "", "")
+    &l:statusline = "[PY=" .. CHECKER_ERRORS['python']['python'] .. "][P8=E] " .. prevstatusline
+  endif
+  idx = index(JOB_QUEUE['python']['pep8'], job_info(job)["process"])
+  if idx >= 0
+    remove(JOB_QUEUE['python']['pep8'], idx)
+  endif
+enddef
 
-""" GO """
+# """ GO """
 
-" go check
-function! checker#GOCheck(file, mode) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  " let l:curline = line('.')
-  let s:checker_go_errors = 0
-  if s:BufferIsEmpty() || !filereadable(l:curbufname)
+# go check
+export def GOCheck(file: string, mode: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var check_file: string
+  var errout: string
+  var errline: number
+  var prevstatusline: string
+  if !get(g:, 'checker_enabled')
     return
   endif
-  if &filetype !=# "go"
-    throw "Error: (GOCheck) " . l:curbufname . " is not a valid go file!"
+  if BufferIsEmpty() || !filereadable(curbufname)
+    return
   endif
-  if !executable("gofmt")
-    throw "Error: (GOCheck) program gofmt is missing!"
+  if &filetype != "go"
+    throw "Error: (GOCheck) " .. curbufname .. " is not a valid go file!"
   endif
-  " TODO: recheck
-  " sign_unplace() does not support 'name' : 'error_name'
-  " call sign_unplace('', {'buffer' : l:curbufnr, 'id' : l:curline})
-  call s:RemoveSignsName(l:curbufnr, "go_error")
-  call s:RemoveSignsName(l:curbufnr, "go_veterror")
-  if a:mode ==# "read"
-    let l:check_file = l:curbufname
-  elseif a:mode ==# "write"
-    silent execute "write! " . s:checkerfiles["go"]["gofmt"]["buffer"]
-    let l:check_file = s:checkerfiles["go"]["gofmt"]["buffer"]
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['gofmt']})
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
+  CHECKER_ERRORS['go']['gofmt'] = 0
+  if mode == "read"
+    check_file = curbufname
+  elseif mode == "write"
+    silent execute "write! " .. CHECKER_FILES["go"]["gofmt"]["buffer"]
+    check_file = CHECKER_FILES["go"]["gofmt"]["buffer"]
   endif
-  " send to stderr, goftm puts all output file in stdout
-  call system("gofmt -e " . l:check_file . " 2>  " . s:checkerfiles["go"]["gofmt"]["syntax"])
+  # send to stderr, goftm puts all output file in stdout
+  system("gofmt -e " .. check_file .. " 2>  " .. CHECKER_FILES["go"]["gofmt"]["syntax"])
   if v:shell_error != 0
-    let s:checker_go_errors = 1
-    let l:errout = trim(system("cut -d ':' -f2- " . s:checkerfiles["go"]["gofmt"]["syntax"] . " | head -n1"))
-    let l:errline = split(l:errout, ":")[0]
-    if !empty(l:errline)
-      call sign_place(l:errline, '', 'go_error', l:curbufnr, {'lnum' : l:errline})
-      call cursor(l:errline, 1)
+    CHECKER_ERRORS['go']['gofmt'] = 1
+    errout = trim(system("cut -d ':' -f2- " .. CHECKER_FILES["go"]["gofmt"]["syntax"] .. " | head -n1"))
+    errline = str2nr(split(errout, ":")[0])
+    if !empty(errline)
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['gofmt'], curbufnr, {'lnum': errline})
+      cursor(errline, 1)
     endif
-    if a:mode ==# "write" && filereadable(s:checkerfiles["go"]["gofmt"]["buffer"])
-      call delete(s:checkerfiles["go"]["gofmt"]["buffer"])
+    if mode == "write" && filereadable(CHECKER_FILES["go"]["gofmt"]["buffer"])
+      delete(CHECKER_FILES["go"]["gofmt"]["buffer"])
     endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[GO=\d\]\[GV=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[GO=".s:checker_go_errors."][GV={}] " . l:newstatusline
-    throw "Error: (".a:mode.") " . l:errout
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['go'], "", "")
+    &l:statusline = "[GO=" .. CHECKER_ERRORS['go']['gofmt'] .. "][GV=N] " .. prevstatusline
+    throw "Error: (" .. mode .. ") " .. errout
   endif
-  if a:mode ==# "write" && filereadable(s:checkerfiles["go"]["gofmt"]["buffer"])
-    call delete(s:checkerfiles["go"]["gofmt"]["buffer"])
+  if mode == "write" && filereadable(CHECKER_FILES["go"]["gofmt"]["buffer"])
+    delete(CHECKER_FILES["go"]["gofmt"]["buffer"])
   endif
-  if filereadable(s:checkerfiles["go"]["gofmt"]["syntax"])
-  \&& !getfsize(s:checkerfiles["go"]["gofmt"]["syntax"])
-    call delete(s:checkerfiles["go"]["gofmt"]["syntax"])
+  if filereadable(CHECKER_FILES["go"]["gofmt"]["syntax"]) && !getfsize(CHECKER_FILES["go"]["gofmt"]["syntax"])
+    delete(CHECKER_FILES["go"]["gofmt"]["syntax"])
   endif
-endfunction
+enddef
 
-" go vet (no exec)
-function! s:GOVetNoExec(file) abort
-  let l:curbufnr = winbufnr(winnr())
-  let l:curbufname = a:file
-  let s:checker_gv_errors = 0
-  if &filetype !=# "go"
-    throw "Error: (GOVetNoExec) " . l:curbufname . " is not a valid go file!"
+# go vet (no exec)
+def GOVetNoExec(file: string): void
+  var curbufnr = winbufnr(winnr())
+  var curbufname = file
+  var errout: string
+  var errline: number
+  CHECKER_ERRORS['go']['govet'] = 0
+  if &filetype != "go"
+    throw "Error: (GOVetNoExec) " .. curbufname .. " is not a valid go file!"
   endif
-  if !filereadable(s:checkerfiles["go"]["govet"]["syntax"])
-    " throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
+  if !filereadable(CHECKER_FILES["go"]["govet"]["syntax"])
+    # throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
     return
   endif
-  call s:RemoveSignsName(l:curbufnr, "go_veterror")
-  let l:errout = trim(system("grep '^vet: ' " . s:checkerfiles["go"]["govet"]["syntax"] . " | cut -d ':' -f3- | head -n1"))
-  " some errors are with ^filename (not ^vet)
-  if empty(l:errout)
-    let l:errout = trim(system("grep ^" . l:curbufname . ":" . " " . s:checkerfiles["go"]["govet"]["syntax"] . " | cut -d ':' -f2- | head -n1"))
+  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
+  errout = trim(system("grep '^vet: ' " .. CHECKER_FILES["go"]["govet"]["syntax"] .. " | cut -d ':' -f3- | head -n1"))
+  # some errors are with ^filename (not ^vet)
+  if empty(errout)
+    errout = trim(system("grep ^" .. curbufname .. ":" .. " " .. CHECKER_FILES["go"]["govet"]["syntax"] .. " | cut -d ':' -f2- | head -n1"))
   endif
-  if !empty(l:errout)
-    let s:checker_gv_errors = 1
-    let l:errline = split(l:errout, ":")[0]
-    if !empty(l:errline)
-      call sign_place(l:errline, '', 'go_veterror', l:curbufnr, {'lnum' : l:errline})
+  if !empty(errout)
+    CHECKER_ERRORS['go']['govet'] = 1
+    errline = str2nr(split(errout, ":")[0])
+    if !empty(errline)
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['govet'], curbufnr, {'lnum': errline})
     endif
   endif
-endfunction
+enddef
 
-" go vet async
-function! checker#GOVetAsync(file) abort
-  " depends on checker#GoCheck()
-   if s:checker_go_errors
-     call s:EchoErrorMsg("Error: (GOCheck) previous function contains errors")
-     call s:EchoErrorMsg("Error: (GOVetAsync) detected error")
-     return
-  endif
-  if &filetype ==# "go" && !s:BufferIsEmpty()
-    let l:job = job_start("go vet " . a:file, {"out_cb": "checker#OutHandlerGOVet", "err_cb": "checker#ErrHandlerGOVet", "exit_cb": "checker#ExitHandlerGOVet", "out_io": "file", "out_name": s:checkerfiles["go"]["govet"]["syntax"], "out_msg": 0, "out_modifiable": 0, "err_io": "out"})
-  endif
-endfunction
-
-function! checker#OutHandlerGOVet(channel, message) abort
-endfunction
-
-function! checker#ErrHandlerGOVet(channel, message) abort
-endfunction
-
-function! checker#ExitHandlerGOVet(job, status) abort
-  let l:file = job_info(a:job)["cmd"][-1]
-  call s:GOVetNoExec(l:file)
-  if filereadable(s:checkerfiles["go"]["govet"]["syntax"])
-    if !getfsize(s:checkerfiles["go"]["govet"]["syntax"])
-      call delete(s:checkerfiles["go"]["govet"]["syntax"])
-    endif
-    " update local statusline
-    let l:newstatusline = substitute(&statusline, '^\[GO=\d\]\[GV=\d\?{\?}\?\] ', "", "")
-    let &l:statusline="[GO=".s:checker_go_errors."][GV=".s:checker_gv_errors."] " . l:newstatusline
-  endif
-endfunction
-
-" remove signs
-function! s:RemoveSignsName(buf, name)
-  let l:signs = sign_getplaced(a:buf)[0].signs
-  if empty(l:signs)
+# go vet async
+export def GOVetAsync(file: string): void
+  var curdir: string
+  var dirname: string
+  var newjob: job
+  if !get(g:, 'checker_enabled')
     return
   endif
-  for l:sign in l:signs
-    if l:sign.name ==# a:name
-      call sign_unplace('', {'buffer' : a:buf, 'id' : l:sign.id})
+  # depends on checker#GoCheck()
+  if CHECKER_ERRORS['go']['gofmt']
+    EchoErrorMsg("Error: (GOCheck) previous function contains errors")
+    EchoErrorMsg("Error: (GOVetAsync) detected error")
+    return
+  endif
+  if &filetype == "go" && !BufferIsEmpty() && empty(JOB_QUEUE['go']['govet'])
+    curdir = getcwd()
+    dirname = fnamemodify(file, ":h")
+    if curdir != dirname
+      execute "lcd " .. dirname
+    endif
+    newjob = job_start(
+      ['go', 'vet', file],
+      {
+        "out_cb": "s:OutHandlerGOVet",
+        "err_cb": "s:ErrHandlerGOVet",
+        "exit_cb": "s:ExitHandlerGOVet",
+        "out_io": "file",
+        "out_name": CHECKER_FILES["go"]["govet"]["syntax"],
+        "out_msg": 0,
+        "out_modifiable": 0,
+        "err_io": "out"
+      }
+    )
+    if curdir != dirname
+      lcd -
+    endif
+    add(JOB_QUEUE['go']['govet'], job_info(newjob)['process'])
+  endif
+enddef
+
+# def OutHandlerGOVet(channel: channel, message: string)
+# enddef
+
+# def ErrHandlerGOVet(channel: channel, message: string)
+# enddef
+
+def ExitHandlerGOVet(job: job, status: number)
+  var file = job_info(job)["cmd"][-1]
+  var idx: number
+  var prevstatusline: string
+  GOVetNoExec(file)
+  if filereadable(CHECKER_FILES["go"]["govet"]["syntax"])
+    if !getfsize(CHECKER_FILES["go"]["govet"]["syntax"])
+      delete(CHECKER_FILES["go"]["govet"]["syntax"])
+    endif
+    # update local statusline
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['go'], "", "")
+    &l:statusline = "[GO=" .. CHECKER_ERRORS['go']['gofmt'] .. "][GV=" .. CHECKER_ERRORS['go']['govet'] .. "] " .. prevstatusline
+  endif
+  # job command with unexpected error
+  if !CHECKER_ERRORS['go']['govet'] && job_info(job)["exitval"] != 0
+    prevstatusline = substitute(&statusline, REGEX_STATUSLINE['go'], "", "")
+    &l:statusline = "[GO=" .. CHECKER_ERRORS['go']['gofmt'] .. "][GV=E] " .. prevstatusline
+  endif
+  idx = index(JOB_QUEUE['go']['govet'], job_info(job)["process"])
+  if idx >= 0
+    remove(JOB_QUEUE['go']['govet'], idx)
+  endif
+enddef
+
+# shows debug information
+def ShowDebugInfo(signame: string, type: string)
+  if type == "sh"
+    if signame == g:CHECKER_SIGNS_ERRORS['sh']['sh']
+      ShowErrorPopup("sh")
+    elseif signame == g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']
+      ShowErrorPopup("shellcheck")
+    else
+      throw "Error: unknown sign " .. signame
+    endif
+  elseif type == "python"
+    if signame == g:CHECKER_SIGNS_ERRORS['python']['python']
+      ShowErrorPopup("python")
+    elseif signame == g:CHECKER_SIGNS_ERRORS['python']['pep8']
+      ShowErrorPopup("pep8")
+    else
+      throw "Error: unknown sign " .. signame
+    endif
+  elseif type == "go"
+    if signame == g:CHECKER_SIGNS_ERRORS['go']['gofmt']
+      ShowErrorPopup("go")
+    elseif signame == g:CHECKER_SIGNS_ERRORS['go']['govet']
+      ShowErrorPopup("go vet")
+    else
+      throw "Error: unknown sign " .. signame
+    endif
+  endif
+enddef
+
+# shows error popup
+# TODO:
+def ShowErrorPopup(type: string)
+  var curline = line('.')
+  var errmsg: list<string>
+  if type == "sh"
+    errmsg = systemlist("cut -d ':' -f2- " .. CHECKER_FILES["sh"]["sh"]["syntax"] .. " | sed 's/^ //' | head -n1")
+  elseif type == "shellcheck"
+    errmsg = systemlist("sed -n '/line " .. curline .. "/,/^$/p' " .. CHECKER_FILES["sh"]["shellcheck"]["syntax"] .. " | grep -v '^$' | tail -n1 | sed 's/   //g' | sed 's/  ^-- //'")
+  elseif type == "python"
+    errmsg = systemlist("cat " .. CHECKER_FILES["python"]["python"]["syntax"])
+  elseif type == "pep8"
+    errmsg = systemlist("grep -E ':" .. curline .. ":.*: ' " .. CHECKER_FILES["python"]["pep8"]["syntax"] .. " | cut -d ' ' -f2-")
+  elseif type == "go"
+    errmsg = systemlist("grep -F :" .. curline .. ":" .. " " .. CHECKER_FILES["go"]["gofmt"]["syntax"] .. " | cut -d ':' -f2-")
+  elseif type == "go vet"
+    errmsg = systemlist("grep -F :" .. curline .. ":" .. " " .. CHECKER_FILES["go"]["govet"]["syntax"])
+  endif
+  echo type .. ": " .. join(errmsg)
+  popup_create(
+    type .. ": " .. join(errmsg),
+    {
+      pos: 'topleft',
+      line: 'cursor-3',
+      col: winwidth(0) / 4,
+      moved: 'any',
+      border: [],
+      close: 'click'
+    }
+  )
+enddef
+
+# shows debug information
+export def SignsDebug(type: string, mode: string): void
+  var curbuf = winbufnr(winnr())
+  var curline = line('.')
+  var curcycleline = 0
+  var nextcycleline = 0
+  var prevcycleline = 0
+  var signameline = ""
+  var signs: list<dict<any>>
+  var cycleline: number
+  if index(g:CHECKER_ALLOWED_TYPES, type) == -1
+    EchoErrorMsg("Error: debug information for filetype '" .. type .. "' is not supported")
+    return
+  endif
+  signs = sign_getplaced(curbuf)[0].signs
+  if empty(signs)
+    EchoWarningMsg("Warning: signs not found in the current buffer")
+    return
+  endif
+  for sign in signs
+    cycleline = sign.lnum
+    if mode == 'cur'
+      curcycleline = curline
+      signameline = sign.name
+      break
+    elseif mode == 'next'
+      if curline < cycleline
+        nextcycleline = cycleline
+        signameline = sign.name
+        break
+      endif
+    elseif mode == 'prev'
+      if curline > cycleline
+        prevcycleline = cycleline
+        signameline = sign.name
+      endif
     endif
   endfor
-endfunction
-
-" shows debug information
-function! s:ShowDebugInfo(signame, type) abort
-  if a:type ==# "sh"
-    if a:signame ==# "sh_error"
-      call s:ShowErrorPopup("sh")
-    elseif a:signame ==# "sh_shellcheckerror"
-      call s:ShowErrorPopup("shellcheck")
+  if curcycleline > 0 || nextcycleline > 0 || prevcycleline > 0
+    if curcycleline > 0
+      try
+        sign_jump(curcycleline, '', curbuf)
+      catch
+        EchoWarningMsg("Warning: sign id not found in line " .. curcycleline)
+        return
+      endtry
+    elseif nextcycleline > 0
+      try
+        sign_jump(nextcycleline, '', curbuf)
+      catch
+        EchoWarningMsg("Warning: sign id not found in line " .. nextcycleline)
+        return
+      endtry
+    elseif prevcycleline > 0
+      try
+        sign_jump(prevcycleline, '', curbuf)
+      catch
+        EchoWarningMsg("Warning: sign id not found in line " .. prevcycleline)
+        return
+      endtry
     else
-      throw "Error: unknown sign " . a:signame
+      EchoErrorMsg("Error: sign jump line not found")
+      return
     endif
-  elseif a:type ==# "python"
-    if a:signame ==# "py_error"
-      call s:ShowErrorPopup("python")
-    elseif a:signame ==# "py_pep8error"
-      call s:ShowErrorPopup("pep8")
-    else
-      throw "Error: unknown sign " . a:signame
-    endif
-  elseif a:type ==# "go"
-    if a:signame ==# "go_error"
-      call s:ShowErrorPopup("go")
-    elseif a:signame ==# "go_veterror"
-      call s:ShowErrorPopup("go vet")
-    else
-      throw "Error: unknown sign " . a:signame
+    if index(g:CHECKER_ALLOWED_TYPES, type) >= 0
+      ShowDebugInfo(signameline, type)
     endif
   endif
-endfunction
-
-" shows error popup
-function! s:ShowErrorPopup(type) abort
-  let l:curline = line('.')
-  if a:type ==# "sh"
-    let l:errmsg = systemlist("cut -d ':' -f2- " . s:checkerfiles["sh"]["sh"]["syntax"] . " | sed 's/^ //' | head -n1")
-  elseif a:type ==# "shellcheck"
-    let l:errmsg = systemlist("sed -n '/line " . l:curline . "/,/^$/p' " . s:checkerfiles["sh"]["shellcheck"]["syntax"] . " | grep -v '^$' | tail -n1 | sed 's/   //g' | sed 's/  ^-- //'")
-  elseif a:type ==# "python"
-    let l:errmsg = systemlist("cat " . s:checkerfiles["python"]["python"]["syntax"])
-  elseif a:type ==# "pep8"
-    let l:errmsg = systemlist("grep -E ':".l:curline.":.*: ' " . s:checkerfiles["python"]["pep8"]["syntax"] . " | cut -d ' ' -f2-")
-  elseif a:type ==# "go"
-    let l:errmsg = systemlist("grep -F :". l:curline . ":" . " " . s:checkerfiles["go"]["gofmt"]["syntax"] . " | cut -d ':' -f2-")
-  elseif a:type ==# "go vet"
-    let l:errmsg = systemlist("grep -F :". l:curline . ":" . " " . s:checkerfiles["go"]["govet"]["syntax"])
-  endif
-  echo a:type . ": " . join(l:errmsg)
-  call popup_create(a:type . ": " . join(l:errmsg), #{
-  \ pos: 'topleft',
-  \ line: 'cursor-3',
-  \ col: winwidth(0)/4,
-  \ moved: 'any',
-  \ border: [],
-  \ close: 'click'
-  \ })
-endfunction
+enddef
