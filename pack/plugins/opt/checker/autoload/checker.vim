@@ -157,7 +157,7 @@ export def SHCheck(file: string, mode: string): void
   if v:shell_error != 0
     CHECKER_ERRORS['sh']['sh'] = 1
     errout = join(readfile(CHECKER_FILES["sh"]["sh"]["syntax"]))
-    errline = str2nr(substitute(trim(split(errout, ":")[1]), "^line ", "", ""))
+    errline = str2nr(split(split(errout, ":")[1], " ")[1])
     if !empty(errline)
       sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['sh'], curbufnr, {'lnum': errline})
       cursor(errline, 1)
@@ -296,11 +296,12 @@ export def PYCheck(file: string, mode: string): void
     silent execute "write! " .. CHECKER_FILES["python"]["python"]["buffer"]
     check_file = CHECKER_FILES["python"]["python"]["buffer"]
   endif
-  system("python3 -c \"import ast; ast.parse(open('" .. check_file .. "').read())\" > " .. CHECKER_FILES["python"]["python"]["syntax"] .. " 2>&1")
+  system("python3 -c \"import ast; ast.parse(open('" .. check_file .. "').read())\" > "
+    .. CHECKER_FILES["python"]["python"]["syntax"] .. " 2>&1")
   if v:shell_error != 0
     CHECKER_ERRORS['python']['python'] = 1
     errout = readfile(CHECKER_FILES["python"]["python"]["syntax"])
-    errline = str2nr(split(errout[4], ", line ")[1])
+    errline = str2nr(split(errout[4], " ")[-1])
     if !empty(errline)
       sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['python'], curbufnr, {'lnum': errline})
       cursor(errline, 1)
@@ -445,8 +446,8 @@ export def GOCheck(file: string, mode: string): void
   system("gofmt -e " .. check_file .. " 2>  " .. CHECKER_FILES["go"]["gofmt"]["syntax"])
   if v:shell_error != 0
     CHECKER_ERRORS['go']['gofmt'] = 1
-    errout = trim(system("cut -d ':' -f2- " .. CHECKER_FILES["go"]["gofmt"]["syntax"] .. " | head -n1"))
-    errline = str2nr(split(errout, ":")[0])
+    errout = join(readfile(CHECKER_FILES["go"]["gofmt"]["syntax"]))
+    errline = str2nr(split(errout, ":")[1])
     if !empty(errline)
       sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['gofmt'], curbufnr, {'lnum': errline})
       cursor(errline, 1)
@@ -482,14 +483,10 @@ def GOVetNoExec(file: string): void
     return
   endif
   sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
-  errout = trim(system("grep '^vet: ' " .. CHECKER_FILES["go"]["govet"]["syntax"] .. " | cut -d ':' -f3- | head -n1"))
-  # some errors are with ^filename (not ^vet)
-  if empty(errout)
-    errout = trim(system("grep ^" .. curbufname .. ":" .. " " .. CHECKER_FILES["go"]["govet"]["syntax"] .. " | cut -d ':' -f2- | head -n1"))
-  endif
+  errout = join(readfile(CHECKER_FILES["go"]["govet"]["syntax"])[1 : ])
   if !empty(errout)
     CHECKER_ERRORS['go']['govet'] = 1
-    errline = str2nr(split(errout, ":")[0])
+    errline = str2nr(split(errout, ":")[2])
     if !empty(errline)
       sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['govet'], curbufnr, {'lnum': errline})
     endif
@@ -596,26 +593,51 @@ def ShowDebugInfo(signame: string, type: string)
 enddef
 
 # shows error popup
-# TODO:
 def ShowErrorPopup(type: string)
   var curline = line('.')
-  var errmsg: list<string>
+  var errmsg: string
+  var filelist: list<string>
+  var idx: number
   if type == "sh"
-    errmsg = systemlist("cut -d ':' -f2- " .. CHECKER_FILES["sh"]["sh"]["syntax"] .. " | sed 's/^ //' | head -n1")
+    filelist = readfile(CHECKER_FILES["sh"]["sh"]["syntax"])
+    idx = match(filelist, "^.*: line " .. curline .. ": syntax error near")
+    if idx >= 0
+      errmsg = trim(split(filelist[idx], ":")[1]) .. ": " .. trim(join(split(filelist[idx], ":")[2 : ]))
+    endif
   elseif type == "shellcheck"
-    errmsg = systemlist("sed -n '/line " .. curline .. "/,/^$/p' " .. CHECKER_FILES["sh"]["shellcheck"]["syntax"] .. " | grep -v '^$' | tail -n1 | sed 's/   //g' | sed 's/  ^-- //'")
+    filelist = readfile(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
+    idx = match(filelist, "^In .* line " .. curline .. ":$")
+    if idx >= 0
+      errmsg = "line " .. split(filelist[idx], " ")[3] .. " " .. substitute(filelist[idx + 2], '^.*\^-- ', "", "")
+    endif
   elseif type == "python"
-    errmsg = systemlist("cat " .. CHECKER_FILES["python"]["python"]["syntax"])
+    filelist = readfile(CHECKER_FILES["python"]["python"]["syntax"])
+    idx = match(filelist, '^  File .*, line ' .. curline .. '$')
+    if idx >= 0
+      errmsg = "line " .. split(trim(filelist[idx]), " ")[3] .. ": " .. trim(join(filelist[idx + 1 : ]))
+    endif
   elseif type == "pep8"
-    errmsg = systemlist("grep -E ':" .. curline .. ":.*: ' " .. CHECKER_FILES["python"]["pep8"]["syntax"] .. " | cut -d ' ' -f2-")
+    filelist = readfile(CHECKER_FILES["python"]["pep8"]["syntax"])
+    idx = match(filelist, '^.*:' .. curline .. ":.*: E")
+    if idx >= 0
+      errmsg = "line: " .. split(filelist[idx], ":")[1] .. ": " .. trim(join(split(filelist[idx], ":")[3 : ]))
+    endif
   elseif type == "go"
-    errmsg = systemlist("grep -F :" .. curline .. ":" .. " " .. CHECKER_FILES["go"]["gofmt"]["syntax"] .. " | cut -d ':' -f2-")
+    filelist = readfile(CHECKER_FILES["go"]["gofmt"]["syntax"])
+    idx = match(filelist, '^.*:' .. curline .. ":.*: ")
+    if idx >= 0
+      errmsg = "line " .. split(filelist[idx], ":")[1] .. ": " .. trim(join(split(filelist[idx], ":")[3 : ]))
+    endif
   elseif type == "go vet"
-    errmsg = systemlist("grep -F :" .. curline .. ":" .. " " .. CHECKER_FILES["go"]["govet"]["syntax"])
+    filelist = readfile(CHECKER_FILES["go"]["govet"]["syntax"])
+    idx = match(filelist, '^vet:.*:' .. curline .. ":.*: ")
+    if idx >= 0
+      errmsg = "line " .. split(filelist[idx], ":")[2] .. ": " .. trim(join(split(filelist[idx], ":")[4 : ]))
+    endif
   endif
-  echo type .. ": " .. join(errmsg)
+  echo type .. ": " .. errmsg
   popup_create(
-    type .. ": " .. join(errmsg),
+    type .. ": " .. errmsg,
     {
       pos: 'topleft',
       line: 'cursor-3',
