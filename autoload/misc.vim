@@ -16,6 +16,10 @@ if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled') || &cp
 endif
 g:autoloaded_misc = 1
 
+# autoload
+import autoload './utils.vim'
+import autoload '../pack/plugins/opt/arrowkeys/autoload/arrowkeys.vim'
+
 # toggle background
 export def BackgroundToggle()
   execute "set background=" .. (&background == "dark" ? "light" : "dark")
@@ -39,21 +43,21 @@ export def Doc(atype: string): void
   var pfile: string
   var word: string
   if index(["python", "go"], &filetype) == -1
-    utils#EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
+    utils.EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
     return
   endif
   if &filetype != atype
-    utils#EchoErrorMsg("Error: running type '" .. atype .. "' on filetype '" .. &filetype .. "' is not supported")
+    utils.EchoErrorMsg("Error: running type '" .. atype .. "' on filetype '" .. &filetype .. "' is not supported")
     return
   endif
   cword = expand("<cWORD>")
   if empty(cword) || index(["(", ")", "()"], cword) >= 0
-    utils#EchoErrorMsg("Error: word is empty or invalid")
+    utils.EchoErrorMsg("Error: word is empty or invalid")
     return
   endif
   word = shellescape(trim(split(cword, "(")[0], '"'))
   if empty(word)
-    utils#EchoErrorMsg("Error: word is empty")
+    utils.EchoErrorMsg("Error: word is empty")
     return
   endif
   pfile = "(" .. atype .. "doc)" .. word
@@ -78,7 +82,7 @@ export def Doc(atype: string): void
   || (atype == "go" && (curline =~ "doc: no symbol ") || curline =~ "doc: no buildable Go source files in ")
     bw
     v:errmsg = "Warning: no " .. atype .. " documentation found for " .. word
-    utils#EchoWarningMsg("Warning: " .. v:errmsg)
+    utils.EchoWarningMsg("Warning: " .. v:errmsg)
   else
     v:errmsg = ""
   endif
@@ -121,14 +125,14 @@ export def GoBufferPos(bnum: number)
     ++pos
   endfor
   if !match
-    utils#EchoErrorMsg("Error: buffer in position " .. bnum .. " does not exist")
+    utils.EchoErrorMsg("Error: buffer in position " .. bnum .. " does not exist")
   endif
 enddef
 
 # toggle gui menu bar
 export def GuiMenuBarToggle(): void
   if !has('gui_running')
-    utils#EchoWarningMsg("Warning: only use this function with gui")
+    utils.EchoWarningMsg("Warning: only use this function with gui")
     return
   endif
   if &l:guioptions =~ "m"
@@ -158,7 +162,7 @@ export def MenuLanguageSpell(): void
     return
   endif
   if langchoice < 1 || langchoice > 5
-    utils#EchoErrorMsg("Error: wrong option " .. langchoice)
+    utils.EchoErrorMsg("Error: wrong option " .. langchoice)
     return
   endif
   if langchoice == 5
@@ -195,20 +199,20 @@ export def MenuMisc(): void
     return
   endif
   if choice < 1 || choice > 3
-    utils#EchoErrorMsg("Error: wrong option " .. choice)
+    utils.EchoErrorMsg("Error: wrong option " .. choice)
     return
   endif
   if choice == 1
     if !get(g:, 'arrowkeys_enabled')
-      utils#EchoErrorMsg("plugin 'arrowkeys' is not enabled")
+      utils.EchoErrorMsg("plugin 'arrowkeys' is not enabled")
     else
-      arrowkeys#Enable()
+      arrowkeys.Enable()
     endif
   elseif choice == 2
     if !get(g:, 'arrowkeys_enabled')
-      utils#EchoErrorMsg("plugin 'arrowkeys' is not enabled")
+      utils.EchoErrorMsg("plugin 'arrowkeys' is not enabled")
     else
-      arrowkeys#Disable()
+      arrowkeys.Disable()
     endif
   elseif choice == 3
     GuiMenuBarToggle()
@@ -228,7 +232,7 @@ enddef
 export def SH(): void
   var guioptions_orig: string
   if !has('gui_running')
-    utils#EchoWarningMsg("Warning: only use this function with gui")
+    utils.EchoWarningMsg("Warning: only use this function with gui")
     return
   endif
   guioptions_orig = &l:guioptions
@@ -252,7 +256,7 @@ export def SyntaxToggle()
     # global syntax
     # execute "syntax " .. (exists("g:syntax_on") ? "off" : "on")
     # v:statusmsg = "syntax " .. (exists("g:syntax_on") ? "on" : "off")
-    # utils#EchoWarningMsg("Warning: filetype '" .. &filetype .. "' does not have ftplugin syntax")
+    # utils.EchoWarningMsg("Warning: filetype '" .. &filetype .. "' does not have ftplugin syntax")
     v:statusmsg = "Warning: filetype '" .. &filetype .. "' does not have ftplugin syntax"
   endif
 enddef
