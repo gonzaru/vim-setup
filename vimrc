@@ -87,7 +87,8 @@ const plugins = [
   'runprg',
   'scratch',
   'se',
-  'searcher'
+  'searcher',
+  'tabline'
 ]
 for plugin in plugins
   if get(g:, plugin .. "_enabled")
@@ -321,7 +322,6 @@ if has('balloon_eval') || has('balloon_eval_term')
 endif
 
 # statusline
-# g:statusline_base = &statusline
 set showtabline=1  # to show tab only if there are at least two tabs (2 to show tab always) (default 1)
 # custom tabline (see :help setting-tabline)
 if get(g:, "tabline_enabled")
@@ -553,10 +553,6 @@ else
 endif
 
 # run
-if g:runprg_enabled
-  nnoremap <leader>ru <Plug>(runprg-laststatus)
-  nnoremap <leader>rU <Plug>(runprg-window)
-endif
 nnoremap <leader>; mt<ESC>$a;<ESC>`t
 nnoremap <silent><leader><CR> :below terminal<CR>
 if has('gui_running')
