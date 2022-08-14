@@ -249,7 +249,7 @@ execute "highlight! goCustomFunctionName guifg=#afbf7e guibg=" .. COLORS['normal
 execute "highlight! vimEnvVar guifg=#b09d79 guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=137 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 highlight! link vimFunction    Normal
 highlight! link vimFuncVar     Normal
-highlight! link vimOption      Normal 
+highlight! link vimOption      Normal
 highlight! link vimUserFunc    Normal
 highlight! link vimVar         Normal
 highlight! link vimFBVar       Normal

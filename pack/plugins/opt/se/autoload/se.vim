@@ -118,7 +118,7 @@ enddef
 # lists Se
 def List()
   var sb = GetBufId()
-  if !sb 
+  if !sb
     se_oldcwd = fnamemodify(bufname('%'), ":~:h")
     setlocal nosplitright
     vertical new
