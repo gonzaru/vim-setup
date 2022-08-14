@@ -19,9 +19,6 @@ import autoload './autoload/misc.vim'
 var colortheme = "darkula"                                                             # theme
 var background = "dark"                                                                # background
 var hostname = hostname()                                                              # hostname
-var mac = has('mac')                                                                   # mac
-var has_gui = has('gui_running')                                                       # gui
-var macvim = has('gui_macvim')                                                         # macvim
 var tmux = !empty($TMUX) || &term =~ "tmux"                                            # tmux
 var screen = (!empty($STY) || &term =~ "screen") && !tmux                              # screen
 var multiplexer = screen || tmux                                                       # multiplexer
@@ -108,19 +105,22 @@ if g:statusline_enabled
   g:statusline_showgitbranch = 1
 endif
 
-# set python3 version with dynamic loading support
+# set python3 with dynamic loading support
 if has("python3_dynamic")
   var homepython: string
   var libpython: string
-  var pyver: string
-  if mac
-    pyver = "3.8"
-    homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/" .. pyver
-    libpython = homepython .. "/lib/python" .. pyver .. "/config-" .. pyver .. "-darwin/libpython" .. pyver .. ".dylib"
-  else
-    pyver = "3.9"
+  if has('mac')
+    homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
+    libpython = homepython .. "/Python3"
+  elseif has('linux')
     homepython = "/usr"
-    libpython = "/usr/lib/x86_64-linux-gnu/libpython" .. pyver .. ".so.1"
+    try
+      libpython = sort(
+        globpath(homepython .. "/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
+        (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
+      )[-1]
+    catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range: libpython3*.so.1 was not found
+    endtry
   endif
   if isdirectory(homepython) && filereadable(libpython)
     execute "set pythonthreehome=" .. homepython
@@ -197,7 +197,7 @@ set t_ut=                   # disable background color erase (BCE)
 # set t_ti= t_te=           # do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
 # vim
-if !has_gui
+if !has('gui_running')
   # viminfo with vim version
   execute "set viminfofile=" .. $HOME .. "/.viminfo_" .. v:version
 
@@ -205,7 +205,7 @@ if !has_gui
   # &t_SI = blinking vertical bar (INSERT MODE)
   # &t_SR = blinking underscore   (REPLACE MODE)
   # &t_EI = blinking block        (NORMAL MODE)
-  if mac && (
+  if has('mac') && (
     apple_terminal || apple_terminal_screen || apple_terminal_tmux
     || alacritty || alacritty_screen || alacritty_tmux
   )
@@ -249,8 +249,8 @@ if !has_gui
 endif
 
 # gui
-if has_gui
-  if macvim
+if has('gui_running')
+  if has('gui_macvim')
     # viminfo with macvim version
     execute "set viminfofile=" .. $HOME .. "/.viminfo_macvim_" .. v:version
     execute "set guifont=Menlo\\ Regular:h" .. (hostname == "aiur" ? 14 : 16)
@@ -315,7 +315,7 @@ endif
 
 # balloons
 if has('balloon_eval') || has('balloon_eval_term')
-  set noballooneval      # disable gui balloon support 
+  set noballooneval      # disable gui balloon support
   set noballoonevalterm  # disable non-gui balloon support
   set balloondelay=300   # delay in ms before a balloon may pop up
 endif
@@ -544,7 +544,7 @@ if g:misc_enabled
 endif
 
 # :sh
-if has_gui
+if has('gui_running')
   if g:misc_enabled
     nnoremap <leader>sh <ScriptCmd>misc.SH()<CR>
   endif
@@ -559,7 +559,7 @@ if g:runprg_enabled
 endif
 nnoremap <leader>; mt<ESC>$a;<ESC>`t
 nnoremap <silent><leader><CR> :below terminal<CR>
-if has_gui
+if has('gui_running')
   nnoremap <silent><leader><C-CR> :below terminal<CR>
 endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
@@ -582,7 +582,7 @@ vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 # inoremap {<CR> {<CR>}<ESC>O
 
 # gui
-if has_gui
+if has('gui_running')
   map <S-Insert> <Nop>
   map! <S-Insert> <MiddleMouse>
   if g:misc_enabled
@@ -716,7 +716,7 @@ command! Theme {
 }
 
 # vim events
-if !has_gui
+if !has('gui_running')
   augroup event_vim
     autocmd!
     # reset the cursor shape and redraw the screen
