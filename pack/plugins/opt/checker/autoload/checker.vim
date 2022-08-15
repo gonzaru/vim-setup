@@ -495,7 +495,6 @@ enddef
 
 # go vet async
 export def GOVetAsync(file: string): void
-  var curdir: string
   var dirname: string
   var newjob: job
   if !get(g:, 'checker_enabled')
@@ -508,14 +507,11 @@ export def GOVetAsync(file: string): void
     return
   endif
   if &filetype == "go" && !BufferIsEmpty() && empty(JOB_QUEUE['go']['govet'])
-    curdir = getcwd()
     dirname = fnamemodify(file, ":h")
-    if curdir != dirname
-      execute "lcd " .. dirname
-    endif
     newjob = job_start(
       ['go', 'vet', file],
       {
+        "cwd": dirname,
         "out_cb": "s:OutHandlerGOVet",
         "err_cb": "s:ErrHandlerGOVet",
         "exit_cb": "s:ExitHandlerGOVet",
@@ -526,9 +522,6 @@ export def GOVetAsync(file: string): void
         "err_io": "out"
       }
     )
-    if curdir != dirname
-      lcd -
-    endif
     add(JOB_QUEUE['go']['govet'], job_info(newjob)['process'])
   endif
 enddef

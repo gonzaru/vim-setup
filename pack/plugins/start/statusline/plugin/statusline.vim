@@ -18,7 +18,7 @@ import autoload '../autoload/statusline.vim'
 
 augroup statusline_mystatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,CmdlineLeave,ShellCmdPost,DirChanged,VimResume * statusline.MyStatusLine(expand('<afile>:p'))
+  autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,DirChanged,VimResume * statusline.MyStatusLineAsync(expand('<afile>:p'))
 augroup END
 
 # TODO:

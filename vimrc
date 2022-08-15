@@ -332,11 +332,11 @@ if get(g:, "tabline_enabled")
 endif
 # custom statusline
 if get(g:, "statusline_enabled")
-  # %{statusline#Draw()} vs %{statusline#statusline_full}
-  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
+  # %{statusline#Get()} vs %{statusline#statusline_full}
+  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
   # vim9
   # set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
-  # &statusline ..= ' %{' .. statusline.Draw->string() .. '()}'
+  # &statusline ..= ' %{' .. statusline.Get->string() .. '()}'
   # &statusline ..= ' %-15.(%l,%c%V%) %P'
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
@@ -716,7 +716,7 @@ if !has('gui_running')
   augroup event_vim
     autocmd!
     # reset the cursor shape and redraw the screen
-    autocmd VimEnter * ++once startinsert | stopinsert | redraw!
+    # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
     # clear the terminal on exit
     if xterm
       autocmd VimLeave * ++once silent !printf '\e[0m'

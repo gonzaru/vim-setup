@@ -8,61 +8,31 @@ if exists('g:autoloaded_statusline') || !get(g:, 'statusline_enabled') || &cp
 endif
 g:autoloaded_statusline = 1
 
+# job queue
+final JOB_QUEUE = []
+
 # script local variables
 export var statusline_full: string
 
-# draw statusline
-export def Draw(): string
+# user tmp directory
+const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
+
+# statusline files
+const STATUSLINE_FILES = {
+  'git': TMPDIR .. '/' .. $USER .. '-vim-statusline_git.txt'
+}
+
+# get statusline
+export def Get(): string
   return statusline_full
 enddef
 
-# checks if it is a valid git repo
-def GitValidRepo(dir: string): number
-  system("cd " .. dir .. " && git -C . rev-parse 2>/dev/null")
-  return v:shell_error == 0 ? 1 : 0
-enddef
-
-# show git branch
-def GitBranch(mode: string): string
-  var branch: string
-  var filehead: string
-  var filepath = mode == "curfile" ? resolve(expand('%:p')) : getcwd()
-  var ftype: string
-  var gitroot: string
-  var output: list<string>
-  # file or directory does not exist
-  if !empty(filepath) && empty(getftype(filepath))
-    return ''
-  endif
-  # empty file or directory
-  if empty(filepath) && empty(&filetype)
-    filepath = resolve(getcwd())
-  endif
-  ftype = getftype(filepath)
-  filehead = filepath
-  if ftype == "file"
-    filehead = fnamemodify(filepath, ':h')
-  endif
-  if !isdirectory(filehead)
-    return 'DEBUG_UNSUPPORTED_FILE: ' .. filehead
-  endif
-  gitroot = filehead
-  # GitValidRepo(gitroot)
-  output = systemlist("cd " .. gitroot .. " && git rev-parse --abbrev-ref HEAD")
-  if !v:shell_error && !empty(output)
-    branch = output[0]
-  endif
-  return branch
-enddef
-
-# my statusline
-export def MyStatusLine(file: string): string
-  var cwddirname = fnamemodify(getcwd(), ":~")
+# short path: /full/path/to/dir -> /f/p/t/dir
+def ShortPath(path: string): string
+  var cwddirname = fnamemodify(path, ":~")
   var cwddirnamelist = split(cwddirname, "/")
   var cwddirnametail = fnamemodify(cwddirname, ":t")
   var dirchars: string
-  var gitbranchd: string
-  var gitbranchf: string
   var numdirslashes = len(cwddirnamelist)
   var shortdirname: string
   var i = 0
@@ -81,10 +51,53 @@ export def MyStatusLine(file: string): string
   else
     shortdirname = dirchars .. cwddirnametail
   endif
-  if get(g:, 'statusline_showgitbranch')
-    gitbranchf = "{"  .. GitBranch("curfile") .. "}% "
-    gitbranchd = "{" .. GitBranch("curdir") .. "}:"
+  return shortdirname
+enddef
+
+# my statusline async
+export def MyStatusLineAsync(file: string)
+  var newjob: job
+  if get(g:, 'statusline_showgitbranch') && empty(JOB_QUEUE)
+    newjob = job_start(
+      ['git', '--no-pager', 'rev-parse', '--abbrev-ref', 'HEAD'],
+      {
+        "out_cb": "s:OutHandler",
+        "err_cb": "s:ErrHandler",
+        "exit_cb": "s:ExitHandler",
+        "out_io": "file",
+        "out_name": STATUSLINE_FILES['git'],
+        "out_msg": 0,
+        "out_modifiable": 0,
+        "err_io": "out"
+      }
+    )
+    add(JOB_QUEUE, job_info(newjob)['process'])
   endif
-  statusline_full = gitbranchf .. gitbranchd .. shortdirname .. '$'
-  return statusline_full
+enddef
+
+# def OutHandler(channel: channel, message: string)
+# enddef
+
+# def ErrHandler(channel: channel, message: string)
+# enddef
+
+# exit handler for when the job ends
+def ExitHandler(job: job, status: number)
+  var idx: number
+  var gitbranch: string
+  if filereadable(STATUSLINE_FILES['git'])
+    if getfsize(STATUSLINE_FILES['git']) > 0 && job_info(job)["exitval"] == 0
+      gitbranch = readfile(STATUSLINE_FILES['git'])[0]
+      statusline_full = " {" .. gitbranch .. "}:" .. ShortPath(getcwd()) .. '$'
+    else
+      statusline_full = substitute(statusline_full, '^ {\w\+}:.*\$$', "", "")
+    endif
+    # redraw statusline
+    &l:statusline = &l:statusline
+    delete(STATUSLINE_FILES['git'])
+  endif
+  idx = index(JOB_QUEUE, job_info(job)["process"])
+  if idx >= 0
+    remove(JOB_QUEUE, idx)
+  endif
 enddef
