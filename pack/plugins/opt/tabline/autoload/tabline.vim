@@ -24,7 +24,7 @@ def MyTabLabel(arg: number): string
   # exception [No Name]
   if empty(bufname)
     dirchars = "[No Name]"
-    pathnameshort = (!empty(tabsymbol)) ? tabsymbol .. " " .. dirchars : dirchars
+    pathnameshort = !empty(tabsymbol) ? tabsymbol .. " " .. dirchars : dirchars
   else
     for d in pathnamelist[0 : pathnumlashes - 2]
       if d[0] == '.'
