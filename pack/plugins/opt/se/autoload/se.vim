@@ -117,9 +117,10 @@ enddef
 
 # lists Se
 def List()
+  var bufname = bufname('%')
   var sb = GetBufId()
   if !sb
-    se_oldcwd = fnamemodify(bufname('%'), ":~:h")
+    se_oldcwd = !empty(bufname) ? fnamemodify(bufname, ":~:h") : getcwd()
     setlocal nosplitright
     vertical new
     silent file se
