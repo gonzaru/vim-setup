@@ -13,6 +13,11 @@ import autoload '../autoload/utils.vim'
 
 # TODO:
 # define mappings
+#
 # set mappings
 # if get(g:, 'utils_no_mappings') == 0
+# endif
+#
+# set commands
+# if get(g:, 'utils_no_commands') == 0
 # endif

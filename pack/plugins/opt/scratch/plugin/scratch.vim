@@ -29,6 +29,10 @@ if get(g:, 'scratch_no_mappings') == 0
   if empty(mapcheck("<leader>sz", "n"))
     nnoremap <silent><leader>sz <Plug>(scratch-terminal)
   endif
+endif
+
+# set commands
+if get(g:, 'scratch_no_commands') == 0
   command! ScratchBuffer scratch.Buffer()
   command! ScratchTerminal scratch.Terminal()
 endif

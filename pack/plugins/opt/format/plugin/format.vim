@@ -19,5 +19,9 @@ if get(g:, 'format_no_mappings') == 0
   if empty(mapcheck("<leader>fm", "n"))
     nnoremap <leader>fm <Plug>(format-language)
   endif
+endif
+
+# set commands
+if get(g:, 'format_no_commands') == 0
   command! FormatLanguage format.Language()
 endif

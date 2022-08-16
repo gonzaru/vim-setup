@@ -20,5 +20,9 @@ if get(g:, 'cyclebuffers_no_mappings') == 0
   if empty(mapcheck("<leader><Space>", "n"))
     nnoremap <leader><Space> <Plug>(cyclebuffers-cycle)
   endif
+endif
+
+# set commands
+if get(g:, 'cyclebuffers_no_commands') == 0
   command! CycleBuffers cyclebuffers.Cycle()
 endif

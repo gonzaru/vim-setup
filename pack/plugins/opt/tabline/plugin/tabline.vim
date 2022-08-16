@@ -12,7 +12,12 @@ g:loaded_tabline = 1
 import autoload '../autoload/tabline.vim'
 
 # TODO:
-# set mappings
 # define mappings
+#
+# set mappings
 # if get(g:, 'tabline_no_mappings') == 0
+# endif
+#
+# set commands
+# if get(g:, 'tabline_no_commands') == 0
 # endif

@@ -23,6 +23,10 @@ if get(g:, 'runprg_no_mappings') == 0
   if empty(mapcheck("<leader>rU", "n"))
     nnoremap <leader>rU <Plug>(runprg-window)
   endif
+endif
+
+# set commands
+if get(g:, 'runprg_no_commands') == 0
   command! Run runprg.Run()
   command! RunWindow runprg.RunWindow()
 endif

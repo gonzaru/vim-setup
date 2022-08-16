@@ -20,6 +20,10 @@ if get(g:, 'autoendstructs_no_mappings') == 0
   if empty(mapcheck("<leader>tge", "n"))
     nnoremap <leader>tge <Plug>(autoendstructs-toggle):echo v:statusmsg<CR>
   endif
+endif
+
+# set commands
+if get(g:, 'autoendstructs_no_commands') == 0
   command! AutoEndStructsEnable g:autoendstructs_enabled = 1
   command! AutoEndStructsDisable g:autoendstructs_enabled = 0
   command! AutoEndStructsToggle autoendstructs.Toggle()

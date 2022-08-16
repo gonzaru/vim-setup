@@ -34,11 +34,16 @@ nnoremap <silent> <unique> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.Gofil
 nnoremap <silent> <unique> <script> <Plug>(se-refreshlist) <ScriptCmd>se.RefreshList()<CR>
 
 # see ../ftplugin/se.vim
+
 # set mappings
 if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("<leader>se", "n"))
     nnoremap <leader>se <Plug>(se-toggle)
   endif
+endif
+
+# set commands
+if get(g:, 'se_no_commands') == 0
   command! SeHelp se.Help()
   command! SeToggle se.Toggle()
 endif

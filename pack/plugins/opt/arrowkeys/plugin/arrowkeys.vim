@@ -23,6 +23,10 @@ if get(g:, 'arrowkeys_no_mappings') == 0
   if empty(mapcheck("<leader>ad", "n"))
     nnoremap <leader>ad <Plug>(arrowkeys-disable)
   endif
+endif
+
+# set commands
+if get(g:, 'arrowkeys_no_commands') == 0
   command! ArrowKeysEnable arrowkeys.Enable()
   command! ArrowKeysDisable arrowkeys.Disable()
   command! ArrowKeysToggle arrowkeys.Toggle()

@@ -15,6 +15,12 @@ import autoload '../autoload/complementum.vim'
 inoremap <silent> <unique> <script> <Plug>(complementum-goinsertautocomplete) <C-r>=<SID>complementum.GoInsertAutoComplete(getchar())<CR>
 
 # TODO:
+# define mappings
+#
 # set mappings
 # if get(g:, 'complementum_no_mappings') == 0
+# endif
+#
+# set commands
+# if get(g:, 'complementum_no_commands') == 0
 # endif

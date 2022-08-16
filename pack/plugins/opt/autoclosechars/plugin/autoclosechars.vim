@@ -31,6 +31,10 @@ if get(g:, 'autoclosechars_no_mappings') == 0
   if empty(mapcheck("<leader>tga", "n"))
     nnoremap <leader>tga <Plug>(autoclosechars-toggle):echo v:statusmsg<CR>
   endif
+endif
+
+# set commands
+if get(g:, 'autoclosechars_no_commands') == 0
   command! AutoCloseCharsEnable g:autoclosechars_enabled = 1
   command! AutoCloseCharsDisable g:autoclosechars_enabled = 0
   command! AutoCloseCharsToggle autoclosechars.Toggle()

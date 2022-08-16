@@ -23,6 +23,10 @@ if get(g:, 'commentarium_no_mappings') == 0
   if empty(mapcheck("<leader>?", "n"))
     nnoremap <leader>? <Plug>(commentarium-undo)
   endif
+endif
+
+# set commands
+if get(g:, 'commentarium_no_commands') == 0
   command! CommentariumComment commentarium.DoComment()
   command! CommentariumUncomment commentarium.UndoComment()
 endif

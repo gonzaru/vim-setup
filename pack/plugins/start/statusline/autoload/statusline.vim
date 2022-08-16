@@ -23,8 +23,13 @@ const STATUSLINE_FILES = {
 }
 
 # get statusline
-export def Get(): string
+export def GetStatus(): string
   return statusline_full
+enddef
+
+# set statusline
+export def SetStatus(s: string)
+  statusline_full = s
 enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
@@ -88,9 +93,9 @@ def ExitHandler(job: job, status: number)
   if filereadable(STATUSLINE_FILES['git'])
     if getfsize(STATUSLINE_FILES['git']) > 0 && job_info(job)["exitval"] == 0
       gitbranch = readfile(STATUSLINE_FILES['git'])[0]
-      statusline_full = " {" .. gitbranch .. "}:" .. ShortPath(getcwd()) .. '$'
+      SetStatus(" {" .. gitbranch .. "}:" .. ShortPath(getcwd()) .. '$')
     else
-      statusline_full = substitute(statusline_full, '^ {\w\+}:.*\$$', "", "")
+      SetStatus(substitute(GetStatus(), '^ {\w\+}:.*\$$', "", ""))
     endif
     # redraw statusline
     &l:statusline = &l:statusline

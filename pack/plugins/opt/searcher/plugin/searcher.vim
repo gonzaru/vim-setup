@@ -45,6 +45,10 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>SG", "n"))
     nnoremap <leader>SG <Plug>(searcher-lgrep-word)
   endif
+endif
+
+# set commands
+if get(g:, 'searcher_no_commands') == 0
   command! -nargs=+ -complete=file -bar SearcherFind searcher.Find('<args>', 'quickfix')
   command! -nargs=+ -complete=file -bar SearcherLFind searcher.Find('<args>', 'locationlist')
   command! -nargs=0 -bar SearcherFindWord searcher.Find(expand('<cword>'), 'quickfix')

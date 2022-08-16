@@ -153,6 +153,10 @@ if get(g:, 'checker_no_mappings') == 0
   if empty(mapcheck("<leader>tgk", "n"))
     nnoremap <leader>tgk <Plug>(checker-toggle):echo v:statusmsg<CR>
   endif
+endif
+
+# set commands
+if get(g:, 'checker_no_commands') == 0
   command! CheckerEnable {
     g:checker_enabled = 1
     doautocmd BufWinEnter

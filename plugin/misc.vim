@@ -31,8 +31,13 @@ enddef
 nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd><SID>GoLastEditCursorPos()<CR>
 nnoremap <silent> <unique> <script> <Plug>(misc-doc) <ScriptCmd>misc.Doc(&filetype)<CR>
 
+# TODO:
 # set mappings
-if get(g:, 'misc_no_mappings') == 0
+# if get(g:, 'misc_no_mappings') == 0
+# endif
+
+# set commands
+if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=file -complete=buffer MiscEditTop misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()

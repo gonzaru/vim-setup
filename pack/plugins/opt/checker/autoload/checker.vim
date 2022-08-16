@@ -178,8 +178,8 @@ export def SHCheck(file: string, mode: string): void
   endif
 enddef
 
-# sh shellcheck (no exec)
-def SHShellCheckNoExec(file: string): void
+# sh shellcheck set signs
+def SHShellCheckSetSigns(file: string): void
   var curbufnr = winbufnr(winnr())
   var curbufname = file
   var terrors: number
@@ -189,7 +189,7 @@ def SHShellCheckNoExec(file: string): void
     throw "Error: (SHCheck) " .. curbufname .. " is not a valid sh file!"
   endif
   if !filereadable(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
-    # throw "Error: (SHShellCheckNoExec) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
+    # throw "Error: (SHShellCheckSetSigns) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
     return
   endif
   sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
@@ -248,7 +248,7 @@ def ExitHandlerSHShellCheck(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
   var idx: number
   var prevstatusline: string
-  SHShellCheckNoExec(file)
+  SHShellCheckSetSigns(file)
   if filereadable(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
     if !getfsize(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
       delete(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
@@ -322,18 +322,18 @@ export def PYCheck(file: string, mode: string): void
   endif
 enddef
 
-# python pep8 (no exec)
-def PYPep8NoExec(file: string): void
+# python pep8 set signs
+def PYPep8SetSigns(file: string): void
   var curbufnr = winbufnr(winnr())
   var curbufname = file
   var terrors: number
   var errline: number
   CHECKER_ERRORS['python']['pep8'] = 0
   if &filetype != "python"
-    throw "Error: (PYPep8NoExec) " .. curbufname .. " is not a valid python file!"
+    throw "Error: (PYPep8SetSigns) " .. curbufname .. " is not a valid python file!"
   endif
   if !filereadable(CHECKER_FILES["python"]["pep8"]["syntax"])
-    # throw "Error: (PYPep8NoExec) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
+    # throw "Error: (PYPep8SetSeigns) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
     return
   endif
   sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
@@ -394,7 +394,7 @@ def ExitHandlerPYPep8(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
   var idx: number
   var prevstatusline: string
-  PYPep8NoExec(file)
+  PYPep8SetSigns(file)
   if filereadable(CHECKER_FILES["python"]["pep8"]["syntax"])
     if !getfsize(CHECKER_FILES["python"]["pep8"]["syntax"])
       delete(CHECKER_FILES["python"]["pep8"]["syntax"])
@@ -468,18 +468,18 @@ export def GOCheck(file: string, mode: string): void
   endif
 enddef
 
-# go vet (no exec)
-def GOVetNoExec(file: string): void
+# go vet set signs
+def GOVetSetSigns(file: string): void
   var curbufnr = winbufnr(winnr())
   var curbufname = file
   var errout: string
   var errline: number
   CHECKER_ERRORS['go']['govet'] = 0
   if &filetype != "go"
-    throw "Error: (GOVetNoExec) " .. curbufname .. " is not a valid go file!"
+    throw "Error: (GOVetSetSigns) " .. curbufname .. " is not a valid go file!"
   endif
   if !filereadable(CHECKER_FILES["go"]["govet"]["syntax"])
-    # throw "Error: (GOVetNoExec) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
+    # throw "Error: (GOVetSetSigns) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
     return
   endif
   sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
@@ -536,7 +536,7 @@ def ExitHandlerGOVet(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
   var idx: number
   var prevstatusline: string
-  GOVetNoExec(file)
+  GOVetSetSigns(file)
   if filereadable(CHECKER_FILES["go"]["govet"]["syntax"])
     if !getfsize(CHECKER_FILES["go"]["govet"]["syntax"])
       delete(CHECKER_FILES["go"]["govet"]["syntax"])
