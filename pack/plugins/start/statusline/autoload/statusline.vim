@@ -34,29 +34,25 @@ enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
 def ShortPath(path: string): string
-  var cwddirname = fnamemodify(path, ":~")
-  var cwddirnamelist = split(cwddirname, "/")
-  var cwddirnametail = fnamemodify(cwddirname, ":t")
+  var pathname = fnamemodify(path, ":~")
+  var pathnamelist = split(pathname, "/")
+  var pathnametail = fnamemodify(pathname, ":t")
+  var pathnumslashes = len(pathnamelist)
+  var pathnameshort: string
   var dirchars: string
-  var numdirslashes = len(cwddirnamelist)
-  var shortdirname: string
-  var i = 0
-  for d in cwddirnamelist
-    if i < numdirslashes - 1
-      if d[0] == '.'
-        dirchars ..= d[0 : 1] .. "/"
-      else
-        dirchars ..= d[0] .. "/"
-      endif
+  for d in pathnamelist[0 : pathnumslashes - 2]
+    if d[0] == '.'
+      dirchars ..= d[0 : 1] .. "/"
+    else
+      dirchars ..= d[0] .. "/"
     endif
-    ++i
   endfor
-  if cwddirname[0] == "/"
-    shortdirname = "/" .. dirchars .. cwddirnametail
+  if pathname[0] == "/"
+    pathnameshort = "/" .. dirchars .. pathnametail
   else
-    shortdirname = dirchars .. cwddirnametail
+    pathnameshort = dirchars .. pathnametail
   endif
-  return shortdirname
+  return pathnameshort
 enddef
 
 # my statusline async

@@ -10,75 +10,36 @@ g:autoloaded_tabline = 1
 
 # my tablabel
 def MyTabLabel(arg: number): string
-  var buflist = tabpagebuflist(arg)
   var winnr = tabpagewinnr(arg)
-  var dirname = fnamemodify(bufname(buflist[winnr - 1]), ":~")
-  var dirnamelist = split(dirname, "/")
-  var nametail = fnamemodify(dirname, ":t")
-  var shortname: string
+  var tabbuflist = tabpagebuflist(arg)
+  var tabbuflistlen = len(tabbuflist)
+  var tabsymbol = getbufvar(tabbuflist[winnr - 1], "&modified") ? "+" : ""
+  var bufname = bufname(tabbuflist[winnr - 1])
+  var pathname = fnamemodify(bufname, ":~")
+  var pathnamelist = split(pathname, "/")
+  var pathnametail = fnamemodify(pathname, ":t")
+  var pathnumlashes = len(pathnamelist)
+  var pathnameshort: string
   var dirchars: string
-  var namelen: number
-  var count: number
   # exception [No Name]
-  if empty(dirname)
+  if empty(bufname)
     dirchars = "[No Name]"
-    if getbufvar(buflist[winnr - 1], "&modified")
-      if len(buflist) > 1
-        shortname = len(buflist) .. "+" .. " " .. dirchars
-      else
-        shortname = "+" .. " " .. dirchars
-      endif
-    else
-      if len(buflist) > 1
-        shortname = len(buflist) .. " " .. dirchars
-      else
-       shortname = dirchars
-      endif
-    endif
-    return shortname
-  endif
-  namelen = len(dirnamelist)
-  count = 0
-  for d in dirnamelist
-    if count < namelen - 1
+    pathnameshort = (!empty(tabsymbol)) ? tabsymbol .. " " .. dirchars : dirchars
+  else
+    for d in pathnamelist[0 : pathnumlashes - 2]
       if d[0] == '.'
         dirchars ..= d[0 : 1] .. "/"
       else
         dirchars ..= d[0] .. "/"
       endif
-    endif
-    ++count
-  endfor
-  if getbufvar(buflist[winnr - 1 ], "&modified")
-    if len(buflist) > 1
-      if dirname[0] == "/"
-        shortname = len(buflist) .. "+" .. " " .. "/" .. dirchars .. nametail
-      else
-        shortname = len(buflist) .. "+" .. " " .. dirchars .. nametail
-      endif
+    endfor
+    if pathname[0] == "/"
+      pathnameshort = (tabbuflistlen > 0 ? tabbuflistlen : "") .. tabsymbol .. " " .. "/" .. dirchars .. pathnametail
     else
-      if dirname[0] == "/"
-        dirname = "+" .. " " .. "/" .. dirchars .. nametail
-      else
-        shortname = "+" .. " " .. dirchars .. nametail
-      endif
-    endif
-  else
-    if len(buflist) > 1
-      if dirname[0] == "/"
-        shortname = len(buflist) .. " " .. "/" .. dirchars .. nametail
-      else
-        shortname = len(buflist) .. " " .. dirchars .. nametail
-      endif
-    else
-      if dirname[0] == "/"
-        shortname = "/" .. dirchars .. nametail
-      else
-        shortname = dirchars .. nametail
-      endif
+      pathnameshort = (tabbuflistlen > 0 ? tabbuflistlen : "") .. tabsymbol .. " " .. dirchars .. pathnametail
     endif
   endif
-  return shortname
+  return pathnameshort
 enddef
 
 # my tabline
@@ -91,7 +52,6 @@ export def MyTabLine(): string
       s ..= '%#TabLine#'
     endif
     s ..= '%' .. (i + 1) .. 'T'
-    # s ..= ' %{MyTabLabel(' .. (i + 1) .. ')} '
     s ..= ' %{' .. MyTabLabel->string() .. '(' .. (i + 1) .. ')} '
   endfor
   s ..= '%#TabLineFill#%T'
