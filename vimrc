@@ -98,6 +98,9 @@ endfor
 
 # se plugin (simple explorer)
 if g:se_enabled
+  g:se_followfile = 0
+  g:se_hiddenfirst = 0
+  g:se_position = "left"  # left, right
   g:se_winsize = 20
 endif
 

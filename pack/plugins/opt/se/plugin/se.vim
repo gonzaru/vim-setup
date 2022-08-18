@@ -13,6 +13,15 @@ endif
 g:loaded_se = 1
 
 # global variables
+if !exists('g:se_followfile')
+  g:se_followfile = 0
+endif
+if !exists('g:se_hiddenfirst')
+  g:se_hiddenfirst = 0
+endif
+if !exists('g:se_position')
+  g:se_position = "left"
+endif
 if !exists('g:se_winsize')
   g:se_winsize = 20
 endif
@@ -31,7 +40,7 @@ nnoremap <silent> <unique> <script> <Plug>(se-gofile-pedit) <ScriptCmd>se.Gofile
 nnoremap <silent> <unique> <script> <Plug>(se-gofile-split) <ScriptCmd>se.Gofile("split")<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.Gofile("tabedit")<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.Gofile("vsplit")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-refreshlist) <ScriptCmd>se.RefreshList()<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh()<CR>
 
 # see ../ftplugin/se.vim
 

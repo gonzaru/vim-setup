@@ -18,7 +18,7 @@ setlocal nocursorcolumn
 setlocal nowrap
 setlocal nospell
 setlocal nolist
-setlocal splitright
+setlocal nosplitright
 setlocal noswapfile
 setlocal nobuflisted
 setlocal buftype=nowrite
@@ -64,7 +64,7 @@ if get(g:, 'se_no_mappings') == 0
     nnoremap <buffer>- <ScriptCmd>cursor(1, 1)<CR><Plug>(se-gofile-edit)
   endif
   if empty(mapcheck("r", "n"))
-    nnoremap <buffer>r <Plug>(se-refreshlist)
+    nnoremap <buffer>r <Plug>(se-refresh)
   endif
   if empty(mapcheck("f", "n"))
     nnoremap <buffer>f <Plug>(se-followfile)

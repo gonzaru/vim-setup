@@ -4,7 +4,7 @@ vim9script
 
 # Se simple explorer
 
-# See also ../../ftplugin/se.vim
+# See also ../ftplugin/se.vim
 
 # do not read the file if it is already loaded or se is not enabled
 if exists('g:autoloaded_se') || !get(g:, 'se_enabled') || &cp
@@ -13,7 +13,9 @@ endif
 g:autoloaded_se = 1
 
 # script local variables
-var se_oldcwd = ""
+const SE_BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
+var se_prevcwd: string
+var se_prevwin: number
 
 # prints error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -25,13 +27,13 @@ def EchoErrorMsg(msg: string)
 enddef
 
 # prints warning message and saves the message in the message-history
-def EchoWarningMsg(msg: string)
-  if !empty(msg)
-    echohl WarningMsg
-    echom  msg
-    echohl None
-  endif
-enddef
+# def EchoWarningMsg(msg: string)
+#   if !empty(msg)
+#     echohl WarningMsg
+#     echom  msg
+#     echohl None
+#   endif
+# enddef
 
 # returns an indicator that identifies a file (*/=@|)
 def FileIndicator(file: string): string
@@ -55,12 +57,14 @@ enddef
 
 # gets Se buffer id
 def GetBufId(): number
+  var bid = -1
   for b in getbufinfo()
-    if getbufvar(b.bufnr, '&filetype') == "se"
-      return b.bufnr
+    if fnamemodify(b.name, ":t") == SE_BUFFER_NAME && getbufvar(b.bufnr, '&filetype') == "se"
+      bid = b.bufnr
+      break
     endif
   endfor
-  return 0
+  return bid
 enddef
 
 # help information
@@ -76,7 +80,7 @@ export def Help()
   echo "p        # preview the current file in a window"
   echo "P        # close the preview window currently open"
   echo "-        # changes to parent directory"
-  echo "r        # lists the current directory"
+  echo "r        # refresh the current directory"
   echo "f        # follow the current file"
   echo "=        # resize Se window [<BS>]"
   echo "<ESC>    # close Se window"
@@ -84,93 +88,129 @@ export def Help()
 enddef
 
 # populates Se
-def ListPopulate()
-  var cwddir = getcwd()
+def Populate(cwddir: string)
   var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
   var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')
   var parent2cwd: string
   var parentcwd: string
-  var lsf = extend(nohidden, hidden)
+  var lsf = get(g:, 'se_hiddenfirst') ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
     appendbufline('%', 0, lsf)
-    deletebufline('%', '$')
+  else
+    # EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":~") .. " is empty")
   endif
-  cursor(1, 1)
   try
-    parent2cwd = split(getcwd(), "/")[-2]
-  catch
+    parent2cwd = split(cwddir, "/")[-2]
+  catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
     parent2cwd = '/'
   endtry
-  appendbufline('%', 0, ['../ [' .. parent2cwd .. ']'])
   try
-    parentcwd = split(getcwd(), "/")[-1]
-  catch
+    parentcwd = split(cwddir, "/")[-1]
+  catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
     parentcwd = '/'
   endtry
+  appendbufline('%', 0, ['../ [' .. parent2cwd .. ']'])
   appendbufline('%', 1, ['./ [' .. parentcwd .. ']'])
-  if !len(lsf)
-    deletebufline('%', '$')
-    cursor(1, 1)
-    EchoWarningMsg("Warning: directory is empty")
-  endif
+  deletebufline('%', '$')
+  cursor(line('$') > 2 ? 3 : 1, 1)
 enddef
 
-# lists Se
-def List()
+# set prevcwd
+def SetPrevCwd(s: string)
+  se_prevcwd = s
+enddef
+
+# get prevcwd
+def GetPrevCwd(): string
+  return se_prevcwd
+enddef
+
+# set prevwin
+def SetPrevWin(n: number)
+  se_prevwin = n
+enddef
+
+# get prevwin
+def GetPrevWin(): number
+  return se_prevwin
+enddef
+
+# shows Se
+def Show()
+  var bid = GetBufId()
   var bufname = bufname('%')
-  var sb = GetBufId()
-  if !sb
-    se_oldcwd = !empty(bufname) ? fnamemodify(bufname, ":~:h") : getcwd()
-    setlocal nosplitright
-    vertical new
-    silent file se
-    setlocal splitright
+  var cwddir = getcwd()
+  var prevcwd: string
+  if bid < 1
+    SetPrevCwd(!empty(bufname) ? fnamemodify(bufname, ":~:h") : cwddir)
+    SetPrevWin(win_getid())
+    if get(g:, 'se_position') == "right"
+      # go to the last right window
+      win_gotoid(win_getid(winnr('$')))
+      rightbelow vnew
+    else
+      # put into to the first left window
+      topleft vnew
+    endif
+    execute "silent file " .. SE_BUFFER_NAME
     setlocal filetype=se
-    if se_oldcwd != '.'
-      execute "lcd " .. fnameescape(se_oldcwd)
+    prevcwd = GetPrevCwd()
+    execute "lcd " .. fnameescape(prevcwd)
+    Populate(prevcwd)
+    setlocal nomodifiable
+    execute "vertical resize " .. g:se_winsize
+    if get(g:, 'se_followfile')
+      SearchFile(fnamemodify(bufname, ":t"))
     endif
-    ListPopulate()
-    execute ":vertical resize " .. g:se_winsize
   else
-    if win_getid() != bufwinid(sb)
-      win_gotoid(bufwinid(sb))
-    endif
-    if &filetype == "se"
+    if fnamemodify(bufname('%'), ":t") == SE_BUFFER_NAME && &filetype == "se"
+      SetPrevCwd(cwddir)
       setlocal modifiable
+      silent deletebufline('%', 1, '$')
+      Populate(cwddir)
+      setlocal nomodifiable
     endif
-    silent deletebufline('%', 1, '$')
-    ListPopulate()
   endif
-  se_oldcwd = getcwd()
-  setlocal nomodifiable
 enddef
 
 # toggles Se
 export def Toggle()
   var bufinfo: list<dict<any>>
-  var sb = GetBufId()
-  if sb > 0
-    bufinfo = getbufinfo(sb)
+  var bid = GetBufId()
+  if bid > 0
+    bufinfo = getbufinfo(bid)
     if bufinfo[0].hidden
-      setlocal nosplitright
-      execute "vertical sbuffer " .. sb
-      setlocal splitright
-      execute "lcd " .. fnameescape(se_oldcwd)
-      execute "vertical resize " .. g:se_winsize
-    else
-      if win_getid() != bufwinid(sb)
-        win_gotoid(bufwinid(sb))
+      SetPrevWin(win_getid())
+      if get(g:, 'se_position') == "right"
+        # go to the last right window
+        win_gotoid(win_getid(winnr('$')))
+        execute "vertical rightbelow sbuffer " .. bid
+      else
+        # put into the first left window
+        execute "vertical topleft sbuffer " .. bid
       endif
-      if &filetype == "se"
+      execute "lcd " .. fnameescape(GetPrevCwd())
+      execute "vertical resize " .. g:se_winsize
+      if get(g:, 'se_followfile')
+        FollowFile()
+      endif
+    else
+      SetPrevWin(win_getid())
+      if win_getid() != bufwinid(bid)
+        win_gotoid(bufwinid(bid))
+      endif
+      if fnamemodify(bufinfo[0].name, ":t") == SE_BUFFER_NAME && &filetype == "se"
         close
+        # go to the previous window
+        win_gotoid(GetPrevWin())
       endif
     endif
   else
-    List()
+    Show()
   endif
 enddef
 
-# search Se file
+# searches Se file
 def SearchFile(file: string)
   if !empty(file)
     search('^' .. file .. '.\?$')
@@ -178,93 +218,155 @@ def SearchFile(file: string)
 enddef
 
 # follows Se file
-export def FollowFile()
+export def FollowFile(): void
   var prevcwd: string
   var prevfile: string
-  var prevtailfile: string
-  var sewinid = win_getid()
+  var selwinid: number
+  if fnamemodify(bufname('%'), ":t") != SE_BUFFER_NAME || &filetype != "se"
+    return
+  endif
+  selwinid = win_getid()
   win_gotoid(win_getid(winnr('#')))
   prevfile = bufname('%')
-  prevcwd = fnamemodify(prevfile, ":~:h")
-  prevtailfile = fnamemodify(prevfile, ":t")
-  win_gotoid(sewinid)
+  prevcwd = !empty(prevfile) ? fnamemodify(prevfile, ":~:h") : getcwd()
+  win_gotoid(selwinid)
   execute ":lcd " .. fnameescape(prevcwd)
-  List()
-  SearchFile(prevtailfile)
+  Show()
+  SearchFile(fnamemodify(prevfile, ":t"))
 enddef
 
-# refresh Se list
-export def RefreshList()
-  var se_prevline = substitute(fnameescape(getline('.')), '*$', "", "")
-  cursor(2, 1)
-  List()
-  SearchFile(se_prevline)
+# refresh Se
+export def Refresh()
+  var curline = substitute(fnameescape(getline('.')), '*$', "", "")
+  Show()
+  SearchFile(curline)
 enddef
 
-# goes to file
-export def Gofile(mode: string): void
-  var curline = substitute(getline('.'), '*$', "", "")
-  var firstchar = matchstr(curline, "^.")
-  var lastchar = matchstr(curline, ".$")
-  var mode_list: list<string>
-  var oldcwd: string
-  var oldwinid: number
-  var sb = GetBufId()
-  if mode == "edit" && firstchar == "." && lastchar == ']' && isdirectory(split(curline, " ")[0])
-    try
-      oldcwd = split(getcwd(), "/")[-1] .. "/"
-    catch
-      oldcwd = "/"
-    endtry
-    execute "lcd " .. getcwd(winnr()) .. "/" .. fnameescape(split(curline, " ")[0])
-    List()
-    SearchFile(oldcwd)
-  elseif mode == "edit" && lastchar == '/' && isdirectory(curline)
-    execute "lcd " .. getcwd(winnr()) .. "/" .. fnameescape(curline)
-    List()
-  elseif mode == "edit" && lastchar == '@' && isdirectory(resolve(substitute(curline, '@$', "", "")))
-    execute "lcd " .. fnameescape(resolve(substitute(curline, '@$', "", "")))
-    List()
+# edit the current file
+def Edit(buffer: string)
+  if winnr('$') >= 2
+    if get(g:, 'se_position') == "right"
+      win_gotoid(win_getid(winnr() - 1))
+    else
+      wincmd w
+    endif
+    execute "edit " .. buffer
   else
-    if lastchar == '@'
-      curline = resolve(substitute(curline, '@$', "", ""))
-      if !filereadable(curline)
-        EchoErrorMsg("Error: symlink is broken")
-        return
-      endif
+    if get(g:, 'se_position') == "right"
+      execute "vnew " .. buffer
+    else
+      execute "rightbelow vnew " .. buffer
     endif
-    if !filereadable(curline)
-      EchoErrorMsg("Error: file is no longer available")
-      return
+    vertical resize
+    execute "vertical resize -" .. g:se_winsize
+  endif
+enddef
+
+# edit the current file and stay in Se
+def EditKeep(buffer: string)
+  var selwinid = win_getid()
+  Edit(buffer)
+  win_gotoid(selwinid)
+  execute "vertical resize " .. g:se_winsize
+enddef
+
+# preview the current file in a window
+def EditPedit(buffer: string)
+  var selwinid: number
+  if winnr('$') >= 2
+    selwinid = win_getid()
+    if get(g:, 'se_position') == "right"
+      win_gotoid(win_getid(winnr() - 1))
+    else
+      wincmd w
     endif
-    mode_list = ["edit", "editk", "pedit", "split"]
-    if index(mode_list, mode) >= 0
-      oldcwd = getcwd()
-      oldwinid = win_getid()
-      win_gotoid(win_getid(winnr('#')))
-      if win_getid() != oldwinid
-        if mode == "edit" || mode == "editk"
-          execute "edit " .. oldcwd .. "/" .. curline
-          if mode == "editk"
-            win_gotoid(bufwinid(sb))
-          endif
-        elseif mode == "pedit"
-          execute "pedit " .. oldcwd .. "/" .. curline
-          win_gotoid(bufwinid(sb))
-        elseif mode == "split"
-          execute "split " .. oldcwd .. "/" .. curline
-        endif
-      else
-        # vsplit as default if is the same Se window
-        execute "vsplit " .. oldcwd .. "/" .. curline
-        if mode == "editk" || mode == "pedit"
-          win_gotoid(bufwinid(sb))
-        endif
-      endif
-    elseif mode ==  "vsplit"
-      execute "vsplit " .. curline
-    elseif mode ==  "tabedit"
-      execute "tabedit " .. curline
+    execute "pedit " .. buffer
+    wincmd P
+    resize
+    win_gotoid(selwinid)
+  else
+    execute "vertical pedit " .. buffer
+    execute "vertical resize " .. g:se_winsize
+  endif
+enddef
+
+# edit the current file in split mode
+def EditSplitH(buffer: string)
+  if winnr('$') >= 2
+    if get(g:, 'se_position') == "right"
+      win_gotoid(win_getid(winnr() - 1))
+    else
+      wincmd w
+    endif
+    execute "split " .. buffer
+  else
+    if get(g:, 'se_position') == "right"
+      execute "vsplit " .. buffer
+    else
+      execute "rightbelow vsplit " .. buffer
+    endif
+    vertical resize
+    execute "vertical resize -" .. g:se_winsize
+  endif
+enddef
+
+# edit the current file in a vertical split mode
+def EditSplitV(buffer: string)
+  if winnr('$') >= 2
+    if get(g:, 'se_position') == "right"
+      win_gotoid(win_getid(winnr() - 1))
+      execute "rightbelow vsplit " .. buffer
+    else
+      wincmd w
+      execute "leftabove vsplit " .. buffer
+    endif
+  else
+    if get(g:, 'se_position') == "right"
+      execute "vsplit " .. buffer
+    else
+      execute "rightbelow vsplit " .. buffer
+    endif
+    vertical resize
+    execute "vertical resize -" .. g:se_winsize
+  endif
+enddef
+
+# edit the current file in a tab
+def EditTab(buffer: string)
+  if get(g:, 'se_position') == "right"
+    execute ":-tabedit " .. buffer
+  else
+    execute "tabedit " .. buffer
+  endif
+enddef
+
+# goes to file or directory
+export def Gofile(mode: string): void
+  var selfile: string
+  if fnamemodify(bufname('%'), ":t") != SE_BUFFER_NAME || &filetype != "se"
+    return
+  endif
+  selfile = (
+    index([1, 2], getpos('.')[1]) >= 0
+    ? split(getline('.'), " ")[0]
+    : fnamemodify(substitute(getline('.'), '*\|@$', "", ""), ":p")
+  )
+  if isdirectory(selfile)
+    execute "lcd " .. fnameescape(selfile)
+    Show()
+  else
+    if mode == "edit"
+      Edit(selfile)
+    elseif mode == "editk"
+      EditKeep(selfile)
+    elseif mode == "pedit"
+      EditPedit(selfile)
+    elseif mode == "split"
+      EditSplitH(selfile)
+    elseif mode == "vsplit"
+      EditSplitV(selfile)
+    elseif mode == "tabedit"
+      EditTab(selfile)
     endif
   endif
 enddef
