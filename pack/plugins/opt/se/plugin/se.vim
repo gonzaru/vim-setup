@@ -29,6 +29,18 @@ endif
 # autoload
 import autoload '../autoload/se.vim'
 
+# autocmd
+if get(g:, 'se_followfile')
+  augroup se_followfile
+    autocmd!
+    autocmd BufWinEnter * {
+      if get(g:, 'se_followfile') && &filetype != "se"
+        se.AutoFollowFile(expand('<afile>:p'))
+      endif
+    }
+  augroup END
+endif
+
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(se-close) <Cmd>close<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-help) <ScriptCmd>se.Help()<CR>

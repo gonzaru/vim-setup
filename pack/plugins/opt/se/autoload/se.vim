@@ -15,7 +15,6 @@ g:autoloaded_se = 1
 # script local variables
 const SE_BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
 var se_prevcwd: string
-var se_prevwin: number
 
 # prints error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -56,7 +55,7 @@ def FileIndicator(file: string): string
 enddef
 
 # gets Se buffer id
-def GetBufId(): number
+def GetSeBufId(): number
   var bid = -1
   for b in getbufinfo()
     if fnamemodify(b.name, ":t") == SE_BUFFER_NAME && getbufvar(b.bufnr, '&filetype') == "se"
@@ -125,36 +124,23 @@ def GetPrevCwd(): string
   return se_prevcwd
 enddef
 
-# set prevwin
-def SetPrevWin(n: number)
-  se_prevwin = n
-enddef
-
-# get prevwin
-def GetPrevWin(): number
-  return se_prevwin
-enddef
-
 # shows Se
 def Show()
-  var bid = GetBufId()
+  var bid = GetSeBufId()
   var bufname = bufname('%')
   var cwddir = getcwd()
   var prevcwd: string
   if bid < 1
-    SetPrevCwd(!empty(bufname) ? fnamemodify(bufname, ":~:h") : cwddir)
-    SetPrevWin(win_getid())
+    prevcwd = !empty(bufname) ? fnamemodify(bufname, ":p:h") : cwddir
     if get(g:, 'se_position') == "right"
-      # go to the last right window
-      win_gotoid(win_getid(winnr('$')))
-      rightbelow vnew
+      # put into the last right window
+      botright vnew
     else
       # put into to the first left window
       topleft vnew
     endif
     execute "silent file " .. SE_BUFFER_NAME
     setlocal filetype=se
-    prevcwd = GetPrevCwd()
     execute "lcd " .. fnameescape(prevcwd)
     Populate(prevcwd)
     setlocal nomodifiable
@@ -163,8 +149,7 @@ def Show()
       SearchFile(fnamemodify(bufname, ":t"))
     endif
   else
-    if fnamemodify(bufname('%'), ":t") == SE_BUFFER_NAME && &filetype == "se"
-      SetPrevCwd(cwddir)
+    if bufnr() == bid
       setlocal modifiable
       silent deletebufline('%', 1, '$')
       Populate(cwddir)
@@ -176,15 +161,13 @@ enddef
 # toggles Se
 export def Toggle()
   var bufinfo: list<dict<any>>
-  var bid = GetBufId()
+  var bid = GetSeBufId()
   if bid > 0
     bufinfo = getbufinfo(bid)
     if bufinfo[0].hidden
-      SetPrevWin(win_getid())
       if get(g:, 'se_position') == "right"
-        # go to the last right window
-        win_gotoid(win_getid(winnr('$')))
-        execute "vertical rightbelow sbuffer " .. bid
+        # put into the last right window
+        execute "vertical botright sbuffer " .. bid
       else
         # put into the first left window
         execute "vertical topleft sbuffer " .. bid
@@ -195,14 +178,14 @@ export def Toggle()
         FollowFile()
       endif
     else
-      SetPrevWin(win_getid())
-      if win_getid() != bufwinid(bid)
+      if bufnr() != bid
         win_gotoid(bufwinid(bid))
       endif
-      if fnamemodify(bufinfo[0].name, ":t") == SE_BUFFER_NAME && &filetype == "se"
+      if bufnr() == bid
+        SetPrevCwd(getcwd())
         close
         # go to the previous window
-        win_gotoid(GetPrevWin())
+        win_gotoid(win_getid(winnr('#')))
       endif
     endif
   else
@@ -212,8 +195,27 @@ enddef
 
 # searches Se file
 def SearchFile(file: string)
+  var modfile: string
   if !empty(file)
-    search('^' .. file .. '.\?$')
+    modfile = substitute(file, '\~$', "", "")
+    silent! search('^' .. modfile .. '.\?\(\*\|@\)\?$')
+  endif
+enddef
+
+# automatic follow file
+export def AutoFollowFile(file: string): void
+  var bid = GetSeBufId()
+  var bufinfo: list<dict<any>>
+  var selwinid: number
+  if bid < 1 || bufnr() == bid
+    return
+  endif
+  bufinfo = getbufinfo(bid)
+  if !bufinfo[0].hidden
+    selwinid = win_getid()
+    win_gotoid(bufwinid(bid))
+    FollowFile()
+    win_gotoid(selwinid)
   endif
 enddef
 
@@ -221,16 +223,12 @@ enddef
 export def FollowFile(): void
   var prevcwd: string
   var prevfile: string
-  var selwinid: number
-  if fnamemodify(bufname('%'), ":t") != SE_BUFFER_NAME || &filetype != "se"
+  if bufnr() != GetSeBufId()
     return
   endif
-  selwinid = win_getid()
-  win_gotoid(win_getid(winnr('#')))
-  prevfile = bufname('%')
-  prevcwd = !empty(prevfile) ? fnamemodify(prevfile, ":~:h") : getcwd()
-  win_gotoid(selwinid)
-  execute ":lcd " .. fnameescape(prevcwd)
+  prevfile = bufname(winbufnr(winnr('#')))
+  prevcwd = !empty(prevfile) ? fnamemodify(prevfile, ":p:h") : getcwd()
+  execute "lcd " .. fnameescape(prevcwd)
   Show()
   SearchFile(fnamemodify(prevfile, ":t"))
 enddef
@@ -246,7 +244,7 @@ enddef
 def Edit(buffer: string)
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
-      win_gotoid(win_getid(winnr() - 1))
+      wincmd W
     else
       wincmd w
     endif
@@ -276,7 +274,7 @@ def EditPedit(buffer: string)
   if winnr('$') >= 2
     selwinid = win_getid()
     if get(g:, 'se_position') == "right"
-      win_gotoid(win_getid(winnr() - 1))
+      wincmd W
     else
       wincmd w
     endif
@@ -294,7 +292,7 @@ enddef
 def EditSplitH(buffer: string)
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
-      win_gotoid(win_getid(winnr() - 1))
+      wincmd W
     else
       wincmd w
     endif
@@ -314,7 +312,7 @@ enddef
 def EditSplitV(buffer: string)
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
-      win_gotoid(win_getid(winnr() - 1))
+      wincmd W
       execute "rightbelow vsplit " .. buffer
     else
       wincmd w
@@ -343,13 +341,13 @@ enddef
 # goes to file or directory
 export def Gofile(mode: string): void
   var selfile: string
-  if fnamemodify(bufname('%'), ":t") != SE_BUFFER_NAME || &filetype != "se"
+  if bufnr() != GetSeBufId()
     return
   endif
   selfile = (
     index([1, 2], getpos('.')[1]) >= 0
     ? split(getline('.'), " ")[0]
-    : fnamemodify(substitute(getline('.'), '*\|@$', "", ""), ":p")
+    : fnamemodify(substitute(fnameescape(getline('.')), '*\|@$', "", ""), ":p")
   )
   if isdirectory(selfile)
     execute "lcd " .. fnameescape(selfile)

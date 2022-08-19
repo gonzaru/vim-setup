@@ -13,7 +13,7 @@ setlocal statusline=b%n,w%{win_getid()}%h%=[SE]
 setlocal winfixheight
 setlocal winfixwidth
 setlocal noconfirm
-setlocal nocursorline
+setlocal cursorline
 setlocal nocursorcolumn
 setlocal nowrap
 setlocal nospell
