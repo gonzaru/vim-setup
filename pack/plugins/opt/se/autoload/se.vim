@@ -20,19 +20,19 @@ var se_prevcwd: string
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
-    echom  msg
+    echom msg
     echohl None
   endif
 enddef
 
 # prints warning message and saves the message in the message-history
-# def EchoWarningMsg(msg: string)
-#   if !empty(msg)
-#     echohl WarningMsg
-#     echom  msg
-#     echohl None
-#   endif
-# enddef
+def EchoWarningMsg(msg: string)
+  if !empty(msg)
+    echohl WarningMsg
+    echom msg
+    echohl None
+  endif
+enddef
 
 # returns an indicator that identifies a file (*/=@|)
 def FileIndicator(file: string): string
@@ -68,22 +68,26 @@ enddef
 
 # help information
 export def Help()
-  echo "e        # edit the current file [<CR>]"
-  echo "E        # edit the current file and toggle Se"
-  echo "<SPACE>  # edit the current file and stay in Se"
-  echo "s        # edit the current file in split mode"
-  echo "S        # edit the current file in split mode and toggle Se"
-  echo "v        # edit the current file in a vertical split mode"
-  echo "V        # edit the current file in a vertical split mode and toggle Se"
-  echo "t        # edit the current file in a tab"
-  echo "p        # preview the current file in a window"
-  echo "P        # close the preview window currently open"
-  echo "-        # changes to parent directory"
-  echo "r        # refresh the current directory"
-  echo "f        # follow the current file"
-  echo "=        # resize Se window [<BS>]"
-  echo "<ESC>    # close Se window"
-  echo "h        # shows Se help information [K]"
+  var lines =<< trim END
+    e        # edit the current file [<CR>]
+    E        # edit the current file and toggle Se
+    <SPACE>  # edit the current file and stay in Se
+    s        # edit the current file in split mode
+    S        # edit the current file in split mode and toggle Se
+    v        # edit the current file in a vertical split mode
+    V        # edit the current file in a vertical split mode and toggle Se
+    t        # edit the current file in a tab
+    p        # preview the current file in a window
+    P        # close the preview window currently open
+    -        # change to parent directory
+    ~        # change to home directory
+    r        # refresh the current directory
+    f        # follow the current file
+    =        # resize Se window [<BS>]
+    <ESC>    # close Se window
+    H        # shows Se help information [K]
+  END
+  echo join(lines, "\n")
 enddef
 
 # populates Se
@@ -96,7 +100,9 @@ def Populate(cwddir: string)
   if len(lsf) > 0
     appendbufline('%', 0, lsf)
   else
-    # EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":~") .. " is empty")
+    EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":t") .. " is empty")
+    sleep 1
+    redraw!
   endif
   try
     parent2cwd = split(cwddir, "/")[-2]
@@ -125,13 +131,12 @@ def GetPrevCwd(): string
 enddef
 
 # shows Se
-def Show()
+def Show(filepath: string)
   var bid = GetSeBufId()
-  var bufname = bufname('%')
   var cwddir = getcwd()
   var prevcwd: string
   if bid < 1
-    prevcwd = !empty(bufname) ? fnamemodify(bufname, ":p:h") : cwddir
+    prevcwd = !empty(filepath) ? fnamemodify(filepath, ":p:h") : cwddir
     if get(g:, 'se_position') == "right"
       # put into the last right window
       botright vnew
@@ -146,7 +151,7 @@ def Show()
     setlocal nomodifiable
     execute "vertical resize " .. g:se_winsize
     if get(g:, 'se_followfile')
-      SearchFile(fnamemodify(bufname, ":t"))
+      SearchFile(filepath)
     endif
   else
     if bufnr() == bid
@@ -160,6 +165,7 @@ enddef
 
 # toggles Se
 export def Toggle()
+  var filepath = expand('%:p')
   var bufinfo: list<dict<any>>
   var bid = GetSeBufId()
   if bid > 0
@@ -175,7 +181,7 @@ export def Toggle()
       execute "lcd " .. fnameescape(GetPrevCwd())
       execute "vertical resize " .. g:se_winsize
       if get(g:, 'se_followfile')
-        FollowFile()
+        FollowFile(filepath)
       endif
     else
       if bufnr() != bid
@@ -189,7 +195,7 @@ export def Toggle()
       endif
     endif
   else
-    Show()
+    Show(filepath)
   endif
 enddef
 
@@ -197,13 +203,13 @@ enddef
 def SearchFile(file: string)
   var modfile: string
   if !empty(file)
-    modfile = substitute(file, '\~$', "", "")
-    silent! search('^' .. modfile .. '.\?\(\*\|@\)\?$')
+    modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
+    silent! search('^' .. modfile .. '.\?\(*\|@\)\?$')
   endif
 enddef
 
 # automatic follow file
-export def AutoFollowFile(file: string): void
+export def AutoFollowFile(filepath: string): void
   var bid = GetSeBufId()
   var bufinfo: list<dict<any>>
   var selwinid: number
@@ -214,29 +220,25 @@ export def AutoFollowFile(file: string): void
   if !bufinfo[0].hidden
     selwinid = win_getid()
     win_gotoid(bufwinid(bid))
-    FollowFile()
+    FollowFile(filepath)
     win_gotoid(selwinid)
   endif
 enddef
 
 # follows Se file
-export def FollowFile(): void
-  var prevcwd: string
-  var prevfile: string
-  if bufnr() != GetSeBufId()
-    return
-  endif
-  prevfile = bufname(winbufnr(winnr('#')))
-  prevcwd = !empty(prevfile) ? fnamemodify(prevfile, ":p:h") : getcwd()
-  execute "lcd " .. fnameescape(prevcwd)
-  Show()
-  SearchFile(fnamemodify(prevfile, ":t"))
+export def FollowFile(filepath: string): void
+  var cwddir: string
+  cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
+  execute "lcd " .. fnameescape(cwddir)
+  Show(filepath)
+  SearchFile(filepath)
 enddef
 
 # refresh Se
 export def Refresh()
-  var curline = substitute(fnameescape(getline('.')), '*$', "", "")
-  Show()
+  var filepath = expand('%:p')
+  var curline = substitute(getline('.'), '*$', "", "")
+  Show(filepath)
   SearchFile(curline)
 enddef
 
@@ -338,8 +340,14 @@ def EditTab(buffer: string)
   endif
 enddef
 
+# goes to directory
+export def GoDir(cwddir: string)
+  execute "lcd " .. fnameescape(cwddir)
+  Show(cwddir)
+enddef
+
 # goes to file or directory
-export def Gofile(mode: string): void
+export def GoFile(mode: string): void
   var selfile: string
   if bufnr() != GetSeBufId()
     return
@@ -347,11 +355,10 @@ export def Gofile(mode: string): void
   selfile = (
     index([1, 2], getpos('.')[1]) >= 0
     ? split(getline('.'), " ")[0]
-    : fnamemodify(substitute(fnameescape(getline('.')), '*\|@$', "", ""), ":p")
+    : fnamemodify(substitute(getline('.'), '*\|@$', "", ""), ":p")
   )
   if isdirectory(selfile)
-    execute "lcd " .. fnameescape(selfile)
-    Show()
+    GoDir(selfile)
   else
     if mode == "edit"
       Edit(selfile)

@@ -63,6 +63,9 @@ if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("-", "n"))
     nnoremap <buffer>- <ScriptCmd>cursor(1, 1)<CR><Plug>(se-gofile-edit)
   endif
+  if empty(mapcheck("~", "n"))
+    nnoremap <buffer>~ <Plug>(se-godir-home)
+  endif
   if empty(mapcheck("r", "n"))
     nnoremap <buffer>r <Plug>(se-refresh)
   endif
@@ -75,8 +78,8 @@ if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("=", "n"))
     nnoremap <buffer>= :execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
   endif
-  if empty(mapcheck("h", "n"))
-    nnoremap <buffer>h <Plug>(se-help)
+  if empty(mapcheck("H", "n"))
+    nnoremap <buffer>H <Plug>(se-help)
   endif
   if empty(mapcheck("K", "n"))
     nnoremap <buffer>K <Plug>(se-help)
