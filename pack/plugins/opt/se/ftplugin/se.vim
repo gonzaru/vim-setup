@@ -60,6 +60,9 @@ if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("t", "n"))
     nnoremap <buffer>t <Plug>(se-gofile-tabedit)
   endif
+  if empty(mapcheck("T", "n"))
+    nnoremap <buffer>T <Plug>(se-gofile-tabedit)<Plug>(se-toggle)
+  endif
   if empty(mapcheck("-", "n"))
     nnoremap <buffer>- <ScriptCmd>cursor(1, 1)<CR><Plug>(se-gofile-edit)
   endif

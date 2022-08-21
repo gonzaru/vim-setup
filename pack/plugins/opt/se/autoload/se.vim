@@ -77,6 +77,7 @@ export def Help()
     v        # edit the current file in a vertical split mode
     V        # edit the current file in a vertical split mode and toggle Se
     t        # edit the current file in a tab
+    T        # edit the current file in a tab and toggle Se
     p        # preview the current file in a window
     P        # close the preview window currently open
     -        # change to parent directory
@@ -185,9 +186,16 @@ export def Toggle()
       endif
     else
       if bufnr() != bid
-        win_gotoid(bufwinid(bid))
-      endif
-      if bufnr() == bid
+        win_execute(bufwinid(bid), "SetPrevCwd('" .. getcwd() .. "')")
+        if bufwinid(bid) != -1
+          win_execute(bufwinid(bid), "close")
+        elseif tabpagenr('$') >= 2
+          # bufwinid() only works with the current tab page
+          for window in getbufinfo(bid)[0]['windows']
+            win_execute(window, "close")
+          endfor
+        endif
+      else
         SetPrevCwd(getcwd())
         close
         # go to the previous window
@@ -218,10 +226,7 @@ export def AutoFollowFile(filepath: string): void
   endif
   bufinfo = getbufinfo(bid)
   if !bufinfo[0].hidden
-    selwinid = win_getid()
-    win_gotoid(bufwinid(bid))
-    FollowFile(filepath)
-    win_gotoid(selwinid)
+    win_execute(bufwinid(bid), "FollowFile('" .. filepath .. "')")
   endif
 enddef
 
@@ -243,100 +248,119 @@ export def Refresh()
 enddef
 
 # edit the current file
-def Edit(buffer: string)
+def Edit(file: string)
+  var bid: number
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
       wincmd W
     else
       wincmd w
     endif
-    execute "edit " .. buffer
+    execute "edit " .. file
   else
     if get(g:, 'se_position') == "right"
-      execute "vnew " .. buffer
+      execute "vnew " .. file
     else
-      execute "rightbelow vnew " .. buffer
+      execute "rightbelow vnew " .. file
     endif
-    vertical resize
-    execute "vertical resize -" .. g:se_winsize
+    bid = GetSeBufId()
+    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
   endif
 enddef
 
 # edit the current file and stay in Se
-def EditKeep(buffer: string)
-  var selwinid = win_getid()
-  Edit(buffer)
-  win_gotoid(selwinid)
-  execute "vertical resize " .. g:se_winsize
+def EditKeep(file: string)
+  var bid: number
+  if winnr('$') >= 2
+    if get(g:, 'se_position') == "right"
+      win_execute(win_getid(winnr() - 1), "edit " .. file)
+    else
+      win_execute(win_getid(winnr() + 1), "edit " .. file)
+    endif
+  else
+    if get(g:, 'se_position') == "right"
+      execute "vnew " .. file
+    else
+      execute "rightbelow vnew " .. file
+    endif
+    bid = GetSeBufId()
+    win_gotoid(bufwinid(bid))
+    execute "vertical resize " .. g:se_winsize
+  endif
 enddef
 
 # preview the current file in a window
-def EditPedit(buffer: string)
-  var selwinid: number
+def EditPedit(file: string)
+  var bid = GetSeBufId()
   if winnr('$') >= 2
-    selwinid = win_getid()
     if get(g:, 'se_position') == "right"
-      wincmd W
+      win_execute(win_getid(winnr() - 1), "pedit " .. file)
     else
-      wincmd w
+      win_execute(win_getid(winnr() + 1), "pedit " .. file)
     endif
-    execute "pedit " .. buffer
     wincmd P
     resize
-    win_gotoid(selwinid)
+    win_gotoid(bufwinid(bid))
   else
-    execute "vertical pedit " .. buffer
+    if get(g:, 'se_position') == "right"
+      execute "vertical pedit " .. file
+    else
+      execute "vertical rightbelow pedit " .. file
+    endif
+    win_gotoid(bufwinid(bid))
     execute "vertical resize " .. g:se_winsize
   endif
 enddef
 
 # edit the current file in split mode
-def EditSplitH(buffer: string)
+def EditSplitH(file: string)
+  var bid: number
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
       wincmd W
     else
       wincmd w
     endif
-    execute "split " .. buffer
+    execute "split " .. file
   else
     if get(g:, 'se_position') == "right"
-      execute "vsplit " .. buffer
+      execute "vsplit " .. file
     else
-      execute "rightbelow vsplit " .. buffer
+      execute "rightbelow vsplit " .. file
     endif
-    vertical resize
-    execute "vertical resize -" .. g:se_winsize
+    bid = GetSeBufId()
+    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
   endif
 enddef
 
 # edit the current file in a vertical split mode
-def EditSplitV(buffer: string)
+def EditSplitV(file: string)
+  var bid: number
   if winnr('$') >= 2
     if get(g:, 'se_position') == "right"
       wincmd W
-      execute "rightbelow vsplit " .. buffer
+      execute "rightbelow vsplit " .. file
     else
       wincmd w
-      execute "leftabove vsplit " .. buffer
+      execute "leftabove vsplit " .. file
     endif
   else
     if get(g:, 'se_position') == "right"
-      execute "vsplit " .. buffer
+      execute "vsplit " .. file
     else
-      execute "rightbelow vsplit " .. buffer
+      execute "rightbelow vsplit " .. file
     endif
-    vertical resize
-    execute "vertical resize -" .. g:se_winsize
+    bid = GetSeBufId()
+    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
   endif
 enddef
 
 # edit the current file in a tab
-def EditTab(buffer: string)
+def EditTab(file: string)
   if get(g:, 'se_position') == "right"
-    execute ":-tabedit " .. buffer
+    execute ":-tabedit " .. file
   else
-    execute "tabedit " .. buffer
+    execute "tabedit " .. file
   endif
 enddef
 
@@ -347,15 +371,15 @@ export def GoDir(cwddir: string)
 enddef
 
 # goes to file or directory
-export def GoFile(mode: string): void
+export def GoFile(filepath: string, mode: string): void
   var selfile: string
   if bufnr() != GetSeBufId()
     return
   endif
   selfile = (
-    index([1, 2], getpos('.')[1]) >= 0
-    ? split(getline('.'), " ")[0]
-    : fnamemodify(substitute(getline('.'), '*\|@$', "", ""), ":p")
+    match(filepath, '^\.\.\?/ \[.*\]$') != -1 && index([1, 2], getpos('.')[1]) >= 0
+    ? split(filepath, " ")[0]
+    : fnamemodify(substitute(filepath, '*\|@$', "", ""), ":p")
   )
   if isdirectory(selfile)
     GoDir(selfile)

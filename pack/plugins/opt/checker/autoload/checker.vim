@@ -123,7 +123,6 @@ enddef
 
 # sh check
 export def SHCheck(file: string, mode: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var theshell: string
   var check_file: string
@@ -139,8 +138,8 @@ export def SHCheck(file: string, mode: string): void
   if &filetype != "sh"
     throw "Error: (SHCheck) " .. curbufname .. " is not a valid sh file!"
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['sh']})
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['sh']['sh']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
   CHECKER_ERRORS['sh']['sh'] = 0
   theshell = getline(1) =~ "bash" ? "bash" : "sh"
   if mode == "read"
@@ -159,7 +158,7 @@ export def SHCheck(file: string, mode: string): void
     errout = join(readfile(CHECKER_FILES["sh"]["sh"]["syntax"]))
     errline = str2nr(split(split(errout, ":")[1], " ")[1])
     if !empty(errline)
-      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['sh'], curbufnr, {'lnum': errline})
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['sh'], curbufname, {'lnum': errline})
       cursor(errline, 1)
     endif
     if mode == "write" && filereadable(CHECKER_FILES["sh"]["sh"]["buffer"])
@@ -180,7 +179,6 @@ enddef
 
 # sh shellcheck set signs
 def SHShellCheckSetSigns(file: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var terrors: number
   var errline: number
@@ -192,13 +190,13 @@ def SHShellCheckSetSigns(file: string): void
     # throw "Error: (SHShellCheckSetSigns) ". s:checkerfiles["sh"]["shellcheck"]["syntax"] . " is not readable!"
     return
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']})
   terrors = 0
   for line in readfile(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
     if line =~ "^In "
       errline = str2nr(split(split(line, " ")[3], ":")[0])
       if !empty(errline)
-        sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['shellcheck'], curbufnr, {'lnum': errline})
+        sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['sh']['shellcheck'], curbufname, {'lnum': errline})
       endif
       terrors += 1
     endif
@@ -246,8 +244,14 @@ enddef
 
 def ExitHandlerSHShellCheck(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
+  var filewinid = bufwinid(file)
   var idx: number
   var prevstatusline: string
+  var selwinid = win_getid()
+  # TODO: without win_gotoid()
+  if selwinid != filewinid
+    win_gotoid(filewinid)
+  endif
   SHShellCheckSetSigns(file)
   if filereadable(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
     if !getfsize(CHECKER_FILES["sh"]["shellcheck"]["syntax"])
@@ -266,13 +270,15 @@ def ExitHandlerSHShellCheck(job: job, status: number)
   if idx >= 0
     remove(JOB_QUEUE['sh']['shellcheck'], idx)
   endif
+  if selwinid != filewinid
+    win_gotoid(selwinid)
+  endif
 enddef
 
 # """ PYTHON """
 
 # python check
 export def PYCheck(file: string, mode: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var check_file: string
   var errout: list<string>
@@ -287,8 +293,8 @@ export def PYCheck(file: string, mode: string): void
   if &filetype != "python"
     throw "error: (PYcheck) " .. curbufname .. " is not a valid python file!"
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['python']})
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['python']['python']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
   CHECKER_ERRORS['python']['python'] = 0
   if mode == "read"
     check_file = curbufname
@@ -303,7 +309,7 @@ export def PYCheck(file: string, mode: string): void
     errout = readfile(CHECKER_FILES["python"]["python"]["syntax"])
     errline = str2nr(split(errout[4], " ")[-1])
     if !empty(errline)
-      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['python'], curbufnr, {'lnum': errline})
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['python'], curbufname, {'lnum': errline})
       cursor(errline, 1)
     endif
     if mode == "write" && filereadable(CHECKER_FILES["python"]["python"]["buffer"])
@@ -324,7 +330,6 @@ enddef
 
 # python pep8 set signs
 def PYPep8SetSigns(file: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var terrors: number
   var errline: number
@@ -336,7 +341,7 @@ def PYPep8SetSigns(file: string): void
     # throw "Error: (PYPep8SetSeigns) ". s:checkerfiles["python"]["pep8"]["syntax"] . " is not readable!"
     return
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['python']['pep8']})
   terrors = 0
   for line in readfile(CHECKER_FILES["python"]["pep8"]["syntax"])
     # pep8 shows now a warning that has been renamed to pycodestyle
@@ -345,7 +350,7 @@ def PYPep8SetSigns(file: string): void
     endif
     errline = str2nr(split(line, ":")[1])
     if !empty(errline)
-      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['pep8'], curbufnr, {'lnum': errline})
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['python']['pep8'], curbufname, {'lnum': errline})
     endif
     terrors += 1
   endfor
@@ -392,8 +397,14 @@ enddef
 
 def ExitHandlerPYPep8(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
+  var filewinid = bufwinid(file)
   var idx: number
   var prevstatusline: string
+  var selwinid = win_getid()
+  # TODO: without win_gotoid()
+  if selwinid != filewinid
+    win_gotoid(filewinid)
+  endif
   PYPep8SetSigns(file)
   if filereadable(CHECKER_FILES["python"]["pep8"]["syntax"])
     if !getfsize(CHECKER_FILES["python"]["pep8"]["syntax"])
@@ -412,13 +423,15 @@ def ExitHandlerPYPep8(job: job, status: number)
   if idx >= 0
     remove(JOB_QUEUE['python']['pep8'], idx)
   endif
+  if selwinid != filewinid
+    win_gotoid(selwinid)
+  endif
 enddef
 
 # """ GO """
 
 # go check
 export def GOCheck(file: string, mode: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var check_file: string
   var errout: string
@@ -433,8 +446,8 @@ export def GOCheck(file: string, mode: string): void
   if &filetype != "go"
     throw "Error: (GOCheck) " .. curbufname .. " is not a valid go file!"
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['gofmt']})
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['go']['gofmt']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
   CHECKER_ERRORS['go']['gofmt'] = 0
   if mode == "read"
     check_file = curbufname
@@ -449,7 +462,7 @@ export def GOCheck(file: string, mode: string): void
     errout = join(readfile(CHECKER_FILES["go"]["gofmt"]["syntax"]))
     errline = str2nr(split(errout, ":")[1])
     if !empty(errline)
-      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['gofmt'], curbufnr, {'lnum': errline})
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['gofmt'], curbufname, {'lnum': errline})
       cursor(errline, 1)
     endif
     if mode == "write" && filereadable(CHECKER_FILES["go"]["gofmt"]["buffer"])
@@ -470,7 +483,6 @@ enddef
 
 # go vet set signs
 def GOVetSetSigns(file: string): void
-  var curbufnr = winbufnr(winnr())
   var curbufname = file
   var errout: string
   var errline: number
@@ -482,13 +494,13 @@ def GOVetSetSigns(file: string): void
     # throw "Error: (GOVetSetSigns) ". s:checkerfiles["go"]["govet"]["syntax"] . " is not readable!"
     return
   endif
-  sign_unplace('', {'buffer': curbufnr, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
+  sign_unplace('', {'buffer': curbufname, 'name': g:CHECKER_SIGNS_ERRORS['go']['govet']})
   errout = join(readfile(CHECKER_FILES["go"]["govet"]["syntax"])[1 : ])
   if !empty(errout)
     CHECKER_ERRORS['go']['govet'] = 1
     errline = str2nr(split(errout, ":")[2])
     if !empty(errline)
-      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['govet'], curbufnr, {'lnum': errline})
+      sign_place(errline, '', g:CHECKER_SIGNS_ERRORS['go']['govet'], curbufname, {'lnum': errline})
     endif
   endif
 enddef
@@ -534,8 +546,14 @@ enddef
 
 def ExitHandlerGOVet(job: job, status: number)
   var file = job_info(job)["cmd"][-1]
+  var filewinid = bufwinid(file)
   var idx: number
   var prevstatusline: string
+  var selwinid = win_getid()
+  # TODO: without win_gotoid()
+  if selwinid != filewinid
+    win_gotoid(filewinid)
+  endif
   GOVetSetSigns(file)
   if filereadable(CHECKER_FILES["go"]["govet"]["syntax"])
     if !getfsize(CHECKER_FILES["go"]["govet"]["syntax"])
@@ -553,6 +571,9 @@ def ExitHandlerGOVet(job: job, status: number)
   idx = index(JOB_QUEUE['go']['govet'], job_info(job)["process"])
   if idx >= 0
     remove(JOB_QUEUE['go']['govet'], idx)
+  endif
+  if selwinid != filewinid
+    win_gotoid(selwinid)
   endif
 enddef
 

@@ -48,12 +48,12 @@ nnoremap <silent> <unique> <script> <Plug>(se-toggle) <ScriptCmd>se.Toggle()<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDir(getenv('HOME'))<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-edit) <ScriptCmd>se.GoFile("edit")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-editk) <ScriptCmd>se.GoFile("editk")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-pedit) <ScriptCmd>se.GoFile("pedit")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-split) <ScriptCmd>se.GoFile("split")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.GoFile("tabedit")<CR>
-nnoremap <silent> <unique> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.GoFile("vsplit")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-edit) <ScriptCmd>se.GoFile(getline('.'), "edit")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-editk) <ScriptCmd>se.GoFile(getline('.'), "editk")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-pedit) <ScriptCmd>se.GoFile(getline('.'), "pedit")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-split) <ScriptCmd>se.GoFile(getline('.'), "split")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.GoFile(getline('.'), "tabedit")<CR>
+nnoremap <silent> <unique> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.GoFile(getline('.'), "vsplit")<CR>
 nnoremap <silent> <unique> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh()<CR>
 
 # see ../ftplugin/se.vim
