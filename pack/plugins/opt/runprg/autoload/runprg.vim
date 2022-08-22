@@ -33,7 +33,7 @@ def EchoWarningMsg(msg: string)
 enddef
 
 # gets Run buffer window id
-def GetRunBufId(): number
+def GetRunBufWinId(): number
   return bufexists(RUNPRG_BUFFER_NAME) ? bufwinid(RUNPRG_BUFFER_NAME) : -1
 enddef
 
@@ -48,7 +48,7 @@ enddef
 
 # close
 export def Close()
-  var runwinid = GetRunBufId()
+  var runwinid = GetRunBufWinId()
   if runwinid > 0
     win_execute(runwinid, "close")
   endif
@@ -67,7 +67,7 @@ export def Run(file: string): void
   elseif &filetype == "go"
     echo system("go run " .. file)
   endif
-  if v:shell_error
+  if v:shell_error != 0
     EchoErrorMsg("Error: exit code " .. v:shell_error)
   endif
 enddef
@@ -75,7 +75,7 @@ enddef
 # run using a window
 export def RunWindow(file: string): void
   var selwinid = win_getid()
-  var runwinid = GetRunBufId()
+  var runwinid = GetRunBufWinId()
   var outmsg: list<string>
   if selwinid == runwinid
     EchoWarningMsg("Warning: already using the same window " .. RUNPRG_BUFFER_NAME)
@@ -92,7 +92,7 @@ export def RunWindow(file: string): void
   elseif &filetype == "go"
     outmsg = systemlist("go run " .. file)
   endif
-  if v:shell_error
+  if v:shell_error != 0
     EchoErrorMsg("Error: exit code " .. v:shell_error)
   endif
   if empty(outmsg)
