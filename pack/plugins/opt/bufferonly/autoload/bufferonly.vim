@@ -9,30 +9,30 @@ endif
 g:autoloaded_bufferonly = 1
 
 # remove all buffers except the current one
-export def RemoveAllExceptCurrent(mode: string)
+export def RemoveAllExceptCurrent(mode: string): void
   var bufinfo: list<dict<any>>
-  var curbufid = winbufnr(winnr())
+  var curbufid: number
+  if index(['delete', 'wipe', 'wipe!'], mode) == -1
+    return
+  endif
   if mode == 'delete' || mode == 'wipe'
     bufinfo = getbufinfo({'buflisted': 1})
   elseif mode == 'wipe!'
     bufinfo = getbufinfo()
   endif
+  curbufid = bufnr()
   for b in bufinfo
     if b.bufnr == curbufid
       continue
     endif
-    if getbufvar(b.bufnr, '&buftype') == 'terminal' && term_getstatus(b.bufnr) == 'running,normal'
-      if mode == "delete"
+    if mode == "delete"
+      if getbufvar(b.bufnr, '&buftype') == 'terminal' && term_getstatus(b.bufnr) == 'running,normal'
         execute "bd! " .. b.bufnr
-      elseif mode == "wipe" || mode == "wipe!"
-        execute "bw! " .. b.bufnr
-      endif
-    else
-      if mode == "delete"
+      else
         execute "bd " .. b.bufnr
-      elseif mode == "wipe" || mode == "wipe!"
-        execute "bw " .. b.bufnr
       endif
+    elseif mode == "wipe" || mode == "wipe!"
+      execute "bw! " .. b.bufnr
     endif
   endfor
 enddef

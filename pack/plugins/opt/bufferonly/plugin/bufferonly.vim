@@ -32,6 +32,5 @@ endif
 # set commands
 if get(g:, 'bufferonly_no_commands') == 0
   command! BufferOnlyDelete bufferonly.RemoveAllExceptCurrent("delete")
-  command! BufferOnlyWipe bufferonly.RemoveAllExceptCurrent("wipe")
-  command! -bang BufferOnlyWipe bufferonly.RemoveAllExceptCurrent("wipe!")
+  command! -bang BufferOnlyWipe bufferonly.RemoveAllExceptCurrent("wipe<bang>")
 endif
