@@ -12,8 +12,8 @@ g:loaded_runprg = 1
 import autoload '../autoload/runprg.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) <ScriptCmd>runprg.Run()<CR>
-nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow()<CR>
+nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) <ScriptCmd>runprg.Run(expand('%:p'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow(expand('%:p'))<CR>
 nnoremap <silent> <unique> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
@@ -31,6 +31,7 @@ endif
 
 # set commands
 if get(g:, 'runprg_no_commands') == 0
-  command! Run runprg.Run()
-  command! RunWindow runprg.RunWindow()
+  command! Run runprg.Run(expand('%:p'))
+  command! RunWindow runprg.RunWindow(expand('%:p'))
+  command! RunClose runprg.Close()
 endif

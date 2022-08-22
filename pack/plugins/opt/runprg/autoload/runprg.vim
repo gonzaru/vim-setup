@@ -55,18 +55,17 @@ export def Close()
 enddef
 
 # run
-export def Run(): void
-  var filepath = expand('%:p')
+export def Run(file: string): void
   if index(RUNPRG_ALLOWED_TYPES, &filetype) == -1
     EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
     return
   endif
   if &filetype == "sh"
-    echo system(SHShellType() .. " " .. filepath)
+    echo system(SHShellType() .. " " .. file)
   elseif &filetype == "python"
-    echo system("python3 " .. filepath)
+    echo system("python3 " .. file)
   elseif &filetype == "go"
-    echo system("go run " .. filepath)
+    echo system("go run " .. file)
   endif
   if v:shell_error
     EchoErrorMsg("Error: exit code " .. v:shell_error)
@@ -74,9 +73,8 @@ export def Run(): void
 enddef
 
 # run using a window
-export def RunWindow(): void
+export def RunWindow(file: string): void
   var selwinid = win_getid()
-  var filepath = expand('%:p')
   var runwinid = GetRunBufId()
   var outmsg: list<string>
   if selwinid == runwinid
@@ -88,11 +86,11 @@ export def RunWindow(): void
     return
   endif
   if &filetype == "sh"
-    outmsg = systemlist(SHShellType() .. " " .. filepath)
+    outmsg = systemlist(SHShellType() .. " " .. file)
   elseif &filetype == "python"
-    outmsg = systemlist("python3 " .. filepath)
+    outmsg = systemlist("python3 " .. file)
   elseif &filetype == "go"
-    outmsg = systemlist("go run " .. filepath)
+    outmsg = systemlist("go run " .. file)
   endif
   if v:shell_error
     EchoErrorMsg("Error: exit code " .. v:shell_error)
