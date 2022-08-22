@@ -14,6 +14,7 @@ import autoload '../autoload/runprg.vim'
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) <ScriptCmd>runprg.Run()<CR>
 nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow()<CR>
+nnoremap <silent> <unique> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
 if get(g:, 'runprg_no_mappings') == 0
@@ -22,6 +23,9 @@ if get(g:, 'runprg_no_mappings') == 0
   endif
   if empty(mapcheck("<leader>rU", "n"))
     nnoremap <leader>rU <Plug>(runprg-window)
+  endif
+  if empty(mapcheck("<leader>RU", "n"))
+    nnoremap <leader>RU <Plug>(runprg-close)
   endif
 endif
 

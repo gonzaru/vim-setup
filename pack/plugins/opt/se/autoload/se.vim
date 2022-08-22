@@ -99,7 +99,7 @@ def Populate(cwddir: string)
   var parentcwd: string
   var lsf = get(g:, 'se_hiddenfirst') ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
-    appendbufline('%', 0, lsf)
+    appendbufline(SE_BUFFER_NAME, 0, lsf)
   else
     EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":t") .. " is empty")
     sleep 1
@@ -115,9 +115,9 @@ def Populate(cwddir: string)
   catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
     parentcwd = '/'
   endtry
-  appendbufline('%', 0, ['../ [' .. parent2cwd .. ']'])
-  appendbufline('%', 1, ['./ [' .. parentcwd .. ']'])
-  deletebufline('%', '$')
+  appendbufline(SE_BUFFER_NAME, 0, ['../ [' .. parent2cwd .. ']'])
+  appendbufline(SE_BUFFER_NAME, 1, ['./ [' .. parentcwd .. ']'])
+  deletebufline(SE_BUFFER_NAME, '$')
   cursor(line('$') > 2 ? 3 : 1, 1)
 enddef
 
@@ -157,7 +157,7 @@ def Show(filepath: string)
   else
     if bufnr() == bid
       setlocal modifiable
-      silent deletebufline('%', 1, '$')
+      silent deletebufline(SE_BUFFER_NAME, 1, '$')
       Populate(cwddir)
       setlocal nomodifiable
     endif
@@ -186,7 +186,7 @@ export def Toggle()
       endif
     else
       if bufnr() != bid
-        win_execute(bufwinid(bid), "SetPrevCwd('" .. getcwd() .. "')")
+        SetPrevCwd(getcwd(bufwinid(bid)))
         if bufwinid(bid) != -1
           win_execute(bufwinid(bid), "close")
         elseif tabpagenr('$') >= 2

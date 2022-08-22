@@ -8,6 +8,12 @@ if exists('g:autoloaded_runprg') || !get(g:, 'runprg_enabled') || &cp
 endif
 g:autoloaded_runprg = 1
 
+# script local variables
+const RUNPRG_BUFFER_NAME = "runprg_" .. strftime('%Y%m%d%H%M%S', localtime())
+
+# allowed file types
+const RUNPRG_ALLOWED_TYPES = ["sh", "python", "go"]
+
 # prints error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
@@ -26,6 +32,11 @@ def EchoWarningMsg(msg: string)
   endif
 enddef
 
+# gets Run buffer window id
+def GetRunBufId(): number
+  return bufexists(RUNPRG_BUFFER_NAME) ? bufwinid(RUNPRG_BUFFER_NAME) : -1
+enddef
+
 # detects if the shell is sh or bash using shebang
 def SHShellType(): string
   if &filetype != "sh"
@@ -35,20 +46,27 @@ def SHShellType(): string
   return getline(1) =~ "bash$" ? "bash" : "sh"
 enddef
 
+# close
+export def Close()
+  var runwinid = GetRunBufId()
+  if runwinid > 0
+    win_execute(runwinid, "close")
+  endif
+enddef
+
 # run
 export def Run(): void
-  var curbufname = bufname('%')
-  var curfile = expand('%:p')
-  if index(["sh", "python", "go"], &filetype) == -1
+  var filepath = expand('%:p')
+  if index(RUNPRG_ALLOWED_TYPES, &filetype) == -1
     EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
     return
   endif
   if &filetype == "sh"
-    echo system(SHShellType() .. " " .. curfile)
+    echo system(SHShellType() .. " " .. filepath)
   elseif &filetype == "python"
-    echo system("python3 " .. curfile)
+    echo system("python3 " .. filepath)
   elseif &filetype == "go"
-    echo system("go run " .. curfile)
+    echo system("go run " .. filepath)
   endif
   if v:shell_error
     EchoErrorMsg("Error: exit code " .. v:shell_error)
@@ -57,36 +75,36 @@ enddef
 
 # run using a window
 export def RunWindow(): void
-  var bufoutname = "runoutput"
-  var curbufname = bufname('%')
-  var curfile = expand('%:p')
-  var curwinid = win_getid()
-  var prevwinid = bufexists(bufoutname) ? bufwinid(bufoutname) : -1
-  var out: list<string>
-  if curwinid == prevwinid
-    EchoWarningMsg("Warning: already using the same window " .. bufoutname)
+  var selwinid = win_getid()
+  var filepath = expand('%:p')
+  var runwinid = GetRunBufId()
+  var outmsg: list<string>
+  if selwinid == runwinid
+    EchoWarningMsg("Warning: already using the same window " .. RUNPRG_BUFFER_NAME)
     return
   endif
-  if index(["sh", "python", "go"], &filetype) == -1
+  if index(RUNPRG_ALLOWED_TYPES, &filetype) == -1
     EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
     return
   endif
   if &filetype == "sh"
-    out = systemlist(SHShellType() .. " " .. curfile)
+    outmsg = systemlist(SHShellType() .. " " .. filepath)
   elseif &filetype == "python"
-    out = systemlist("python3 " .. curfile)
+    outmsg = systemlist("python3 " .. filepath)
   elseif &filetype == "go"
-    out = systemlist("go run " .. curfile)
+    outmsg = systemlist("go run " .. filepath)
   endif
   if v:shell_error
     EchoErrorMsg("Error: exit code " .. v:shell_error)
   endif
-  if empty(out)
+  if empty(outmsg)
     EchoWarningMsg("Warning: empty output")
     return
   endif
-  if prevwinid > 0
-    win_gotoid(prevwinid)
+  if runwinid > 0
+    win_gotoid(runwinid)
+  elseif bufexists(RUNPRG_BUFFER_NAME) && getbufinfo(RUNPRG_BUFFER_NAME)[0].hidden
+    execute "rightbelow split " .. RUNPRG_BUFFER_NAME
   else
     below new
     setlocal winfixheight
@@ -94,11 +112,11 @@ export def RunWindow(): void
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    execute "file " .. bufoutname
+    execute "file " .. RUNPRG_BUFFER_NAME
   endif
-  appendbufline('%', 0, out)
-  deletebufline('%', '$')
+  appendbufline(RUNPRG_BUFFER_NAME, 0, outmsg)
+  deletebufline(RUNPRG_BUFFER_NAME, '$')
   cursor(1, 1)
-  execute "resize " .. len(out)
-  win_gotoid(curwinid)
+  execute "resize " .. len(outmsg)
+  win_gotoid(selwinid)
 enddef

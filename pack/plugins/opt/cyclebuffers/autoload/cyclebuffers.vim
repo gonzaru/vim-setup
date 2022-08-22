@@ -19,38 +19,32 @@ enddef
 
 # cycle between buffers
 export def Cycle(): void
-  var curbuf = substitute(bufname("%"), $HOME .. "/" .. $USER .. "/", "~/", "")
   var bufinfo = getbufinfo({'buflisted': 1})
   var buflist: list<string>
-  var bul: list<string>
+  var curbuf = resolve(fnamemodify(bufname("%"), ":~"))
+  var idx: number
   if len(bufinfo) == 1
     EchoWarningMsg("Warning: already using only one buffer")
     return
   endif
-  buflist = []
   for buf in bufinfo
-    bul = split(substitute(buf.name, $HOME .. "/" .. $USER .. "/", "~/", ""))
-    extend(buflist, bul)
+    add(buflist, resolve(fnamemodify(bufname(buf.name), ":~")))
   endfor
   topleft new
   appendbufline('%', 0, buflist)
   deletebufline('%', '$')
   execute "resize " .. line('$')
   setlocal filetype=cb
-  for i in range(1, line('$'))
-    if curbuf == getline(i)
-      cursor(i, 1)
-      break
-    endif
-  endfor
+  idx = index(buflist, curbuf)
+  if idx >= 0
+    cursor(idx + 1, 1)
+  endif
 enddef
 
 # go to the selected buffer
-export def SelectBuffer()
-  var curbufid = winbufnr(winnr())
+export def SelectBuffer(file: string)
   var prevwinid = bufwinid('#')
-  var line = fnameescape(getline('.'))
   close
   win_gotoid(prevwinid)
-  execute "edit " .. line
+  execute "edit " .. fnameescape(file)
 enddef

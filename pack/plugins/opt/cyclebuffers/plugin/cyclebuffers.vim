@@ -13,7 +13,7 @@ import autoload '../autoload/cyclebuffers.vim'
 
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
-nnoremap <silent> <unique> <script> <Plug>(cyclebuffers-select) <ScriptCmd>cyclebuffers.SelectBuffer()<CR>
+nnoremap <silent> <unique> <script> <Plug>(cyclebuffers-select) <ScriptCmd>cyclebuffers.SelectBuffer(getline('.'))<CR>
 
 # set mappings
 if get(g:, 'cyclebuffers_no_mappings') == 0
