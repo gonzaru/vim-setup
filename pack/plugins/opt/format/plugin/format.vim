@@ -12,7 +12,7 @@ g:loaded_format = 1
 import autoload '../autoload/format.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(format-language) <ScriptCmd>format.Language()<CR>
+nnoremap <silent> <unique> <script> <Plug>(format-language) <ScriptCmd>format.Language(expand('%:p'))<CR>
 
 # set mappings
 if get(g:, 'format_no_mappings') == 0
@@ -23,5 +23,5 @@ endif
 
 # set commands
 if get(g:, 'format_no_commands') == 0
-  command! FormatLanguage format.Language()
+  command! FormatLanguage format.Language(expand('%:p'))
 endif
