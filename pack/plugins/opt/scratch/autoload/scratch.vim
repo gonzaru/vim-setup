@@ -8,11 +8,9 @@ if exists('g:autoloaded_scratch') || !get(g:, 'scratch_enabled') || &cp
 endif
 g:autoloaded_scratch = 1
 
-# scratch buffer
-export def Buffer()
-  var curbufn = winbufnr(winnr())
-  var scnum = 0
-  var match = 0
+# get scratch buffer
+def GetScratchBufId(): number
+  var bid: number
   for b in getbufinfo()
     # :help special-buffers
     if empty(b.name)
@@ -20,19 +18,42 @@ export def Buffer()
       && getbufvar(b.bufnr, '&bufhidden') == 'hide'
       && !getbufvar(b.bufnr, '&swapfile')
       && !getbufvar(b.bufnr, '&buflisted')
-      scnum = b.bufnr
-      match = 1
+      bid = b.bufnr
       break
     endif
   endfor
-  if match
-    if curbufn == scnum
+  return bid
+enddef
+
+# get scratrch terminal buffer
+def GetScratchTerminalBufId(): number
+  var bid: number
+  for b in getbufinfo()
+    if b.name =~ '\[ScratchTerminal\]'
+      && getbufvar(b.bufnr, '&buftype') == 'terminal'
+      && term_getstatus(b.bufnr) == 'running,normal'
+      && getbufvar(b.bufnr, '&bufhidden') == 'hide'
+      && !getbufvar(b.bufnr, '&swapfile')
+      && !getbufvar(b.bufnr, '&buflisted')
+      bid = b.bufnr
+      break
+    endif
+  endfor
+  return bid
+enddef
+
+# scratch buffer
+export def Buffer()
+  var bid: number
+  bid = GetScratchBufId()
+  if bid > 0
+    if win_getid() == bufwinid(bid)
       # return to previous buffer if we are in the scratch
       if !empty(getreg('#'))
         execute "b #"
       endif
     else
-      execute "b " .. scnum
+      execut "b " .. bid
     endif
   else
     enew
@@ -45,29 +66,16 @@ enddef
 
 # scratch terminal
 export def Terminal()
-  var curbufn = winbufnr(winnr())
-  var scnum = 0
-  var match = 0
-  for b in getbufinfo()
-    if b.name =~ '\[ScratchTerminal\]'
-      && getbufvar(b.bufnr, '&buftype') == 'terminal'
-      && term_getstatus(b.bufnr) == 'running,normal'
-      && getbufvar(b.bufnr, '&bufhidden') == 'hide'
-      && !getbufvar(b.bufnr, '&swapfile')
-      && !getbufvar(b.bufnr, '&buflisted')
-      scnum = b.bufnr
-      match = 1
-      break
-    endif
-  endfor
-  if match
-    if curbufn == scnum
+  var bid: number
+  bid = GetScratchTerminalBufId()
+  if bid > 0
+    if win_getid() == bufwinid(bid)
       # return to previous buffer if we are in the scratch
       if !empty(getreg('#')) && getreg('#') !~ '\[ScratchTerminal\]'
         execute "b #"
       endif
     else
-      execute "b " .. scnum
+      execute "b " .. bid
     endif
   else
     terminal ++curwin ++noclose ++norestore
