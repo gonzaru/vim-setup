@@ -639,11 +639,6 @@ nnoremap <leader>lx <ScriptCmd>setloclist(0, [], 'r')<CR>
 # popup window
 nnoremap <leader>cP <ScriptCmd>popup_clear(1)<CR>
 
-# comment/uncomment
-vnoremap <leader>* <ESC>'<<ESC>O/*<ESC>'><ESC>o*/<ESC>
-vnoremap <leader>/ <ESC>:'<,'>s/^/\/\/ /e<ESC>
-vnoremap <leader>? <ESC>:'<,'>s/\/\///g<ESC>gv=
-
 # case sensitive/insensitive
 nnoremap <leader>ss /\C
 nnoremap <leader>si /\c

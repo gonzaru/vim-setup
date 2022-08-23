@@ -12,21 +12,43 @@ g:loaded_commentarium = 1
 import autoload '../autoload/commentarium.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(commentarium-do) <ScriptCmd>commentarium.DoComment()<CR>
-nnoremap <silent> <unique> <script> <Plug>(commentarium-undo) <ScriptCmd>commentarium.UndoComment()<CR>
+nnoremap <silent> <unique> <script> <Plug>(commentarium-do) <ScriptCmd>commentarium.DoComment(line('.'), col('.'))<CR>
+vnoremap <silent> <unique> <script> <Plug>(commentarium-do-range)
+  \ <ESC><ScriptCmd>commentarium.DoCommentRange(line("'<"), line("'>"), getpos("v"))<CR>gv=
+nnoremap <silent> <unique> <script> <Plug>(commentarium-undo) <ScriptCmd>commentarium.UndoComment(line('.'), col('.'))<CR>
+vnoremap <silent> <unique> <script> <Plug>(commentarium-undo-range)
+  \ <ESC><ScriptCmd>commentarium.UndoCommentRange(line("'<"), line("'>"), getpos("v"))<CR>gv=
 
 # set mappings
 if get(g:, 'commentarium_no_mappings') == 0
   if empty(mapcheck("<leader>/", "n"))
     nnoremap <leader>/ <Plug>(commentarium-do)
   endif
+  if empty(mapcheck("<leader>/", "v"))
+    vnoremap <leader>/ <Plug>(commentarium-do-range)
+  endif
   if empty(mapcheck("<leader>?", "n"))
     nnoremap <leader>? <Plug>(commentarium-undo)
   endif
+  if empty(mapcheck("<leader>?", "v"))
+    vnoremap <leader>? <Plug>(commentarium-undo-range)
+  endif
+  if empty(mapcheck("<leader>*", "v"))
+    vnoremap <leader>* <ESC>'<<ESC>O/*<ESC>'><ESC>o*/<ESC>
+  endif
+  if empty(mapcheck("<leader><", "v"))
+    vnoremap <leader>< <ESC>'<<ESC>O<!--<ESC>'><ESC>o--><ESC>
+  endif
 endif
+
+# TODO: undo
+# // comment1
+# // comment2
+# // ...
+# vnoremap <leader>\ <ESC>:'<,'>s/\/\///g<ESC>gv=
 
 # set commands
 if get(g:, 'commentarium_no_commands') == 0
-  command! CommentariumComment commentarium.DoComment()
-  command! CommentariumUncomment commentarium.UndoComment()
+  command! CommentariumComment commentarium.DoComment(line('.'), col('.'))
+  command! CommentariumUncomment commentarium.UndoComment(line('.'), col('.'))
 endif
