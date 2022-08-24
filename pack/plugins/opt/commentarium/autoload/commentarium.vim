@@ -26,30 +26,40 @@ enddef
 
 # comment C-style block /* comment */
 def CommentCStyleBlock(line: number, col: number)
+  cursor(line, col)
+  execute "normal! ^"
   execute "normal! I/*\<SPACE>\<ESC>A\<SPACE>*/\<ESC>"
   cursor(line, col + 3)
 enddef
 
 # comment C-style line // comment
 def CommentCStyleLine(line: number, col: number)
+  cursor(line, col)
+  execute "normal! ^"
   execute "normal! I//\<SPACE>"
   cursor(line, col + 3)
 enddef
 
 # comment hash style # comment
 def CommentHashStyle(line: number, col: number)
+  cursor(line, col)
+  execute "normal! ^"
   execute "normal! I#\<SPACE>\<ESC>"
   cursor(line, col + 2)
 enddef
 
 # comment HTML tag <!-- comment -->
 def CommentHtmlTag(line: number, col: number)
+  cursor(line, col)
+  execute "normal! ^"
   execute "normal! I\<!--\<SPACE>\<ESC>A\<SPACE>-->"
   cursor(line, col + 5)
 enddef
 
 # comment Vim legacy " comment or Vim9 # comment
 def CommentVim(line: number, col: number)
+  cursor(line, col)
+  execute "normal! ^"
   # TODO: detect more precisely if running inside a vim9script
   if getline(1) =~ '^vim9script'
     execute "normal! I#\<SPACE>\<ESC>"
@@ -65,7 +75,7 @@ def UndoCommentCStyleBlock(line: number, col: number): void
   var trimline: string
   cursor(line, col)
   execute "normal! ^"
-  trimline = trim(getline(line), " ", 0)
+  trimline = trim(getline(line))
   if trimline[0 : 1] != "/*" || trimline[-2 : -1] != "*/"
     cursor(line, col)
     return
@@ -81,7 +91,7 @@ def UndoCommentCStyleLine(line: number, col: number): void
   var trimline: string
   cursor(line, col)
   execute "normal! ^"
-  trimline = trim(getline(line), " ", 1)
+  trimline = trim(getline(line))
   if trimline[0 : 1] != "//"
     cursor(line, col)
     return
@@ -97,7 +107,7 @@ def UndoCommentHashStyle(line: number, col: number): void
   var trimline: string
   cursor(line, col)
   execute "normal! ^"
-  trimline = trim(getline(line), " ", 1)
+  trimline = trim(getline(line))
   if trimline[0] != "#"
     cursor(line, col)
     return
@@ -113,7 +123,7 @@ def UndoCommentHtmlTag(line: number, col: number): void
   var trimline: string
   cursor(line, col)
   execute "normal! ^"
-  trimline = trim(getline(line), " ", 0)
+  trimline = trim(getline(line))
   if trimline[0 : 4] != "<!-- " || trimline[-4 : -1] != " -->"
     cursor(line, col)
     return
@@ -129,7 +139,7 @@ def UndoCommentVim(line: number, col: number): void
   var trimline: string
   cursor(line, col)
   execute "normal! ^"
-  trimline = trim(getline(line), " ", 1)
+  trimline = trim(getline(line))
   if trimline[0] != '"' && trimline[0] != '#'
     cursor(line, col)
     return

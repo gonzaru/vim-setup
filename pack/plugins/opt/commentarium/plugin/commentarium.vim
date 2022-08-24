@@ -50,5 +50,13 @@ endif
 # set commands
 if get(g:, 'commentarium_no_commands') == 0
   command! CommentariumComment commentarium.DoComment(line('.'), col('.'))
+  command! -range CommentariumCommentRange {
+    commentarium.DoCommentRange(<line1>, <line2>, getpos('.'))
+    normal! <line1>G=<line2>G
+  }
   command! CommentariumUncomment commentarium.UndoComment(line('.'), col('.'))
+  command! -range CommentariumUncommentRange {
+    commentarium.UndoCommentRange(<line1>, <line2>, getpos('.'))
+    normal! <line1>G=<line2>G
+  }
 endif
