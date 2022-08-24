@@ -38,7 +38,8 @@ nnoremap <silent> <unique> <script> <Plug>(misc-doc) <ScriptCmd>misc.Doc(&filety
 
 # set commands
 if get(g:, 'misc_no_commands') == 0
-  command! -nargs=1 -complete=file -complete=buffer MiscEditTop misc.EditTop(<f-args>)
+  command! -nargs=1 -complete=buffer MiscEditTopBuffer misc.EditTop(<f-args>)
+  command! -nargs=1 -complete=file MiscEditTopFile misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
   command! MiscDiffToggle misc.DiffToggle()
