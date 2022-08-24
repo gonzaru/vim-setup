@@ -62,6 +62,7 @@ g:checker_enabled = 1         # checker plugin
 g:commentarium_enabled = 1    # comment by language
 g:complementum_enabled = 1    # complete by language
 g:cyclebuffers_enabled = 1    # cycle between buffers
+g:documentare_enabled = 1     # document information helper
 g:format_enabled = 1          # format things
 g:misc_enabled = 1            # miscelania functions
 g:runprg_enabled = 1          # run programs
@@ -83,6 +84,7 @@ const plugins = [
   'commentarium',
   'complementum',
   'cyclebuffers',
+  'documentare',
   'format',
   'runprg',
   'scratch',

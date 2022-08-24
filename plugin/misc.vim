@@ -29,7 +29,6 @@ enddef
 
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd><SID>GoLastEditCursorPos()<CR>
-nnoremap <silent> <unique> <script> <Plug>(misc-doc) <ScriptCmd>misc.Doc(&filetype)<CR>
 
 # TODO:
 # set mappings
@@ -43,7 +42,6 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
   command! MiscDiffToggle misc.DiffToggle()
-  command! MiscDoc misc.Doc(&filetype)
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
   command! MiscGoLastEditCursor GoLastEditCursorPos()

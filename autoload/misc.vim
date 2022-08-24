@@ -36,58 +36,6 @@ export def DiffToggle()
   v:statusmsg = "diff=" .. &diff
 enddef
 
-# generates documentation
-export def Doc(atype: string): void
-  var curline: string
-  var cword: string
-  var pfile: string
-  var word: string
-  if index(["python", "go"], &filetype) == -1
-    utils.EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
-    return
-  endif
-  if &filetype != atype
-    utils.EchoErrorMsg("Error: running type '" .. atype .. "' on filetype '" .. &filetype .. "' is not supported")
-    return
-  endif
-  cword = expand("<cWORD>")
-  if empty(cword) || index(["(", ")", "()"], cword) >= 0
-    utils.EchoErrorMsg("Error: word is empty or invalid")
-    return
-  endif
-  word = shellescape(trim(split(cword, "(")[0], '"'))
-  if empty(word)
-    utils.EchoErrorMsg("Error: word is empty")
-    return
-  endif
-  pfile = "(" .. atype .. "doc)" .. word
-  if bufexists(pfile)
-    silent execute "bw! " .. pfile
-  endif
-  new
-  silent execute "file " .. pfile
-  setlocal buftype=nowrite
-  setlocal bufhidden=hide
-  setlocal noswapfile
-  setlocal nobuflisted
-  if atype == "python"
-    appendbufline('%', 0, systemlist("python3 -m pydoc " .. word))
-  elseif atype == "go"
-    appendbufline('%', 0, systemlist("go doc " .. word))
-  endif
-  deletebufline('%', '$')
-  cursor(1, 1)
-  curline = getline(".")
-  if (atype == "python" && curline =~ "No Python documentation found for ")
-  || (atype == "go" && (curline =~ "doc: no symbol ") || curline =~ "doc: no buildable Go source files in ")
-    bw
-    v:errmsg = "Warning: no " .. atype .. " documentation found for " .. word
-    utils.EchoWarningMsg("Warning: " .. v:errmsg)
-  else
-    v:errmsg = ""
-  endif
-enddef
-
 # edit using a top window
 export def EditTop(file: string)
   if filereadable(file)
