@@ -42,6 +42,11 @@ enddef
 
 # toggle arrow keys
 export def Toggle()
+  if g:arrowkeys_enabled
+    Disable()
+  else
+    Enable()
+  endif
   g:arrowkeys_enabled = !get(g:, "arrowkeys_enabled")
   v:statusmsg = "arrowkeys=" .. g:arrowkeys_enabled
 enddef

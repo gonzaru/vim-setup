@@ -50,7 +50,7 @@ enddef
 export def Close()
   var runwinid = GetRunBufWinId()
   if runwinid > 0
-    win_execute(runwinid, "close")
+    win_execute(runwinid, "bw")
   endif
 enddef
 
@@ -72,11 +72,29 @@ export def Run(file: string): void
   endif
 enddef
 
-# run using a window
+# run setup window
+export def RunSetupWindow()
+  var bid = GetRunBufWinId()
+  if bid > 0
+    win_gotoid(bid)
+  elseif bufexists(RUNPRG_BUFFER_NAME) && getbufinfo(RUNPRG_BUFFER_NAME)[0].hidden
+    execute "rightbelow split " .. RUNPRG_BUFFER_NAME
+  else
+    below new
+    setlocal winfixheight
+    setlocal winfixwidth
+    setlocal buftype=nowrite
+    setlocal noswapfile
+    setlocal buflisted
+    execute "file " .. RUNPRG_BUFFER_NAME
+  endif
+enddef
+
+# run with window
 export def RunWindow(file: string): void
-  var selwinid = win_getid()
-  var runwinid = GetRunBufWinId()
   var outmsg: list<string>
+  var runwinid = GetRunBufWinId()
+  var selwinid = win_getid()
   if selwinid == runwinid
     EchoWarningMsg("Warning: already using the same window " .. RUNPRG_BUFFER_NAME)
     return
@@ -99,22 +117,11 @@ export def RunWindow(file: string): void
     EchoWarningMsg("Warning: empty output")
     return
   endif
-  if runwinid > 0
-    win_gotoid(runwinid)
-  elseif bufexists(RUNPRG_BUFFER_NAME) && getbufinfo(RUNPRG_BUFFER_NAME)[0].hidden
-    execute "rightbelow split " .. RUNPRG_BUFFER_NAME
-  else
-    below new
-    setlocal winfixheight
-    setlocal winfixwidth
-    setlocal buftype=nowrite
-    setlocal noswapfile
-    setlocal buflisted
-    execute "file " .. RUNPRG_BUFFER_NAME
-  endif
+  RunSetupWindow()
+  runwinid = GetRunBufWinId()
   appendbufline(RUNPRG_BUFFER_NAME, 0, outmsg)
   deletebufline(RUNPRG_BUFFER_NAME, '$')
-  cursor(1, 1)
-  execute "resize " .. len(outmsg)
+  win_execute(runwinid, "cursor(1, 1)")
+  win_execute(runwinid, "resize " .. len(outmsg))
   win_gotoid(selwinid)
 enddef

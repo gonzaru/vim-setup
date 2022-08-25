@@ -21,14 +21,14 @@ enddef
 export def Cycle(): void
   var bufinfo = getbufinfo({'buflisted': 1})
   var buflist: list<string>
-  var curbuf = resolve(fnamemodify(bufname("%"), ":~"))
+  var curbuf = fnamemodify(bufname("%"), ":~")
   var idx: number
   if len(bufinfo) == 1
-    EchoWarningMsg("Warning: already using only one buffer")
+    EchoWarningMsg("Warning: there is only one buffer available")
     return
   endif
   for buf in bufinfo
-    add(buflist, resolve(fnamemodify(bufname(buf.name), ":~")))
+    add(buflist, fnamemodify(bufname(buf.name), ":~"))
   endfor
   topleft new
   appendbufline('%', 0, buflist)

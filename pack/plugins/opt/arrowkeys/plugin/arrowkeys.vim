@@ -14,6 +14,7 @@ import autoload '../autoload/arrowkeys.vim'
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(arrowkeys-enable) <ScriptCmd>arrowkeys.Enable()<CR>
 nnoremap <silent> <unique> <script> <Plug>(arrowkeys-disable) <ScriptCmd>arrowkeys.Disable()<CR>
+nnoremap <silent> <unique> <script> <Plug>(arrowkeys-toggle) <ScriptCmd>arrowkeys.Toggle()<CR>
 
 # set mappings
 if get(g:, 'arrowkeys_no_mappings') == 0
@@ -22,6 +23,9 @@ if get(g:, 'arrowkeys_no_mappings') == 0
   endif
   if empty(mapcheck("<leader>ad", "n"))
     nnoremap <leader>ad <Plug>(arrowkeys-disable)
+  endif
+  if empty(mapcheck("<leader>at", "n"))
+    nnoremap <leader>at <Plug>(arrowkeys-toggle)
   endif
 endif
 
