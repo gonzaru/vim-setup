@@ -8,7 +8,7 @@ vim9script
 # endif
 # b:current_syntax_after = 1
 
-# fmt.Printf("Hello world!")  (matches fmt)
+# fmt.Printf("Hello world!") (matches fmt)
 if hlexists('goCustomFunctionName')
   syntax clear goCustomFunctionName
   syntax match goCustomFunctionName '\w\+\ze\(\.\w\+\)\+'

@@ -19,7 +19,7 @@ const COMMENT_VIM = ["vim"]
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
-    echom  msg
+    echom msg
     echohl None
   endif
 enddef

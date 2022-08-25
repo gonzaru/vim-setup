@@ -2,13 +2,13 @@ vim9script
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
-# g:  global variables
-# b:  local buffer variables
-# w:  local window variables
-# t:  local tab page variables
-# s:  script-local variables
-# l:  local function variables
-# v:  Vim variables.
+# g: global variables
+# b: local buffer variables
+# w: local window variables
+# t: local tab page variables
+# s: script-local variables
+# l: local function variables
+# v: Vim variables.
 
 # do not read the file if it is already loaded
 if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled') || &cp
@@ -99,11 +99,11 @@ export def MenuLanguageSpell(): void
   var langchoice = inputlist(
     [
       'Select:',
-      '1.  English',
-      '2.  Spanish',
-      '3.  Catalan',
-      '4.  Russian',
-      '5.  Disable spell'
+      '1. English',
+      '2. Spanish',
+      '3. Catalan',
+      '4. Russian',
+      '5. Disable spell'
     ]
   )
   if empty(langchoice)
@@ -138,9 +138,9 @@ export def MenuMisc(): void
   var choice = inputlist(
     [
       'Select:',
-      '1.  Enable arrow keys',
-      '2.  Disable arrow keys',
-      '3.  Toggle gui menu bar'
+      '1. Enable arrow keys',
+      '2. Disable arrow keys',
+      '3. Toggle gui menu bar'
     ]
   )
   if empty(choice)

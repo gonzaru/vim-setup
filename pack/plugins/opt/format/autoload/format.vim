@@ -22,7 +22,7 @@ const FORMAT_LANGUAGE_COMMAND = {
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
-    echom  msg
+    echom msg
     echohl None
   endif
 enddef

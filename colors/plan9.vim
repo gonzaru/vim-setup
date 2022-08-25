@@ -16,7 +16,7 @@ vim9script
 
 # do not read the file if it is already loaded
 if get(g:, 'loaded_plan9') == 1 && get(g:, 'colors_name') == "plan9"
-   finish
+  finish
 endif
 g:loaded_plan9 = 1
 

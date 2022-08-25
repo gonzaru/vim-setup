@@ -6,8 +6,8 @@ vim9script
 
 # do not read the file if it is already loaded
 if get(g:, 'loaded_darkula') == 1 && get(g:, 'colors_name') == "darkula"
-   finish
- endif
+  finish
+endif
 g:loaded_darkula = 1
 
 # dark background
@@ -247,21 +247,21 @@ execute "highlight! goCustomFunctionName guifg=#afbf7e guibg=" .. COLORS['normal
 
 # vim syntax
 execute "highlight! vimEnvVar guifg=#b09d79 guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=137 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
-highlight! link vimFunction    Normal
-highlight! link vimFuncVar     Normal
-highlight! link vimOption      Normal
-highlight! link vimUserFunc    Normal
-highlight! link vimVar         Normal
-highlight! link vimFBVar       Normal
-highlight! link vimHLGroup     Normal
-highlight! link vimEchoHLNone  Normal
+highlight! link vimFunction Normal
+highlight! link vimFuncVar Normal
+highlight! link vimOption Normal
+highlight! link vimUserFunc Normal
+highlight! link vimVar Normal
+highlight! link vimFBVar Normal
+highlight! link vimHLGroup Normal
+highlight! link vimEchoHLNone Normal
 execute "highlight! vimFuncName guifg=#afbf7e guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=144 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 
 # sh syntax
-highlight! link shVariable        Normal
-highlight! link shOption          Normal
-highlight! link shFunction        Normal
-highlight! link shShellVariables  Normal
-highlight! link shQuote           String
+highlight! link shVariable Normal
+highlight! link shOption Normal
+highlight! link shFunction Normal
+highlight! link shShellVariables Normal
+highlight! link shQuote String
 # TODO match function color for function name() <--
 # TODO match parenthesis colors if (( )) <--

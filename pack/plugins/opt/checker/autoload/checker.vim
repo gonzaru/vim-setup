@@ -85,7 +85,7 @@ const CHECKER_FILES = {
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
-    echom  msg
+    echom msg
     echohl None
   endif
 enddef
@@ -94,7 +94,7 @@ enddef
 def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
-    echom  msg
+    echom msg
     echohl None
   endif
 enddef

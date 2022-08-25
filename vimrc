@@ -728,7 +728,7 @@ endif
 augroup event_buffer
   autocmd!
   if g:misc_enabled
-    autocmd BufReadPost * :execute "normal! \<Plug>(misc-golasteditcursor)"
+    autocmd BufReadPost * execute "normal! \<Plug>(misc-golasteditcursor)"
   endif
 augroup END
 
