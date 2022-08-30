@@ -84,7 +84,9 @@ export def Help()
     ~        # change to home directory
     r        # refresh the current directory
     f        # follow the current file
-    =        # resize Se window [<BS>]
+    h        # resize Se window to the left
+    l        # resize Se window to the right
+    =        # resize Se window to default size [<BS>]
     <ESC>    # close Se window
     H        # shows Se help information [K]
   END
