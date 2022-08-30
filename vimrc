@@ -338,7 +338,7 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full}
-  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
   # vim9
   # set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
   # &statusline ..= ' %{' .. statusline.GetStatus->string() .. '()}'
