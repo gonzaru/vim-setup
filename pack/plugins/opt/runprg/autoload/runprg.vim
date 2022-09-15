@@ -73,7 +73,7 @@ export def Run(file: string): void
 enddef
 
 # run setup window
-export def RunSetupWindow()
+def RunSetupWindow()
   var bid = GetRunBufWinId()
   if bid > 0
     win_gotoid(bid)
