@@ -266,12 +266,13 @@ if has('gui_running')
     execute "set viminfofile=" .. $HOME .. "/.viminfo_" .. v:version
     set guifont=DejaVu\ Sans\ Mono\ 12
   endif
-  set guioptions=acM               # do not load menus for gui (default aegimrLtT)
-  set guiheadroom=0                # when zero, the whole screen height will be used by the window
-  set mouseshape-=v:rightup-arrow  # by default uses a left arrow that confuses
-  set mouseshape+=v:beam           # change it by beam shape (as in other apps)
-  set mousehide                    # hide the mouse pointer while typing (default on)
-  set winaltkeys=no                # disable the access to menu gui entries by using the ALT key
+  set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
+  set guioptions=acM                                   # do not load menus for gui (default aegimrLtT)
+  set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
+  set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
+  set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
+  set mousehide                                        # hide the mouse pointer while typing (default on)
+  set winaltkeys=no                                    # disable the access to menu gui entries by using the ALT key
 endif
 
 # if *syntax manual*, set it *before* filetype plugin on
@@ -340,7 +341,7 @@ if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full}
   set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
   # vim9
-  # set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
+  # set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
   # &statusline ..= ' %{' .. statusline.GetStatus->string() .. '()}'
   # &statusline ..= ' %-15.(%l,%c%V%) %P'
 else
