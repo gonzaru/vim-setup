@@ -494,7 +494,6 @@ endif
 # <C-@> needs to be entered as <C-S-2>
 
 # mapping leaders
-# mapleader
 g:mapleader = "\<C-s>"
 
 # alternative second leader
@@ -509,9 +508,11 @@ inoremap <leader><C-w> <C-o>:update<CR>
 
 # edit
 nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
+nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
 nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. "/.vim/**," .. $VIMRUNTIME .. "/**")<CR>
 nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
+nnoremap <leader>e; mt<ESC>$a;<ESC>`t
 
 # completion
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
@@ -521,20 +522,19 @@ nnoremap <leader>eb :browse oldfiles<CR>
 nnoremap <leader>sv :source $HOME/.vim/vimrc<CR>
 nnoremap <leader>sV <ScriptCmd>g:loaded_vimrc = 0<CR>:source $HOME/.vim/vimrc<CR>
 nnoremap <leader>st :Theme<CR>
-nnoremap <leader>sa <ScriptCmd>g:loaded_vimrc=0<CR>:source $HOME/.vim/vimrc<CR>:Theme<CR>
+nnoremap <leader>sa <ScriptCmd>g:loaded_vimrc = 0<CR>:source $HOME/.vim/vimrc<CR>:Theme<CR>
 
 # toggle
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgR :set relativenumber! relativenumber? \| echon " (set)"<CR>
-nnoremap <leader>tgj :setlocal joinspaces! joinspaces? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgJ :set joinspaces! joinspaces? \| echon " (set)"<CR>
-nnoremap <leader>tgl :setlocal list! list?<CR>
+nnoremap <leader>tgj :setlocal joinspaces! joinspaces?<CR>
+nnoremap <leader>tgl :setlocal list! list? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgL :set list! list? \| echon " (set)"<CR>
 nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
 nnoremap <leader>tgp :setlocal paste! paste?<CR>
-nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgW :set autowrite! autowrite? \| echon " (set)"<CR>
+nnoremap <leader>tgw :setlocal autowrite! autowrite?<CR>
 nnoremap <leader>* :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
@@ -558,8 +558,7 @@ else
   nnoremap <leader>sh :sh<CR>
 endif
 
-# run
-nnoremap <leader>; mt<ESC>$a;<ESC>`t
+# terminal
 nnoremap <silent><leader><CR> :below terminal<CR>
 if has('gui_running')
   nnoremap <silent><leader><C-CR> :below terminal<CR>
@@ -585,8 +584,10 @@ vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 
 # gui
 if has('gui_running')
-  map <S-Insert> <Nop>
-  map! <S-Insert> <MiddleMouse>
+  if has('linux')
+    map <S-Insert> <Nop>
+    map! <S-Insert> <MiddleMouse>
+  endif
   if g:misc_enabled
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
