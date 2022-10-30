@@ -535,7 +535,7 @@ nnoremap <leader>tgL :set list! list? \| echon " (set)"<CR>
 nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
 nnoremap <leader>tgp :setlocal paste! paste?<CR>
 nnoremap <leader>tgw :setlocal autowrite! autowrite?<CR>
-nnoremap <leader>* :nohlsearch<CR>
+nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgs <ScriptCmd>misc.SyntaxToggle()<CR>:echo v:statusmsg<CR>

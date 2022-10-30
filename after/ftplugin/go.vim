@@ -27,11 +27,6 @@ setlocal noexpandtab
 setlocal keywordprg=go\ doc
 # setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
-if get(g:, "documentare_enabled")
-  if empty(mapcheck("<leader>K", "n"))
-    nnoremap <buffer><leader>K <Plug>(documentare-doc)
-  endif
-endif
 if get(g:, "complementum_enabled")
   if empty(mapcheck(".", "i"))
     inoremap <silent><buffer>. .<Plug>(complementum-goinsertautocomplete)

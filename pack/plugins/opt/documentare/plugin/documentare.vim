@@ -17,9 +17,9 @@ nnoremap <silent> <unique> <script> <Plug>(documentare-close) <ScriptCmd>documen
 
 # set mappings
 if get(g:, 'documentare_no_mappings') == 0
-  # if empty(mapcheck("<leader>K", "n"))
-  #   nnoremap <leader>K <Plug>(documentare-doc)
-  # endif
+  if empty(mapcheck("<leader>K", "n"))
+    nnoremap <leader>K <Plug>(documentare-doc)
+  endif
 endif
 
 # set commands

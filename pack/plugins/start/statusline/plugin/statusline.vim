@@ -26,10 +26,12 @@ nnoremap <silent> <unique> <script> <Plug>(statusline-git-enable) :StatusLineGit
 nnoremap <silent> <unique> <script> <Plug>(statusline-git-disable) :StatusLineGitDisable<CR>
 nnoremap <silent> <unique> <script> <Plug>(statusline-git-toggle) :StatusLineGitToggle<CR>
 
-# TODO:
 # set mappings
-# if get(g:, 'statusline_no_mappings') == 0
-# endif
+if get(g:, 'statusline_no_mappings') == 0
+  if empty(mapcheck("<leader>tgg", "n"))
+    nnoremap <leader>tgg <Plug>(statusline-git-toggle)
+  endif
+endif
 
 # set commands
 if get(g:, 'statusline_no_commands') == 0

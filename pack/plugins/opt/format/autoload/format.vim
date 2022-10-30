@@ -27,47 +27,17 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# format sh
-def FormatSH(file: string): void
-  var cmd = FORMAT_LANGUAGE_COMMAND['sh']->split(" ")[0]
+# format
+def Format(filetype: string, file: string): void
+  var cmd = FORMAT_LANGUAGE_COMMAND[filetype]->split(" ")[0]
   var outmsg: list<string>
-  outmsg = systemlist(FORMAT_LANGUAGE_COMMAND['sh'] .. " " .. file)
+  outmsg = systemlist(FORMAT_LANGUAGE_COMMAND[filetype] .. " " .. file)
   if v:shell_error != 0
     EchoErrorMsg("Error: command '" .. cmd .. "' failed to execute correctly")
     return
   endif
   checktime
-  if empty(outmsg)
-    echo "Info: file was not modified (" .. cmd .. ")"
-  endif
-enddef
-
-# format python
-def FormatPY(file: string): void
-  var cmd = FORMAT_LANGUAGE_COMMAND['python']->split(" ")[0]
-  var outmsg: list<string>
-  outmsg = systemlist(FORMAT_LANGUAGE_COMMAND['python'] .. " " .. file)
-  if v:shell_error != 0
-    EchoErrorMsg("Error: command '" .. cmd .. "' failed to execute correctly")
-    return
-  endif
-  checktime
-  if empty(outmsg) || index(outmsg, "1 file left unchanged.") >= 0
-    echo "Info: file was not modified (" .. cmd .. ")"
-  endif
-enddef
-
-# format go
-def FormatGO(file: string): void
-  var cmd = FORMAT_LANGUAGE_COMMAND['go']->split(" ")[0]
-  var outmsg: list<string>
-  outmsg = systemlist(FORMAT_LANGUAGE_COMMAND['go'] .. " " .. file)
-  if v:shell_error != 0
-    EchoErrorMsg("Error: command '" .. cmd .. "' failed to execute correctly")
-    return
-  endif
-  checktime
-  if empty(outmsg)
+  if empty(outmsg) || (filetype == "python" && index(outmsg, "1 file left unchanged.") >= 0)
     echo "Info: file was not modified (" .. cmd .. ")"
   endif
 enddef
@@ -84,11 +54,5 @@ export def Language(file: string): void
     EchoErrorMsg("Error: command '" .. cmd .. "' not found")
     return
   endif
-  if &filetype == "sh"
-    FormatSH(file)
-  elseif &filetype == "python"
-    FormatPY(file)
-  elseif &filetype == "go"
-    FormatGO(file)
-  endif
+  Format(&filetype, file)
 enddef

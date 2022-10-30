@@ -2,13 +2,13 @@ vim9script
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
-# g:  global variables
-# b:  local buffer variables
-# w:  local window variables
-# t:  local tab page variables
-# s:  script-local variables
-# l:  local function variables
-# v:  Vim variables.
+# g: global variables
+# b: local buffer variables
+# w: local window variables
+# t: local tab page variables
+# s: script-local variables
+# l: local function variables
+# v: Vim variables.
 
 # do not read the file if it is already loaded
 if exists('g:loaded_misc') || !get(g:, 'misc_enabled') || &cp

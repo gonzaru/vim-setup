@@ -95,7 +95,8 @@ export def Doc(type: string): void
   # TODO:
   # if win_getid() == GetDocBufWinId()
   #   EchoWarningMsg("Warning: already using the same window " .. DOCUMENTARE_BUFFER_NAME)
-  # return
+  #   return
+  # endif
   cword = expand("<cWORD>")
   if empty(cword) || index(["(", ")", "()"], cword) >= 0
     EchoErrorMsg("Error: word is empty or invalid")
