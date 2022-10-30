@@ -86,7 +86,7 @@ def RunSetupWindow()
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    execute "file " .. RUNPRG_BUFFER_NAME
+    silent execute "file " .. RUNPRG_BUFFER_NAME
   endif
 enddef
 

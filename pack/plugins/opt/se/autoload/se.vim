@@ -147,7 +147,7 @@ def Show(filepath: string)
       # put into to the first left window
       topleft vnew
     endif
-    execute "silent file " .. SE_BUFFER_NAME
+    silent execute "file " .. SE_BUFFER_NAME
     setlocal filetype=se
     execute "lcd " .. fnameescape(prevcwd)
     Populate(prevcwd)
