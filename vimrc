@@ -64,6 +64,7 @@ g:complementum_enabled = 1    # complete by language
 g:cyclebuffers_enabled = 1    # cycle between buffers
 g:documentare_enabled = 1     # document information helper
 g:format_enabled = 1          # format things
+g:git_enabled = 1             # git vcs
 g:misc_enabled = 1            # miscelania functions
 g:runprg_enabled = 1          # run programs
 g:scratch_enabled = 1         # scratch stuff
@@ -86,6 +87,7 @@ const plugins = [
   'cyclebuffers',
   'documentare',
   'format',
+  'git',
   'runprg',
   'scratch',
   'se',
@@ -97,6 +99,11 @@ for plugin in plugins
     execute "packadd! " .. plugin
   endif
 endfor
+
+# git plugin
+if g:git_enabled
+  g:git_position = "top"  # top, bottom
+endif
 
 # se plugin (simple explorer)
 if g:se_enabled
