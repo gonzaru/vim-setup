@@ -248,7 +248,7 @@ if !has('gui_running')
     &t_ZR = "\e[23m"
   endif
 
-  # 24-bit terminal color &t_Co is a string
+  # 24-bit terminal color, &t_Co is a string
   if has('termguicolors') && &t_Co >= '256'
     if (xterm || xterm_tmux || alacritty || alacritty_tmux) && !screen
       # :help xterm-true-color
@@ -370,7 +370,7 @@ endif
 
 # vertical seperator for vertical split windows
 # fold for 'foldtext'
-# eob removes the ~ after the las buffer line
+# eob removes the ~ after the last buffer line
 set fillchars=vert:\ ,fold:-,eob:\  # \ contains one space!
 
 # more powerful backspacing
@@ -547,10 +547,6 @@ if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgs <ScriptCmd>misc.SyntaxToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgb <ScriptCmd>misc.BackgroundToggle()<CR>:echo v:statusmsg<CR>
-endif
-
-# sign, fold
-if g:misc_enabled
   nnoremap <leader>tgc <ScriptCmd>misc.SignColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgf <ScriptCmd>misc.FoldColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgz <ScriptCmd>misc.FoldToggle()<CR>:echo v:statusmsg<CR>
@@ -567,9 +563,6 @@ endif
 
 # terminal
 nnoremap <silent><leader><CR> :below terminal<CR>
-if has('gui_running')
-  nnoremap <silent><leader><C-CR> :below terminal<CR>
-endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
 
@@ -657,7 +650,7 @@ if g:misc_enabled
   nnoremap <leader>sl <ScriptCmd>misc.MenuLanguageSpell()<CR>
 endif
 
-# diff original file with unwritted changes
+# diff
 if g:misc_enabled
   nnoremap <localleader>dt <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
 endif
@@ -669,15 +662,13 @@ nnoremap <localleader>= :1,$+1diffget<CR>
 nnoremap <localleader>, :.,.diffget<CR>
 nnoremap <localleader>. :.,.diffput<CR>
 nnoremap <localleader>/ :diffupdate<CR>
-
-# diff
 command! DiffGetAll :1,$+1diffget
 command! DiffPutAll :1,$+1diffput
 command! DiffGetLine :.,.diffget
 command! DiffPutLine :.,.diffput
-# from defaults.vim
+# diff original file with unwritted changes (defaults.vim)
 if !exists(":DiffOrig")
-  command DiffOrig vert new | set bt=nofile | silent! r ++edit %% | :0d _ | diffthis | wincmd p | diffthis
+  command DiffOrig vertical new | set bt=nofile | silent! read ++edit %% | :0d _ | diffthis | wincmd p | diffthis
 endif
 
 # windows
@@ -693,6 +684,7 @@ command! SwapWindow :execute "normal! \<C-w>x"
 # menu misc
 if g:misc_enabled
   nnoremap <silent><leader><F10> <ScriptCmd>misc.MenuMisc()<CR>
+  nnoremap <silent><leader>f0 <ScriptCmd>misc.MenuMisc()<CR>
 endif
 
 # plan9 theme
