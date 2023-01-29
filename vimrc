@@ -513,6 +513,14 @@ set termwinkey=<C-s>
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-o>:update<CR>
 
+# escape
+# <C-l> goes to normal mode in evim/insertmode
+# <C-l> adds one character from the current match in completion
+# :help popupmenu-keys
+inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<ESC>'
+vnoremap <C-l> <ESC>
+cnoremap <C-l> <C-c>
+
 # edit
 nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
 nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
