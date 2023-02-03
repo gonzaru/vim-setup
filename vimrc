@@ -32,6 +32,9 @@ var apple_terminal_tmux = $TMUX_PARENT_TERM_PROGRAM == "Apple_Terminal" && tmux 
 var alacritty = &term =~ "alacritty" && !multiplexer                                   # alacritty
 var alacritty_screen = $SCREEN_PARENT_TERM =~ "alacritty" && screen                    # alacritty + screen
 var alacritty_tmux = $TMUX_PARENT_TERM =~ "alacritty" && tmux                          # alacritty + tmux
+var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer              # jediterm
+var jediterm_screen = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && screen             # jediterm + screen
+var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux                 # jediterm + tmux
 
 # don't load defaults.vim
 g:skip_defaults_vim = 1
@@ -225,10 +228,10 @@ if !has('gui_running')
     &t_SI ..= "\eP\e[5 q\e\\"
     &t_SR ..= "\eP\e[3 q\e\\"
     &t_EI ..= "\eP\e[1 q\e\\"
-  elseif xterm || xterm_screen || xterm_tmux
-    &t_SI ..= "\eP\e[6 q\e\\"
-    &t_SR ..= "\eP\e[4 q\e\\"
-    &t_EI ..= "\eP\e[2 q\e\\"
+  elseif xterm || xterm_screen || xterm_tmux || jediterm || jediterm_screen || jediterm_tmux
+    &t_SI ..= "\e[6 q"
+    &t_SR ..= "\e[4 q"
+    &t_EI ..= "\e[2 q"
   endif
 
   # screen/tmux/alacritty mouse codes
@@ -250,10 +253,12 @@ if !has('gui_running')
 
   # 24-bit terminal color, &t_Co is a string
   if has('termguicolors') && &t_Co >= '256'
-    if (xterm || xterm_tmux || alacritty || alacritty_tmux) && !screen
+    if (xterm || xterm_tmux || alacritty || alacritty_tmux || jediterm || jediterm_tmux) && !screen
       # :help xterm-true-color
-      &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
-      &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+      if !jediterm
+        &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+        &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+      endif
       set termguicolors
     else
       set notermguicolors
