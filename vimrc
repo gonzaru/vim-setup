@@ -324,7 +324,11 @@ endif
 
 # mouse support
 if has('mouse')
-  set mouse=a
+  if has('gui_running')
+    set mouse=a
+  else
+    set mouse=
+  endif
 endif
 
 # prevents that the langmap option applies to characters (from defaults.vim)
