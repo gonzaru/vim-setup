@@ -16,25 +16,23 @@ g:loaded_vimrc = 1  # already loaded
 import autoload './autoload/misc.vim'
 
 # config variables
-var colortheme = "darkula"                                                             # theme
-var background = "dark"                                                                # background
-var hostname = hostname()                                                              # hostname
-var tmux = !empty($TMUX) || &term =~ "tmux"                                            # tmux
-var screen = (!empty($STY) || &term =~ "screen") && !tmux                              # screen
-var multiplexer = screen || tmux                                                       # multiplexer
-# var vim_terminal = !empty($VIM_TERMINAL)                                             # vim terminal mode
-var xterm = !empty($XTERM_VERSION) && !multiplexer                                     # xterm
-var xterm_screen = !empty($SCREEN_PARENT_XTERM_VERSION) && screen                      # xterm + screen
-var xterm_tmux = !empty($TMUX_PARENT_XTERM_VERSION) && tmux                            # xterm + tmux
-var apple_terminal = $TERM_PROGRAM == "Apple_Terminal" && !multiplexer                 # terminal.app
-var apple_terminal_screen = $SCREEN_PARENT_TERM_PROGRAM == "Apple_Terminal" && screen  # terminal.app + screen
-var apple_terminal_tmux = $TMUX_PARENT_TERM_PROGRAM == "Apple_Terminal" && tmux        # terminal.app + tmux
-var alacritty = &term =~ "alacritty" && !multiplexer                                   # alacritty
-var alacritty_screen = $SCREEN_PARENT_TERM =~ "alacritty" && screen                    # alacritty + screen
-var alacritty_tmux = $TMUX_PARENT_TERM =~ "alacritty" && tmux                          # alacritty + tmux
-var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer              # jediterm
-var jediterm_screen = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && screen             # jediterm + screen
-var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux                 # jediterm + tmux
+var colortheme = "darkula"                                                 # theme
+var background = "dark"                                                    # background
+var hostname = hostname()                                                  # hostname
+var tmux = !empty($TMUX) || &term =~ "tmux"                                # tmux
+var screen = (!empty($STY) || &term =~ "screen") && !tmux                  # screen
+var multiplexer = screen || tmux                                           # multiplexer
+# var vim_terminal = !empty($VIM_TERMINAL)                                 # vim terminal mode
+var xterm = !empty($XTERM_VERSION) && !multiplexer                         # xterm
+var xterm_tmux = !empty($XTERM_VERSION) && tmux                            # xterm + tmux
+var apple_terminal = $TERM_PROGRAM == "Apple_Terminal"  && !multiplexer    # terminal.app
+var apple_terminal_tmux = !empty($TERM_SESSION_ID) && tmux                 # terminal.app + tmux
+var alacritty = !empty($ALACRITTY_SOCKET) && !multiplexer                  # alacritty
+var alacritty_tmux = !empty($ALACRITTY_SOCKET) && tmux                     # alacritty + tmux
+var gnome_terminal = !empty($GNOME_TERMINAL_SCREEN) && !multiplexer        # gnome
+var gnome_terminal_tmux = !empty($GNOME_TERMINAL_SCREEN) && tmux           # gnome + tmux
+var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer  # jediterm
+var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux     # jediterm + tmux
 
 # don't load defaults.vim
 g:skip_defaults_vim = 1
@@ -222,13 +220,18 @@ if !has('gui_running')
   # &t_SR = blinking underscore   (REPLACE MODE)
   # &t_EI = blinking block        (NORMAL MODE)
   if has('mac') && (
-    apple_terminal || apple_terminal_screen || apple_terminal_tmux
-    || alacritty || alacritty_screen || alacritty_tmux
+    alacritty || alacritty_tmux
+    || apple_terminal || apple_terminal_tmux
   )
     &t_SI ..= "\eP\e[5 q\e\\"
     &t_SR ..= "\eP\e[3 q\e\\"
     &t_EI ..= "\eP\e[1 q\e\\"
-  elseif xterm || xterm_screen || xterm_tmux || jediterm || jediterm_screen || jediterm_tmux
+  elseif (
+    alacritty || alacritty_tmux
+    || gnome_terminal || gnome_terminal_tmux
+    || jediterm || jediterm_tmux
+    || xterm || xterm_tmux
+  )
     &t_SI ..= "\e[6 q"
     &t_SR ..= "\e[4 q"
     &t_EI ..= "\e[2 q"
@@ -253,7 +256,12 @@ if !has('gui_running')
 
   # 24-bit terminal color, &t_Co is a string
   if has('termguicolors') && &t_Co >= '256'
-    if (xterm || xterm_tmux || alacritty || alacritty_tmux || jediterm || jediterm_tmux) && !screen
+    if (
+      alacritty || alacritty_tmux
+      || gnome_terminal || gnome_terminal_tmux
+      || jediterm || jediterm_tmux
+      || xterm || xterm_tmux
+    ) && !screen
       # :help xterm-true-color
       if !jediterm
         &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
