@@ -86,6 +86,7 @@ export def Help()
     f        # follow the current file
     h        # resize Se window to the left
     l        # resize Se window to the right
+    o        # toggle the position of the hidden files
     =        # resize Se window to default size [<BS>]
     <ESC>    # close Se window
     H        # shows Se help information [K]

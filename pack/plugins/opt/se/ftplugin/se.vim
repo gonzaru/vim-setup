@@ -81,6 +81,9 @@ if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("h", "n"))
     nnoremap <buffer>h :execute "vertical resize "  .. (g:se_position == 'right' ? '+1' : '-1')<CR>
   endif
+  if empty(mapcheck("o", "n"))
+    nnoremap <buffer>o :vim9cmd g:se_hiddenfirst = !g:se_hiddenfirst<CR><Plug>(se-refresh)<ScriptCmd>cursor(3, 1)<CR>
+  endif
   if empty(mapcheck("<BS>", "n"))
     nnoremap <buffer><BS> :execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
   endif
