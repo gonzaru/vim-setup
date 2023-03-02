@@ -324,11 +324,7 @@ endif
 
 # mouse support
 if has('mouse')
-  if has('gui_running')
-    set mouse=a
-  else
-    set mouse=
-  endif
+  set mouse=a
 endif
 
 # prevents that the langmap option applies to characters (from defaults.vim)
@@ -530,7 +526,7 @@ set termwinkey=<C-s>
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-o>:update<CR>
 
-# escape
+# avoid the escape key
 # <C-l> goes to normal mode in evim/insertmode
 # <C-l> adds one character from the current match in completion
 # :help popupmenu-keys
