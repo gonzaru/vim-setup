@@ -64,7 +64,7 @@ g:commentarium_enabled = 1    # comment by language
 g:complementum_enabled = 1    # complete by language
 g:cyclebuffers_enabled = 1    # cycle between buffers
 g:documentare_enabled = 1     # document information helper
-g:escbacktrick_enabled = 1    # use backtrick as escape
+g:esckey_enabled = 1          # use key as escape
 g:format_enabled = 1          # format things
 g:git_enabled = 1             # git vcs
 g:misc_enabled = 1            # miscelania functions
@@ -88,7 +88,7 @@ const plugins = [
   'complementum',
   'cyclebuffers',
   'documentare',
-  'escbacktrick',
+  'esckey',
   'format',
   'git',
   'runprg',
@@ -102,6 +102,11 @@ for plugin in plugins
     execute "packadd! " .. plugin
   endif
 endfor
+
+# esckey plugin
+if g:esckey_enabled
+   g:esckey_key = "<C-l>"
+endif
 
 # git plugin
 if g:git_enabled
@@ -527,14 +532,6 @@ set termwinkey=<C-s>
 # save
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-o>:update<CR>
-
-# avoid the escape key
-# <C-l> goes to normal mode in evim/insertmode
-# <C-l> adds one character from the current match in completion
-# :help popupmenu-keys
-inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<ESC>'
-vnoremap <C-l> <ESC>
-cnoremap <C-l> <C-c>
 
 # edit
 nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
