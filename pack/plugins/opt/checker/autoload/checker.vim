@@ -8,7 +8,7 @@ if exists('g:autoloaded_checker') || !get(g:, 'checker_enabled') || &cp
 endif
 g:autoloaded_checker = 1
 
-# global callback vars (ExitHandlerCheck)
+# script local callback vars (ExitHandlerCheck)
 final CALLBACK_VARS = {
   'lang': "",
   'tool': "",
@@ -169,7 +169,7 @@ export def Check(lang: string, tool: string, curbuf: string, mode: string): void
     .. "[" .. SIGNS_TITLES[lang][tool] .. "=" .. CHECKER_ERRORS[lang][tool] .. "]"
     .. "[" .. SIGNS_TITLES[lang]['exttool'] .. "=N] " .. prevstatusline
     throw "Error: (" .. mode .. ") " .. errout
-  elseif mode == "write"
+  elseif mode == "write" && empty(JOB_QUEUE[lang][g:LANG_TOOL[lang]['exttool']])
     # for autocmd BufWriteCmd
     write
   endif
