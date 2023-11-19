@@ -11,24 +11,48 @@ g:loaded_checker = 1
 # allowed file types
 const g:CHECKER_ALLOWED_TYPES = ["sh", "python", "go"]
 
+# language tool
+const g:LANG_TOOL = {
+  'sh': {
+    'default': 'sh',
+    'exttool': 'shellcheck'
+  },
+  'python': {
+    'default': 'python',
+    'exttool': 'pep8'
+  },
+  'go': {
+    'default': 'go',
+    'exttool': 'govet'
+  }
+}
+
 # signs errors
-g:CHECKER_SIGNS_ERRORS = {
+const g:CHECKER_SIGNS_ERRORS = {
   'sh': {
     'sh': 'checker_sh',
-    'shellcheck': 'checker_shellcheck'
+    'shellcheck': 'checker_shellcheck',
+    'exttool': 'checker_shellcheck'
   },
   'python': {
     'python': 'checker_python',
-    'pep8': 'checker_pep8'
+    'pep8': 'checker_pep8',
+    'exttool': 'checker_pep8'
   },
   'go': {
-    'gofmt': 'checker_go',
-    'govet': 'checker_govet'
+    'go': 'checker_go',
+    'govet': 'checker_govet',
+    'exttool': 'checker_govet'
   }
 }
 
 # statusline regex
 const REGEX_STATUSLINE = '^\[..=\d*\]\[..=\d*N\?E\?\] '
+
+# global variables
+if !exists('g:checker_showpopup')
+  g:checker_showpopup = 1
+endif
 
 # autoload
 import autoload '../autoload/checker.vim'
@@ -40,62 +64,36 @@ if has("signs")
     .. " text=✘ texthl=" .. (hlexists('SyntaxErrorSH') ? 'SyntaxErrorSH' : 'ErrorMsg')
   execute "sign define " .. g:CHECKER_SIGNS_ERRORS['sh']['shellcheck']
     .. " text=↪ texthl=" .. (hlexists('SyntaxErrorSHELLCHECK') ? 'SyntaxErrorSHELLCHECK' : 'WarningMsg')
-
   # Python
   execute "sign define " .. g:CHECKER_SIGNS_ERRORS['python']['python']
     .. " text=✘ texthl=" .. (hlexists('SyntaxErrorPYTHON') ? 'SyntaxErrorPYTHON' : 'ErrorMsg')
   execute "sign define " .. g:CHECKER_SIGNS_ERRORS['python']['pep8']
     .. " text=↪ texthl=" .. (hlexists('SyntaxErrorPEP8') ? 'SyntaxErrorPEP8' : 'WarningMsg')
-
   # Go
-  execute "sign define " .. g:CHECKER_SIGNS_ERRORS['go']['gofmt']
+  execute "sign define " .. g:CHECKER_SIGNS_ERRORS['go']['go']
     .. " text=✘ texthl=" .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
   execute "sign define " .. g:CHECKER_SIGNS_ERRORS['go']['govet']
     .. " text=↪ texthl=" .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
 endif
 
 # SH
-if (executable("sh") || executable("bash")) && executable("shellcheck")
+if (executable("sh") || executable("bash")) && executable(g:LANG_TOOL['sh']['exttool'])
   augroup checker_sh
     autocmd!
     # autocmd DiffUpdated FileType sh b:checker_enabled = 0
-    autocmd FileType sh autocmd BufWinEnter <buffer> CheckerSHBufWinEnter()
-    autocmd FileType sh autocmd BufWritePost <buffer> CheckerSHBufWritePost()
+    autocmd FileType sh autocmd BufWinEnter <buffer> DoChecker("sh", "read")
+    autocmd FileType sh autocmd BufWriteCmd <buffer> DoChecker("sh", "write")
   augroup END
-  def CheckerSHBufWinEnter()
-    if get(g:, "checker_enabled") && !&diff && !exists('b:fugitive_type')
-      checker.SHCheck(expand('<afile>:p'), "read")
-      checker.SHShellCheckAsync(expand('<afile>:p'))
-    endif
-  enddef
-  def CheckerSHBufWritePost()
-    if get(g:, "checker_enabled")
-      checker.SHCheck(expand('<afile>:p'), "write")
-      checker.SHShellCheckAsync(expand('<afile>:p'))
-   endif
-  enddef
 endif
 
 # Python
-if executable("python3") && executable("pep8")
+if executable("python3") && executable(g:LANG_TOOL['python']['exttool'])
   augroup checker_python
     autocmd!
     # autocmd DiffUpdated FileType python b:checker_enabled = 0
-    autocmd FileType python autocmd BufWinEnter <buffer> CheckerPYBufWinEnter()
-    autocmd FileType python autocmd BufWritePost <buffer> CheckerPYBufWritePost()
+    autocmd FileType python autocmd BufWinEnter <buffer> DoChecker("python", "read")
+    autocmd FileType python autocmd BufWriteCmd <buffer> DoChecker("python", "write")
   augroup END
-  def CheckerPYBufWinEnter()
-    if get(g:, "checker_enabled") && !&diff && !exists('b:fugitive_type')
-      checker.PYCheck(expand('<afile>:p'), "read")
-      checker.PYPep8Async(expand('<afile>:p'))
-    endif
-  enddef
-  def CheckerPYBufWritePost()
-    if get(g:, "checker_enabled")
-      checker.PYCheck(expand('<afile>:p'), "write")
-      checker.PYPep8Async(expand('<afile>:p'))
-    endif
-  enddef
 endif
 
 # Go
@@ -103,22 +101,18 @@ if executable("go") && executable("gofmt")
   augroup checker_go
     autocmd!
     # autocmd DiffUpdated *.go b:checker_enabled = 0
-    autocmd FileType go autocmd BufWinEnter <buffer> CheckerGOBufWinEnter()
-    autocmd FileType go autocmd BufWritePost <buffer> CheckerGOBufWritePost()
+    autocmd FileType go autocmd BufWinEnter <buffer> DoChecker("go", "read")
+    autocmd FileType go autocmd BufWriteCmd <buffer> DoChecker("go", "write")
   augroup END
-  def CheckerGOBufWinEnter()
-    if get(g:, "checker_enabled") && !&diff && !exists('b:fugitive_type')
-      checker.GOCheck(expand('<afile>:p'), "read")
-      checker.GOVetAsync(expand('<afile>:p'))
-    endif
-  enddef
-  def CheckerGOBufWritePost()
-    if get(g:, "checker_enabled")
-      checker.GOCheck(expand('<afile>:p'), "write")
-      checker.GOVetAsync(expand('<afile>:p'))
-    endif
-  enddef
 endif
+
+def DoChecker(lang: string, mode: string): void
+  if !get(g:, "checker_enabled") || index(g:CHECKER_ALLOWED_TYPES, lang) == -1
+    return
+  endif
+  checker.Check(lang, g:LANG_TOOL[lang]['default'], expand('<afile>:p'), mode)
+  checker.CheckAsync(lang, g:LANG_TOOL[lang]['exttool'], expand('<afile>:p'))
+enddef
 
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(checker-enable) :CheckerEnable<CR>
