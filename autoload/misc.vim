@@ -96,7 +96,7 @@ enddef
 
 # menu spell
 export def MenuLanguageSpell(): void
-  var langchoice = inputlist(
+  var choice = inputlist(
     [
       'Select:',
       '1. English',
@@ -106,30 +106,30 @@ export def MenuLanguageSpell(): void
       '5. Disable spell'
     ]
   )
-  if empty(langchoice)
+  if empty(choice)
     return
   endif
-  if langchoice < 1 || langchoice > 5
-    utils.EchoErrorMsg("Error: wrong option " .. langchoice)
+  if choice < 1 || choice > 5
+    utils.EchoErrorMsg("Error: wrong option " .. choice)
     return
   endif
-  if langchoice == 5
-    setlocal nospell
-  else
+  if choice >= 1 && choice <= 4
     setlocal spell
-    if langchoice == 1
-      setlocal spelllang=en
-      # setlocal spellfile=~/.vim/spell/en.utf-8.spl.add
-    elseif langchoice == 2
-      setlocal spelllang=es
-      # setlocal spellfile=~/.vim/spell/es.utf-8.spl.add
-    elseif langchoice == 3
-      setlocal spelllang=ca
-      # setlocal spellfile=~/.vim/spell/ca.utf-8.spl.add
-    elseif langchoice == 4
-      setlocal spelllang=ru
-      # setlocal spellfile=~/.vim/spell/ru.utf-8.spl.add
-    endif
+  endif
+  if choice == 1
+    setlocal spelllang=en
+    # setlocal spellfile=~/.vim/spell/en.utf-8.spl.add
+  elseif choice == 2
+    setlocal spelllang=es
+    # setlocal spellfile=~/.vim/spell/es.utf-8.spl.add
+  elseif choice == 3
+    setlocal spelllang=ca
+    # setlocal spellfile=~/.vim/spell/ca.utf-8.spl.add
+  elseif choice == 4
+    setlocal spelllang=ru
+    # setlocal spellfile=~/.vim/spell/ru.utf-8.spl.add
+  elseif choice == 5
+    setlocal nospell
   endif
 enddef
 
@@ -150,15 +150,13 @@ export def MenuMisc(): void
     utils.EchoErrorMsg("Error: wrong option " .. choice)
     return
   endif
-  if choice == 1
+  if choice == 1 || choice == 2
     if !get(g:, 'arrowkeys_enabled')
-      utils.EchoErrorMsg("plugin 'arrowkeys' is not enabled")
-    else
-      arrowkeys.Enable()
+      utils.EchoErrorMsg("Error: plugin 'arrowkeys' is not enabled")
+      return
     endif
-  elseif choice == 2
-    if !get(g:, 'arrowkeys_enabled')
-      utils.EchoErrorMsg("plugin 'arrowkeys' is not enabled")
+    if choice == 1
+      arrowkeys.Enable()
     else
       arrowkeys.Disable()
     endif

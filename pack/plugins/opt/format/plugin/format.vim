@@ -8,11 +8,25 @@ if exists('g:loaded_format') || !get(g:, 'format_enabled') || &cp
 endif
 g:loaded_format = 1
 
+# global variables
+if !exists('g:format_sh_command')
+  g:format_sh_command = ['shfmt', '-l', '-w']
+endif
+if !exists('g:format_bash_command')
+  g:format_bash_command = ['shfmt', '-l', '-w']
+endif
+if !exists('g:format_python_command')
+  g:format_python_command = ['black', '-S', '-l', '88']
+endif
+if !exists('g:format_go_command')
+  g:format_go_command = ['go', 'fmt']
+endif
+
 # autoload
 import autoload '../autoload/format.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(format-language) <ScriptCmd>format.Language(expand('%:p'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(format-language) <ScriptCmd>format.Language(&filetype, expand('%:p'))<CR>
 
 # set mappings
 if get(g:, 'format_no_mappings') == 0
@@ -23,5 +37,5 @@ endif
 
 # set commands
 if get(g:, 'format_no_commands') == 0
-  command! FormatLanguage format.Language(expand('%:p'))
+  command! FormatLanguage format.Language(&filetype, expand('%:p'))
 endif

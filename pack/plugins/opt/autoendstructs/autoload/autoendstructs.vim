@@ -9,20 +9,17 @@ endif
 g:autoloaded_autoendstructs = 1
 
 # allowed file types
-const AUTOENDSTRUCTS_ALLOWED_TYPES = ["sh", "vim"]
+const ALLOWED_TYPES = ["sh", "vim"]
 
 # automatic end of structures
 export def End(): string
+  var action: string
   var curcharpos: string
-  var dend: dict<dict<string>>
   var firstword: string
   var lastword: string
-  var line: string
-  var linelist: list<string>
-  if !get(g:, "autoendstructs_enabled") || index(AUTOENDSTRUCTS_ALLOWED_TYPES, &filetype) == -1
-    return "\<CR>"
-  endif
-  dend = {
+  var curline: string
+  var curlinelist: list<string>
+  const dend = {
     'sh': {
       'if': 'fi',
       'while': 'done',
@@ -40,24 +37,26 @@ export def End(): string
       'def': 'enddef'
     }
   }
-  line = getline('.')
-  if empty(trim(line))
+  curline = getline('.')
+  if !g:autoendstructs_enabled || index(ALLOWED_TYPES, &filetype) == -1 || empty(trim(curline))
     return "\<CR>"
   endif
-  curcharpos = line[col('.') - 1]
-  linelist = split(line, " ")
-  firstword = linelist[0]
-  lastword = linelist[-1]
+  curcharpos = curline[col('.') - 1]
+  curlinelist = split(curline, " ")
+  firstword = curlinelist[0]
+  lastword = curlinelist[-1]
   if &ft == 'sh' && has_key(dend['sh'], firstword) && index(['then', 'do', 'in'], lastword) >= 0 && empty(curcharpos)
-    return "\<CR>" .. dend['sh'][firstword] .. "\<ESC>O"
+    action = "\<CR>" .. dend['sh'][firstword] .. "\<ESC>O"
   elseif &ft == 'vim' && has_key(dend['vim'], firstword) && empty(curcharpos)
-    return "\<CR>" .. dend['vim'][firstword] .. "\<ESC>O"
+    action = "\<CR>" .. dend['vim'][firstword] .. "\<ESC>O"
+  else
+    action = "\<CR>"
   endif
-  return "\<CR>"
+  return action
 enddef
 
 # toggle automatic end of structures
 export def Toggle()
-  g:autoendstructs_enabled = !get(g:, "autoendstructs_enabled")
+  g:autoendstructs_enabled = !g:autoendstructs_enabled
   v:statusmsg = "autoendstructs=" .. g:autoendstructs_enabled
 enddef

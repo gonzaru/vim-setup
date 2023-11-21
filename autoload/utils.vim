@@ -8,12 +8,12 @@ if exists('g:autoloaded_utils') || !get(g:, 'utils_enabled') || &cp
 endif
 g:autoloaded_utils = 1
 
-# tells if buffer is empty
+# tells if the buffer is empty
 export def BufferIsEmpty(): bool
   return line('$') == 1 && empty(getline(1))
 enddef
 
-# checks if directory is empty
+# checks if the directory is empty
 export def DirIsEmpty(path: string): bool
   var hidden: list<any>
   var nohidden: list<any>
@@ -26,7 +26,7 @@ export def DirIsEmpty(path: string): bool
   return !len(extend(nohidden, hidden))
 enddef
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 export def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -35,7 +35,7 @@ export def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints warning message and saves the message in the message-history
+# prints the warning message and saves the message in the message-history
 export def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
@@ -64,7 +64,7 @@ def FileIndicator(file: string): string
   return symbol
 enddef
 
-# checks if file is empty
+# checks if the file is empty
 export def FileIsEmpty(file: string): bool
   if getftype(file) != "file"
     EchoErrorMsg("Error: " .. file .. " is not a normal file")
@@ -80,8 +80,8 @@ enddef
 # detects if the shell is sh or bash using shebang
 export def SHShellType(): string
   if &filetype != "sh"
-    utils#EchoErrorMsg("Error: filetype '" .. &filetype .. "' is not supported")
+    EchoErrorMsg("Error: filetype '" .. &filetype .. "' is not supported")
     return ''
   endif
-  return getline(1) =~ "bash$" ? "bash" : "sh"
+  return getline(1) =~ "bash" ? "bash" : "sh"
 enddef

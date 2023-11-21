@@ -9,12 +9,28 @@ endif
 g:autoloaded_runprg = 1
 
 # script local variables
-const RUNPRG_BUFFER_NAME = "runprg_" .. strftime('%Y%m%d%H%M%S', localtime())
+const BUFFER_NAME = "runprg_" .. strftime('%Y%m%d%H%M%S', localtime())
 
 # allowed file types
-const RUNPRG_ALLOWED_TYPES = ["sh", "python", "go"]
+const ALLOWED_TYPES = ["sh", "python", "go"]
 
-# prints error message and saves the message in the message-history
+# run commands
+const COMMANDS = {
+  'sh': {
+    'command': join(g:runprg_sh_command)
+  },
+  'bash': {
+    'command': join(g:runprg_bash_command)
+  },
+  'python': {
+    'command': join(g:runprg_python_command)
+  },
+  'go': {
+    'command': join(g:runprg_go_command)
+  }
+}
+
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -23,7 +39,7 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints warning message and saves the message in the message-history
+# prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
@@ -34,16 +50,16 @@ enddef
 
 # gets Run buffer window id
 def GetRunBufWinId(): number
-  return bufexists(RUNPRG_BUFFER_NAME) ? bufwinid(RUNPRG_BUFFER_NAME) : -1
+  return bufexists(BUFFER_NAME) ? bufwinid(BUFFER_NAME) : -1
 enddef
 
 # detects if the shell is sh or bash using shebang
-def SHShellType(): string
-  if &filetype != "sh"
-    EchoErrorMsg("Error: filetype '" .. &filetype .. "' is not supported")
+def SHShellType(lang: string): string
+  if lang != "sh"
+    EchoErrorMsg("Error: lang '" .. lang .. "' is not supported")
     return ''
   endif
-  return getline(1) =~ "bash$" ? "bash" : "sh"
+  return getline(1) =~ "bash" ? "bash" : "sh"
 enddef
 
 # close
@@ -55,18 +71,20 @@ export def Close()
 enddef
 
 # run
-export def Run(file: string): void
-  if index(RUNPRG_ALLOWED_TYPES, &filetype) == -1
-    EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
+export def Run(lang: string, file: string): void
+  var cmd: string
+  var theshell: string
+  if index(ALLOWED_TYPES, lang) == -1
+    EchoErrorMsg("Error: running lang '" .. lang .. "' is not supported")
     return
   endif
-  if &filetype == "sh"
-    echo system(SHShellType() .. " " .. file)
-  elseif &filetype == "python"
-    echo system("python3 " .. file)
-  elseif &filetype == "go"
-    echo system("go run " .. file)
+  if lang == "sh"
+    theshell = SHShellType(lang)
+    cmd = COMMANDS[theshell]["command"]
+  else
+    cmd = COMMANDS[lang]["command"]
   endif
+  echo system(cmd .. " " .. file)
   if v:shell_error != 0
     EchoErrorMsg("Error: exit code " .. v:shell_error)
   endif
@@ -77,8 +95,8 @@ def RunSetupWindow()
   var bid = GetRunBufWinId()
   if bid > 0
     win_gotoid(bid)
-  elseif bufexists(RUNPRG_BUFFER_NAME) && getbufinfo(RUNPRG_BUFFER_NAME)[0].hidden
-    execute "rightbelow split " .. RUNPRG_BUFFER_NAME
+  elseif bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
+    execute "rightbelow split " .. BUFFER_NAME
   else
     below new
     setlocal winfixheight
@@ -86,30 +104,32 @@ def RunSetupWindow()
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    silent execute "file " .. RUNPRG_BUFFER_NAME
+    silent execute "file " .. BUFFER_NAME
   endif
 enddef
 
 # run with window
-export def RunWindow(file: string): void
+export def RunWindow(lang: string, file: string): void
+  var cmd: string
+  var theshell: string
   var outmsg: list<string>
   var runwinid = GetRunBufWinId()
   var selwinid = win_getid()
   if selwinid == runwinid
-    EchoWarningMsg("Warning: already using the same window " .. RUNPRG_BUFFER_NAME)
+    EchoWarningMsg("Warning: already using the same window " .. BUFFER_NAME)
     return
   endif
-  if index(RUNPRG_ALLOWED_TYPES, &filetype) == -1
-    EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
+  if index(ALLOWED_TYPES, lang) == -1
+    EchoErrorMsg("Error: running lang '" .. lang .. "' is not supported")
     return
   endif
-  if &filetype == "sh"
-    outmsg = systemlist(SHShellType() .. " " .. file)
-  elseif &filetype == "python"
-    outmsg = systemlist("python3 " .. file)
-  elseif &filetype == "go"
-    outmsg = systemlist("go run " .. file)
+  if lang == "sh"
+    theshell = SHShellType(lang)
+    cmd = COMMANDS[theshell]["command"]
+  else
+    cmd = COMMANDS[lang]["command"]
   endif
+  outmsg = systemlist(cmd .. " " .. file)
   if v:shell_error != 0
     EchoErrorMsg("Error: exit code " .. v:shell_error)
   endif
@@ -119,8 +139,8 @@ export def RunWindow(file: string): void
   endif
   RunSetupWindow()
   runwinid = GetRunBufWinId()
-  appendbufline(RUNPRG_BUFFER_NAME, 0, outmsg)
-  deletebufline(RUNPRG_BUFFER_NAME, '$')
+  appendbufline(BUFFER_NAME, 0, outmsg)
+  deletebufline(BUFFER_NAME, '$')
   win_execute(runwinid, "cursor(1, 1)")
   win_execute(runwinid, "resize " .. len(outmsg))
   win_gotoid(selwinid)

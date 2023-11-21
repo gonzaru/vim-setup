@@ -13,9 +13,12 @@ import autoload '../autoload/autoclosechars.vim'
 
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(autoclosechars-toggle) <ScriptCmd>autoclosechars.Toggle()<CR>
-inoremap <silent> <unique> <script> <Plug>(autoclosechars-braceleft) <C-r>=<SID>autoclosechars.Close("braceleft", getchar())<CR>
-inoremap <silent> <unique> <script> <Plug>(autoclosechars-parenleft) <C-r>=<SID>autoclosechars.Close("parenleft", getchar())<CR>
-inoremap <silent> <unique> <script> <Plug>(autoclosechars-bracketleft) <C-r>=<SID>autoclosechars.Close("bracketleft", getchar())<CR>
+inoremap <silent> <unique> <script> <Plug>(autoclosechars-braceleft)
+  \ <C-r>=<SID>autoclosechars.Close("braceleft", getchar())<CR>
+inoremap <silent> <unique> <script> <Plug>(autoclosechars-parenleft)
+  \ <C-r>=<SID>autoclosechars.Close("parenleft", getchar())<CR>
+inoremap <silent> <unique> <script> <Plug>(autoclosechars-bracketleft)
+  \ <C-r>=<SID>autoclosechars.Close("bracketleft", getchar())<CR>
 
 # set mappings
 if get(g:, 'autoclosechars_no_mappings') == 0

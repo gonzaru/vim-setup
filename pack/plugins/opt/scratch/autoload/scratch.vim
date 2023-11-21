@@ -8,7 +8,7 @@ if exists('g:autoloaded_scratch') || !get(g:, 'scratch_enabled') || &cp
 endif
 g:autoloaded_scratch = 1
 
-# get scratch buffer
+# get the scratch buffer
 def GetScratchBufId(): number
   var bid: number
   for b in getbufinfo()
@@ -25,7 +25,7 @@ def GetScratchBufId(): number
   return bid
 enddef
 
-# get scratrch terminal buffer
+# get the scratch terminal buffer
 def GetScratchTerminalBufId(): number
   var bid: number
   for b in getbufinfo()
@@ -53,7 +53,7 @@ export def Buffer()
         execute "b #"
       endif
     else
-      execut "b " .. bid
+      execute "b " .. bid
     endif
   else
     enew

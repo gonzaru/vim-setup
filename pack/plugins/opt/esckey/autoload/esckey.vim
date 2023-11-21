@@ -41,6 +41,6 @@ export def Toggle()
   else
     Enable()
   endif
-  g:esckey_enabled = !get(g:, "esckey_enabled")
+  g:esckey_enabled = !g:esckey_enabled
   v:statusmsg = "esckey=" .. g:esckey_enabled
 enddef

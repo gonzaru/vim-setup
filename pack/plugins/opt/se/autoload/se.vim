@@ -13,10 +13,10 @@ endif
 g:autoloaded_se = 1
 
 # script local variables
-const SE_BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
-var se_prevcwd: string
+const BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
+var PREV_CWD: string
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -25,7 +25,7 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints warning message and saves the message in the message-history
+# prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
@@ -58,7 +58,7 @@ enddef
 def GetSeBufId(): number
   var bid = -1
   for b in getbufinfo()
-    if fnamemodify(b.name, ":t") == SE_BUFFER_NAME && getbufvar(b.bufnr, '&filetype') == "se"
+    if fnamemodify(b.name, ":t") == BUFFER_NAME && getbufvar(b.bufnr, '&filetype') == "se"
       bid = b.bufnr
       break
     endif
@@ -96,16 +96,16 @@ enddef
 
 # populates Se
 def Populate(cwddir: string)
-  var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
-  var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')
   var parent2cwd: string
   var parentcwd: string
-  var lsf = get(g:, 'se_hiddenfirst') ? extend(hidden, nohidden) : extend(nohidden, hidden)
+  var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
+  var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')
+  var lsf = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
-    appendbufline(SE_BUFFER_NAME, 0, lsf)
+    appendbufline(BUFFER_NAME, 0, lsf)
   else
     EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":t") .. " is empty")
-    sleep 1
+    sleep! 1
     redraw!
   endif
   try
@@ -118,49 +118,49 @@ def Populate(cwddir: string)
   catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
     parentcwd = '/'
   endtry
-  appendbufline(SE_BUFFER_NAME, 0, ['../ [' .. parent2cwd .. ']'])
-  appendbufline(SE_BUFFER_NAME, 1, ['./ [' .. parentcwd .. ']'])
-  deletebufline(SE_BUFFER_NAME, '$')
+  appendbufline(BUFFER_NAME, 0, ['../ [' .. parent2cwd .. ']'])
+  appendbufline(BUFFER_NAME, 1, ['./ [' .. parentcwd .. ']'])
+  deletebufline(BUFFER_NAME, '$')
   cursor(line('$') > 2 ? 3 : 1, 1)
 enddef
 
 # set prevcwd
 def SetPrevCwd(s: string)
-  se_prevcwd = s
+  PREV_CWD = s
 enddef
 
 # get prevcwd
 def GetPrevCwd(): string
-  return se_prevcwd
+  return PREV_CWD
 enddef
 
 # shows Se
 def Show(filepath: string)
+  var prevcwd: string
   var bid = GetSeBufId()
   var cwddir = getcwd()
-  var prevcwd: string
   if bid < 1
     prevcwd = !empty(filepath) ? fnamemodify(filepath, ":p:h") : cwddir
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       # put into the last right window
       botright vnew
     else
       # put into to the first left window
       topleft vnew
     endif
-    silent execute "file " .. SE_BUFFER_NAME
+    silent execute "file " .. BUFFER_NAME
     setlocal filetype=se
     execute "lcd " .. fnameescape(prevcwd)
     Populate(prevcwd)
     setlocal nomodifiable
     execute "vertical resize " .. g:se_winsize
-    if get(g:, 'se_followfile')
+    if g:se_followfile
       SearchFile(filepath)
     endif
   else
     if bufnr() == bid
       setlocal modifiable
-      silent deletebufline(SE_BUFFER_NAME, 1, '$')
+      silent deletebufline(BUFFER_NAME, 1, '$')
       Populate(cwddir)
       setlocal nomodifiable
     endif
@@ -168,14 +168,13 @@ def Show(filepath: string)
 enddef
 
 # toggles Se
-export def Toggle()
-  var filepath = expand('%:p')
+export def Toggle(filepath: string)
   var bufinfo: list<dict<any>>
   var bid = GetSeBufId()
   if bid > 0
     bufinfo = getbufinfo(bid)
     if bufinfo[0].hidden
-      if get(g:, 'se_position') == "right"
+      if g:se_position == "right"
         # put into the last right window
         execute "vertical botright sbuffer " .. bid
       else
@@ -184,7 +183,7 @@ export def Toggle()
       endif
       execute "lcd " .. fnameescape(GetPrevCwd())
       execute "vertical resize " .. g:se_winsize
-      if get(g:, 'se_followfile')
+      if g:se_followfile
         FollowFile(filepath)
       endif
     else
@@ -211,7 +210,7 @@ export def Toggle()
 enddef
 
 # searches Se file
-def SearchFile(file: string)
+export def SearchFile(file: string)
   var modfile: string
   if !empty(file)
     modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
@@ -221,9 +220,9 @@ enddef
 
 # automatic follow file
 export def AutoFollowFile(filepath: string): void
-  var bid = GetSeBufId()
   var bufinfo: list<dict<any>>
   var selwinid: number
+  var bid = GetSeBufId()
   if bid < 1 || bufnr() == bid
     return
   endif
@@ -235,16 +234,14 @@ enddef
 
 # follows Se file
 export def FollowFile(filepath: string): void
-  var cwddir: string
-  cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
+  var cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
   execute "lcd " .. fnameescape(cwddir)
   Show(filepath)
   SearchFile(filepath)
 enddef
 
 # refresh Se
-export def Refresh()
-  var filepath = expand('%:p')
+export def Refresh(filepath: string)
   var curline = substitute(getline('.'), '*$', "", "")
   Show(filepath)
   SearchFile(curline)
@@ -254,14 +251,14 @@ enddef
 def Edit(file: string)
   var bid: number
   if winnr('$') >= 2
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       wincmd W
     else
       wincmd w
     endif
     execute "edit " .. file
   else
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       execute "vnew " .. file
     else
       execute "rightbelow vnew " .. file
@@ -275,13 +272,13 @@ enddef
 def EditKeep(file: string)
   var bid: number
   if winnr('$') >= 2
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       win_execute(win_getid(winnr() - 1), "edit " .. file)
     else
       win_execute(win_getid(winnr() + 1), "edit " .. file)
     endif
   else
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       execute "vnew " .. file
     else
       execute "rightbelow vnew " .. file
@@ -296,7 +293,7 @@ enddef
 def EditPedit(file: string)
   var bid = GetSeBufId()
   if winnr('$') >= 2
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       win_execute(win_getid(winnr() - 1), "pedit " .. file)
     else
       win_execute(win_getid(winnr() + 1), "pedit " .. file)
@@ -305,7 +302,7 @@ def EditPedit(file: string)
     resize
     win_gotoid(bufwinid(bid))
   else
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       execute "vertical pedit " .. file
     else
       execute "vertical rightbelow pedit " .. file
@@ -319,14 +316,14 @@ enddef
 def EditSplitH(file: string)
   var bid: number
   if winnr('$') >= 2
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       wincmd W
     else
       wincmd w
     endif
     execute "split " .. file
   else
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       execute "vsplit " .. file
     else
       execute "rightbelow vsplit " .. file
@@ -340,7 +337,7 @@ enddef
 def EditSplitV(file: string)
   var bid: number
   if winnr('$') >= 2
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       wincmd W
       execute "rightbelow vsplit " .. file
     else
@@ -348,7 +345,7 @@ def EditSplitV(file: string)
       execute "leftabove vsplit " .. file
     endif
   else
-    if get(g:, 'se_position') == "right"
+    if g:se_position == "right"
       execute "vsplit " .. file
     else
       execute "rightbelow vsplit " .. file
@@ -360,7 +357,7 @@ enddef
 
 # edit the current file in a tab
 def EditTab(file: string)
-  if get(g:, 'se_position') == "right"
+  if g:se_position == "right"
     execute ":-tabedit " .. file
   else
     execute "tabedit " .. file

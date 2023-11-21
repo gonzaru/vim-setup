@@ -19,10 +19,10 @@ enddef
 
 # cycle between buffers
 export def Cycle(): void
-  var bufinfo = getbufinfo({'buflisted': 1})
-  var buflist: list<string>
-  var curbuf = fnamemodify(bufname("%"), ":~")
   var idx: number
+  var buflist: list<string>
+  var bufinfo = getbufinfo({'buflisted': 1})
+  var curbuf = fnamemodify(bufname("%"), ":~")
   if len(bufinfo) == 1
     EchoWarningMsg("Warning: there is only one buffer available")
     return

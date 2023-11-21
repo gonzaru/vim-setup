@@ -29,7 +29,7 @@ setlocal keywordprg=go\ doc
 setlocal makeprg=go\ build
 if get(g:, "complementum_enabled")
   if empty(mapcheck(".", "i"))
-    inoremap <silent><buffer>. .<Plug>(complementum-goinsertautocomplete)
+    inoremap <silent><buffer>. .<Plug>(complementum-insertautocomplete)
   endif
 endif
 matchadd('ColorColumn', '\%120v', 10)

@@ -10,46 +10,51 @@ g:autoloaded_autoclosechars = 1
 
 # automatic close of chars [,(,[
 export def Close(mode: string, nr: any): string
-  var line = getline('.')
-  var key: dict<number>
+  var action: string
+  const key = {
+    'backspace': 7,
+    'tab': 9,
+    'enter': 13,
+    'quote': 34,
+    'apostrophe': 39
+  }
   # exception: backspace is returned by getchar() with the value of <80>kb
   if typename(nr) == "string" && strtrans(nr) == '<80>kb'
     return "\<BACKSPACE>"
   endif
-  if !get(g:, "autoclosechars_enabled")
+  if !g:autoclosechars_enabled
     return nr2char(nr)
   endif
-  key = {'backspace': 8, 'tab': 9, 'enter': 13, 'quote': 34, 'apostrophe': 39}
   if mode == "braceleft"
     if nr == key['enter']
-      return "\<CR>}\<ESC>O"
+      action = "\<CR>}\<ESC>O"
     elseif nr == key['tab']
-      return "}\<left>"
+      action = "}\<left>"
     endif
-  endif
-  if mode == "parenleft"
+  elseif mode == "parenleft"
     if nr == key['enter']
-      return "\<CR>)\<ESC>O"
+      action = "\<CR>)\<ESC>O"
     elseif nr == key['tab'] || nr == key['quote']
-      return "\"\")\<left>\<left>"
+      action = "\"\")\<left>\<left>"
     elseif nr == key['apostrophe']
-      return "'')\<left>\<left>"
+      action = "'')\<left>\<left>"
     endif
-  endif
-  if mode == "bracketleft"
+  elseif mode == "bracketleft"
     if nr == key['enter']
-      return "\<CR>]\<ESC>O"
+      action = "\<CR>]\<ESC>O"
     elseif nr == key['tab'] || nr == key['quote']
-      return "\"\"]\<left>\<left>"
+      action = "\"\"]\<left>\<left>"
     elseif nr == key['apostrophe']
-      return "'']\<left>\<left>"
+      action = "'']\<left>\<left>"
     endif
+  else
+    action = nr2char(nr)
   endif
-  return nr2char(nr)
+  return action
 enddef
 
 # toggle automatic close of chars
 export def Toggle()
-  g:autoclosechars_enabled = !get(g:, "autoclosechars_enabled")
+  g:autoclosechars_enabled = !g:autoclosechars_enabled
   v:statusmsg = "autoclosechars=" .. g:autoclosechars_enabled
 enddef

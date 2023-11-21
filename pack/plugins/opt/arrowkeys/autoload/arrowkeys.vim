@@ -47,6 +47,6 @@ export def Toggle()
   else
     Enable()
   endif
-  g:arrowkeys_enabled = !get(g:, "arrowkeys_enabled")
+  g:arrowkeys_enabled = !g:arrowkeys_enabled
   v:statusmsg = "arrowkeys=" .. g:arrowkeys_enabled
 enddef

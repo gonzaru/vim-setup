@@ -64,7 +64,7 @@ if get(g:, 'se_no_mappings') == 0
     nnoremap <buffer>T <Plug>(se-gofile-tabedit)<Plug>(se-toggle)
   endif
   if empty(mapcheck("-", "n"))
-    nnoremap <buffer>- <ScriptCmd>cursor(1, 1)<CR><Plug>(se-gofile-edit)
+    nnoremap <buffer>- <Plug>(se-godir-parent)
   endif
   if empty(mapcheck("~", "n"))
     nnoremap <buffer>~ <Plug>(se-godir-home)
@@ -82,7 +82,7 @@ if get(g:, 'se_no_mappings') == 0
     nnoremap <buffer>h :execute "vertical resize "  .. (g:se_position == 'right' ? '+1' : '-1')<CR>
   endif
   if empty(mapcheck("o", "n"))
-    nnoremap <buffer>o :vim9cmd g:se_hiddenfirst = !g:se_hiddenfirst<CR><Plug>(se-refresh)<ScriptCmd>cursor(3, 1)<CR>
+    nnoremap <buffer>o <Plug>(se-toggle-hidden)
   endif
   if empty(mapcheck("<BS>", "n"))
     nnoremap <buffer><BS> :execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>

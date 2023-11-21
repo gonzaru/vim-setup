@@ -15,7 +15,7 @@ const COMMENT_HASH_STYLE = ["sh", "perl", "python"]
 const COMMENT_HTML_TAG = ["html", "xml"]
 const COMMENT_VIM = ["vim"]
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg

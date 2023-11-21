@@ -23,8 +23,8 @@ if get(g:, 'scratch_no_mappings') == 0
   if empty(mapcheck("<leader>s<CR>", "n"))
     nnoremap <silent><leader>s<CR> <Plug>(scratch-terminal)
   endif
-  if empty(mapcheck("<leader>sc", "n"))
-    nnoremap <silent><leader>sc <Plug>(scratch-buffer)
+  if empty(mapcheck("<leader>sb", "n"))
+    nnoremap <silent><leader>sb <Plug>(scratch-buffer)
   endif
   if empty(mapcheck("<leader>sz", "n"))
     nnoremap <silent><leader>sz <Plug>(scratch-terminal)

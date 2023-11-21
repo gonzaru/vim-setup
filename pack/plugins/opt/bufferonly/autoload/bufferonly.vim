@@ -12,27 +12,22 @@ g:autoloaded_bufferonly = 1
 export def RemoveAllExceptCurrent(mode: string): void
   var bufinfo: list<dict<any>>
   var curbufid: number
-  if index(['delete', 'wipe', 'wipe!'], mode) == -1
+  if index(['delete', 'delete!', 'wipe', 'wipe!'], mode) == -1
     return
   endif
   if mode == 'delete' || mode == 'wipe'
     bufinfo = getbufinfo({'buflisted': 1})
-  elseif mode == 'wipe!'
+  elseif mode == 'delete!' || mode == 'wipe!'
     bufinfo = getbufinfo()
   endif
   curbufid = bufnr()
   for b in bufinfo
-    if b.bufnr == curbufid
-      continue
-    endif
-    if mode == "delete"
-      if getbufvar(b.bufnr, '&buftype') == 'terminal' && term_getstatus(b.bufnr) == 'running,normal'
+    if b.bufnr != curbufid
+      if mode == "delete" || mode == "delete!"
         execute "bd! " .. b.bufnr
-      else
-        execute "bd " .. b.bufnr
+      elseif mode == "wipe" || mode == "wipe!"
+        execute "bw! " .. b.bufnr
       endif
-    elseif mode == "wipe" || mode == "wipe!"
-      execute "bw! " .. b.bufnr
     endif
   endfor
 enddef

@@ -9,16 +9,25 @@ endif
 g:autoloaded_format = 1
 
 # allowed file types
-const FORMAT_ALLOWED_TYPES = ["sh", "python", "go"]
+const ALLOWED_TYPES = ["sh", "python", "go"]
 
-# format by language
-const FORMAT_LANGUAGE_COMMAND = {
-  'sh': 'shfmt -l -w',
-  'python': 'black -S -l 79', # -l 79 for pep8
-  'go': 'go fmt'
+# format commands
+const COMMANDS = {
+  'sh': {
+    'command': join(g:format_sh_command)
+  },
+  'bash': {
+    'command': join(g:format_bash_command)
+  },
+  'python': {
+    'command': join(g:format_python_command)
+  },
+  'go': {
+    'command': join(g:format_go_command)
+  }
 }
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -28,31 +37,38 @@ def EchoErrorMsg(msg: string)
 enddef
 
 # format
-def Format(filetype: string, file: string): void
-  var cmd = FORMAT_LANGUAGE_COMMAND[filetype]->split(" ")[0]
+def Format(lang: string, file: string): void
   var outmsg: list<string>
-  outmsg = systemlist(FORMAT_LANGUAGE_COMMAND[filetype] .. " " .. file)
+  var cmd: string
+  var theshell: string
+  if lang == "sh"
+    theshell = getline(1) =~ "bash" ? "bash" : "sh"
+    cmd = COMMANDS[theshell]["command"]
+  else
+    cmd = COMMANDS[lang]["command"]
+  endif
+  outmsg = systemlist(cmd .. " " .. file)
   if v:shell_error != 0
     EchoErrorMsg("Error: command '" .. cmd .. "' failed to execute correctly")
     return
   endif
   checktime
-  if empty(outmsg) || (filetype == "python" && index(outmsg, "1 file left unchanged.") >= 0)
+  if empty(outmsg) || (lang == "python" && index(outmsg, "1 file left unchanged.") >= 0)
     echo "Info: file was not modified (" .. cmd .. ")"
   endif
 enddef
 
 # format by language
-export def Language(file: string): void
+export def Language(lang: string, file: string): void
   var cmd: string
-  if index(FORMAT_ALLOWED_TYPES, &filetype) == -1
-    EchoErrorMsg("Error: formatting filetype '" .. &filetype .. "' is not supported")
+  if index(ALLOWED_TYPES, lang) == -1
+    EchoErrorMsg("Error: formatting lang '" .. lang .. "' is not supported")
     return
   endif
-  cmd = FORMAT_LANGUAGE_COMMAND[&filetype]->split(" ")[0]
+  cmd = COMMANDS[lang]["command"]->split()[0]
   if !executable(cmd)
     EchoErrorMsg("Error: command '" .. cmd .. "' not found")
     return
   endif
-  Format(&filetype, file)
+  Format(lang, file)
 enddef

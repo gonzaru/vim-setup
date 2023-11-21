@@ -11,7 +11,7 @@ g:autoloaded_git = 1
 # script local variables
 const GIT_BUFFER_NAME = "git_" .. strftime('%Y%m%d%H%M%S', localtime())
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -20,7 +20,7 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints warning message and saves the message in the message-history
+# prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
@@ -29,7 +29,7 @@ def EchoWarningMsg(msg: string)
   endif
 enddef
 
-# gets git buffer window id
+# gets the git buffer window id
 def GetGitBufWinId(): number
   return bufexists(GIT_BUFFER_NAME) ? bufwinid(GIT_BUFFER_NAME) : -1
 enddef
@@ -54,13 +54,13 @@ def SetupWindow()
   if bid > 0
     win_gotoid(bid)
   elseif bufexists(GIT_BUFFER_NAME) && getbufinfo(GIT_BUFFER_NAME)[0].hidden
-    if get(g:, 'git_position') == 'bottom'
+    if g:git_position == 'bottom'
       execute "rightbelow split " .. GIT_BUFFER_NAME
     else
       execute "topleft split " .. GIT_BUFFER_NAME
     endif
   else
-    if get(g:, 'git_position') == 'bottom'
+    if g:git_position == 'bottom'
       below new
     else
       new
@@ -80,15 +80,15 @@ enddef
 export def Blame(file: string, cwddir: string): void
   if !filereadable(file)
     EchoErrorMsg("Error: " .. fnamemodify(file, ":~") .. " is not a file or cannot be read")
-    return
+  else
+    Run("git blame " .. file, cwddir)
   endif
-  Run("git blame " .. file, cwddir)
 enddef
 
 # git run
 export def Run(args: string, cwddir: string): void
-  var gitwinid = GetGitBufWinId()
   var outmsg: list<string>
+  var gitwinid = GetGitBufWinId()
   var selwinid = win_getid()
   if selwinid == gitwinid
     EchoWarningMsg("Warning: already using the same window " .. GIT_BUFFER_NAME)

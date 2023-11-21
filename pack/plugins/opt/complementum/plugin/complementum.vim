@@ -12,7 +12,8 @@ g:loaded_complementum = 1
 import autoload '../autoload/complementum.vim'
 
 # define mappings
-inoremap <silent> <unique> <script> <Plug>(complementum-goinsertautocomplete) <C-r>=<SID>complementum.GoInsertAutoComplete(getchar())<CR>
+inoremap <silent> <unique> <script> <Plug>(complementum-insertautocomplete)
+  \ <C-r>=<SID>complementum.InsertAutoComplete(&filetype, getchar())<CR>
 
 # TODO:
 # define mappings

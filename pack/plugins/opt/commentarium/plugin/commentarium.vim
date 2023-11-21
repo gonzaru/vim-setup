@@ -12,10 +12,12 @@ g:loaded_commentarium = 1
 import autoload '../autoload/commentarium.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(commentarium-do) <ScriptCmd>commentarium.DoComment(line('.'), col('.'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(commentarium-do)
+  \ <ScriptCmd>commentarium.DoComment(line('.'), col('.'))<CR>
 vnoremap <silent> <unique> <script> <Plug>(commentarium-do-range)
   \ <ESC><ScriptCmd>commentarium.DoCommentRange(line("'<"), line("'>"), getpos("v"))<CR>gv=
-nnoremap <silent> <unique> <script> <Plug>(commentarium-undo) <ScriptCmd>commentarium.UndoComment(line('.'), col('.'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(commentarium-undo)
+  \ <ScriptCmd>commentarium.UndoComment(line('.'), col('.'))<CR>
 vnoremap <silent> <unique> <script> <Plug>(commentarium-undo-range)
   \ <ESC><ScriptCmd>commentarium.UndoCommentRange(line("'<"), line("'>"), getpos("v"))<CR>gv=
 

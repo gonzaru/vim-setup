@@ -109,9 +109,19 @@ for plugin in plugins
   endif
 endfor
 
+# checker plugin
+if g:checker_enabled
+  g:checker_showpopup = 0
+endif
+
 # esckey plugin
 if g:esckey_enabled
    g:esckey_key = "<C-l>"
+endif
+
+# format plugin
+if g:format_enabled
+  g:format_python_command = ["black", "-S", "-l", "79"]  # 79 for pep8
 endif
 
 # git plugin
@@ -687,9 +697,10 @@ if g:misc_enabled
   nnoremap <localleader>dt <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
 endif
 nnoremap <localleader>de :diffthis<CR>
-nnoremap <localleader>dw :window diffthis<CR>
+nnoremap <localleader>dw :windo diffthis<CR>
 nnoremap <localleader>dd :diffoff<CR>
 nnoremap <localleader>dD :diffoff!<CR>
+nnoremap <localleader>dg :DiffOrig<CR>
 nnoremap <localleader>= :1,$+1diffget<CR>
 nnoremap <localleader>, :.,.diffget<CR>
 nnoremap <localleader>. :.,.diffput<CR>

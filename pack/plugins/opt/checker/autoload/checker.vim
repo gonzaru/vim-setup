@@ -36,7 +36,7 @@ const SIGNS_TITLES = {
 }
 
 # checker errors
-final CHECKER_ERRORS = {
+final ERRORS = {
   'sh': {
     'sh': 0,
     'shellcheck': 0
@@ -75,7 +75,7 @@ const REGEX_STATUSLINE = {
 const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
 
 # checker files
-const CHECKER_FILES = {
+const FILES = {
   'sh': {
     'sh': {
       'buffer': TMPDIR .. "/" .. $USER .. "-vim-checker_sh_sh_buffer.txt",
@@ -151,25 +151,25 @@ export def Check(lang: string, tool: string, curbuf: string, mode: string): void
   var errlist: list<any>
   var errout: string
   var prevstatusline: string
-  if !get(g:, 'checker_enabled')
+  if !g:checker_enabled
     return
   endif
-  if BufferIsEmpty() || !filereadable(curbuf)
+  if BufferIsEmpty() || !filereadable(curbuf) || !empty(JOB_QUEUE[lang][g:LANG_TOOL[lang]['exttool']])
     return
   endif
   if &filetype != lang
     throw "Error: (Check) " .. curbuf .. " is not a valid " .. lang .. " file!"
   endif
   errlist = SetLangSign(lang, tool, curbuf, mode)
-  CHECKER_ERRORS[lang][tool] = errlist[0]
+  ERRORS[lang][tool] = errlist[0]
   errout = errlist[1]
   if !empty(errout)
     prevstatusline = substitute(&statusline, REGEX_STATUSLINE[lang], "", "")
     &l:statusline = ""
-    .. "[" .. SIGNS_TITLES[lang][tool] .. "=" .. CHECKER_ERRORS[lang][tool] .. "]"
+    .. "[" .. SIGNS_TITLES[lang][tool] .. "=" .. ERRORS[lang][tool] .. "]"
     .. "[" .. SIGNS_TITLES[lang]['exttool'] .. "=N] " .. prevstatusline
     throw "Error: (" .. mode .. ") " .. errout
-  elseif mode == "write" && empty(JOB_QUEUE[lang][g:LANG_TOOL[lang]['exttool']])
+  elseif mode == "write"
     # for autocmd BufWriteCmd
     write
   endif
@@ -181,8 +181,8 @@ def SetLangSign(lang: string, tool: string, curbuf: string, mode: string): list<
   var nerrors: number
   var errout: string
   var theshell: string
-  var buffile = CHECKER_FILES[lang][tool]["buffer"]
-  var syntaxfile = CHECKER_FILES[lang][tool]["syntaxfile"]
+  var buffile = FILES[lang][tool]["buffer"]
+  var syntaxfile = FILES[lang][tool]["syntaxfile"]
   var signerror1 = g:CHECKER_SIGNS_ERRORS[lang][tool]
   var signerror2 = g:CHECKER_SIGNS_ERRORS[lang]['exttool']
   sign_unplace('', {'buffer': curbuf, 'name': signerror1})
@@ -239,7 +239,7 @@ def SetToolSigns(lang: string, tool: string, curbuf: string): list<any>
   var lerrors: list<string>
   var errline: number
   var errout: string
-  var syntaxfile = CHECKER_FILES[lang][tool]["syntaxfile"]
+  var syntaxfile = FILES[lang][tool]["syntaxfile"]
   var signerror = g:CHECKER_SIGNS_ERRORS[lang][tool]
   sign_unplace('', {'buffer': curbuf, 'name': signerror})
   nerrors = 0
@@ -268,12 +268,12 @@ enddef
 export def CheckAsync(lang: string, tool: string, file: string): void
   var cmd: list<string>
   var newjob: job
-  var syntaxfile = CHECKER_FILES[lang][tool]["syntaxfile"]
-  if !get(g:, 'checker_enabled')
+  var syntaxfile = FILES[lang][tool]["syntaxfile"]
+  if !g:checker_enabled
     return
   endif
   # depends on Check()
-  if CHECKER_ERRORS[lang][lang]
+  if ERRORS[lang][lang]
     EchoErrorMsg("Error: (Check) previous function contains errors")
     EchoErrorMsg("Error: (CheckAsync) detected error")
     return
@@ -333,16 +333,16 @@ def ExitHandlerCheck(job: job, status: number)
     win_gotoid(filewinid)
   endif
   errlist = SetToolSigns(lang, tool, file)
-  CHECKER_ERRORS[lang][tool] = errlist[0]
+  ERRORS[lang][tool] = errlist[0]
   # errout = errlist[1]
   # job command with unexpected error
-  if !CHECKER_ERRORS[lang][tool] && job_info(job)["exitval"] != 0
+  if !ERRORS[lang][tool] && job_info(job)["exitval"] != 0
     errexit = true
   endif
   prevstatusline = substitute(&statusline, REGEX_STATUSLINE[lang], "", "")
   &l:statusline = ""
-  .. "[" .. SIGNS_TITLES[lang][lang] .. "=" .. CHECKER_ERRORS[lang][lang] .. "]"
-  .. "[" .. SIGNS_TITLES[lang][tool] .. "=" .. (errexit ? "E" : CHECKER_ERRORS[lang][tool]) .. "] " .. prevstatusline
+  .. "[" .. SIGNS_TITLES[lang][lang] .. "=" .. ERRORS[lang][lang] .. "]"
+  .. "[" .. SIGNS_TITLES[lang][tool] .. "=" .. (errexit ? "E" : ERRORS[lang][tool]) .. "] " .. prevstatusline
   idx = index(JOB_QUEUE[lang][tool], job_info(job)["process"])
   if idx >= 0
     remove(JOB_QUEUE[lang][tool], idx)
@@ -431,7 +431,7 @@ def ShowErrorPopup(lang: string, tool: string)
   errmsg = GetErrorLine(lang, tool)
   if !empty(errmsg)
     echo tool .. ": " .. errmsg
-    if get(g:, 'checker_showpopup')
+    if g:checker_showpopup
       popup_create(
         tool .. ": " .. errmsg,
         {
@@ -454,7 +454,7 @@ def GetErrorLine(lang: string, tool: string): string
   var errmsg: string
   var idx: number
   var curline = line('.')
-  var errout = readfile(CHECKER_FILES[lang][tool]["syntaxfile"])
+  var errout = readfile(FILES[lang][tool]["syntaxfile"])
   if lang == "sh"
     if tool == "sh"
       idx = match(errout, "^.*: " .. curline .. ": ")

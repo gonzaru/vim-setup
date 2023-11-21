@@ -8,6 +8,33 @@ if exists('g:loaded_searcher') || !get(g:, 'searcher_enabled') || &cp
 endif
 g:loaded_searcher = 1
 
+# global variables
+if !exists('g:searcher_findprg_command')
+  g:searcher_findprg_command = [
+    'fd', '--type', 'f', '--follow', '--no-ignore', '--strip-cwd-prefix', '--color=never'
+  ]
+endif
+if !exists('g:searcher_findprg_sensitive')
+  g:searcher_findprg_sensitive = ['--case-sensitive']
+endif
+if !exists('g:searcher_findprg_insensitive')
+  g:searcher_findprg_insensitive = ['--ignore-case']
+endif
+if !exists('g:searcher_findprg_directory')
+  g:searcher_findprg_directory = ['--absolute-path', '--base-directory']
+endif
+if !exists('g:searcher_grepprg_command')
+  g:searcher_grepprg_command = [
+    'rg', '--vimgrep', '--line-number', '--no-heading', '--color=never'
+  ]
+endif
+if !exists('g:searcher_grepprg_sensitive')
+  g:searcher_grepprg_sensitive = ['--case-sensitive']
+endif
+if !exists('g:searcher_grepprg_insensitive')
+  g:searcher_grepprg_insensitive = ['--ignore-case']
+endif
+
 # autoload
 import autoload '../autoload/searcher.vim'
 

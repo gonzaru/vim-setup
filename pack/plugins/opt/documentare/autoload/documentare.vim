@@ -9,12 +9,12 @@ endif
 g:autoloaded_documentare = 1
 
 # script local variables
-const DOCUMENTARE_BUFFER_NAME = "documentare_" .. strftime('%Y%m%d%H%M%S', localtime())
+const BUFFER_NAME = "documentare_" .. strftime('%Y%m%d%H%M%S', localtime())
 
 # allowed doc file types
-const DOCUMENTARE_ALLOWED_TYPES = ["python", "go"]
+const ALLOWED_TYPES = ["python", "go"]
 
-# prints error message and saves the message in the message-history
+# prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
@@ -23,7 +23,7 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints warning message and saves the message in the message-history
+# prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
     echohl WarningMsg
@@ -32,12 +32,12 @@ def EchoWarningMsg(msg: string)
   endif
 enddef
 
-# gets Documentare buffer window id
+# gets the Documentare buffer window id
 def GetDocBufWinId(): number
-  return bufexists(DOCUMENTARE_BUFFER_NAME) ? bufwinid(DOCUMENTARE_BUFFER_NAME) : -1
+  return bufexists(BUFFER_NAME) ? bufwinid(BUFFER_NAME) : -1
 enddef
 
-# close documentation window
+# close the documentation window
 export def Close()
   var bid = GetDocBufWinId()
   if bid > 0
@@ -72,11 +72,11 @@ def DocSetupWindow()
   var bid = GetDocBufWinId()
   if bid > 0
     win_gotoid(bid)
-  elseif bufexists(DOCUMENTARE_BUFFER_NAME) && getbufinfo(DOCUMENTARE_BUFFER_NAME)[0].hidden
-    execute "topleft split " .. DOCUMENTARE_BUFFER_NAME
+  elseif bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
+    execute "topleft split " .. BUFFER_NAME
   else
     new
-    silent execute "file " .. DOCUMENTARE_BUFFER_NAME
+    silent execute "file " .. BUFFER_NAME
     setlocal buftype=nowrite
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -88,13 +88,13 @@ enddef
 export def Doc(type: string): void
   var cword: string
   var word: string
-  if index(DOCUMENTARE_ALLOWED_TYPES, &filetype) == -1
+  if index(ALLOWED_TYPES, &filetype) == -1
     EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
     return
   endif
   # TODO:
   # if win_getid() == GetDocBufWinId()
-  #   EchoWarningMsg("Warning: already using the same window " .. DOCUMENTARE_BUFFER_NAME)
+  #   EchoWarningMsg("Warning: already using the same window " .. BUFFER_NAME)
   #   return
   # endif
   cword = expand("<cWORD>")

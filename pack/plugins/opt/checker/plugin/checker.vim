@@ -118,9 +118,12 @@ enddef
 nnoremap <silent> <unique> <script> <Plug>(checker-enable) :CheckerEnable<CR>
 nnoremap <silent> <unique> <script> <Plug>(checker-disable) :CheckerDisable<CR>
 nnoremap <silent> <unique> <script> <Plug>(checker-toggle) :CheckerToggle<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-cur) <ScriptCmd>checker.SignsDebug(&filetype, 'cur')<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-prev) <ScriptCmd>checker.SignsDebug(&filetype, 'prev')<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-next) <ScriptCmd>checker.SignsDebug(&filetype, 'next')<CR>
+nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-cur)
+  \ <ScriptCmd>checker.SignsDebug(&filetype, 'cur')<CR>
+nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-prev)
+  \ <ScriptCmd>checker.SignsDebug(&filetype, 'prev')<CR>
+nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-next)
+  \ <ScriptCmd>checker.SignsDebug(&filetype, 'next')<CR>
 
 # set mappings
 if get(g:, 'checker_no_mappings') == 0
