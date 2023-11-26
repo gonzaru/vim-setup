@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -15,10 +15,10 @@ vim9script
 # 210 looks a red light color
 
 # do not read the file if it is already loaded
-if get(g:, 'loaded_plan9') == 1 && get(g:, 'colors_name') == "plan9"
+if get(g:, 'loaded_plan9') && get(g:, 'colors_name') == "plan9"
   finish
 endif
-g:loaded_plan9 = 1
+g:loaded_plan9 = true
 
 # light background
 if &background != "light"

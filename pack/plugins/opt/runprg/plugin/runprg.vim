@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_runprg') || !get(g:, 'runprg_enabled') || &cp
+if exists('g:loaded_runprg') || !get(g:, 'runprg_enabled')
   finish
 endif
-g:loaded_runprg = 1
+g:loaded_runprg = true
 
 # global variables
 if !exists('g:runprg_sh_command')
@@ -26,14 +26,14 @@ endif
 import autoload '../autoload/runprg.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(runprg-laststatus) <ScriptCmd>runprg.Run(&filetype, expand('%:p'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(runprg-run) <ScriptCmd>runprg.Run(&filetype, expand('%:p'))<CR>
 nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow(&filetype, expand('%:p'))<CR>
 nnoremap <silent> <unique> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
 if get(g:, 'runprg_no_mappings') == 0
   if empty(mapcheck("<leader>ru", "n"))
-    nnoremap <leader>ru <Plug>(runprg-laststatus)
+    nnoremap <leader>ru <Plug>(runprg-run)
   endif
   if empty(mapcheck("<leader>rU", "n"))
     nnoremap <leader>rU <Plug>(runprg-window)
@@ -45,7 +45,7 @@ endif
 
 # set commands
 if get(g:, 'runprg_no_commands') == 0
-  command! Run runprg.Run(&filetype, expand('%:p'))
-  command! RunWindow runprg.RunWindow(&filetype, expand('%:p'))
-  command! RunClose runprg.Close()
+  command! Run execute "normal \<Plug>(runprg-run)"
+  command! RunWindow execute "normal \<Plug>(runprg-window)"
+  command! RunClose execute "normal \<Plug>(runprg-close)"
 endif

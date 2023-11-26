@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -6,7 +6,7 @@ vim9script
 if exists("b:current_syntax_after")
   finish
 endif
-b:current_syntax_after = 1
+b:current_syntax_after = true
 
 # see $VIMRUNTIME/syntax/python.vim
 

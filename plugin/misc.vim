@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -11,24 +11,18 @@ vim9script
 # v: Vim variables.
 
 # do not read the file if it is already loaded
-if exists('g:loaded_misc') || !get(g:, 'misc_enabled') || &cp
+if exists('g:loaded_misc') || !get(g:, 'misc_enabled')
   finish
 endif
-g:loaded_misc = 1
+g:loaded_misc = true
 
 # autoload
 import autoload '../autoload/misc.vim'
 
-# go to last edit cursor position
-def GoLastEditCursorPos()
-  var lastcursorline = line("'\"")
-  if lastcursorline >= 1 && lastcursorline <= line("$") && &ft !~ "commit"
-    execute "normal! g`\""
-  endif
-enddef
-
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd><SID>GoLastEditCursorPos()<CR>
+nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>misc.GoLastEditCursorPos()<CR>
+inoremap <silent> <unique> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
+inoremap <silent> <unique> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
 
 # TODO:
 # set mappings
@@ -44,8 +38,10 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
-  command! MiscGoLastEditCursor GoLastEditCursorPos()
+  command! MiscGoLastEditCursor misc.GoLastEditCursorPos()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
+  command! MiscMapInsertEnter misc.MapInsertEnter()
+  command! MiscMapInsertTab misc.MapInsertTab()
   command! MiscMenuLanguageSpell misc.MenuLanguageSpell()
   command! MiscMenuMisc misc.MenuMisc()
   command! MiscSH misc.SH()

@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_commentarium') || !get(g:, 'commentarium_enabled') || &cp
+if exists('g:autoloaded_commentarium') || !get(g:, 'commentarium_enabled')
   finish
 endif
-g:autoloaded_commentarium = 1
+g:autoloaded_commentarium = true
 
 # allowed file types
 const COMMENT_C_STYLE_BLOCK = ["c", "cpp", "java", "sql"]

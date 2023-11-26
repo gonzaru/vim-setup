@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -11,10 +11,10 @@ vim9script
 # v: Vim variables.
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled') || &cp
+if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled')
   finish
 endif
-g:autoloaded_misc = 1
+g:autoloaded_misc = true
 
 # autoload
 import autoload './utils.vim'
@@ -77,6 +77,14 @@ export def GoBufferPos(bnum: number)
   endif
 enddef
 
+# go to last edit cursor position
+export def GoLastEditCursorPos()
+  var lastcursorline = line("'\"")
+  if lastcursorline >= 1 && lastcursorline <= line("$") && &filetype !~ "commit"
+    execute "normal! g`\""
+  endif
+enddef
+
 # toggle gui menu bar
 export def GuiMenuBarToggle(): void
   if !has('gui_running')
@@ -92,6 +100,32 @@ export def GuiMenuBarToggle(): void
     setlocal guioptions+=m
   endif
   v:statusmsg = "guioptions=" .. &l:guioptions
+enddef
+
+# map insert enter
+export def MapInsertEnter()
+  if !empty(mapcheck("<CR>", "i"))
+    iunmap <CR>
+  endif
+  inoremap <expr> <CR>
+  \ get(g:, 'complementum_enabled')
+  \ ? '<Plug>(complementum-enter)'
+  \ : get(g:, "autoendstructs_enabled")
+  \ ? '<Plug>(autoendstructs-end)'
+  \ : '<CR>'
+enddef
+
+# map insert tab
+export def MapInsertTab()
+  if !empty(mapcheck("<Tab>", "i"))
+    iunmap <Tab>
+  endif
+  inoremap <silent><expr> <Tab>
+  \ pumvisible()
+  \ ? '<C-y>'
+  \ : get(g:, 'complementum_enabled')
+  \ ? '<Plug>(complementum-tab)'
+  \ : '<Tab>'
 enddef
 
 # menu spell

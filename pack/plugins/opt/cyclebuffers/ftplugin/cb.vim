@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded or se is not enabled
-if exists("b:did_ftplugin_cb") || !get(g:, "cyclebuffers_enabled") || &cp
+if exists("b:did_ftplugin_cb") || !get(g:, "cyclebuffers_enabled")
   finish
 endif
-b:did_ftplugin_cb = 1
+b:did_ftplugin_cb = true
 
 # cb (cycle buffers)
 setlocal statusline=%{getline('.')}\ [%{buffer_number(getline('.'))}]%=%{line('$')}\ [CB]

@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_autoeclosechars') || !get(g:, 'autoclosechars_enabled') || &cp
+if exists('g:autoloaded_autoeclosechars') || !get(g:, 'autoclosechars_enabled')
   finish
 endif
-g:autoloaded_autoclosechars = 1
+g:autoloaded_autoclosechars = true
 
 # automatic close of chars [,(,[
 export def Close(mode: string, nr: any): string

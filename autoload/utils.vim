@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_utils') || !get(g:, 'utils_enabled') || &cp
+if exists('g:autoloaded_utils') || !get(g:, 'utils_enabled')
   finish
 endif
-g:autoloaded_utils = 1
+g:autoloaded_utils = true
 
 # tells if the buffer is empty
 export def BufferIsEmpty(): bool

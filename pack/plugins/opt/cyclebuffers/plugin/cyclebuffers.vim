@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_cyclebuffers') || !get(g:, 'cyclebuffers_enabled') || &cp
+if exists('g:loaded_cyclebuffers') || !get(g:, 'cyclebuffers_enabled')
   finish
 endif
-g:loaded_cyclebuffers = 1
+g:loaded_cyclebuffers = true
 
 # autoload
 import autoload '../autoload/cyclebuffers.vim'
@@ -24,5 +24,5 @@ endif
 
 # set commands
 if get(g:, 'cyclebuffers_no_commands') == 0
-  command! CycleBuffers cyclebuffers.Cycle()
+  command! CycleBuffers execute "normal \<Plug>(cyclebuffers-cycle)"
 endif

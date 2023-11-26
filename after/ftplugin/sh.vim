@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -6,7 +6,7 @@ vim9script
 if exists("b:did_ftplugin_after")
   finish
 endif
-b:did_ftplugin_after = 1
+b:did_ftplugin_after = true
 
 # see $VIMRUNTIME/ftplugin/sh.vim
 #^ already done previously
@@ -14,11 +14,13 @@ b:did_ftplugin_after = 1
 # SH
 # :help ft-posix-syntax
 if getline(1) =~ "bash"
-  g:is_bash = 1
+  g:is_bash = true
 else
-  g:is_posix = 1
+  g:is_posix = true
 endif
 setlocal syntax=on
+#^ setlocal formatoptions-=t formatoptions+=croql
+setlocal formatoptions-=cro  # don't auto comment new lines
 # setlocal signcolumn=auto
 setlocal number
 setlocal cursorline
@@ -30,9 +32,9 @@ setlocal shiftwidth=2
 setlocal shiftround
 setlocal expandtab
 setlocal makeprg=sh\ -n\ %
-if get(g:, "autoendstructs_enabled")
-  if empty(mapcheck("<CR>", "i"))
-    inoremap <buffer><CR> <Plug>(autoendstructs-end)
-  endif
-endif
+# if get(g:, "autoendstructs_enabled")
+#   if empty(mapcheck("<CR>", "i"))
+#     inoremap <buffer><CR> <Plug>(autoendstructs-end)
+#   endif
+# endif
 matchadd('ColorColumn', '\%120v', 10)

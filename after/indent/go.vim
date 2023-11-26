@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -6,7 +6,7 @@ vim9script
 if exists("b:did_indent_after")
   finish
 endif
-b:did_indent_after = 1
+b:did_indent_after = true
 
 # see $VIMRUNTIME/indent/go.vim
 #^ already done previously

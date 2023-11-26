@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -6,7 +6,7 @@ vim9script
 if exists("b:did_ftplugin_after")
   finish
 endif
-b:did_ftplugin_after = 1
+b:did_ftplugin_after = true
 
 # see $VIMRUNTIME/ftplugin/go.vim
 #^ already done previously
@@ -27,9 +27,9 @@ setlocal noexpandtab
 setlocal keywordprg=go\ doc
 # setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
-if get(g:, "complementum_enabled")
-  if empty(mapcheck(".", "i"))
-    inoremap <silent><buffer>. .<Plug>(complementum-insertautocomplete)
-  endif
-endif
+# if get(g:, "complementum_enabled")
+#   if empty(mapcheck(".", "i"))
+#     inoremap <silent><buffer>. .<Plug>(complementum-insertautocomplete)
+#   endif
+# endif
 matchadd('ColorColumn', '\%120v', 10)

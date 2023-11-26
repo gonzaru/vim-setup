@@ -1,16 +1,16 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_vimrc') && g:loaded_vimrc == 1
+if exists('g:loaded_vimrc') && g:loaded_vimrc
   echohl WarningMsg
   echom "Warning: file " .. expand('<sfile>:~') .. " is already loaded"
-  echom ":vim9cmd g:loaded_vimrc = 0 (to unblock it)"
+  echom ":vim9cmd g:loaded_vimrc = false (to unblock it)"
   echohl None
   finish
 endif
-g:loaded_vimrc = 1  # already loaded
+g:loaded_vimrc = true  # already loaded
 
 # autoload
 import autoload './autoload/misc.vim'
@@ -41,46 +41,46 @@ var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux      # je
 var jediterm_zellij = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && zellij  # jediterm + zellij
 
 # don't load defaults.vim
-g:skip_defaults_vim = 1
+g:skip_defaults_vim = true
 
-# disable some default plugins
-g:loaded_2html_plugin = 1      # tohtml.vim
-g:loaded_getscriptPlugin = 1   # getscriptPlugin.vim
-g:loaded_gzip = 1              # gzip.vim
-g:loaded_logiPath = 1          # logiPat.vim
-g:loaded_matchparen = 1        # matchparen.vim
-g:loaded_netrw = 1             # netrw autoload
-g:loaded_netrwPlugin = 1       # netrwPlugin.vim
-g:loaded_rrhelper = 1          # rrhelper.vim
-g:loaded_spellfile_plugin = 1  # spellfile.vim
-g:loaded_tar = 1               # pi_tar
-g:loaded_tarPlugin = 1         # tarPlugin.vim
-g:loaded_vimball = 1           # vimball autoload
-g:loaded_vimballPlugin = 1     # vimballPlugin.vim
-g:loaded_zip = 1               # zip.vim
-g:loaded_zipPlugin = 1         # zipPlugin.vim
+# disable built-in plugins
+g:loaded_2html_plugin =  true     # tohtml.vim
+g:loaded_getscriptPlugin = true   # getscriptPlugin.vim
+g:loaded_gzip = true              # gzip.vim
+g:loaded_logiPath = true          # logiPat.vim
+g:loaded_matchparen = true        # matchparen.vim
+g:loaded_netrw = true             # netrw autoload
+g:loaded_netrwPlugin = true       # netrwPlugin.vim
+g:loaded_rrhelper = true          # rrhelper.vim
+g:loaded_spellfile_plugin = true  # spellfile.vim
+g:loaded_tar = true               # pi_tar
+g:loaded_tarPlugin = true         # tarPlugin.vim
+g:loaded_vimball = true           # vimball autoload
+g:loaded_vimballPlugin = true     # vimballPlugin.vim
+g:loaded_zip = true               # zip.vim
+g:loaded_zipPlugin = true         # zipPlugin.vim
 
 # enable custom plugins
-g:arrowkeys_enabled = 1       # enable/disable arrow keys
-g:autoclosechars_enabled = 1  # automatic close of chars
-g:autoendstructs_enabled = 1  # automatic end of structures
-g:bufferonly_enabled = 1      # remove all buffers except the current one
-g:checker_enabled = 1         # checker plugin
-g:commentarium_enabled = 1    # comment by language
-g:complementum_enabled = 1    # complete by language
-g:cyclebuffers_enabled = 1    # cycle between buffers
-g:documentare_enabled = 1     # document information helper
-g:esckey_enabled = 1          # use key as escape
-g:format_enabled = 1          # format things
-g:git_enabled = 1             # git vcs
-g:misc_enabled = 1            # miscelania functions
-g:runprg_enabled = 1          # run programs
-g:scratch_enabled = 1         # scratch stuff
-g:se_enabled = 1              # se plugin (simple explorer)
-g:searcher_enabled = 1        # search files and find matches
-g:statusline_enabled = 1      # statusline
-g:tabline_enabled = 1         # tab page
-g:utils_enabled = 1           # utils for misc plugin and generic use
+g:arrowkeys_enabled = true        # enable/disable arrow keys
+g:autoclosechars_enabled = false  # automatic close of chars
+g:autoendstructs_enabled = true   # automatic end of structures
+g:bufferonly_enabled = true       # remove all buffers except the current one
+g:checker_enabled = true          # checker plugin
+g:commentarium_enabled = true     # comment by language
+g:complementum_enabled = true     # complete by language
+g:cyclebuffers_enabled = true     # cycle between buffers
+g:documentare_enabled = true      # document information helper
+g:esckey_enabled = true           # use key as escape
+g:format_enabled = true           # format things
+g:git_enabled = true              # git vcs
+g:misc_enabled = true             # miscelania functions
+g:runprg_enabled = true           # run programs
+g:scratch_enabled = true          # scratch stuff
+g:se_enabled = true               # se plugin (simple explorer)
+g:searcher_enabled = true         # search files and find matches
+g:statusline_enabled = true       # statusline
+g:tabline_enabled = true          # tab page
+g:utils_enabled = true            # utils for misc plugin and generic use
 
 # add plugins
 # set packpath=$HOME/.vim,$VIMRUNTIME
@@ -111,7 +111,12 @@ endfor
 
 # checker plugin
 if g:checker_enabled
-  g:checker_showpopup = 0
+  g:checker_showpopup = false
+endif
+
+# complementum plugin
+if g:complementum_enabled
+  g:complementum_debuginfo = false
 endif
 
 # esckey plugin
@@ -131,15 +136,15 @@ endif
 
 # se plugin (simple explorer)
 if g:se_enabled
-  g:se_followfile = 0
-  g:se_hiddenfirst = 0
+  g:se_followfile = false
+  g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
   g:se_winsize = 20
 endif
 
 # statusline plugin
 if g:statusline_enabled
-  g:statusline_showgitbranch = 1
+  g:statusline_showgitbranch = true
 endif
 
 # set python3 with dynamic loading support
@@ -156,7 +161,7 @@ if has("python3_dynamic")
         globpath(homepython .. "/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
         (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
       )[-1]
-    catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range: libpython3*.so.1 was not found
+    catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
     endtry
   endif
   if isdirectory(homepython) && filereadable(libpython)
@@ -493,7 +498,10 @@ endif
 # u: unloaded buffers
 # k: dictionary files with dictionary option
 # t: tags
-set complete=.,w,b,u,k,t
+# set complete=.,w,b,u,k,t
+set complete=.,w,b,u,k
+set pumheight=15  # maximum number of items to show in the popup menu (default 0)
+set pumwidth=15   # minimum width to use for the popup menu (default 15)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -545,6 +553,10 @@ g:maplocalleader = "\<C-\>"
 # the key that starts a <C-w> command in a terminal mode
 set termwinkey=<C-s>
 
+# insert maps <cr> and <tab>
+misc.MapInsertEnter()
+misc.MapInsertTab()
+
 # save
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-o>:update<CR>
@@ -569,9 +581,9 @@ nnoremap <leader>e; mt<ESC>$a;<ESC>`t
 
 # source
 nnoremap <leader>sv :source $HOME/.vim/vimrc<CR>
-nnoremap <leader>sV <ScriptCmd>g:loaded_vimrc = 0<CR>:source $HOME/.vim/vimrc<CR>
+nnoremap <leader>sV <ScriptCmd>g:loaded_vimrc = false<CR>:source $HOME/.vim/vimrc<CR>
 nnoremap <leader>st :Theme<CR>
-nnoremap <leader>sa <ScriptCmd>g:loaded_vimrc = 0<CR>:source $HOME/.vim/vimrc<CR>:Theme<CR>
+nnoremap <leader>sa <ScriptCmd>g:loaded_vimrc = false<CR>:source $HOME/.vim/vimrc<CR>:Theme<CR>
 
 # toggle
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
@@ -732,14 +744,14 @@ endif
 
 # plan9 theme
 command! Plan9 {
-  g:loaded_plan9 = 0
+  g:loaded_plan9 = false
   set background=light
   colorscheme plan9
 }
 
 # darkula theme
 command! Darkula {
-  g:loaded_darkula = 0
+  g:loaded_darkula = false
   set background=dark
   colorscheme darkula
 }
@@ -772,7 +784,7 @@ endif
 augroup event_buffer
   autocmd!
   if g:misc_enabled
-    autocmd BufReadPost * execute "normal! \<Plug>(misc-golasteditcursor)"
+    autocmd BufReadPost * execute "normal \<Plug>(misc-golasteditcursor)"
   endif
 augroup END
 

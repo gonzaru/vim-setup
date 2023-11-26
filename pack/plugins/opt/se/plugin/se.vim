@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -7,17 +7,17 @@ vim9script
 # See also ../../ftplugin/se.vim
 
 # do not read the file if it is already loaded or se is not enabled
-if exists('g:loaded_se') || !get(g:, 'se_enabled') || &cp
+if exists('g:loaded_se') || !get(g:, 'se_enabled')
   finish
 endif
-g:loaded_se = 1
+g:loaded_se = true
 
 # global variables
 if !exists('g:se_followfile')
-  g:se_followfile = 0
+  g:se_followfile = false
 endif
 if !exists('g:se_hiddenfirst')
-  g:se_hiddenfirst = 0
+  g:se_hiddenfirst = false
 endif
 if !exists('g:se_position')
   g:se_position = "left"
@@ -78,6 +78,6 @@ endif
 
 # set commands
 if get(g:, 'se_no_commands') == 0
-  command! SeHelp se.Help()
-  command! SeToggle se.Toggle(expand('%:p'))
+  command! SeHelp execute "normal \<Plug>(se-help)"
+  command! SeToggle execute "normal \<Plug>(se-toggle)"
 endif

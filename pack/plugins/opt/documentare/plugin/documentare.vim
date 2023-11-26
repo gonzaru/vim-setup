@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_documentare') || !get(g:, 'documentare_enabled') || &cp
+if exists('g:loaded_documentare') || !get(g:, 'documentare_enabled')
   finish
 endif
-g:loaded_documentare = 1
+g:loaded_documentare = true
 
 # autoload
 import autoload '../autoload/documentare.vim'
@@ -24,6 +24,6 @@ endif
 
 # set commands
 if get(g:, 'documentare_no_commands') == 0
-  command! DocumentareDoc documentare.Doc(&filetype)
-  command! DocumentareClose documentare.Close()
+  command! DocumentareDoc execute "normal \<Plug>(documentare-doc)"
+  command! DocumentareClose execute "normal \<Plug>(documentare-close)"
 endif

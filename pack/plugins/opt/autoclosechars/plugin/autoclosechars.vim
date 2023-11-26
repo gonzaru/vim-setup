@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_autoeclosechars') || !get(g:, 'autoclosechars_enabled') || &cp
+if exists('g:loaded_autoeclosechars') || !get(g:, 'autoclosechars_enabled')
   finish
 endif
-g:loaded_autoclosechars = 1
+g:loaded_autoclosechars = true
 
 # autoload
 import autoload '../autoload/autoclosechars.vim'
@@ -38,7 +38,7 @@ endif
 
 # set commands
 if get(g:, 'autoclosechars_no_commands') == 0
-  command! AutoCloseCharsEnable g:autoclosechars_enabled = 1
-  command! AutoCloseCharsDisable g:autoclosechars_enabled = 0
-  command! AutoCloseCharsToggle autoclosechars.Toggle()
+  command! AutoCloseCharsEnable g:autoclosechars_enabled = true
+  command! AutoCloseCharsDisable g:autoclosechars_enabled = false
+  command! AutoCloseCharsToggle execute "normal \<Plug>(autoclosechars-toggle)"
 endif

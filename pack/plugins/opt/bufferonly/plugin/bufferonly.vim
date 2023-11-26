@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_bufferonly') || !get(g:, 'bufferonly_enabled') || &cp
+if exists('g:loaded_bufferonly') || !get(g:, 'bufferonly_enabled')
   finish
 endif
-g:loaded_bufferonly = 1
+g:loaded_bufferonly = true
 
 # autoload
 import autoload '../autoload/bufferonly.vim'
@@ -39,8 +39,8 @@ endif
 
 # set commands
 if get(g:, 'bufferonly_no_commands') == 0
-  command! BufferOnlyDelete bufferonly.RemoveAllExceptCurrent("delete")
-  command! -bang BufferOnlyDelete bufferonly.RemoveAllExceptCurrent("delete<bang>")
-  command! BufferOnlyWipe bufferonly.RemoveAllExceptCurrent("wipe")
-  command! -bang BufferOnlyWipe bufferonly.RemoveAllExceptCurrent("wipe<bang>")
+  command! BufferOnlyDelete execute "normal \<Plug>(bufferonly-delete)"
+  command! -bang BufferOnlyDelete execute "normal \<Plug>(bufferonly-delete!)"
+  command! BufferOnlyWipe execute "normal \<Plug>(bufferonly-wipe)"
+  command! -bang BufferOnlyWipe execute "normal \<Plug>(bufferonly-wipe!)"
 endif

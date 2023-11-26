@@ -1,16 +1,16 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_statusline') || !get(g:, 'statusline_enabled') || &cp
+if exists('g:loaded_statusline') || !get(g:, 'statusline_enabled')
   finish
 endif
-g:loaded_statusline = 1
+g:loaded_statusline = true
 
 # global variables
 if !exists('g:statusline_showgitbranch')
-  g:statusline_showgitbranch = 1
+  g:statusline_showgitbranch = true
 endif
 
 # autoload
@@ -36,18 +36,18 @@ endif
 # set commands
 if get(g:, 'statusline_no_commands') == 0
   command! StatusLineGitEnable {
-    g:statusline_showgitbranch = 1
+    g:statusline_showgitbranch = true
     statusline.MyStatusLineAsync(expand('%:p'))
   }
   command! StatusLineGitDisable {
     statusline.SetStatus("")
-    g:statusline_showgitbranch = 0
+    g:statusline_showgitbranch = false
   }
   command! StatusLineGitToggle {
-    if g:statusline_showgitbranch == 1
-      execute "normal! \<Plug>(statusline-git-disable)"
+    if g:statusline_showgitbranch
+      execute "normal \<Plug>(statusline-git-disable)"
     else
-      execute "normal! \<Plug>(statusline-git-enable)"
+      execute "normal \<Plug>(statusline-git-enable)"
     endif
     v:statusmsg = "statusline_showgitbranch=" .. g:statusline_showgitbranch
   }

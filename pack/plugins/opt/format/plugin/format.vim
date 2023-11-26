@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_format') || !get(g:, 'format_enabled') || &cp
+if exists('g:loaded_format') || !get(g:, 'format_enabled')
   finish
 endif
-g:loaded_format = 1
+g:loaded_format = true
 
 # global variables
 if !exists('g:format_sh_command')
@@ -26,7 +26,8 @@ endif
 import autoload '../autoload/format.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(format-language) <ScriptCmd>format.Language(&filetype, expand('%:p'))<CR>
+nnoremap <silent> <unique> <script> <Plug>(format-language)
+\ <ScriptCmd>noautocmd format.Language(&filetype, expand('%:p'))<CR>
 
 # set mappings
 if get(g:, 'format_no_mappings') == 0
@@ -37,5 +38,5 @@ endif
 
 # set commands
 if get(g:, 'format_no_commands') == 0
-  command! FormatLanguage format.Language(&filetype, expand('%:p'))
+  command! FormatLanguage execute "normal \<Plug>(format-language)"
 endif

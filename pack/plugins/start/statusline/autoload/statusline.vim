@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_statusline') || !get(g:, 'statusline_enabled') || &cp
+if exists('g:autoloaded_statusline') || !get(g:, 'statusline_enabled')
   finish
 endif
-g:autoloaded_statusline = 1
+g:autoloaded_statusline = true
 
 # job queue
 final JOB_QUEUE = []

@@ -1,4 +1,4 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
@@ -7,10 +7,10 @@ vim9script
 # See also ../ftplugin/se.vim
 
 # do not read the file if it is already loaded or se is not enabled
-if exists('g:autoloaded_se') || !get(g:, 'se_enabled') || &cp
+if exists('g:autoloaded_se') || !get(g:, 'se_enabled')
   finish
 endif
-g:autoloaded_se = 1
+g:autoloaded_se = true
 
 # script local variables
 const BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
@@ -110,12 +110,12 @@ def Populate(cwddir: string)
   endif
   try
     parent2cwd = split(cwddir, "/")[-2]
-  catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
+  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
     parent2cwd = '/'
   endtry
   try
     parentcwd = split(cwddir, "/")[-1]
-  catch /^Vim\%((\a\+)\)\=:E684:/ # E684: List index out of range
+  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
     parentcwd = '/'
   endtry
   appendbufline(BUFFER_NAME, 0, ['../ [' .. parent2cwd .. ']'])

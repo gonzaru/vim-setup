@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_git') || !get(g:, 'git_enabled') || &cp
+if exists('g:loaded_git') || !get(g:, 'git_enabled')
   finish
 endif
-g:loaded_git = 1
+g:loaded_git = true
 
 # global variables
 if !exists('g:git_position')
@@ -33,7 +33,7 @@ if get(g:, 'git_no_commands') == 0
   command! GitBranch git.Run('git branch', getcwd())
   command! GitBranchAll git.Run('git branch --all', getcwd())
   command! GitBranchRemotes git.Run('git branch --remotes', getcwd())
-  command! GitClose git.Close()
+  command! GitClose execute "normal \<Plug>(git-close)"
   command! GitDiff git.Run('git diff', getcwd())
   command! GitDiffStaged git.Run('git diff --staged', getcwd())
   command! GitLog git.Run('git log', getcwd())

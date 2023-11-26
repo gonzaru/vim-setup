@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_scratch') || !get(g:, 'scratch_enabled') || &cp
+if exists('g:loaded_scratch') || !get(g:, 'scratch_enabled')
   finish
 endif
-g:loaded_scratch = 1
+g:loaded_scratch = true
 
 # autoload
 import autoload '../autoload/scratch.vim'
@@ -33,6 +33,6 @@ endif
 
 # set commands
 if get(g:, 'scratch_no_commands') == 0
-  command! ScratchBuffer scratch.Buffer()
-  command! ScratchTerminal scratch.Terminal()
+  command! ScratchBuffer execute "normal \<Plug>(scratch-buffer)"
+  command! ScratchTerminal execute "normal \<Plug>(scratch-terminal)"
 endif

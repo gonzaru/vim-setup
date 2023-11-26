@@ -1,12 +1,12 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_arrowkeys') || !get(g:, 'arrowkeys_enabled') || &cp
+if exists('g:loaded_arrowkeys') || !get(g:, 'arrowkeys_enabled')
   finish
 endif
-g:loaded_arrowkeys = 1
+g:loaded_arrowkeys = true
 
 # autoload
 import autoload '../autoload/arrowkeys.vim'
@@ -31,7 +31,7 @@ endif
 
 # set commands
 if get(g:, 'arrowkeys_no_commands') == 0
-  command! ArrowKeysEnable arrowkeys.Enable()
-  command! ArrowKeysDisable arrowkeys.Disable()
-  command! ArrowKeysToggle arrowkeys.Toggle()
+  command! ArrowKeysEnable execute "normal \<Plug>(arrowkeys-enable)"
+  command! ArrowKeysDisable execute "normal \<Plug>(arrowkeys-disable)"
+  command! ArrowKeysToggle execute "normal \<Plug>(arrowkeys-toggle)"
 endif

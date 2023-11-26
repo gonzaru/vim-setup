@@ -1,14 +1,14 @@
-vim9script
+vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
 # My darkula theme :)
 
 # do not read the file if it is already loaded
-if get(g:, 'loaded_darkula') == 1 && get(g:, 'colors_name') == "darkula"
+if get(g:, 'loaded_darkula') && get(g:, 'colors_name') == "darkula"
   finish
 endif
-g:loaded_darkula = 1
+g:loaded_darkula = true
 
 # dark background
 if &background != "dark"
