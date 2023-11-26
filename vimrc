@@ -221,6 +221,7 @@ set ignorecase              # case-insensitive search (also affects if == 'var',
 set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set smartcase               # except if start with capital letter
 set tagcase=followscs       # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
+set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
 set hlsearch                # to highlight all search matches
 set incsearch               # jumps to search word when typing on serch /foo (default no)
 set nospell                 # disable spell checking
@@ -362,10 +363,10 @@ endif
 
 # wildmenu
 if has("wildmenu")
-  set wildmenu               # enchange command line completion
-  set wildmode=longest:full  # default (full)
-  set wildignorecase         # case is ignored when completing files and directories
-  set wildoptions=pum        # (pum) the completion matches are shown in a popup menu
+  set wildmenu                    # enchange command line completion
+  set wildmode=longest:full,full  # default (full)
+  set nowildignorecase            # case is not ignored when completing files and directories (see fileignorecase)
+  set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
 endif
 
 # balloons
@@ -559,7 +560,7 @@ misc.MapInsertTab()
 
 # save
 nnoremap <leader><C-w> :update<CR>
-inoremap <leader><C-w> <C-o>:update<CR>
+inoremap <leader><C-w> <C-\><C-o>:update<CR>
 
 # del
 # <C-l> goes to normal mode in evim/insertmode
