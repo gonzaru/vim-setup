@@ -122,7 +122,7 @@ export def End(lang: string): string
     wordfs = ""
   endtry
   wordl = curlinelist[-1]
-  wordfs = wordf .. ' ' .. words
+  wordfs = $"{wordf} {words}"
   group = GroupAction(lang, wordf)
   if empty(group)
     if len(split(wordfs, " ")) == 2
@@ -133,11 +133,11 @@ export def End(lang: string): string
     endif
   endif
   if lang == 'sh' && wordf == group['key'] && wordl == group['trigger']
-    action = "\<CR>" .. group['add'] .. "\<ESC>O"
+    action = $"\<CR>{group['add']}\<ESC>O"
   elseif lang == 'vim' && (wordf == group['key'] || wordfs == group['key'])
-    action = "\<CR>" .. group['add'] .. "\<ESC>O"
+    action = $"\<CR>{group['add']}\<ESC>O"
   elseif lang == 'go' && (wordf == group['key'] || wordfs == group['key']) && wordl == group['trigger']
-    action = "\<CR>" .. group['add'] .. "\<ESC>O"
+    action = $"\<CR>{group['add']}\<ESC>O"
   else
     action = "\<CR>"
   endif
@@ -147,5 +147,5 @@ enddef
 # toggle automatic end of structures
 export def Toggle()
   g:autoendstructs_enabled = !g:autoendstructs_enabled
-  v:statusmsg = "autoendstructs=" .. g:autoendstructs_enabled
+  v:statusmsg = $"autoendstructs={g:autoendstructs_enabled}"
 enddef

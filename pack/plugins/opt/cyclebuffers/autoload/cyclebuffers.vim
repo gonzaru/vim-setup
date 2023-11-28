@@ -33,7 +33,7 @@ export def Cycle(): void
   topleft new
   appendbufline('%', 0, buflist)
   deletebufline('%', '$')
-  execute "resize " .. line('$')
+  execute $"resize {line('$')}"
   setlocal filetype=cb
   idx = index(buflist, curbuf)
   if idx >= 0
@@ -46,5 +46,5 @@ export def SelectBuffer(file: string)
   var prevwinid = bufwinid('#')
   close
   win_gotoid(prevwinid)
-  execute "edit " .. fnameescape(file)
+  execute $"edit {fnameescape(file)}"
 enddef

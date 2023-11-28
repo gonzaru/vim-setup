@@ -47,14 +47,14 @@ def Format(lang: string, file: string): void
   else
     cmd = COMMANDS[lang]["command"]
   endif
-  outmsg = systemlist(cmd .. " " .. file)
+  outmsg = systemlist($"{cmd} {file}")
   if v:shell_error != 0
-    EchoErrorMsg("Error: command '" .. cmd .. "' failed to execute correctly")
+    EchoErrorMsg($"Error: command '{cmd}' failed to execute correctly")
     return
   endif
   checktime
   if empty(outmsg) || (lang == "python" && index(outmsg, "1 file left unchanged.") >= 0)
-    echo "Info: file was not modified (" .. cmd .. ")"
+    echo $"Info: file was not modified by cmd: {cmd}"
   endif
 enddef
 
@@ -62,12 +62,12 @@ enddef
 export def Language(lang: string, file: string): void
   var cmd: string
   if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg("Error: formatting lang '" .. lang .. "' is not supported")
+    EchoErrorMsg($"Error: formatting lang '{lang}' is not supported")
     return
   endif
   cmd = COMMANDS[lang]["command"]->split()[0]
   if !executable(cmd)
-    EchoErrorMsg("Error: command '" .. cmd .. "' not found")
+    EchoErrorMsg($"Error: command '{cmd}' not found")
     return
   endif
   Format(lang, file)

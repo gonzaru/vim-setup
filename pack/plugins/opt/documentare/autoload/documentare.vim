@@ -47,23 +47,23 @@ enddef
 
 # documentation Python
 def DocPython(word: string)
-  appendbufline('%', 0, systemlist("python3 -m pydoc " .. word))
+  appendbufline('%', 0, systemlist($"python3 -m pydoc {word}"))
   deletebufline('%', '$')
   cursor(1, 1)
   if getline(1) =~ '^No Python documentation found for '
     bw
-    EchoWarningMsg("Warning: no " .. &filetype .. " documentation found for " .. word)
+    EchoWarningMsg($"Warning: no {&filetype} documentation found for {word}")
   endif
 enddef
 
 # documentation Go
 def DocGo(word: string)
-  appendbufline('%', 0, systemlist("go doc " .. word))
+  appendbufline('%', 0, systemlist($"go doc {word}"))
   deletebufline('%', '$')
   cursor(1, 1)
   if getline('.') =~ '^doc: no symbol \|^doc: no buildable Go source files in '
     bw
-    EchoWarningMsg("Warning: no " .. &filetype .. " documentation found for " .. word)
+    EchoWarningMsg($"Warning: no {&filetype} documentation found for {word}")
   endif
 enddef
 
@@ -73,10 +73,10 @@ def DocSetupWindow()
   if bid > 0
     win_gotoid(bid)
   elseif bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
-    execute "topleft split " .. BUFFER_NAME
+    execute $"topleft split {BUFFER_NAME}"
   else
     new
-    silent execute "file " .. BUFFER_NAME
+    silent execute $"file {BUFFER_NAME}"
     setlocal buftype=nowrite
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -89,12 +89,12 @@ export def Doc(type: string): void
   var cword: string
   var word: string
   if index(ALLOWED_TYPES, &filetype) == -1
-    EchoErrorMsg("Error: running filetype '" .. &filetype .. "' is not supported")
+    EchoErrorMsg($"Error: running filetype '{&filetype}' is not supported")
     return
   endif
   # TODO:
   # if win_getid() == GetDocBufWinId()
-  #   EchoWarningMsg("Warning: already using the same window " .. BUFFER_NAME)
+  #   EchoWarningMsg($"Warning: already using the same window {BUFFER_NAME}")
   #   return
   # endif
   cword = expand("<cWORD>")

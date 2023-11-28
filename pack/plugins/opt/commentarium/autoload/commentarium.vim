@@ -162,7 +162,7 @@ export def DoComment(line: number, col: number)
   elseif index(COMMENT_VIM, &filetype) >= 0
     CommentVim(line, col)
   else
-    EchoErrorMsg("Error: commenting filetype '" .. &filetype .. "' is not supported")
+    EchoErrorMsg($"Error: commenting filetype '{&filetype}' is not supported")
   endif
 enddef
 
@@ -187,7 +187,7 @@ export def UndoComment(line: number, col: number): void
   elseif index(COMMENT_VIM, &filetype) >= 0
     UndoCommentVim(line, col)
   else
-    EchoErrorMsg("Error: uncommenting filetype '" .. &filetype .. "' is not supported")
+    EchoErrorMsg($"Error: uncommenting filetype '{&filetype}' is not supported")
   endif
 enddef
 

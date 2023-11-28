@@ -19,10 +19,30 @@ g:loaded_misc = true
 # autoload
 import autoload '../autoload/misc.vim'
 
+# autocmd
+augroup misc_golasteditcursor
+  autocmd!
+  autocmd BufReadPost * {
+    if g:misc_enabled
+      misc.GoLastEditCursorPos()
+    endif
+  }
+augroup END
+
+augroup misc_checktrailingspaces
+  autocmd!
+  autocmd BufWinEnter,BufWritePost * {
+    if g:misc_enabled && &filetype != 'help'
+      misc.CheckTrailingSpaces()
+    endif
+  }
+augroup END
+
 # define mappings
 nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>misc.GoLastEditCursorPos()<CR>
 inoremap <silent> <unique> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
 inoremap <silent> <unique> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
+nnoremap <silent> <unique> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>misc.CheckTrailingSpaces()<CR>
 
 # TODO:
 # set mappings
@@ -46,6 +66,7 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscMenuMisc misc.MenuMisc()
   command! MiscSH misc.SH()
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
+  command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
   command! MiscSignColumnToggle misc.SignColumnToggle()
   command! MiscSyntaxToggle misc.SyntaxToggle()
 endif

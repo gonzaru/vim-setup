@@ -53,7 +53,7 @@ export def Buffer()
         execute "b #"
       endif
     else
-      execute "b " .. bid
+      execute $"b {bid}"
     endif
   else
     enew
@@ -75,7 +75,7 @@ export def Terminal()
         execute "b #"
       endif
     else
-      execute "b " .. bid
+      execute $"b {bid}"
     endif
   else
     terminal ++curwin ++noclose ++norestore

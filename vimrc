@@ -5,8 +5,10 @@ vim9script noclear
 # do not read the file if it is already loaded
 if exists('g:loaded_vimrc') && g:loaded_vimrc
   echohl WarningMsg
-  echom "Warning: file " .. expand('<sfile>:~') .. " is already loaded"
+  echom $"Warning: file {expand('<sfile>:~')} is already loaded"
   echom ":vim9cmd g:loaded_vimrc = false (to unblock it)"
+  echom $":edit {$HOME}/.vim/vimrc"
+  echom ":source ++clear"
   echohl None
   finish
 endif
@@ -104,8 +106,8 @@ const plugins = [
   'tabline'
 ]
 for plugin in plugins
-  if get(g:, plugin .. "_enabled")
-    execute "packadd! " .. plugin
+  if get(g:, $"{plugin}_enabled")
+    execute $"packadd! {plugin}"
   endif
 endfor
 
@@ -153,20 +155,20 @@ if has("python3_dynamic")
   var libpython: string
   if has('mac')
     homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
-    libpython = homepython .. "/Python3"
+    libpython = $"{homepython}/Python3"
   elseif has('linux')
     homepython = "/usr"
     try
       libpython = sort(
-        globpath(homepython .. "/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
+        globpath($"{homepython}/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
         (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
       )[-1]
     catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
     endtry
   endif
   if isdirectory(homepython) && filereadable(libpython)
-    execute "set pythonthreehome=" .. homepython
-    execute "set pythonthreedll=" .. libpython
+    execute $"set pythonthreehome={homepython}"
+    execute $"set pythonthreedll={libpython}"
   endif
 endif
 
@@ -242,7 +244,7 @@ set t_ut=                   # disable background color erase (BCE)
 # vim
 if !has('gui_running')
   # viminfo with vim version
-  execute "set viminfofile=" .. $HOME .. "/.viminfo_" .. v:version
+  execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
 
   # cursor shapes
   # &t_SI = blinking vertical bar (INSERT MODE)
@@ -307,12 +309,12 @@ endif
 if has('gui_running')
   if has('gui_macvim')
     # viminfo with macvim version
-    execute "set viminfofile=" .. $HOME .. "/.viminfo_macvim_" .. v:version
+    execute $"set viminfofile={$HOME}/.viminfo_macvim_{v:version}"
     execute "set guifont=Menlo\\ Regular:h" .. (hostname == "aiur" ? 14 : 16)
     set antialias  # smooth fonts
   else
     # viminfo with vim version (same as non-gui)
-    execute "set viminfofile=" .. $HOME .. "/.viminfo_" .. v:version
+    execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
     set guifont=DejaVu\ Sans\ Mono\ 12
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
@@ -578,7 +580,7 @@ nnoremap <leader>e; mt<ESC>$a;<ESC>`t
 
 # completion
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
-# inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+# see complementum plugin
 
 # source
 nnoremap <leader>sv :source $HOME/.vim/vimrc<CR>
@@ -764,7 +766,7 @@ command! Theme {
   elseif g:colors_name == "darkula"
     silent execute "normal! :Darkula\<CR>"
   else
-    silent execute "colorscheme " .. g:colors_name
+    silent execute $"colorscheme {g:colors_name}"
   endif
 }
 
@@ -781,23 +783,15 @@ if !has('gui_running')
   augroup END
 endif
 
-# go to last edit cursor position when opening a file
-augroup event_buffer
-  autocmd!
-  if g:misc_enabled
-    autocmd BufReadPost * execute "normal \<Plug>(misc-golasteditcursor)"
-  endif
-augroup END
-
 # load local config
-var vimrc_local = $HOME .. "/.vimrc.local"
+var vimrc_local = $"{$HOME}/.vimrc.local"
 if filereadable(vimrc_local)
-  execute "source " .. vimrc_local
+  execute $"source {vimrc_local}"
 endif
 
 # set theme
-execute "set background=" .. background
-execute "colorscheme " .. colortheme
+execute $"set background={background}"
+execute $"colorscheme {colortheme}"
 
 # compile functions
 defcompile

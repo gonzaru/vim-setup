@@ -56,5 +56,5 @@ enddef
 # toggle automatic close of chars
 export def Toggle()
   g:autoclosechars_enabled = !g:autoclosechars_enabled
-  v:statusmsg = "autoclosechars=" .. g:autoclosechars_enabled
+  v:statusmsg = $"autoclosechars={g:autoclosechars_enabled}"
 enddef

@@ -104,7 +104,7 @@ def Populate(cwddir: string)
   if len(lsf) > 0
     appendbufline(BUFFER_NAME, 0, lsf)
   else
-    EchoWarningMsg("Warning: directory " .. fnamemodify(cwddir, ":t") .. " is empty")
+    EchoWarningMsg($"Warning: directory {fnamemodify(cwddir, ':t')} is empty")
     sleep! 1
     redraw!
   endif
@@ -148,12 +148,12 @@ def Show(filepath: string)
       # put into to the first left window
       topleft vnew
     endif
-    silent execute "file " .. BUFFER_NAME
+    silent execute $"file {BUFFER_NAME}"
     setlocal filetype=se
-    execute "lcd " .. fnameescape(prevcwd)
+    execute $"lcd {fnameescape(prevcwd)}"
     Populate(prevcwd)
     setlocal nomodifiable
-    execute "vertical resize " .. g:se_winsize
+    execute $"vertical resize {g:se_winsize}"
     if g:se_followfile
       SearchFile(filepath)
     endif
@@ -176,13 +176,13 @@ export def Toggle(filepath: string)
     if bufinfo[0].hidden
       if g:se_position == "right"
         # put into the last right window
-        execute "vertical botright sbuffer " .. bid
+        execute $"vertical botright sbuffer {bid}"
       else
         # put into the first left window
-        execute "vertical topleft sbuffer " .. bid
+        execute $"vertical topleft sbuffer {bid}"
       endif
-      execute "lcd " .. fnameescape(GetPrevCwd())
-      execute "vertical resize " .. g:se_winsize
+      execute $"lcd {fnameescape(GetPrevCwd())}"
+      execute $"vertical resize {g:se_winsize}"
       if g:se_followfile
         FollowFile(filepath)
       endif
@@ -235,7 +235,7 @@ enddef
 # follows Se file
 export def FollowFile(filepath: string): void
   var cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
-  execute "lcd " .. fnameescape(cwddir)
+  execute $"lcd {fnameescape(cwddir)}"
   Show(filepath)
   SearchFile(filepath)
 enddef
@@ -256,15 +256,15 @@ def Edit(file: string)
     else
       wincmd w
     endif
-    execute "edit " .. file
+    execute $"edit {file}"
   else
     if g:se_position == "right"
-      execute "vnew " .. file
+      execute $"vnew {file}"
     else
-      execute "rightbelow vnew " .. file
+      execute $"rightbelow vnew {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
   endif
 enddef
 
@@ -273,19 +273,19 @@ def EditKeep(file: string)
   var bid: number
   if winnr('$') >= 2
     if g:se_position == "right"
-      win_execute(win_getid(winnr() - 1), "edit " .. file)
+      win_execute(win_getid(winnr() - 1), $"edit {file}")
     else
-      win_execute(win_getid(winnr() + 1), "edit " .. file)
+      win_execute(win_getid(winnr() + 1), $"edit {file}")
     endif
   else
     if g:se_position == "right"
-      execute "vnew " .. file
+      execute $"vnew {file}"
     else
-      execute "rightbelow vnew " .. file
+      execute $"rightbelow vnew {file}"
     endif
     bid = GetSeBufId()
     win_gotoid(bufwinid(bid))
-    execute "vertical resize " .. g:se_winsize
+    execute $"vertical resize {g:se_winsize}"
   endif
 enddef
 
@@ -294,21 +294,21 @@ def EditPedit(file: string)
   var bid = GetSeBufId()
   if winnr('$') >= 2
     if g:se_position == "right"
-      win_execute(win_getid(winnr() - 1), "pedit " .. file)
+      win_execute(win_getid(winnr() - 1), $"pedit {file}")
     else
-      win_execute(win_getid(winnr() + 1), "pedit " .. file)
+      win_execute(win_getid(winnr() + 1), $"pedit {file}")
     endif
     wincmd P
     resize
     win_gotoid(bufwinid(bid))
   else
     if g:se_position == "right"
-      execute "vertical pedit " .. file
+      execute $"vertical pedit {file}"
     else
-      execute "vertical rightbelow pedit " .. file
+      execute $"vertical rightbelow pedit {file}"
     endif
     win_gotoid(bufwinid(bid))
-    execute "vertical resize " .. g:se_winsize
+    execute $"vertical resize {g:se_winsize}"
   endif
 enddef
 
@@ -321,15 +321,15 @@ def EditSplitH(file: string)
     else
       wincmd w
     endif
-    execute "split " .. file
+    execute $"split {file}"
   else
     if g:se_position == "right"
-      execute "vsplit " .. file
+      execute $"vsplit {file}"
     else
-      execute "rightbelow vsplit " .. file
+      execute $"rightbelow vsplit {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
   endif
 enddef
 
@@ -339,34 +339,34 @@ def EditSplitV(file: string)
   if winnr('$') >= 2
     if g:se_position == "right"
       wincmd W
-      execute "rightbelow vsplit " .. file
+      execute $"rightbelow vsplit {file}"
     else
       wincmd w
-      execute "leftabove vsplit " .. file
+      execute $"leftabove vsplit {file}"
     endif
   else
     if g:se_position == "right"
-      execute "vsplit " .. file
+      execute $"vsplit {file}"
     else
-      execute "rightbelow vsplit " .. file
+      execute $"rightbelow vsplit {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), "vertical resize " .. g:se_winsize)
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
   endif
 enddef
 
 # edit the current file in a tab
 def EditTab(file: string)
   if g:se_position == "right"
-    execute ":-tabedit " .. file
+    execute $":-tabedit {file}"
   else
-    execute "tabedit " .. file
+    execute $"tabedit {file}"
   endif
 enddef
 
 # goes to directory
 export def GoDir(cwddir: string)
-  execute "lcd " .. fnameescape(cwddir)
+  execute $"lcd {fnameescape(cwddir)}"
   Show(cwddir)
 enddef
 

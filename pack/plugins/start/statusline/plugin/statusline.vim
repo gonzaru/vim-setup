@@ -18,7 +18,11 @@ import autoload '../autoload/statusline.vim'
 
 augroup statusline_mystatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,DirChanged,VimResume * statusline.MyStatusLineAsync(expand('<afile>:p'))
+  autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,DirChanged,VimResume * {
+    if g:statusline_enabled
+      statusline.MyStatusLineAsync(expand('<afile>:p'))
+    endif
+  }
 augroup END
 
 # define mappings
@@ -49,6 +53,6 @@ if get(g:, 'statusline_no_commands') == 0
     else
       execute "normal \<Plug>(statusline-git-enable)"
     endif
-    v:statusmsg = "statusline_showgitbranch=" .. g:statusline_showgitbranch
+    v:statusmsg = $"statusline_showgitbranch={g:statusline_showgitbranch}"
   }
 endif

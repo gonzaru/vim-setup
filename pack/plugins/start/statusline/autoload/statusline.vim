@@ -19,7 +19,7 @@ const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR,
 
 # statusline files
 const STATUSLINE_FILES = {
-  'git': TMPDIR .. '/' .. $USER .. '-vim-statusline_git.txt'
+  'git': $"{TMPDIR}/{$USER}-vim-statusline_git.txt"
 }
 
 # get statusline

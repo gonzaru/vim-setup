@@ -24,9 +24,9 @@ export def RemoveAllExceptCurrent(mode: string): void
   for b in bufinfo
     if b.bufnr != curbufid
       if mode == "delete" || mode == "delete!"
-        execute "bd! " .. b.bufnr
+        execute $"bd! {b.bufnr}"
       elseif mode == "wipe" || mode == "wipe!"
-        execute "bw! " .. b.bufnr
+        execute $"bw! {b.bufnr}"
       endif
     endif
   endfor

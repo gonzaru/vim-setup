@@ -56,7 +56,7 @@ enddef
 # detects if the shell is sh or bash using shebang
 def SHShellType(lang: string): string
   if lang != "sh"
-    EchoErrorMsg("Error: lang '" .. lang .. "' is not supported")
+    EchoErrorMsg($"Error: lang '{lang}' is not supported")
     return ''
   endif
   return getline(1) =~ "bash" ? "bash" : "sh"
@@ -75,7 +75,7 @@ export def Run(lang: string, file: string): void
   var cmd: string
   var theshell: string
   if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg("Error: running lang '" .. lang .. "' is not supported")
+    EchoErrorMsg($"Error: running lang '{lang}' is not supported")
     return
   endif
   if lang == "sh"
@@ -84,9 +84,9 @@ export def Run(lang: string, file: string): void
   else
     cmd = COMMANDS[lang]["command"]
   endif
-  echo system(cmd .. " " .. file)
+  echo system($"{cmd} {file}")
   if v:shell_error != 0
-    EchoErrorMsg("Error: exit code " .. v:shell_error)
+    EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
 enddef
 
@@ -96,7 +96,7 @@ def RunSetupWindow()
   if bid > 0
     win_gotoid(bid)
   elseif bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
-    execute "rightbelow split " .. BUFFER_NAME
+    execute $"rightbelow split {BUFFER_NAME}"
   else
     below new
     setlocal winfixheight
@@ -104,7 +104,7 @@ def RunSetupWindow()
     setlocal buftype=nowrite
     setlocal noswapfile
     setlocal buflisted
-    silent execute "file " .. BUFFER_NAME
+    silent execute $"file {BUFFER_NAME}"
   endif
 enddef
 
@@ -116,11 +116,11 @@ export def RunWindow(lang: string, file: string): void
   var runwinid = GetRunBufWinId()
   var selwinid = win_getid()
   if selwinid == runwinid
-    EchoWarningMsg("Warning: already using the same window " .. BUFFER_NAME)
+    EchoWarningMsg($"Warning: already using the same window {BUFFER_NAME}")
     return
   endif
   if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg("Error: running lang '" .. lang .. "' is not supported")
+    EchoErrorMsg($"Error: running lang '{lang}' is not supported")
     return
   endif
   if lang == "sh"
@@ -129,9 +129,9 @@ export def RunWindow(lang: string, file: string): void
   else
     cmd = COMMANDS[lang]["command"]
   endif
-  outmsg = systemlist(cmd .. " " .. file)
+  outmsg = systemlist($"{cmd} {file}")
   if v:shell_error != 0
-    EchoErrorMsg("Error: exit code " .. v:shell_error)
+    EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
   if empty(outmsg)
     EchoWarningMsg("Warning: empty output")
@@ -142,6 +142,6 @@ export def RunWindow(lang: string, file: string): void
   appendbufline(BUFFER_NAME, 0, outmsg)
   deletebufline(BUFFER_NAME, '$')
   win_execute(runwinid, "cursor(1, 1)")
-  win_execute(runwinid, "resize " .. len(outmsg))
+  win_execute(runwinid, $"resize {len(outmsg)}")
   win_gotoid(selwinid)
 enddef

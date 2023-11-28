@@ -23,7 +23,7 @@ import autoload '../pack/plugins/opt/arrowkeys/autoload/arrowkeys.vim'
 # toggle background
 export def BackgroundToggle()
   execute "set background=" .. (&background == "dark" ? "light" : "dark")
-  v:statusmsg = "background=" .. &background
+  v:statusmsg = $"background={&background}"
 enddef
 
 # toggle diff
@@ -33,13 +33,13 @@ export def DiffToggle()
   else
     diffthis
   endif
-  v:statusmsg = "diff=" .. &diff
+  v:statusmsg = $"diff={&diff}"
 enddef
 
 # edit using a top window
 export def EditTop(file: string)
   if filereadable(file)
-    execute "new " .. file
+    execute $"new {file}"
     wincmd _
   endif
 enddef
@@ -47,7 +47,7 @@ enddef
 # toggle fold column
 export def FoldColumnToggle()
   execute "setlocal foldcolumn=" .. (&l:foldcolumn ? 0 : 1)
-  v:statusmsg = "foldcolumn=" .. &l:foldcolumn
+  v:statusmsg = $"foldcolumn={&l:foldcolumn}"
 enddef
 
 # toggle fold
@@ -57,7 +57,7 @@ export def FoldToggle()
   else
     execute "normal! zR"
   endif
-  v:statusmsg = "foldlevel=" .. &foldlevel
+  v:statusmsg = $"foldlevel={&foldlevel}"
 enddef
 
 # go to N buffer position
@@ -66,14 +66,14 @@ export def GoBufferPos(bnum: number)
   var pos = 1
   for b in getbufinfo({'buflisted': 1})
     if bnum == pos
-      execute "b " .. b.bufnr
+      execute $"b {b.bufnr}"
       match = 1
       break
     endif
     ++pos
   endfor
   if !match
-    utils.EchoErrorMsg("Error: buffer in position " .. bnum .. " does not exist")
+    utils.EchoErrorMsg($"Error: buffer in position {bnum} does not exist")
   endif
 enddef
 
@@ -99,7 +99,7 @@ export def GuiMenuBarToggle(): void
     setlocal guioptions-=M
     setlocal guioptions+=m
   endif
-  v:statusmsg = "guioptions=" .. &l:guioptions
+  v:statusmsg = $"guioptions={&l:guioptions}"
 enddef
 
 # map insert enter
@@ -144,7 +144,7 @@ export def MenuLanguageSpell(): void
     return
   endif
   if choice < 1 || choice > 5
-    utils.EchoErrorMsg("Error: wrong option " .. choice)
+    utils.EchoErrorMsg($"Error: wrong option {choice}")
     return
   endif
   if choice >= 1 && choice <= 4
@@ -181,7 +181,7 @@ export def MenuMisc(): void
     return
   endif
   if choice < 1 || choice > 3
-    utils.EchoErrorMsg("Error: wrong option " .. choice)
+    utils.EchoErrorMsg($"Error: wrong option {choice}")
     return
   endif
   if choice == 1 || choice == 2
@@ -203,9 +203,9 @@ enddef
 export def SetMaxFoldLevel()
   var mfl = max(map(range(1, line('$')), 'foldlevel(v:val)'))
   if mfl > 0
-    execute "setlocal foldlevel=" .. mfl
+    execute $"setlocal foldlevel={mfl}"
   endif
-  v:statusmsg = "foldlevel=" .. &l:foldlevel
+  v:statusmsg = $"foldlevel={&l:foldlevel}"
 enddef
 
 # sh
@@ -218,25 +218,34 @@ export def SH(): void
   guioptions_orig = &l:guioptions
   setlocal guioptions+=!
   sh
-  execute "setlocal guioptions=" .. guioptions_orig
+  execute $"setlocal guioptions={guioptions_orig}"
+enddef
+
+# check trailing spaces
+export def CheckTrailingSpaces()
+  var nline: number
+  nline = search('\s\+$', 'n')
+  if nline > 0
+    utils.EchoWarningMsg($"Warning: there are trailing spaces in the line {nline}")
+  endif
 enddef
 
 # toggle sign column
 export def SignColumnToggle()
   execute "setlocal signcolumn=" .. (&l:signcolumn == "yes" ? "no" : "yes")
-  v:statusmsg = "signcolumn=" .. &l:signcolumn
+  v:statusmsg = $"signcolumn={&l:signcolumn}"
 enddef
 
 # toggle sytnax
 export def SyntaxToggle()
   if !empty(&l:syntax)
     execute "setlocal syntax=" .. (&l:syntax == "on" ? "OFF" : "ON")
-    v:statusmsg = "setlocal syntax=" .. &l:syntax
+    v:statusmsg = $"setlocal syntax={&l:syntax}"
   else
     # global syntax
     # execute "syntax " .. (exists("g:syntax_on") ? "off" : "on")
     # v:statusmsg = "syntax " .. (exists("g:syntax_on") ? "on" : "off")
-    # utils.EchoWarningMsg("Warning: filetype '" .. &filetype .. "' does not have ftplugin syntax")
-    v:statusmsg = "Warning: filetype '" .. &filetype .. "' does not have ftplugin syntax"
+    # utils.EchoWarningMsg($"Warning: filetype '{&filetype}' does not have ftplugin syntax")
+    v:statusmsg = $"Warning: filetype '{&filetype}' does not have ftplugin syntax"
   endif
 enddef

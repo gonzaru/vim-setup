@@ -10,11 +10,10 @@ g:autoloaded_complementum = true
 
 # complementum debug info
 def DebugInfo()
-  echo "g:complementum_typedchars: " .. g:complementum_typedchars
-  .. " | mode: " .. mode()
-  .. " | sate: " .. state()
-  .. " | pumvisible:" .. " " .. pumvisible()
-  # sleep! 1
+  echo $"g:complementum_typedchars: {g:complementum_typedchars} "
+    .. $"| mode: {mode()} | state: {state()} | pumvisible: {pumvisible()} "
+  # .. $"| complete_info: {{pum_visible:{complete_info().pum_visible},mode:{complete_info().mode}"
+  # .. $",selected:{complete_info().selected},items:{complete_info().items}}}"
 enddef
 
 # complementum enable
@@ -64,7 +63,7 @@ export def Toggle()
   else
     Enable()
   endif
-  v:statusmsg = "complementum=" .. g:complementum_enabled
+  v:statusmsg = $"complementum={g:complementum_enabled}"
 enddef
 
 # complete the key
