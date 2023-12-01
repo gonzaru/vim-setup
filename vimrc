@@ -392,7 +392,7 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{g:statusline_full}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
   # vim9
   # set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
   # &statusline ..= ' %{' .. statusline.GetStatus->string() .. '()}'
@@ -623,6 +623,11 @@ endif
 
 # terminal
 nnoremap <silent><leader><CR> :below terminal<CR>
+if has('gui_running')
+  nnoremap <silent><leader><C-CR> :below terminal<CR>
+  nnoremap <silent><leader><S-CR> :below terminal ++close tmux -L gvim new-session -A -D -s default<CR>
+  nnoremap <silent><leader><C-S-CR> :below terminal ++close tmux -L gvim new-session -A -D -s default<CR>
+endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
 
