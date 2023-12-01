@@ -3,13 +3,15 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_git') || !get(g:, 'git_enabled')
+if get(g:, 'autoloaded_git') || !get(g:, 'git_enabled')
   finish
 endif
 g:autoloaded_git = true
 
 # script local variables
 const GIT_BUFFER_NAME = "git_" .. strftime('%Y%m%d%H%M%S', localtime())
+const GIT_FILE_TYPE = "gittig"
+var GIT_FILE: string
 
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -34,7 +36,24 @@ def GetGitBufWinId(): number
   return bufexists(GIT_BUFFER_NAME) ? bufwinid(GIT_BUFFER_NAME) : -1
 enddef
 
-# close
+# gets the previous file
+export def GetGitPrevFile(): string
+  return GIT_FILE
+enddef
+
+# sets the previous file
+def SetGitPrevFile(file: string)
+  if filereadable(file)
+    GIT_FILE = file
+  endif
+enddef
+
+# gets the git file type
+export def GetGitFileType(): string
+  return GIT_FILE_TYPE
+enddef
+
+# closes the git window
 export def Close()
   var gitwinid = GetGitBufWinId()
   if gitwinid > 0
@@ -42,8 +61,30 @@ export def Close()
   endif
 enddef
 
+# help information
+export def Help()
+  var lines =<< trim END
+    <CR>   # shows git commit
+    <ESC>  # closes git window
+    gb     # shows git blame
+    gB     # shows git blame (short version)
+    gd     # shows git diff file
+    gh     # shows git help information [H]
+    gl     # shows git log file
+    gL     # shows git log one file
+    gs     # shows git show file
+    gS     # shows git status file
+  END
+  echo join(lines, "\n")
+enddef
+
+# checks if it is a valid git commit hash
+def IsValidHash(hash: string): bool
+  return hash =~ '^\x\{7,40\}$'
+enddef
+
 # checks if it is a valid git repo
-def ValidRepo(cwddir: string): bool
+def IsValidRepo(cwddir: string): bool
   var outmsg = systemlist($"cd {cwddir} && git rev-parse --is-inside-work-tree")[0]
   return !v:shell_error && outmsg == "true"
 enddef
@@ -66,35 +107,32 @@ def SetupWindow()
       new
     endif
     silent execute $"file {GIT_BUFFER_NAME}"
-    setlocal winfixheight
-    setlocal winfixwidth
-    setlocal buftype=nowrite
-    setlocal noswapfile
-    setlocal buflisted
-    setlocal filetype=git
-    setlocal syntax=on
+    execute $"setlocal filetype={GIT_FILE_TYPE}"
   endif
 enddef
 
-# git blame
-export def Blame(file: string, cwddir: string): void
-  if !filereadable(file)
-    EchoErrorMsg($"Error: {fnamemodify(file, ':~')} is not a file or cannot be read")
-  else
-    Run($"git blame {file}", cwddir)
+# shows the git commit
+export def ShowCommit(line: string, cwddir: string, selwin: bool): void
+  var commit: string
+  if empty(trim(line))
+    return
+  endif
+  commit = split(substitute(line, '^commit ', "", ""), " ")[0]
+  if IsValidHash(commit)
+    Run($"git show {commit}", cwddir, selwin)
   endif
 enddef
 
 # git run
-export def Run(args: string, cwddir: string): void
+export def Run(args: string, cwddir: string, selwin: bool): void
   var outmsg: list<string>
   var gitwinid = GetGitBufWinId()
+  var curfile = expand('%:p')
   var selwinid = win_getid()
   if selwinid == gitwinid
-    EchoWarningMsg($"Warning: already using the same window {GIT_BUFFER_NAME}")
-    return
+    Close()
   endif
-  if !ValidRepo(cwddir)
+  if !IsValidRepo(cwddir)
     EchoErrorMsg($"Error: {fnamemodify(cwddir, ':~')} is not a valid git repo")
     return
   endif
@@ -106,11 +144,14 @@ export def Run(args: string, cwddir: string): void
     EchoWarningMsg("Warning: empty output")
     return
   endif
+  SetGitPrevFile(curfile)
   SetupWindow()
   gitwinid = GetGitBufWinId()
   appendbufline(GIT_BUFFER_NAME, 0, outmsg)
   deletebufline(GIT_BUFFER_NAME, '$')
   win_execute(gitwinid, "cursor(1, 1)")
   win_execute(gitwinid, $"resize {len(outmsg)}")
-  win_gotoid(selwinid)
+  if !selwin
+    win_gotoid(selwinid)
+  endif
 enddef
