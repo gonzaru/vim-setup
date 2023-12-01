@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_complementum') || !get(g:, 'complementum_enabled')
+if get(g:, 'loaded_complementum') || !get(g:, 'complementum_enabled')
   finish
 endif
 g:loaded_complementum = true

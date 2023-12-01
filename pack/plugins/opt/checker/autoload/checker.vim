@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded or checker is not enabled
-if exists('g:autoloaded_checker') || !get(g:, 'checker_enabled')
+if get(g:, 'autoloaded_checker') || !get(g:, 'checker_enabled')
   finish
 endif
 g:autoloaded_checker = true

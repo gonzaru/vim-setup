@@ -7,7 +7,7 @@ vim9script noclear
 # See also ../ftplugin/se.vim
 
 # do not read the file if it is already loaded or se is not enabled
-if exists('g:autoloaded_se') || !get(g:, 'se_enabled')
+if get(g:, 'autoloaded_se') || !get(g:, 'se_enabled')
   finish
 endif
 g:autoloaded_se = true

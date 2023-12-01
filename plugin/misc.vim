@@ -11,7 +11,7 @@ vim9script noclear
 # v: Vim variables.
 
 # do not read the file if it is already loaded
-if exists('g:loaded_misc') || !get(g:, 'misc_enabled')
+if get(g:, 'loaded_misc') || !get(g:, 'misc_enabled')
   finish
 endif
 g:loaded_misc = true
@@ -32,7 +32,7 @@ augroup END
 augroup misc_checktrailingspaces
   autocmd!
   autocmd BufWinEnter,BufWritePost * {
-    if g:misc_enabled && &filetype != 'help'
+    if g:misc_enabled && index(['help', 'git', 'gittig'], &filetype) == -1 && &buftype != 'terminal'
       misc.CheckTrailingSpaces()
     endif
   }

@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded or se is not enabled
-if exists("b:did_ftplugin_se") || !get(g:, "se_enabled")
+if get(b:, "did_ftplugin_se") || !get(g:, "se_enabled")
   finish
 endif
 b:did_ftplugin_se = true

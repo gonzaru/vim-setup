@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_esckey') || !get(g:, 'esckey_enabled')
+if get(g:, 'autoloaded_esckey') || !get(g:, 'esckey_enabled')
   finish
 endif
 g:autoloaded_esckey = true

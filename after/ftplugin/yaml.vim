@@ -2,7 +2,7 @@ vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
-if exists("b:did_ftplugin_after")
+if get(b:, "did_ftplugin_after")
   finish
 endif
 b:did_ftplugin_after = true

@@ -11,7 +11,7 @@ vim9script noclear
 # v: Vim variables.
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_misc') || !get(g:, 'misc_enabled')
+if get(g:, 'autoloaded_misc') || !get(g:, 'misc_enabled')
   finish
 endif
 g:autoloaded_misc = true

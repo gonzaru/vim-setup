@@ -3,10 +3,9 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-# if exists("b:current_syntax_after")
+# if get(b:, "current_syntax_after")
 #   finish
 # endif
-# b:current_syntax_after = true
 
 # fmt.Printf("Hello world!") (matches fmt)
 if hlexists('goCustomFunctionName')
@@ -19,3 +18,5 @@ endif
 # func Add(
 
 # TODO: sf/sf.go line 77 (int, error) color on int"
+
+b:current_syntax_after = "go"

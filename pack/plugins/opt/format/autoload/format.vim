@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_format') || !get(g:, 'format_enabled')
+if get(g:, 'autoloaded_format') || !get(g:, 'format_enabled')
   finish
 endif
 g:autoloaded_format = true

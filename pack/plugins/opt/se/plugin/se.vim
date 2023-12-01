@@ -7,7 +7,7 @@ vim9script noclear
 # See also ../../ftplugin/se.vim
 
 # do not read the file if it is already loaded or se is not enabled
-if exists('g:loaded_se') || !get(g:, 'se_enabled')
+if get(g:, 'loaded_se') || !get(g:, 'se_enabled')
   finish
 endif
 g:loaded_se = true
@@ -78,6 +78,7 @@ endif
 
 # set commands
 if get(g:, 'se_no_commands') == 0
+  command! Se execute "normal \<Plug>(se-toggle)"
   command! SeHelp execute "normal \<Plug>(se-help)"
   command! SeToggle execute "normal \<Plug>(se-toggle)"
 endif

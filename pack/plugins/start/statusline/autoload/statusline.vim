@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:autoloaded_statusline') || !get(g:, 'statusline_enabled')
+if get(g:, 'autoloaded_statusline') || !get(g:, 'statusline_enabled')
   finish
 endif
 g:autoloaded_statusline = true
@@ -12,7 +12,7 @@ g:autoloaded_statusline = true
 final JOB_QUEUE = []
 
 # script local variables
-export var statusline_full: string
+g:statusline_full = ''
 
 # user tmp directory
 const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
@@ -24,12 +24,12 @@ const STATUSLINE_FILES = {
 
 # get statusline
 export def GetStatus(): string
-  return statusline_full
+  return g:statusline_full
 enddef
 
 # set statusline
 export def SetStatus(s: string)
-  statusline_full = s
+  g:statusline_full = s
 enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir

@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_runprg') || !get(g:, 'runprg_enabled')
+if get(g:, 'loaded_runprg') || !get(g:, 'runprg_enabled')
   finish
 endif
 g:loaded_runprg = true
