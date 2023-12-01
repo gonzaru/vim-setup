@@ -9,13 +9,19 @@ endif
 b:did_ftplugin_git = true
 
 # Git
+setlocal statusline=[git]:%<%{git#GetGitPrevFile()->fnamemodify(':~')}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 setlocal winfixheight
 setlocal winfixwidth
+setlocal noconfirm
+setlocal cursorline
+setlocal nocursorcolumn
+setlocal nowrap
+setlocal nospell
+setlocal nolist
 setlocal buftype=nowrite
 setlocal noswapfile
 setlocal buflisted
 setlocal syntax=on
-
 if get(g:, 'git_no_mappings') == 0
   if empty(mapcheck("<CR>", "n"))
     nnoremap <silent><buffer><CR> <Plug>(git-show-commit)

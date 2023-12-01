@@ -36,12 +36,12 @@ def GetGitBufWinId(): number
   return bufexists(GIT_BUFFER_NAME) ? bufwinid(GIT_BUFFER_NAME) : -1
 enddef
 
-# gets the previous file
+# gets the git previous file
 export def GetGitPrevFile(): string
   return GIT_FILE
 enddef
 
-# sets the previous file
+# sets the git previous file
 def SetGitPrevFile(file: string)
   if filereadable(file)
     GIT_FILE = file
