@@ -3,12 +3,10 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if exists('g:loaded_vimrc') && g:loaded_vimrc
+if get(g:, 'loaded_vimrc')
   echohl WarningMsg
   echom $"Warning: file {expand('<sfile>:~')} is already loaded"
   echom ":vim9cmd g:loaded_vimrc = false (to unblock it)"
-  echom $":edit {$HOME}/.vim/vimrc"
-  echom ":source ++clear"
   echohl None
   finish
 endif
@@ -25,7 +23,9 @@ var tmux = !empty($TMUX) || &term =~ "tmux"                                 # tm
 var screen = (!empty($STY) || &term =~ "screen") && !tmux                   # screen
 var zellij = !empty($ZELLIJ) && !screen && !tmux                            # zellij
 var multiplexer = screen || tmux || zellij                                  # multiplexer
-# var vim_terminal = !empty($VIM_TERMINAL)                                  # vim terminal mode
+var vim_terminal = !empty($VIM_TERMINAL)                                    # vim terminal mode
+var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
+var vim_terminal_zellij = !empty($VIM_TERMINAL) && zellij                   # vim terminal + zellij
 var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
 var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
 var xterm_zellij = !empty($XTERM_VERSION) && zellij                         # xterm + zellij
@@ -262,6 +262,7 @@ if !has('gui_running')
     || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
     || jediterm || jediterm_tmux || jediterm_zellij
     || xterm || xterm_tmux || xterm_zellij
+    || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
   )
     &t_SI ..= "\e[6 q"
     &t_SR ..= "\e[4 q"
@@ -286,12 +287,13 @@ if !has('gui_running')
   endif
 
   # 24-bit terminal color, &t_Co is a string
-  if has('termguicolors') && &t_Co >= '256'
+  if has('termguicolors') && str2nr(&t_Co) >= 256
     if (
       alacritty || alacritty_tmux || alacritty_zellij
       || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
       || jediterm || jediterm_tmux || jediterm_zellij
       || xterm || xterm_tmux || xterm_zellij
+      || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
     ) && !screen
       # :help xterm-true-color
       if !jediterm
@@ -389,8 +391,8 @@ if get(g:, "tabline_enabled")
 endif
 # custom statusline
 if get(g:, "statusline_enabled")
-  # %{statusline#GetStatus()} vs %{statusline#statusline_full}
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{statusline#statusline_full}\ %-15.(%l,%c%V%)\ %P
+  # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{g:statusline_full}\ %-15.(%l,%c%V%)\ %P
   # vim9
   # set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
   # &statusline ..= ' %{' .. statusline.GetStatus->string() .. '()}'
@@ -461,6 +463,7 @@ if has('mksession')
   set sessionoptions-=options
   set sessionoptions-=localoptions
   set sessionoptions-=folds
+  set sessionoptions-=terminal
   set sessionoptions+=resize,winpos
 endif
 
@@ -554,7 +557,7 @@ g:mapleader = "\<C-s>"
 g:maplocalleader = "\<C-\>"
 
 # the key that starts a <C-w> command in a terminal mode
-set termwinkey=<C-s>
+# set termwinkey=<C-s>
 
 # insert maps <cr> and <tab>
 misc.MapInsertEnter()
