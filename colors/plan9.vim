@@ -40,6 +40,8 @@ highlight! Normal guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE c
 highlight! MatchParen guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
 
 highlight! Visual guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
+# TODO
+# VisualNOS
 
 highlight! WildMenu guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 
@@ -55,15 +57,27 @@ highlight! CursorLine guifg=NONE guibg=#d7d7af ctermfg=NONE ctermbg=187 gui=NONE
 highlight! CursorLineNR guifg=#4a4a4a guibg=#d7d7af ctermfg=238 ctermbg=187 gui=bold cterm=bold term=NONE
 highlight! link CursorColumn CursorLine
 
+# current quickfix item
+highlight! link QuickFixLine PmenuSel
+
+# TODO
+# ToolbarLine
+# ToolbarButton
+
 highlight! ColorColumn guifg=black guibg=#ffd75f ctermfg=black ctermbg=221 gui=NONE cterm=NONE term=NONE
 
 highlight! SpellBad guifg=black guibg=#ff8787 ctermfg=black ctermbg=210 gui=NONE cterm=NONE term=NONE
 highlight! SpellRare guifg=pink guibg=#ff8787 ctermfg=black ctermbg=210 gui=underline cterm=underline term=NONE
 highlight! SpellCap guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=underline cterm=underline term=NONE
+highlight! link SpellLocal SpellRare
 
 highlight! Search guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
+highlight! link CurSearch Search
+highlight! link IncSearch Search
 
 highlight! LineNr guifg=#afaf5f guibg=#ffffd7 ctermfg=143 ctermbg=230 gui=NONE cterm=NONE term=NONE
+highlight! link LineNrAbove LineNr
+highlight! link LineNrBelow LineNr
 
 highlight! SpecialKey guifg=#d70000 guibg=#d7d7af ctermfg=160 ctermbg=187 gui=NONE cterm=NONE term=NONE
 
@@ -73,9 +87,21 @@ highlight! DiffChange guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NO
 highlight! DiffDelete guifg=black guibg=#ff8787 ctermfg=black ctermbg=210 gui=NONE cterm=NONE term=NONE
 highlight! DiffAdd guifg=black guibg=#afffaf ctermfg=black ctermbg=157 gui=NONE cterm=NONE term=NONE
 
+# git
+highlight! link diffAdded Normal
+highlight! link diffChanged Normal
+highlight! link diffFile Normal
+highlight! link diffIndexLine Normal
+highlight! link diffLine Normal
+highlight! link diffNewFile Normal
+highlight! link diffOldFile Normal
+highlight! link diffRemoved Normal
+highlight! link diffSubname Normal
+
 highlight! Conceal guifg=black guibg=#ffff00 ctermfg=black ctermbg=226 gui=NONE cterm=NONE term=NONE
 
 highlight! NonText guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
+highlight! link EndOfBuffer NonText
 
 highlight! TabLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! TabLineSel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
@@ -95,6 +121,13 @@ highlight! Title guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui
 # omnicompletion popup menu
 highlight! Pmenu guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! PmenuSel guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
+# TODO
+# PmenuThumb
+# PmenuSbar
+# PmenuKind
+# PmenuKindSel
+# PmenuExtra
+# PmenuExtraSel
 
 # see completepopup
 highlight! InfoPopup guifg=black guibg=lightgray ctermfg=black ctermbg=lightgray gui=NONE cterm=NONE term=NONE
@@ -143,6 +176,10 @@ highlight! link Underlined Normal
 
 # signs column
 highlight! SignColumn guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
+
+# TODO
+# debugPC
+# debugBreakpoint
 
 # created for syntax errors/warnings
 highlight! ErrorMsg guifg=white guibg=#ff0000 ctermfg=white ctermbg=1 gui=NONE cterm=NONE term=NONE

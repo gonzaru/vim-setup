@@ -40,6 +40,8 @@ execute "highlight! Normal guifg=" .. COLORS['normal']['guifg'] .. " guibg=" .. 
 execute "highlight! MatchParen guifg=#ffef32 guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=226 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 
 highlight! Visual guifg=NONE guibg=#214283 ctermfg=NONE ctermbg=25 gui=NONE cterm=NONE term=NONE
+# TODO
+# VisualNOS
 
 highlight! WildMenu guifg=#113a5c guibg=#bbbbbb ctermfg=25 ctermbg=145 gui=NONE cterm=NONE term=NONE
 
@@ -55,6 +57,13 @@ highlight! CursorLine guifg=NONE guibg=#333333 ctermfg=NONE ctermbg=236 gui=NONE
 highlight! CursorLineNR guifg=#999999 guibg=#333333 ctermfg=102 ctermbg=236 gui=bold cterm=bold term=NONE
 highlight! link CursorColumn CursorLine
 
+# current quickfix item
+highlight! link QuickFixLine PmenuSel
+
+# TODO
+# ToolbarLine
+# ToolbarButton
+
 # TODO
 execute "highlight! ColorColumn guifg=" .. COLORS['normal']['guifg'] .. " guibg=#4A4A4A ctermfg=" .. COLORS['normal']['ctermfg'] .. " ctermbg=238 gui=NONE cterm=NONE term=NONE"
 
@@ -62,10 +71,15 @@ execute "highlight! ColorColumn guifg=" .. COLORS['normal']['guifg'] .. " guibg=
 execute "highlight! SpellBad guifg=#bc3f3c guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=124 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 execute "highlight! SpellRare guifg=pink guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=175 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=underline cterm=underline term=NONE"
 execute "highlight! SpellCap guifg=#d7ffff guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=195 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=underline cterm=underline term=NONE"
+highlight! link SpellLocal SpellRare
 
 highlight! Search guifg=NONE guibg=#31583c ctermfg=NONE ctermbg=22 gui=NONE cterm=NONE term=NONE
+highlight! link CurSearch Search
+highlight! link IncSearch Search
 
 execute "highlight! LineNr guifg=#606366 guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=59 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
+highlight! link LineNrAbove LineNr
+highlight! link LineNrBelow LineNr
 
 # TODO
 # execute "highlight! SpecialKey guifg=pink guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=175 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
@@ -78,12 +92,24 @@ execute "highlight! DiffChange guifg=#d7ffff guibg=" .. COLORS['normal']['guibg'
 execute "highlight! DiffDelete guifg=#ff8787 guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=210 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 execute "highlight! DiffAdd guifg=#afffaf guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=157 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 
+# git
+highlight! link diffAdded DiffAdd
+highlight! link diffChanged DiffChange
+highlight! link diffFile Normal
+highlight! link diffIndexLine Normal
+highlight! link diffLine DiffChange
+highlight! link diffNewFile Normal
+highlight! link diffOldFile Normal
+highlight! link diffRemoved DiffDelete
+highlight! link diffSubname Normal
+
 # TODO
 execute "highlight! Conceal guifg=" .. COLORS['normal']['guifg'] .. " guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=" .. COLORS['normal']['ctermfg'] .. " ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 
 # TODO ~ (new buffer)
 # execute "highlight! NonText guifg=" .. COLORS['normal']['guibg'] .. " guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=" .. COLORS['normal']['ctermbg'] .. " ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
 execute "highlight! NonText guifg=#4A4A4A guibg=" .. COLORS['normal']['guibg'] .. " ctermfg=238 ctermbg=" .. COLORS['normal']['ctermbg'] .. " gui=NONE cterm=NONE term=NONE"
+highlight! link EndOfBuffer NonText
 
 # tabs
 highlight! TabLine guifg=#bbbbbb guibg=#3c3f41 ctermfg=145 ctermbg=238 gui=NONE cterm=NONE term=NONE
@@ -106,6 +132,13 @@ execute "highlight! Title guifg=" .. COLORS['normal']['guifg'] .. " guibg=" .. C
 # omnicompletion popup menu
 highlight! Pmenu guifg=#bbbbbb guibg=#46484a ctermfg=145 ctermbg=238 gui=NONE cterm=NONE term=NONE
 highlight! PmenuSel guifg=#bbbbbb guibg=#113a5c ctermfg=145 ctermbg=25 gui=NONE cterm=NONE term=NONE
+# TODO
+# PmenuThumb
+# PmenuSbar
+# PmenuKind
+# PmenuKindSel
+# PmenuExtra
+# PmenuExtraSel
 
 # :help completepopup
 highlight! InfoPopup guifg=#bbbbbb guibg=#333333 ctermfg=145 ctermbg=236 gui=NONE cterm=NONE term=NONE
@@ -154,6 +187,10 @@ execute "highlight! Underlined guifg=" .. COLORS['normal']['guifg'] .. " guibg="
 
 # signs column
 highlight! SignColumn guifg=#606366 guibg=#313335 ctermfg=59 ctermbg=237 gui=NONE cterm=NONE term=NONE
+
+# TODO
+# debugPC
+# debugBreakpoint
 
 # syntax errors/warnings
 highlight! ErrorMsg guifg=white guibg=#ff0000 ctermfg=white ctermbg=1 gui=NONE cterm=NONE term=NONE
