@@ -317,6 +317,7 @@ if has('gui_running')
   else
     # viminfo with vim version (same as non-gui)
     execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
+    # set guifont=* (shows a gui panel to pick a font)
     set guifont=DejaVu\ Sans\ Mono\ 12
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
@@ -624,9 +625,10 @@ endif
 # terminal
 nnoremap <silent><leader><CR> :below terminal<CR>
 if has('gui_running')
+  nnoremap <silent><C-z> :below terminal<CR>
   nnoremap <silent><leader><C-CR> :below terminal<CR>
-  nnoremap <silent><leader><S-CR> :below terminal ++close tmux -L gvim new-session -A -D -s default<CR>
-  nnoremap <silent><leader><C-S-CR> :below terminal ++close tmux -L gvim new-session -A -D -s default<CR>
+  nnoremap <silent><leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent><leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim new-session -c $HOME -A -D -s default"<CR>
 endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
@@ -656,6 +658,7 @@ if has('gui_running')
   if g:misc_enabled
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
+  tnoremap <C-Esc> <C-w>N
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
@@ -775,6 +778,26 @@ command! Theme {
     silent execute "normal! :Darkula\<CR>"
   else
     silent execute $"colorscheme {g:colors_name}"
+  endif
+}
+
+# reload plugin utils
+command! ReloadPluginUtils {
+  if get(g:, "utils_enabled")
+    g:loaded_utils = false
+    g:autoloaded_utils = false
+    execute $"source {$HOME}/.vim/plugin/utils.vim"
+    execute $"source {$HOME}/.vim/autoload/utils.vim"
+  endif
+}
+
+# reload plugin misc
+command! ReloadPluginMisc {
+  if get(g:, "misc_enabled")
+    g:misc_utils = false
+    g:autoloaded_misc = false
+    execute $"source {$HOME}/.vim/plugin/misc.vim"
+    execute $"source {$HOME}/.vim/autoload/misc.vim"
   endif
 }
 
