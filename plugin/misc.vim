@@ -32,7 +32,7 @@ augroup END
 augroup misc_checktrailingspaces
   autocmd!
   autocmd BufWinEnter,BufWritePost * {
-    if g:misc_enabled && index(['help', 'git', 'gittig'], &filetype) == -1 && &buftype != 'terminal'
+    if g:misc_enabled && index(['help', 'git', 'gittig', 'qf'], &filetype) == -1 && &buftype != 'terminal'
       misc.CheckTrailingSpaces()
     endif
   }
