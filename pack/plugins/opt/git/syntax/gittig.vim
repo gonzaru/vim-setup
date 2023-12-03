@@ -3,7 +3,7 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if get(b:, "current_syntax")
+if !empty(get(b:, "current_syntax"))
   finish
 endif
 
