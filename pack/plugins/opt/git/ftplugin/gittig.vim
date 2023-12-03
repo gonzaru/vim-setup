@@ -13,6 +13,7 @@ setlocal statusline=[git]:%<%{git#GetGitPrevFile()->fnamemodify(':~')}\ %h%q%w%m
 setlocal winfixheight
 setlocal winfixwidth
 setlocal noconfirm
+setlocal number
 setlocal cursorline
 setlocal nocursorcolumn
 setlocal nowrap

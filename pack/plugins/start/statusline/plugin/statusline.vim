@@ -26,9 +26,9 @@ augroup statusline_mystatusline
 augroup END
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(statusline-git-enable) :StatusLineGitEnable<CR>
-nnoremap <silent> <unique> <script> <Plug>(statusline-git-disable) :StatusLineGitDisable<CR>
-nnoremap <silent> <unique> <script> <Plug>(statusline-git-toggle) :StatusLineGitToggle<CR>
+nnoremap <silent> <script> <Plug>(statusline-git-enable) :StatusLineGitEnable<CR>
+nnoremap <silent> <script> <Plug>(statusline-git-disable) :StatusLineGitDisable<CR>
+nnoremap <silent> <script> <Plug>(statusline-git-toggle) :StatusLineGitToggle<CR>
 
 # set mappings
 if get(g:, 'statusline_no_mappings') == 0

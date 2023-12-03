@@ -12,8 +12,8 @@ g:loaded_autoendstructs = true
 import autoload '../autoload/autoendstructs.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(autoendstructs-toggle) <ScriptCmd>autoendstructs.Toggle()<CR>
-inoremap <silent> <unique> <script> <Plug>(autoendstructs-end) <C-r>=<SID>autoendstructs.End(&filetype)<CR>
+nnoremap <silent> <script> <Plug>(autoendstructs-toggle) <ScriptCmd>autoendstructs.Toggle()<CR>
+inoremap <silent> <script> <Plug>(autoendstructs-end) <C-r>=<SID>autoendstructs.End(&filetype)<CR>
 
 # set mappings
 if get(g:, 'autoendstructs_no_mappings') == 0

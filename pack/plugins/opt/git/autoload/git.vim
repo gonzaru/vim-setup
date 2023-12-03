@@ -45,6 +45,8 @@ enddef
 def SetGitPrevFile(file: string)
   if filereadable(file)
     GIT_FILE = file
+  else
+    GIT_FILE = ""
   endif
 enddef
 
@@ -76,6 +78,30 @@ export def Help()
     gS     # shows git status file
   END
   echo join(lines, "\n")
+enddef
+
+# git blame
+export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
+  var curline = line('.')
+  var curcol = col('.')
+  var curwin = win_getid(winnr())
+  var shortopts = short ? '--date short' : ''
+  if !filereadable(file)
+    EchoErrorMsg($"Error: file {file} is not readable")
+    return
+  endif
+  Run($"git blame {shortopts} {file}", cwddir, selwin)
+  if selwin
+    wincmd H
+    wincmd =
+    cursor(curline, curcol)
+    setlocal syntax=git
+    win_gotoid(curwin)
+    win_execute(GetGitBufWinId(), 'setlocal scrollbind')
+    win_execute(curwin, 'setlocal scrollbind')
+  else
+    # TODO: selwin false
+  endif
 enddef
 
 # checks if it is a valid git commit hash

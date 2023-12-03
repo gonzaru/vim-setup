@@ -26,7 +26,7 @@ endif
 import autoload '../autoload/format.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(format-language)
+nnoremap <silent> <script> <Plug>(format-language)
 \ <ScriptCmd>noautocmd format.Language(&filetype, expand('%:p'))<CR>
 
 # set mappings

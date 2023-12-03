@@ -26,9 +26,9 @@ endif
 import autoload '../autoload/runprg.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(runprg-run) <ScriptCmd>runprg.Run(&filetype, expand('%:p'))<CR>
-nnoremap <silent> <unique> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow(&filetype, expand('%:p'))<CR>
-nnoremap <silent> <unique> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
+nnoremap <silent> <script> <Plug>(runprg-run) <ScriptCmd>runprg.Run(&filetype, expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow(&filetype, expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
 if get(g:, 'runprg_no_mappings') == 0

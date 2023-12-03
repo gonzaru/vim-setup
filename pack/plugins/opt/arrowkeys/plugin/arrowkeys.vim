@@ -12,9 +12,9 @@ g:loaded_arrowkeys = true
 import autoload '../autoload/arrowkeys.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(arrowkeys-enable) <ScriptCmd>arrowkeys.Enable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(arrowkeys-disable) <ScriptCmd>arrowkeys.Disable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(arrowkeys-toggle) <ScriptCmd>arrowkeys.Toggle()<CR>
+nnoremap <silent> <script> <Plug>(arrowkeys-enable) <ScriptCmd>arrowkeys.Enable()<CR>
+nnoremap <silent> <script> <Plug>(arrowkeys-disable) <ScriptCmd>arrowkeys.Disable()<CR>
+nnoremap <silent> <script> <Plug>(arrowkeys-toggle) <ScriptCmd>arrowkeys.Toggle()<CR>
 
 # set mappings
 if get(g:, 'arrowkeys_no_mappings') == 0

@@ -17,9 +17,9 @@ endif
 import autoload '../autoload/esckey.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(esckey-enable) <ScriptCmd>esckey.Enable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(esckey-disable) <ScriptCmd>esckey.Disable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(esckey-toggle) <ScriptCmd>esckey.Toggle()<CR>
+nnoremap <silent> <script> <Plug>(esckey-enable) <ScriptCmd>esckey.Enable()<CR>
+nnoremap <silent> <script> <Plug>(esckey-disable) <ScriptCmd>esckey.Disable()<CR>
+nnoremap <silent> <script> <Plug>(esckey-toggle) <ScriptCmd>esckey.Toggle()<CR>
 
 # set mappings
 if get(g:, 'esckey_no_mappings') == 0

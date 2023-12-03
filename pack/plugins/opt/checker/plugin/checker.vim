@@ -86,14 +86,14 @@ if executable("go") && executable("gofmt")
 endif
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(checker-enable) <ScriptCmd>checker.Enable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-disable) <ScriptCmd>checker.Disable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-toggle) <ScriptCmd>checker.Toggle()<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-cur)
+nnoremap <silent> <script> <Plug>(checker-enable) <ScriptCmd>checker.Enable()<CR>
+nnoremap <silent> <script> <Plug>(checker-disable) <ScriptCmd>checker.Disable()<CR>
+nnoremap <silent> <script> <Plug>(checker-toggle) <ScriptCmd>checker.Toggle()<CR>
+nnoremap <silent> <script> <Plug>(checker-signsdebug-cur)
 \ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'cur')<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-prev)
+nnoremap <silent> <script> <Plug>(checker-signsdebug-prev)
 \ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'prev')<CR>
-nnoremap <silent> <unique> <script> <Plug>(checker-signsdebug-next)
+nnoremap <silent> <script> <Plug>(checker-signsdebug-next)
 \ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'next')<CR>
 
 # set mappings

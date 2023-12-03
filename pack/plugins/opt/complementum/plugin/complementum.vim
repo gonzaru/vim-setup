@@ -54,14 +54,14 @@ augroup complementum_insert
 augroup END
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(complementum-enable) <ScriptCmd>complementum.Enable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
-nnoremap <silent> <unique> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
-inoremap <silent> <unique> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
-inoremap <silent> <unique> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
-inoremap <silent> <unique> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
-inoremap <silent> <unique> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
-inoremap <silent> <unique> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
+nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>complementum.Enable()<CR>
+nnoremap <silent> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
+nnoremap <silent> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
+inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
+inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
+inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
+inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
+inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 
 # set mappings
 if get(g:, 'complementum_no_mappings') == 0

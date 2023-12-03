@@ -39,10 +39,10 @@ augroup misc_checktrailingspaces
 augroup END
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>misc.GoLastEditCursorPos()<CR>
-inoremap <silent> <unique> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
-inoremap <silent> <unique> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
-nnoremap <silent> <unique> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>misc.CheckTrailingSpaces()<CR>
+nnoremap <silent> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>misc.GoLastEditCursorPos()<CR>
+inoremap <silent> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
+inoremap <silent> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
+nnoremap <silent> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>misc.CheckTrailingSpaces()<CR>
 
 # TODO:
 # set mappings
@@ -55,6 +55,7 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=file MiscEditTopFile misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
+  command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
@@ -64,9 +65,20 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscMapInsertTab misc.MapInsertTab()
   command! MiscMenuLanguageSpell misc.MenuLanguageSpell()
   command! MiscMenuMisc misc.MenuMisc()
+  command! -nargs=1 MiscReloadPluginOpt misc.ReloadPluginPack(<f-args>, "opt")
+  command! -nargs=1 MiscReloadPluginStart misc.ReloadPluginPack(<f-args>, "start")
   command! MiscSH misc.SH()
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
-  command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
   command! MiscSignColumnToggle misc.SignColumnToggle()
   command! MiscSyntaxToggle misc.SyntaxToggle()
+  command! MiscChangeTerminalColors {
+    highlight! Terminal guifg=#f4f4f4 guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
+    highlight! StatusLineTerm guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
+    highlight! link StatusLineTermNC StatusLineNC
+  }
+  command! MiscRestoreTerminalColors {
+    highlight! link Terminal Normal
+    highlight! link StatusLineTerm StatusLine
+    highlight! link StatusLineTermNC StatusLineNC
+  }
 endif

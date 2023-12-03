@@ -39,17 +39,17 @@ endif
 import autoload '../autoload/searcher.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <plug>(searcher-find)
+nnoremap <silent> <script> <plug>(searcher-find)
   \ <ScriptCmd>feedkeys(':SearcherFind -i ' .. fnamemodify(getcwd(), ":~") .. ' ')<CR>
-nnoremap <silent> <unique> <script> <plug>(searcher-find-word)
+nnoremap <silent> <script> <plug>(searcher-find-word)
   \ <ScriptCmd>searcher.Find(expand('<cword>'), 'quickfix')<CR>
-nnoremap <silent> <unique> <script> <plug>(searcher-lfind-word)
+nnoremap <silent> <script> <plug>(searcher-lfind-word)
   \ <ScriptCmd>searcher.Find(expand('<cword>'), 'locationlist')<CR>
-nnoremap <silent> <unique> <script> <plug>(searcher-grep)
+nnoremap <silent> <script> <plug>(searcher-grep)
   \ <ScriptCmd>feedkeys(':SearcherGrep -i ' .. fnamemodify(getcwd(), ":~") .. '<C-f>Bba<Space><C-c>')<CR>
-nnoremap <silent> <unique> <script> <plug>(searcher-grep-word)
+nnoremap <silent> <script> <plug>(searcher-grep-word)
   \ <ScriptCmd>searcher.Grep(expand('<cword>'), 'quickfix')<CR>
-nnoremap <silent> <unique> <script> <plug>(searcher-lgrep-word)
+nnoremap <silent> <script> <plug>(searcher-lgrep-word)
   \ <ScriptCmd>searcher.Grep(expand('<cword>'), 'locationlist')<CR>
 
 # set mappings

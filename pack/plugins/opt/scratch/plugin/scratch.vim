@@ -12,8 +12,8 @@ g:loaded_scratch = true
 import autoload '../autoload/scratch.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(scratch-buffer) <ScriptCmd>scratch.Buffer()<CR>
-nnoremap <silent> <unique> <script> <Plug>(scratch-terminal) <ScriptCmd>scratch.Terminal()<CR>
+nnoremap <silent> <script> <Plug>(scratch-buffer) <ScriptCmd>scratch.Buffer()<CR>
+nnoremap <silent> <script> <Plug>(scratch-terminal) <ScriptCmd>scratch.Terminal()<CR>
 
 # set mappings
 if get(g:, 'scratch_no_mappings') == 0

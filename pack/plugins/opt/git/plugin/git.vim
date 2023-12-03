@@ -17,24 +17,24 @@ endif
 import autoload '../autoload/git.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(git-close) <ScriptCmd>git.Close()<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-help) <ScriptCmd>git.Help()<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-blame)
-  \ <ScriptCmd>git.Run($"git blame {PrevOrNewFile()}", getcwd(), true)<CR>:setlocal syntax=git<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-blame-short)
-  \ <ScriptCmd>git.Run($"git blame --date short {PrevOrNewFile()}", getcwd(), true)<CR>:setlocal syntax=git<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-diff-file)
+nnoremap <silent> <script> <Plug>(git-close) <ScriptCmd>git.Close()<CR>
+nnoremap <silent> <script> <Plug>(git-help) <ScriptCmd>git.Help()<CR>
+nnoremap <silent> <script> <Plug>(git-blame)
+  \ <ScriptCmd>git.Blame(PrevOrNewFile(), getcwd(), false, true)<CR>
+nnoremap <silent> <script> <Plug>(git-blame-short)
+  \ <ScriptCmd>git.Blame(PrevOrNewFile(), getcwd(), true, true)<CR>
+nnoremap <silent> <script> <Plug>(git-diff-file)
   \ <ScriptCmd>git.Run($"git diff {PrevOrNewFile()}", getcwd(), true)<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-show-commit)
+nnoremap <silent> <script> <Plug>(git-show-commit)
   \ <ScriptCmd>git.ShowCommit(getline('.'), getcwd(), true)<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-show-file)
+nnoremap <silent> <script> <Plug>(git-show-file)
   \ <ScriptCmd>git.Run($"git show {PrevOrNewFile()}", getcwd(), true)<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-status-file)
+nnoremap <silent> <script> <Plug>(git-status-file)
   \ <ScriptCmd>git.Run($"git status {PrevOrNewFile()}", getcwd(), true)<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-log) <ScriptCmd>git.Run('git log', getcwd(), true)<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-log-file)
+nnoremap <silent> <script> <Plug>(git-log) <ScriptCmd>git.Run('git log', getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-log-file)
   \ <ScriptCmd>git.Run($"git log {PrevOrNewFile()}", getcwd(), true)<CR>:setlocal syntax=gitrebase<CR>
-nnoremap <silent> <unique> <script> <Plug>(git-log-one-file)
+nnoremap <silent> <script> <Plug>(git-log-one-file)
   \ <ScriptCmd>git.Run($"git log --oneline {PrevOrNewFile()}", getcwd(), true)<CR>:setlocal syntax=git<CR>
 
 # previous or new file
@@ -62,6 +62,7 @@ if get(g:, 'git_no_commands') == 0
   command! GitDiffFile execute "normal \<Plug>(git-diff-file)"
   command! GitDiffStaged git.Run('git diff --staged', getcwd(), true)
   command! GitDiffStagedFile git.Run($"git diff --staged {expand('%:p')}", getcwd(), true)
+  command! GitHelp execute "normal \<Plug>(git-help)"
   command! GitLog execute "normal \<Plug>(git-log)"
   command! GitLogFile execute "normal \<Plug>(git-log-file)"
   command! GitLogOne git.Run('git log --oneline', getcwd(), true)

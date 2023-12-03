@@ -12,8 +12,8 @@ g:loaded_documentare = true
 import autoload '../autoload/documentare.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(documentare-doc) <ScriptCmd>documentare.Doc(&filetype)<CR>
-nnoremap <silent> <unique> <script> <Plug>(documentare-close) <ScriptCmd>documentare.Close()<CR>
+nnoremap <silent> <script> <Plug>(documentare-doc) <ScriptCmd>documentare.Doc(&filetype)<CR>
+nnoremap <silent> <script> <Plug>(documentare-close) <ScriptCmd>documentare.Close()<CR>
 
 # set mappings
 if get(g:, 'documentare_no_mappings') == 0

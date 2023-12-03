@@ -199,6 +199,32 @@ export def MenuMisc(): void
   endif
 enddef
 
+# reload plugin (pack)
+export def ReloadPluginPack(plugin: string, type: string): void
+  var dir: string
+  var files: list<string>
+  if !get(g:, $"{plugin}_enabled")
+     utils.EchoErrorMsg($"Error: plugin '{plugin}' is not enabled or does not exist")
+     return
+  endif
+  dir = $"{$HOME}/.vim/pack/plugins/{type}/{plugin}"
+  if !isdirectory(dir)
+     utils.EchoErrorMsg( $"Error: directory '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
+     return
+  endif
+  execute $"g:loaded_{plugin} = false"
+  execute $"g:autoloadloaded_{plugin} = false"
+  files = [
+    $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/plugin/{plugin}.vim",
+    $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/autoload/{plugin}.vim"
+  ]
+  for file in files
+    if filereadable(file)
+      execute $"source {file}"
+    endif
+  endfor
+enddef
+
 # set maximum foldlevel
 export def SetMaxFoldLevel()
   var mfl = max(map(range(1, line('$')), 'foldlevel(v:val)'))

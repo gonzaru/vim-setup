@@ -12,13 +12,13 @@ g:loaded_bufferonly = true
 import autoload '../autoload/bufferonly.vim'
 
 # define mappings
-nnoremap <silent> <unique> <script> <Plug>(bufferonly-delete)
+nnoremap <silent> <script> <Plug>(bufferonly-delete)
   \ <ScriptCmd>bufferonly.RemoveAllExceptCurrent("delete")<CR>
-nnoremap <silent> <unique> <script> <Plug>(bufferonly-delete!)
+nnoremap <silent> <script> <Plug>(bufferonly-delete!)
   \ <ScriptCmd>bufferonly.RemoveAllExceptCurrent("delete!")<CR>
-nnoremap <silent> <unique> <script> <Plug>(bufferonly-wipe)
+nnoremap <silent> <script> <Plug>(bufferonly-wipe)
   \ <ScriptCmd>bufferonly.RemoveAllExceptCurrent("wipe")<CR>
-nnoremap <silent> <unique> <script> <Plug>(bufferonly-wipe!)
+nnoremap <silent> <script> <Plug>(bufferonly-wipe!)
   \ <ScriptCmd>bufferonly.RemoveAllExceptCurrent("wipe!")<CR>
 
 # set mappings
