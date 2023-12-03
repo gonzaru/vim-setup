@@ -11,7 +11,7 @@ g:loaded_searcher = true
 # global variables
 if !exists('g:searcher_findprg_command')
   g:searcher_findprg_command = [
-    'fd', '--type', 'f', '--follow', '--no-ignore', '--strip-cwd-prefix', '--color=never'
+    'fd', '--type', 'f', '--follow', '--strip-cwd-prefix', '--color=never', '--unrestricted', '--exclude', '.git'
   ]
 endif
 if !exists('g:searcher_findprg_sensitive')
@@ -25,7 +25,7 @@ if !exists('g:searcher_findprg_directory')
 endif
 if !exists('g:searcher_grepprg_command')
   g:searcher_grepprg_command = [
-    'rg', '--vimgrep', '--line-number', '--no-heading', '--color=never'
+    'rg', '--vimgrep', '--line-number', '--no-heading', '--color=never', '-uu', '--glob', '!.git/'
   ]
 endif
 if !exists('g:searcher_grepprg_sensitive')
