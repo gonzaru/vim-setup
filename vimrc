@@ -315,8 +315,7 @@ if has('gui_running')
     execute "set guifont=Menlo\\ Regular:h" .. (hostname == "aiur" ? 14 : 16)
     set antialias  # smooth fonts
   else
-    # viminfo with vim version (same as non-gui)
-    execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
+    execute $"set viminfofile={$HOME}/.viminfo_gvim_{v:version}"
     # set guifont=* (shows a gui panel to pick a font)
     set guifont=DejaVu\ Sans\ Mono\ 12
   endif
@@ -439,7 +438,7 @@ set expandtab      # expand <tab> to spaces in insert mode
 
 # search files
 # [l]grep[add][!]: grep -n $* /dev/null (default)
-set grepprg=rg\ --vimgrep\ --line-number\ --no-heading\ --color=never\ --smart-case
+set grepprg=rg\ --vimgrep\ --line-number\ --no-heading\ --smart-case\ --color=never\ -uu\ --glob\ '!.git/'
 set grepformat=%f:%l:%c:%m,%f:%l:%m
 
 # backup files
@@ -749,6 +748,29 @@ nnoremap <leader><C-k> :resize -5<CR>
 nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
 command! SwapWindow :execute "normal! \<C-w>x"
+
+# grep using grepprg + quickfix
+command! -nargs=+ -complete=file Grep {
+  execute "silent grep! <args>"
+  if !empty(getqflist())
+    copen
+  endif
+}
+command! -nargs=+ -complete=file Grepi {
+  var grepprg_orig = &grepprg
+  execute $"set grepprg={substitute(fnameescape(&grepprg), 'smart-case\|case-sensitive', 'ignore-case', '')}"
+  execute "silent grep! <args>"
+  if !empty(getqflist())
+    copen
+  endif
+  execute $"set grepprg={fnameescape(grepprg_orig)}"
+}
+
+# find using searcher plugin
+if g:searcher_enabled
+  command! -nargs=+ -complete=file -bar Find searcher#Find('<args>', 'quickfix')
+  command! -nargs=+ -complete=file -bar Findi searcher#Find($'-i <args>', 'quickfix')
+endif
 
 # menu misc
 if g:misc_enabled
