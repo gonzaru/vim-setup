@@ -100,22 +100,22 @@ nnoremap <silent> <script> <Plug>(checker-signsdebug-next)
 if get(g:, 'checker_no_mappings') == 0
   # signs debug information
   if empty(mapcheck("<F6>", "n"))
-    nnoremap <buffer><F6> <Plug>(checker-signsdebug-cur)
+    nnoremap <F6> <Plug>(checker-signsdebug-cur)
   endif
   if empty(mapcheck("<leader>ec", "n"))
-    nnoremap <buffer><leader>ec <Plug>(checker-signsdebug-cur)
+    nnoremap <leader>ec <Plug>(checker-signsdebug-cur)
   endif
   if empty(mapcheck("<F7>", "n"))
-    nnoremap <buffer><F7> <Plug>(checker-signsdebug-prev)
+    nnoremap <F7> <Plug>(checker-signsdebug-prev)
   endif
   if empty(mapcheck("<leader>ep", "n"))
-    nnoremap <buffer><leader>ep <Plug>(checker-signsdebug-prev)
+    nnoremap <leader>ep <Plug>(checker-signsdebug-prev)
   endif
   if empty(mapcheck("<F8>", "n"))
-    nnoremap <buffer><F8> <Plug>(checker-signsdebug-next)
+    nnoremap <F8> <Plug>(checker-signsdebug-next)
   endif
   if empty(mapcheck("<leader>en", "n"))
-    nnoremap <buffer><leader>en <Plug>(checker-signsdebug-next)
+    nnoremap <leader>en <Plug>(checker-signsdebug-next)
   endif
   # toggle
   if empty(mapcheck("<leader>tgk", "n"))
