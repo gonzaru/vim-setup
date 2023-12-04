@@ -13,7 +13,7 @@ endif
 g:autoloaded_se = true
 
 # script local variables
-const BUFFER_NAME = "se_" .. strftime('%Y%m%d%H%M%S', localtime())
+const BUFFER_NAME = $"se:{strcharpart(sha256('se'), 0, 8)}"
 var PREV_CWD: string
 
 # prints the error message and saves the message in the message-history

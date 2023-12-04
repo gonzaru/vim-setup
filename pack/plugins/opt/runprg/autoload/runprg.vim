@@ -9,7 +9,7 @@ endif
 g:autoloaded_runprg = true
 
 # script local variables
-const BUFFER_NAME = "runprg_" .. strftime('%Y%m%d%H%M%S', localtime())
+const BUFFER_NAME = $"runprg:{strcharpart(sha256('runprg'), 0, 8)}"
 
 # allowed file types
 const ALLOWED_TYPES = ["sh", "python", "go"]
@@ -101,7 +101,7 @@ def RunSetupWindow()
     below new
     setlocal winfixheight
     setlocal winfixwidth
-    setlocal buftype=nowrite
+    setlocal buftype=nofile
     setlocal noswapfile
     setlocal buflisted
     silent execute $"file {BUFFER_NAME}"

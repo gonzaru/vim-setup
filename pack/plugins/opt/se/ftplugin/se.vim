@@ -21,7 +21,7 @@ setlocal nolist
 setlocal nosplitright
 setlocal noswapfile
 setlocal nobuflisted
-setlocal buftype=nowrite
+setlocal buftype=nofile
 setlocal bufhidden=hide
 if get(g:, 'se_no_mappings') == 0
   if empty(mapcheck("<ESC>", "n"))

@@ -9,7 +9,7 @@ endif
 g:autoloaded_documentare = true
 
 # script local variables
-const BUFFER_NAME = "documentare_" .. strftime('%Y%m%d%H%M%S', localtime())
+const BUFFER_NAME = $"documentare:{strcharpart(sha256('documentare'), 0, 8)}"
 
 # allowed doc file types
 const ALLOWED_TYPES = ["python", "go"]
@@ -77,7 +77,7 @@ def DocSetupWindow()
   else
     new
     silent execute $"file {BUFFER_NAME}"
-    setlocal buftype=nowrite
+    setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal nobuflisted

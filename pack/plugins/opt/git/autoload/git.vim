@@ -9,7 +9,7 @@ endif
 g:autoloaded_git = true
 
 # script local variables
-const GIT_BUFFER_NAME = "git_" .. strftime('%Y%m%d%H%M%S', localtime())
+const GIT_BUFFER_NAME = $"git:{strcharpart(sha256('git'), 0, 8)}"
 const GIT_FILE_TYPE = "gittig"
 var GIT_FILE: string
 
@@ -45,8 +45,6 @@ enddef
 def SetGitPrevFile(file: string)
   if filereadable(file)
     GIT_FILE = file
-  else
-    GIT_FILE = ""
   endif
 enddef
 
@@ -67,7 +65,6 @@ enddef
 export def Help()
   var lines =<< trim END
     <CR>   # shows git commit
-    <ESC>  # closes git window
     gb     # shows git blame
     gB     # shows git blame (short version)
     gd     # shows git diff file
@@ -90,15 +87,16 @@ export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
     EchoErrorMsg($"Error: file {file} is not readable")
     return
   endif
+  cursor(1, 1)
   Run($"git blame {shortopts} {file}", cwddir, selwin)
   if selwin
+    cursor(1, 1)
     wincmd H
     wincmd =
-    cursor(curline, curcol)
-    setlocal syntax=git
+    setlocal syntax=git scrollbind cursorbind cursorline
     win_gotoid(curwin)
-    win_execute(GetGitBufWinId(), 'setlocal scrollbind')
-    win_execute(curwin, 'setlocal scrollbind')
+    setlocal scrollbind cursorbind cursorline
+    cursor(curline, curcol)
   else
     # TODO: selwin false
   endif

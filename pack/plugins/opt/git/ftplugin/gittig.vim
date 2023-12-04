@@ -19,16 +19,13 @@ setlocal nocursorcolumn
 setlocal nowrap
 setlocal nospell
 setlocal nolist
-setlocal buftype=nowrite
+setlocal buftype=nofile
 setlocal noswapfile
 setlocal buflisted
 setlocal syntax=on
 if get(g:, 'git_no_mappings') == 0
   if empty(mapcheck("<CR>", "n"))
     nnoremap <silent><buffer><CR> <Plug>(git-show-commit)
-  endif
-  if empty(mapcheck("<ESC>", "n"))
-    nnoremap <silent><buffer><ESC> <Plug>(git-close)
   endif
   if empty(mapcheck("gb", "n"))
     nnoremap <silent><buffer>gb <Plug>(git-blame)
