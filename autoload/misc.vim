@@ -121,10 +121,10 @@ export def MapInsertTab()
     iunmap <Tab>
   endif
   inoremap <silent><expr> <Tab>
-  \ pumvisible()
-  \ ? '<C-y>'
-  \ : get(g:, 'complementum_enabled')
+  \ get(g:, 'complementum_enabled')
   \ ? '<Plug>(complementum-tab)'
+  \ : pumvisible()
+  \ ? '<C-y>'
   \ : '<Tab>'
 enddef
 

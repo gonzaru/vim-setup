@@ -217,6 +217,9 @@ set keymodel=startsel       # using a shifted special key starts (<S-Left,Right,
 set keymodel+=stopsel       # using non shifted stops (visual or select mode)
 set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 # set cpoptions+=n          # the column used for 'number' and 'relativenumber' will be used for text of wrapped lines
+set number                  # print the line number in front of each line
+# set relativenumber        # show the line number relative to the line
+# set numberwidth=4         # minimal number of columns to use for the line number (default 4)
 set laststatus=2            # to display the status line always
 set display=lastline        # the last line in a window will be displayed if possible
 set ignorecase              # case-insensitive search (also affects if == 'var', use if == 'var')
@@ -228,6 +231,7 @@ set hlsearch                # to highlight all search matches
 set incsearch               # jumps to search word when typing on serch /foo (default no)
 set nospell                 # disable spell checking
 set spelloptions+=camel     # camel CaseWord is considered a separate word
+set spellsuggest=best,15    # method and the maximum number of suggestions (default best)
 set noshowmatch             # disable matching parenthesis
 set matchtime=1             # seconds to show matching parenthesis
 set matchpairs=(:),{:},[:]  # characters that form pairs (default)
@@ -332,8 +336,10 @@ endif
 # if *syntax on*, set it *after* filetype plugin on
 # :help syn-manual
 # enable syntax rules for specific files (setlocal syntax=ON/OFF)
+# maximum column for syntax items (default 3000)
 if has("syntax")
   syntax manual
+  set synmaxcol=1024
 endif
 
 # see :filetype
@@ -572,6 +578,9 @@ inoremap <leader><C-w> <C-\><C-o>:update<CR>
 # <C-l> adds one character from the current match in completion
 # delete forward to be like its analogous <C-h>
 inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<DEL>'
+
+# yank
+# nnoremap Y y$
 
 # edit
 nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
