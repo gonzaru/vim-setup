@@ -12,6 +12,7 @@ g:autoloaded_bufferonly = true
 export def RemoveAllExceptCurrent(mode: string): void
   var bufinfo: list<dict<any>>
   var curbufid: number
+  var count = 0
   if index(['delete', 'delete!', 'wipe', 'wipe!'], mode) == -1
     return
   endif
@@ -25,9 +26,14 @@ export def RemoveAllExceptCurrent(mode: string): void
     if b.bufnr != curbufid
       if mode == "delete" || mode == "delete!"
         execute $"bd! {b.bufnr}"
+        ++count
       elseif mode == "wipe" || mode == "wipe!"
         execute $"bw! {b.bufnr}"
+        ++count
       endif
     endif
   endfor
+  if count > 0
+    echo $"{count} {count == 1 ? 'buffer' : 'buffers'} removed"
+  endif
 enddef
