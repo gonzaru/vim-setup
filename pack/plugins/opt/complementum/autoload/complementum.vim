@@ -19,16 +19,16 @@ enddef
 # complementum enable
 export def Enable()
   if empty(mapcheck("<Tab>", "i"))
-    inoremap <expr> <Tab> pumvisible() ? '<C-y>' : '<Plug>(complementum-tab)'
+    inoremap <Tab> <Plug>(complementum-tab)
   endif
   if empty(mapcheck("<Backspace>", "i"))
-    inoremap <expr> <Backspace> pumvisible() ? '<Backspace>' : '<Plug>(complementum-backspace)'
+    inoremap <Backspace> <Plug>(complementum-backspace)
   endif
   if empty(mapcheck("<Space>", "i"))
-    inoremap <expr> <Space> pumvisible() ? '<Space>' : '<Plug>(complementum-space)'
+    inoremap <Space> <Plug>(complementum-space)
   endif
   if empty(mapcheck("<CR>", "i"))
-    inoremap <expr> <CR> pumvisible() ? '<CR>' : '<Plug>(complementum-enter)'
+    inoremap <CR> <Plug>(complementum-enter)
   endif
   g:complementum_enabled = true
 enddef
@@ -69,7 +69,11 @@ enddef
 # complete the key
 export def CompleteKey(key: string)
   if key == "tab"
-    feedkeys(g:complementum_keystroke_tab, "n")
+    if pumvisible()
+      feedkeys(g:complementum_keystroke_tab_pumvisible, "n")
+    else
+      feedkeys(g:complementum_keystroke_tab, "n")
+    endif
   elseif key == "backspace"
     feedkeys(g:complementum_keystroke_backspace, "n")
   elseif key == "space"
@@ -130,6 +134,6 @@ def GoInsertAutoComplete(lang: string)
   if lang == "go"
   && index(["go#complete#Complete", "GOVIM_internal_Complete"], &omnifunc) >= 0
   && strcharpart(curline[curcol - (g:complementum_minchars + 1) : ], 0, 1) =~ '\h\|\d'
-    feedkeys(g:complementum_keystroke_go, "i")
+    feedkeys(g:complementum_keystroke_omni, "i")
   endif
 enddef

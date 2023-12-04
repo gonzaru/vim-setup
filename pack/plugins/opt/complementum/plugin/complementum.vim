@@ -33,8 +33,11 @@ endif
 if !exists('g:complementum_keystroke_tab')
   g:complementum_keystroke_tab = "\<Tab>"
 endif
-if !exists('g:complementum_keystroke_go')
-  g:complementum_keystroke_go = "\<C-x>\<C-o>"
+if !exists('g:complementum_keystroke_tab_pumvisible')
+  g:complementum_keystroke_tab_pumvisible = "\<C-y>"
+endif
+if !exists('g:complementum_keystroke_omni')
+  g:complementum_keystroke_omni = "\<C-x>\<C-o>"
 endif
 
 # autoload
