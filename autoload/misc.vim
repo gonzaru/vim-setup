@@ -213,7 +213,7 @@ export def ReloadPluginPack(plugin: string, type: string): void
      return
   endif
   execute $"g:loaded_{plugin} = false"
-  execute $"g:autoloadloaded_{plugin} = false"
+  execute $"g:autoloaded_{plugin} = false"
   files = [
     $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/plugin/{plugin}.vim",
     $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/autoload/{plugin}.vim"
