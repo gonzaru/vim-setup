@@ -234,6 +234,31 @@ export def SetMaxFoldLevel()
   v:statusmsg = $"foldlevel={&l:foldlevel}"
 enddef
 
+# set python3 with dynamic support
+export def SetPythonDynamic()
+  var homepython: string
+  var libpython: string
+  if has("python3_dynamic")
+    if has('mac')
+      homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
+      libpython = $"{homepython}/Python3"
+    elseif has('linux')
+      homepython = "/usr"
+      try
+        libpython = sort(
+          globpath($"{homepython}/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
+          (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
+        )[-1]
+      catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
+      endtry
+    endif
+    if isdirectory(homepython) && filereadable(libpython)
+      execute $"set pythonthreehome={homepython}"
+      execute $"set pythonthreedll={libpython}"
+    endif
+  endif
+enddef
+
 # sh
 export def SH(): void
   var guioptions_orig: string

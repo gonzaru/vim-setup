@@ -69,6 +69,7 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 MiscReloadPluginStart misc.ReloadPluginPack(<f-args>, "start")
   command! MiscSH misc.SH()
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
+  command! MiscSetPythonDynamic misc.SetPythonDynamic()
   command! MiscSignColumnToggle misc.SignColumnToggle()
   command! MiscSyntaxToggle misc.SyntaxToggle()
   command! MiscChangeTerminalColors {
