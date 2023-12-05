@@ -9,7 +9,7 @@ endif
 g:autoloaded_git = true
 
 # script local variables
-const GIT_BUFFER_NAME = $"git:{strcharpart(sha256('git'), 0, 8)}"
+const GIT_BUFFER_NAME = $"git_{strcharpart(sha256('git'), 0, 8)}"
 const GIT_FILE_TYPE = "gittig"
 var GIT_FILE: string
 

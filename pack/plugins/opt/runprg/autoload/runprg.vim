@@ -9,7 +9,7 @@ endif
 g:autoloaded_runprg = true
 
 # script local variables
-const BUFFER_NAME = $"runprg:{strcharpart(sha256('runprg'), 0, 8)}"
+const BUFFER_NAME = $"runprg_{strcharpart(sha256('runprg'), 0, 8)}"
 
 # allowed file types
 const ALLOWED_TYPES = ["sh", "python", "go"]
@@ -99,12 +99,13 @@ def RunSetupWindow()
     execute $"rightbelow split {BUFFER_NAME}"
   else
     below new
+    silent execute $"file {BUFFER_NAME}"
+    &l:statusline = $"[runprg]:{bufname('#')->fnamemodify(':~')}"
     setlocal winfixheight
     setlocal winfixwidth
     setlocal buftype=nofile
     setlocal noswapfile
     setlocal buflisted
-    silent execute $"file {BUFFER_NAME}"
   endif
 enddef
 
