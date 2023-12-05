@@ -47,9 +47,9 @@ enddef
 
 # documentation Python
 def DocPython(word: string)
-  silent deletebufline('%', 1, '$')
-  appendbufline('%', 0, systemlist($"python3 -m pydoc {word}"))
-  deletebufline('%', '$')
+  silent deletebufline(BUFFER_NAME, 1, '$')
+  appendbufline(BUFFER_NAME, 0, systemlist($"python3 -m pydoc {word}"))
+  deletebufline(BUFFER_NAME, '$')
   cursor(1, 1)
   if getline(1) =~ '^No Python documentation found for '
     bw
@@ -59,9 +59,9 @@ enddef
 
 # documentation Go
 def DocGo(word: string)
-  silent deletebufline('%', 1, '$')
-  appendbufline('%', 0, systemlist($"go doc {word}"))
-  deletebufline('%', '$')
+  silent deletebufline(BUFFER_NAME, 1, '$')
+  appendbufline(BUFFER_NAME, 0, systemlist($"go doc {word}"))
+  deletebufline(BUFFER_NAME, '$')
   cursor(1, 1)
   if getline('.') =~ '^doc: no symbol \|^doc: no buildable Go source files in '
     bw
