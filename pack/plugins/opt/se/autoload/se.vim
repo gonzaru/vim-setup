@@ -126,7 +126,9 @@ enddef
 
 # set prevcwd
 def SetPrevCwd(s: string)
-  PREV_CWD = s
+  if isdirectory(PREV_CWD)
+    PREV_CWD = s
+  endif
 enddef
 
 # get prevcwd
