@@ -6,11 +6,11 @@ vim9script noclear
 if get(g:, 'loaded_vimrc')
   echohl WarningMsg
   echom $"Warning: file {expand('<sfile>:~')} is already loaded"
-  echom ":vim9cmd g:loaded_vimrc = false (to unblock it)"
+  echom ":ReloadVimrc (to reload it)"
   echohl None
   finish
 endif
-g:loaded_vimrc = true  # already loaded
+g:loaded_vimrc = true
 
 # autoload
 import autoload './autoload/misc.vim'
@@ -18,29 +18,28 @@ import autoload './autoload/misc.vim'
 # config variables
 var colortheme = "darkula"                                                  # theme
 var background = "dark"                                                     # background
-var hostname = hostname()                                                   # hostname
 var tmux = !empty($TMUX) || &term =~ "tmux"                                 # tmux
 var screen = (!empty($STY) || &term =~ "screen") && !tmux                   # screen
 var zellij = !empty($ZELLIJ) && !screen && !tmux                            # zellij
 var multiplexer = screen || tmux || zellij                                  # multiplexer
-var vim_terminal = !empty($VIM_TERMINAL)                                    # vim terminal mode
-var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
-var vim_terminal_zellij = !empty($VIM_TERMINAL) && zellij                   # vim terminal + zellij
-var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
-var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
-var xterm_zellij = !empty($XTERM_VERSION) && zellij                         # xterm + zellij
-var apple_terminal = $TERM_PROGRAM == "Apple_Terminal"  && !multiplexer     # terminal.app
-var apple_terminal_tmux = !empty($TERM_SESSION_ID) && tmux                  # terminal.app + tmux
-var apple_terminal_zellij = !empty($TERM_SESSION_ID) && zellij              # terminal.app + zellij
 var alacritty = !empty($ALACRITTY_SOCKET) && !multiplexer                   # alacritty
 var alacritty_tmux = !empty($ALACRITTY_SOCKET) && tmux                      # alacritty + tmux
 var alacritty_zellij = !empty($ALACRITTY_SOCKET) && zellij                  # alacritty + zellij
+var apple_terminal = $TERM_PROGRAM == "Apple_Terminal"  && !multiplexer     # terminal.app
+var apple_terminal_tmux = !empty($TERM_SESSION_ID) && tmux                  # terminal.app + tmux
+var apple_terminal_zellij = !empty($TERM_SESSION_ID) && zellij              # terminal.app + zellij
 var gnome_terminal = !empty($GNOME_TERMINAL_SCREEN) && !multiplexer         # gnome
 var gnome_terminal_tmux = !empty($GNOME_TERMINAL_SCREEN) && tmux            # gnome + tmux
 var gnome_terminal_zellij = !empty($GNOME_TERMINAL_SCREEN) && zellij        # gnome + zellij
 var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer   # jediterm
 var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux      # jediterm + tmux
 var jediterm_zellij = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && zellij  # jediterm + zellij
+var vim_terminal = !empty($VIM_TERMINAL)                                    # vim terminal
+var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
+var vim_terminal_zellij = !empty($VIM_TERMINAL) && zellij                   # vim terminal + zellij
+var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
+var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
+var xterm_zellij = !empty($XTERM_VERSION) && zellij                         # xterm + zellij
 
 # don't load defaults.vim
 g:skip_defaults_vim = true
@@ -149,28 +148,8 @@ if g:statusline_enabled
   g:statusline_showgitbranch = true
 endif
 
-# set python3 with dynamic loading support
-if has("python3_dynamic")
-  var homepython: string
-  var libpython: string
-  if has('mac')
-    homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
-    libpython = $"{homepython}/Python3"
-  elseif has('linux')
-    homepython = "/usr"
-    try
-      libpython = sort(
-        globpath($"{homepython}/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
-        (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
-      )[-1]
-    catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
-    endtry
-  endif
-  if isdirectory(homepython) && filereadable(libpython)
-    execute $"set pythonthreehome={homepython}"
-    execute $"set pythonthreedll={libpython}"
-  endif
-endif
+# set python with dynamic support
+misc.SetPythonDynamic()
 
 # global settings
 set nocompatible            # use vim defaults instead of 100% vi compatibility
@@ -249,7 +228,6 @@ set t_ut=                   # disable background color erase (BCE)
 if !has('gui_running')
   # viminfo with vim version
   execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
-
   # cursor shapes
   # &t_SI = blinking vertical bar (INSERT MODE)
   # &t_SR = blinking underscore   (REPLACE MODE)
@@ -265,39 +243,35 @@ if !has('gui_running')
     alacritty || alacritty_tmux || alacritty_zellij
     || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
     || jediterm || jediterm_tmux || jediterm_zellij
-    || xterm || xterm_tmux || xterm_zellij
     || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
+    || xterm || xterm_tmux || xterm_zellij
   )
     &t_SI ..= "\e[6 q"
     &t_SR ..= "\e[4 q"
     &t_EI ..= "\e[2 q"
   endif
-
   # screen/tmux/alacritty mouse codes
   if match(&term, '^\(screen\|tmux\|alacritty\)') != -1
     # Terminal.app or xterm >= 277
     set ttymouse=sgr
   endif
-
   # automatically is on when term is xterm/screen (fast terminal)
   if match(&term, '^\(xterm\|screen\|tmux\|alacritty\)') != -1
     set ttyfast
   endif
-
   # italic fonts support
   if (xterm || apple_terminal) && !multiplexer
     &t_ZH = "\e[3m"
     &t_ZR = "\e[23m"
   endif
-
-  # 24-bit terminal color, &t_Co is a string
+  # 24-bit terminal color
   if has('termguicolors') && str2nr(&t_Co) >= 256
     if (
       alacritty || alacritty_tmux || alacritty_zellij
       || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
       || jediterm || jediterm_tmux || jediterm_zellij
-      || xterm || xterm_tmux || xterm_zellij
       || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
+      || xterm || xterm_tmux || xterm_zellij
     ) && !screen
       # :help xterm-true-color
       if !jediterm
@@ -313,14 +287,16 @@ endif
 
 # gui
 if has('gui_running')
+  # see :SetGuiFont
   if has('gui_macvim')
     # viminfo with macvim version
     execute $"set viminfofile={$HOME}/.viminfo_macvim_{v:version}"
-    execute "set guifont=Menlo\\ Regular:h" .. (hostname == "aiur" ? 14 : 16)
-    set antialias  # smooth fonts
+    # set guifont=SFMono-Regular:h16
+    set guifont=Menlo\ Regular:h16
+    set antialias
   else
     execute $"set viminfofile={$HOME}/.viminfo_gvim_{v:version}"
-    # set guifont=* (shows a gui panel to pick a font)
+    # set guifont=SF\ Mono\ Medium\ 12
     set guifont=DejaVu\ Sans\ Mono\ 12
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
@@ -391,18 +367,11 @@ set showtabline=1  # to show tab only if there are at least two tabs (2 to show 
 # custom tabline (see :help setting-tabline)
 if get(g:, "tabline_enabled")
   set tabline=%!tabline#MyTabLine()
-  # vim9
-  # set tabline=%!
-  # &tabline ..= tabline.MyTabLine->string() .. '()'
 endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
   set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
-  # vim9
-  # set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]
-  # &statusline ..= ' %{' .. statusline.GetStatus->string() .. '()}'
-  # &statusline ..= ' %-15.(%l,%c%V%) %P'
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
@@ -536,7 +505,8 @@ if has("signs")
   set signcolumn=number
 endif
 
-# key mapping
+#--------------
+# key mapping |
 #---------------------------------------------------------------------------"
 # Commands / Modes | Normal | Insert | Command | Visual | Select | Operator |
 #------------------|--------|--------|---------|--------|--------|----------|
@@ -588,17 +558,16 @@ nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
 nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. "/.vim/**," .. $VIMRUNTIME .. "/**")<CR>
 nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
-nnoremap <leader>e; mt<ESC>$a;<ESC>`t
+nnoremap <leader>e; mt$a;<ESC>`t
 
 # completion
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
 # see complementum plugin
 
 # source
-nnoremap <leader>sv :source $HOME/.vim/vimrc<CR>
-nnoremap <leader>sV <ScriptCmd>g:loaded_vimrc = false<CR>:source $HOME/.vim/vimrc<CR>
-nnoremap <leader>st :Theme<CR>
-nnoremap <leader>sa <ScriptCmd>g:loaded_vimrc = false<CR>:source $HOME/.vim/vimrc<CR>:Theme<CR>
+nnoremap <silent><leader>sv :ReloadVimrc<CR>
+nnoremap <silent><leader>st :Theme<CR>
+nnoremap <silent><leader>sa :ReloadVimrc<CR>:Theme<CR>
 
 # toggle
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
@@ -624,6 +593,7 @@ endif
 # :sh
 if has('gui_running')
   if g:misc_enabled
+    # nnoremap <silent><leader>sh <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
     nnoremap <leader>sh <ScriptCmd>misc.SH()<CR>
   endif
 else
@@ -633,10 +603,12 @@ endif
 # terminal
 nnoremap <silent><leader><CR> :below terminal<CR>
 if has('gui_running')
-  nnoremap <silent><C-z> :below terminal<CR>
+  # nnoremap <silent><C-z> :below terminal<CR>
+  # nnoremap <silent><C-z> <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+  nnoremap <silent><C-z> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
   nnoremap <silent><leader><C-CR> :below terminal<CR>
-  nnoremap <silent><leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent><leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent><leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent><leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
 endif
 nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
@@ -655,7 +627,7 @@ vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 # inoremap ( ()<left>
 # inoremap [ []<left>
 # inoremap { {}<left>
-# inoremap {<CR> {<CR>}<ESC>O
+# inoremap {<CR> {<CR>}<C-\><C-o>O
 
 # gui
 if has('gui_running')
@@ -679,7 +651,7 @@ nnoremap <leader>n :bnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
 nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
-nnoremap <leader><leader> :b #<CR>
+nnoremap <nowait><leader><leader> :b #<CR>
 nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
@@ -726,7 +698,7 @@ if g:misc_enabled
   nnoremap <leader>sl <ScriptCmd>misc.MenuLanguageSpell()<CR>
 endif
 
-# diff
+# diff (see copy-diff)
 if g:misc_enabled
   nnoremap <localleader>dt <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
 endif
@@ -735,12 +707,13 @@ nnoremap <localleader>dw :windo diffthis<CR>
 nnoremap <localleader>dd :diffoff<CR>
 nnoremap <localleader>dD :diffoff!<CR>
 nnoremap <localleader>dg :DiffOrig<CR>
-nnoremap <localleader>= :1,$+1diffget<CR>
+nnoremap <localleader>< :1,$+1diffget<CR>
+nnoremap <localleader>> :1,$diffput<CR>
 nnoremap <localleader>, :.,.diffget<CR>
 nnoremap <localleader>. :.,.diffput<CR>
 nnoremap <localleader>/ :diffupdate<CR>
 command! DiffGetAll :1,$+1diffget
-command! DiffPutAll :1,$+1diffput
+command! DiffPutAll :1,$diffput
 command! DiffGetLine :.,.diffget
 command! DiffPutLine :.,.diffput
 # diff original file with unwritted changes (defaults.vim)
@@ -756,7 +729,7 @@ nnoremap <leader><C-j> :resize +5<CR>
 nnoremap <leader><C-k> :resize -5<CR>
 nnoremap <leader><C-h> :vertical resize -5<CR>
 nnoremap <leader><C-l> :vertical resize +5<CR>
-command! SwapWindow :execute "normal! \<C-w>x"
+command! SwapWindow execute "normal! \<C-w>x"
 
 # grep using grepprg + quickfix
 command! -nargs=+ -complete=file Grep {
@@ -812,6 +785,12 @@ command! Theme {
   endif
 }
 
+# reload vimrc
+command! ReloadVimrc {
+  g:loaded_vimrc = false
+  execute $"source {$HOME}/.vim/vimrc"
+}
+
 # reload plugin utils
 command! ReloadPluginUtils {
   if get(g:, "utils_enabled")
@@ -825,12 +804,15 @@ command! ReloadPluginUtils {
 # reload plugin misc
 command! ReloadPluginMisc {
   if get(g:, "misc_enabled")
-    g:misc_utils = false
+    g:loaded_misc = false
     g:autoloaded_misc = false
     execute $"source {$HOME}/.vim/plugin/misc.vim"
     execute $"source {$HOME}/.vim/autoload/misc.vim"
   endif
 }
+
+# set gui font (shows a gui panel to pick a font)
+command! SetGuiFont if has('gui_running') | set guifont=* | endif
 
 # vim events
 if !has('gui_running')
