@@ -47,6 +47,7 @@ enddef
 
 # documentation Python
 def DocPython(word: string)
+  silent deletebufline('%', 1, '$')
   appendbufline('%', 0, systemlist($"python3 -m pydoc {word}"))
   deletebufline('%', '$')
   cursor(1, 1)
@@ -58,6 +59,7 @@ enddef
 
 # documentation Go
 def DocGo(word: string)
+  silent deletebufline('%', 1, '$')
   appendbufline('%', 0, systemlist($"go doc {word}"))
   deletebufline('%', '$')
   cursor(1, 1)

@@ -140,6 +140,7 @@ export def RunWindow(lang: string, file: string): void
   endif
   RunSetupWindow()
   runwinid = GetRunBufWinId()
+  silent deletebufline(BUFFER_NAME, 1, '$')
   appendbufline(BUFFER_NAME, 0, outmsg)
   deletebufline(BUFFER_NAME, '$')
   win_execute(runwinid, "cursor(1, 1)")

@@ -171,6 +171,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
   SetGitPrevFile(curfile)
   SetupWindow()
   gitwinid = GetGitBufWinId()
+  silent deletebufline(GIT_BUFFER_NAME, 1, '$')
   appendbufline(GIT_BUFFER_NAME, 0, outmsg)
   deletebufline(GIT_BUFFER_NAME, '$')
   win_execute(gitwinid, "cursor(1, 1)")
