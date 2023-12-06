@@ -167,7 +167,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
   if empty(outmsg)
-    EchoWarningMsg($"Warning: empty output")
+    EchoWarningMsg("Warning: empty output")
     return
   endif
   SetGitPrevFile(curfile)
