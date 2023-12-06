@@ -10,7 +10,7 @@ g:autoloaded_git = true
 
 # script local variables
 const GIT_BUFFER_NAME = $"git_{strcharpart(sha256('git'), 0, 8)}"
-const GIT_FILE_TYPE = "gittig"
+const GIT_FILE_TYPE = "gitscm"
 var GIT_FILE: string
 
 # prints the error message and saves the message in the message-history
@@ -45,6 +45,8 @@ enddef
 def SetGitPrevFile(file: string)
   if filereadable(file)
     GIT_FILE = file
+  elseif !IsValidHash(file)
+    GIT_FILE = ""
   endif
 enddef
 
@@ -71,8 +73,8 @@ export def Help()
     gh     # shows git help information [H]
     gl     # shows git log file
     gL     # shows git log one file
-    gs     # shows git show file
-    gS     # shows git status file
+    gs     # shows git status file
+    gS     # shows git show file
   END
   echo join(lines, "\n")
 enddef
@@ -151,7 +153,7 @@ enddef
 export def Run(args: string, cwddir: string, selwin: bool): void
   var outmsg: list<string>
   var gitwinid = GetGitBufWinId()
-  var curfile = expand('%:p')
+  var curfile = split(args)[-1]
   var selwinid = win_getid()
   if selwinid == gitwinid
     Close()
@@ -165,7 +167,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
   if empty(outmsg)
-    EchoWarningMsg("Warning: empty output")
+    EchoWarningMsg($"Warning: empty output")
     return
   endif
   SetGitPrevFile(curfile)

@@ -25,10 +25,14 @@ nnoremap <silent> <script> <Plug>(git-blame-short)
   \ <ScriptCmd>git.Blame(PrevOrNewFile(), getcwd(), true, true)<CR>
 nnoremap <silent> <script> <Plug>(git-diff-file)
   \ <ScriptCmd>git.Run($"git diff {PrevOrNewFile()}", getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-show)
+  \ <ScriptCmd>git.Run($"git show", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-show-commit)
   \ <ScriptCmd>git.ShowCommit(getline('.'), getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-show-file)
   \ <ScriptCmd>git.Run($"git show {PrevOrNewFile()}", getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-status)
+  \ <ScriptCmd>git.Run($"git status", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-status-file)
   \ <ScriptCmd>git.Run($"git status {PrevOrNewFile()}", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-log) <ScriptCmd>git.Run('git log', getcwd(), true)<CR>
@@ -39,13 +43,38 @@ nnoremap <silent> <script> <Plug>(git-log-one-file)
 
 # previous or new file
 def PrevOrNewFile(): string
-  return (&filetype == git.GetGitFileType()) ? git.GetGitPrevFile() : expand('%:p')
+  var cfile: string
+  var file: string
+  try
+    cfile = expand('<cfile>')
+  catch /^Vim\%((\a\+)\)\=:E446:/ # E446: No file name under cursor
+  finally
+    if filereadable(cfile)
+      file = cfile
+    elseif &filetype == git.GetGitFileType()
+      if !empty(git.GetGitPrevFile())
+        file = git.GetGitPrevFile()
+      endif
+    else
+      file = expand('%:p')
+    endif
+  endtry
+  if !filereadable(file)
+    throw $"Error: file {file} is not readable"
+  endif
+  return file
 enddef
 
 # set mappings
 if get(g:, 'git_no_mappings') == 0
-  if empty(mapcheck("<leader>GC", "n"))
-    nnoremap <leader>GC <Plug>(git-close)
+  if empty(mapcheck("<leader>vc", "n"))
+    nnoremap <leader>vc <Plug>(git-close)
+  endif
+  if empty(mapcheck("<leader>vs", "n"))
+    nnoremap <leader>vs <Plug>(git-status)
+  endif
+  if empty(mapcheck("<leader>vS", "n"))
+    nnoremap <leader>vS <Plug>(git-show)
   endif
 endif
 
@@ -70,11 +99,11 @@ if get(g:, 'git_no_commands') == 0
   command! GitPull git.Run('git pull', getcwd(), false)
   # command! GitPush git.Run('git push', getcwd(), false)
   # command! GitPushForce git.Run('git push -f', getcwd(), false)
-  command! GitShow git.Run('git show', getcwd(), true)
+  command! GitShow execute "normal \<Plug>(git-show)"
   command! GitShowCommit execute "normal \<Plug>(git-show-commit)"
   command! GitShowFile execute "normal \<Plug>(git-show-file)"
   command! GitStashList git.Run('git stash list', getcwd(), true)
-  command! GitStatus git.Run('git status', getcwd(), true)
+  command! GitStatus execute "normal \<Plug>(git-status)"
   command! GitStatusFile execute "normal \<Plug>(git-status-file)"
   command! GitStatusShort git.Run('git status --short', getcwd(), true)
   command! GitStatusShortFile git.Run($"git status --short {expand('%:p')}", getcwd(), true)
