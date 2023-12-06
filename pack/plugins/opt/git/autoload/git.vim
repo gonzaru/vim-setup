@@ -167,7 +167,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
   if empty(outmsg)
-    EchoWarningMsg($"Warning: empty output args: '{args}'")
+    EchoWarningMsg($"Warning: empty output by args: '{args}'")
     return
   endif
   SetGitPrevFile(curfile)
@@ -178,6 +178,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
   deletebufline(GIT_BUFFER_NAME, '$')
   win_execute(gitwinid, "cursor(1, 1)")
   win_execute(gitwinid, $"resize {len(outmsg)}")
+  win_execute(gitwinid, "setlocal syntax=git")
   if !selwin
     win_gotoid(selwinid)
   endif

@@ -9,7 +9,7 @@ endif
 b:did_ftplugin_git = true
 
 # Git
-setlocal statusline=[git]:%<%{git#GitPrevFile()->fnamemodify(':~')}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
+setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->fnamemodify(':~')\ :\ 'none'}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 setlocal winfixheight
 setlocal winfixwidth
 setlocal noconfirm
