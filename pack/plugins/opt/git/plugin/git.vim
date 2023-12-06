@@ -19,12 +19,13 @@ import autoload '../autoload/git.vim'
 # define mappings
 nnoremap <silent> <script> <Plug>(git-blame) <ScriptCmd>git.Blame(PrevOrNewFile(), getcwd(), false, true)<CR>
 nnoremap <silent> <script> <Plug>(git-blame-short) <ScriptCmd>git.Blame(PrevOrNewFile(), getcwd(), true, true)<CR>
-nnoremap <silent> <script> <Plug>(git-branch) <ScriptCmd>git.Run("git branch", getcwd(), false)<CR>
+nnoremap <silent> <script> <Plug>(git-branch) <ScriptCmd>git.Run("git branch", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-branch-all) <ScriptCmd>git.Run("git branch --all", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-branch-remotes) <ScriptCmd>git.Run("git branch --remotes", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-close) <ScriptCmd>git.Close()<CR>
 nnoremap <silent> <script> <Plug>(git-diff) <ScriptCmd>git.Run("git diff", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-diff-file) <ScriptCmd>git.Run($"git diff {PrevOrNewFile()}", getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-do-action) <ScriptCmd>git.DoAction(getline('.'), getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-help) <ScriptCmd>git.Help()<CR>
 nnoremap <silent> <script> <Plug>(git-log) <ScriptCmd>git.Run("git log", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-log-file) <ScriptCmd>git.Run($"git log {PrevOrNewFile()}", getcwd(), true)<CR>
@@ -33,7 +34,6 @@ nnoremap <silent> <script> <Plug>(git-log-one-file)
   \ <ScriptCmd>git.Run($"git log --oneline {PrevOrNewFile()}", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-pull) <ScriptCmd>git.Run("git pull", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-show) <ScriptCmd>git.Run("git show", getcwd(), true)<CR>
-nnoremap <silent> <script> <Plug>(git-show-commit) <ScriptCmd>git.ShowCommit(getline('.'), getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-show-file) <ScriptCmd>git.Run($"git show {PrevOrNewFile()}", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-stash-list) <ScriptCmd>git.Run("git stash list", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-status) <ScriptCmd>git.Run("git status", getcwd(), true)<CR>
@@ -62,7 +62,7 @@ def PrevOrNewFile(): string
     endif
   endtry
   if !filereadable(file)
-    throw $"Error: the file {file} is not readable"
+    throw $"Error: the file '{file}' is not readable"
   endif
   return file
 enddef
@@ -123,6 +123,7 @@ if get(g:, 'git_no_commands') == 0
   command! GitDiffFile execute "normal \<Plug>(git-diff-file)"
   command! GitDiffStaged git.Run('git diff --staged', getcwd(), true)
   command! GitDiffStagedFile git.Run($"git diff --staged {expand('%:p')}", getcwd(), true)
+  command! GitDoAction execute "normal \<Plug>(git-do-action)"
   command! GitHelp execute "normal \<Plug>(git-help)"
   command! GitLog execute "normal \<Plug>(git-log)"
   command! GitLogFile execute "normal \<Plug>(git-log-file)"
@@ -132,7 +133,6 @@ if get(g:, 'git_no_commands') == 0
   # command! GitPush git.Run('git push', getcwd(), false)
   # command! GitPushForce git.Run('git push -f', getcwd(), false)
   command! GitShow execute "normal \<Plug>(git-show)"
-  command! GitShowCommit execute "normal \<Plug>(git-show-commit)"
   command! GitShowFile execute "normal \<Plug>(git-show-file)"
   command! GitStashList execute "normal \<Plug>(git-stash-list)"
   command! GitStatus execute "normal \<Plug>(git-status)"

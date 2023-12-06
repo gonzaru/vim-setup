@@ -104,6 +104,12 @@ export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
   endif
 enddef
 
+# checks if the local branch exists
+def BranchExists(branch: string, cwddir: string): bool
+  system($"cd {cwddir} && git show-ref --verify --quiet refs/heads/{branch}")
+  return !v:shell_error
+enddef
+
 # checks if it is a valid git commit hash
 def IsValidHash(hash: string): bool
   return hash =~ '^\x\{7,40\}$'
@@ -137,15 +143,26 @@ def SetupWindow()
   endif
 enddef
 
-# shows the git commit
-export def ShowCommit(line: string, cwddir: string, selwin: bool): void
-  var commit: string
-  if empty(trim(line))
+# selects a commit or branch
+export def DoAction(line: string, cwddir: string, selwin: bool): void
+  var curcol: number
+  var curline: number
+  var elem = trim(line)
+  if empty(elem)
     return
   endif
-  commit = split(substitute(line, '^commit ', "", ""), " ")[0]
-  if IsValidHash(commit)
-    Run($"git show {commit}", cwddir, selwin)
+  elem = split(substitute(line, '^commit \|^* ', "", ""), " ")[0]
+  if IsValidHash(elem)
+    Run($"git show {elem}", cwddir, selwin)
+  elseif BranchExists(elem, cwddir)
+    curline = line('.')
+    curcol = col('.')
+    Run($"git switch {elem}", cwddir, selwin)
+    if get(g:, 'statusline_enabled')
+      cursor(curline, curcol)
+      sleep! 200m
+      doautocmd DirChanged
+    endif
   endif
 enddef
 

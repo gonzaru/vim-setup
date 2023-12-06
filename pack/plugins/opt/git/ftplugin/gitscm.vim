@@ -25,7 +25,7 @@ setlocal buflisted
 setlocal syntax=on
 if get(g:, 'git_no_mappings') == 0
   if empty(mapcheck("<CR>", "n"))
-    nnoremap <silent><buffer><CR> <Plug>(git-show-commit)
+    nnoremap <silent><buffer><CR> <Plug>(git-do-action))
   endif
   if empty(mapcheck("gb", "n"))
     nnoremap <silent><buffer>gb <Plug>(git-blame)
