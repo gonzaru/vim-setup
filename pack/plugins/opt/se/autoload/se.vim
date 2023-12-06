@@ -104,7 +104,7 @@ def Populate(cwddir: string)
   if len(lsf) > 0
     appendbufline(BUFFER_NAME, 0, lsf)
   else
-    EchoWarningMsg($"Warning: directory {fnamemodify(cwddir, ':t')} is empty")
+    EchoWarningMsg($"Warning: the directory '{fnamemodify(cwddir, ':t')}' is empty")
     sleep! 1
     redraw!
   endif

@@ -49,12 +49,12 @@ def Format(lang: string, file: string): void
   endif
   outmsg = systemlist($"{cmd} {file}")
   if v:shell_error != 0
-    EchoErrorMsg($"Error: command '{cmd}' failed to execute correctly")
+    EchoErrorMsg($"Error: the command '{cmd}' could not be executed correctly")
     return
   endif
   checktime
   if empty(outmsg) || (lang == "python" && index(outmsg, "1 file left unchanged.") >= 0)
-    echo $"Info: file was not modified by cmd: {cmd}"
+    echo $"Info: the file was not modified by cmd: '{cmd}'"
   endif
 enddef
 
@@ -67,7 +67,7 @@ export def Language(lang: string, file: string): void
   endif
   cmd = COMMANDS[lang]["command"]->split()[0]
   if !executable(cmd)
-    EchoErrorMsg($"Error: command '{cmd}' not found")
+    EchoErrorMsg($"Error: the command '{cmd}' was not found")
     return
   endif
   Format(lang, file)

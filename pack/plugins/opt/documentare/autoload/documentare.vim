@@ -53,7 +53,7 @@ def DocPython(word: string)
   cursor(1, 1)
   if getline(1) =~ '^No Python documentation found for '
     bw
-    EchoWarningMsg($"Warning: no {&filetype} documentation found for {word}")
+    EchoWarningMsg($"Warning: no '{&filetype}' documentation found for the word '{word}'")
   endif
 enddef
 
@@ -65,7 +65,7 @@ def DocGo(word: string)
   cursor(1, 1)
   if getline('.') =~ '^doc: no symbol \|^doc: no buildable Go source files in '
     bw
-    EchoWarningMsg($"Warning: no {&filetype} documentation found for {word}")
+    EchoWarningMsg($"Warning: no '{&filetype}' documentation found for the word '{word}'")
   endif
 enddef
 
@@ -93,7 +93,7 @@ export def Doc(type: string): void
   var cword: string
   var word: string
   if index(ALLOWED_TYPES, &filetype) == -1
-    EchoErrorMsg($"Error: running filetype '{&filetype}' is not supported")
+    EchoErrorMsg($"Error: running the filetype '{&filetype}' is not supported")
     return
   endif
   # TODO:
@@ -103,12 +103,12 @@ export def Doc(type: string): void
   # endif
   cword = expand("<cWORD>")
   if empty(cword) || index(["(", ")", "()"], cword) >= 0
-    EchoErrorMsg("Error: word is empty or invalid")
+    EchoErrorMsg("Error: the word is empty or invalid")
     return
   endif
   word = shellescape(trim(split(cword, "(")[0], '"'))
   if empty(word)
-    EchoErrorMsg("Error: word is empty")
+    EchoErrorMsg("Error: the word is empty")
     return
   endif
   DocSetupWindow()

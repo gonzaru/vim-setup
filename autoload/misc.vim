@@ -73,7 +73,7 @@ export def GoBufferPos(bnum: number)
     ++pos
   endfor
   if !match
-    utils.EchoErrorMsg($"Error: buffer in position {bnum} does not exist")
+    utils.EchoErrorMsg($"Error: the buffer in the position '{bnum}' does not exist")
   endif
 enddef
 
@@ -88,7 +88,7 @@ enddef
 # toggle gui menu bar
 export def GuiMenuBarToggle(): void
   if !has('gui_running')
-    utils.EchoWarningMsg("Warning: only use this function with gui")
+    utils.EchoWarningMsg("Warning: only use this function with the gui")
     return
   endif
   if &l:guioptions =~ "m"
@@ -144,7 +144,7 @@ export def MenuLanguageSpell(): void
     return
   endif
   if choice < 1 || choice > 5
-    utils.EchoErrorMsg($"Error: wrong option {choice}")
+    utils.EchoErrorMsg($"Error: wrong option '{choice}'")
     return
   endif
   if choice >= 1 && choice <= 4
@@ -181,12 +181,12 @@ export def MenuMisc(): void
     return
   endif
   if choice < 1 || choice > 3
-    utils.EchoErrorMsg($"Error: wrong option {choice}")
+    utils.EchoErrorMsg($"Error: wrong option '{choice}'")
     return
   endif
   if choice == 1 || choice == 2
     if !get(g:, 'arrowkeys_enabled')
-      utils.EchoErrorMsg("Error: plugin 'arrowkeys' is not enabled")
+      utils.EchoErrorMsg("Error: the plugin 'arrowkeys' is not enabled")
       return
     endif
     if choice == 1
@@ -204,12 +204,12 @@ export def ReloadPluginPack(plugin: string, type: string): void
   var dir: string
   var files: list<string>
   if !get(g:, $"{plugin}_enabled")
-     utils.EchoErrorMsg($"Error: plugin '{plugin}' is not enabled or does not exist")
+     utils.EchoErrorMsg($"Error: the plugin '{plugin}' is not enabled or does not exist")
      return
   endif
   dir = $"{$HOME}/.vim/pack/plugins/{type}/{plugin}"
   if !isdirectory(dir)
-     utils.EchoErrorMsg( $"Error: directory '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
+     utils.EchoErrorMsg( $"Error: '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
      return
   endif
   execute $"g:loaded_{plugin} = false"
@@ -263,7 +263,7 @@ enddef
 export def SH(): void
   var guioptions_orig: string
   if !has('gui_running')
-    utils.EchoWarningMsg("Warning: only use this function with gui")
+    utils.EchoWarningMsg("Warning: only use this function with the gui")
     return
   endif
   guioptions_orig = &l:guioptions
@@ -277,7 +277,7 @@ export def CheckTrailingSpaces()
   var nline: number
   nline = search('\s\+$', 'n')
   if nline > 0
-    utils.EchoWarningMsg($"Warning: there are trailing spaces in the line {nline}")
+    utils.EchoWarningMsg($"Warning: there are trailing spaces in the line '{nline}'")
   endif
 enddef
 

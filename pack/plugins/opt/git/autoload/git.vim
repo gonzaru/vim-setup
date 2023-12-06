@@ -32,12 +32,12 @@ def EchoWarningMsg(msg: string)
 enddef
 
 # gets the git buffer window id
-def GetGitBufWinId(): number
+def GitBufWinId(): number
   return bufexists(GIT_BUFFER_NAME) ? bufwinid(GIT_BUFFER_NAME) : -1
 enddef
 
 # gets the git previous file
-export def GetGitPrevFile(): string
+export def GitPrevFile(): string
   return GIT_FILE
 enddef
 
@@ -51,13 +51,13 @@ def SetGitPrevFile(file: string)
 enddef
 
 # gets the git file type
-export def GetGitFileType(): string
+export def GitFileType(): string
   return GIT_FILE_TYPE
 enddef
 
 # closes the git window
 export def Close()
-  var gitwinid = GetGitBufWinId()
+  var gitwinid = GitBufWinId()
   if gitwinid > 0
     win_execute(gitwinid, "bw")
   endif
@@ -86,7 +86,7 @@ export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
   var curwin = win_getid(winnr())
   var shortopts = short ? '--date short' : ''
   if !filereadable(file)
-    EchoErrorMsg($"Error: file {file} is not readable")
+    EchoErrorMsg($"Error: the file '{file}' is not readable")
     return
   endif
   cursor(1, 1)
@@ -117,7 +117,7 @@ enddef
 
 # git setup window
 def SetupWindow()
-  var bid = GetGitBufWinId()
+  var bid = GitBufWinId()
   if bid > 0
     win_gotoid(bid)
   elseif bufexists(GIT_BUFFER_NAME) && getbufinfo(GIT_BUFFER_NAME)[0].hidden
@@ -152,14 +152,14 @@ enddef
 # git run
 export def Run(args: string, cwddir: string, selwin: bool): void
   var outmsg: list<string>
-  var gitwinid = GetGitBufWinId()
+  var gitwinid = GitBufWinId()
   var curfile = split(args)[-1]
   var selwinid = win_getid()
   if selwinid == gitwinid
     Close()
   endif
   if !IsValidRepo(cwddir)
-    EchoErrorMsg($"Error: {fnamemodify(cwddir, ':~')} is not a valid git repo")
+    EchoErrorMsg($"Error: '{fnamemodify(cwddir, ':~')}' is not a valid git repo")
     return
   endif
   outmsg = systemlist($"cd {cwddir} && {args}")
@@ -167,12 +167,12 @@ export def Run(args: string, cwddir: string, selwin: bool): void
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
   if empty(outmsg)
-    EchoWarningMsg("Warning: empty output")
+    EchoWarningMsg($"Warning: empty output args: '{args}'")
     return
   endif
   SetGitPrevFile(curfile)
   SetupWindow()
-  gitwinid = GetGitBufWinId()
+  gitwinid = GitBufWinId()
   silent deletebufline(GIT_BUFFER_NAME, 1, '$')
   appendbufline(GIT_BUFFER_NAME, 0, outmsg)
   deletebufline(GIT_BUFFER_NAME, '$')

@@ -5,7 +5,7 @@ vim9script noclear
 # do not read the file if it is already loaded
 if get(g:, 'loaded_vimrc')
   echohl WarningMsg
-  echom $"Warning: file {expand('<sfile>:~')} is already loaded"
+  echom $"Warning: the file '{expand('<sfile>:~')}' is already loaded"
   echom ":ReloadVimrc (to reload it)"
   echohl None
   finish
@@ -60,6 +60,9 @@ g:loaded_vimball = true           # vimball autoload
 g:loaded_vimballPlugin = true     # vimballPlugin.vim
 g:loaded_zip = true               # zip.vim
 g:loaded_zipPlugin = true         # zipPlugin.vim
+
+# disable localisations (syntax=diff)
+g:diff_translations = 0
 
 # enable custom plugins
 g:arrowkeys_enabled = true        # enable/disable arrow keys

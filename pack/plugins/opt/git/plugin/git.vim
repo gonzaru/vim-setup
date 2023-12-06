@@ -51,9 +51,9 @@ def PrevOrNewFile(): string
   finally
     if filereadable(cfile)
       file = cfile
-    elseif &filetype == git.GetGitFileType()
-      if !empty(git.GetGitPrevFile())
-        file = git.GetGitPrevFile()
+    elseif &filetype == git.GitFileType()
+      if !empty(git.GitPrevFile())
+        file = git.GitPrevFile()
       endif
     else
       file = expand('%:p')

@@ -192,8 +192,8 @@ export def DoChecker(lang: string, tool: string, exttool: string, file: string, 
   endif
   Check(lang, tool, exttool, file, mode)
   if ERRORS[lang][lang]
-    EchoErrorMsg("Error: (Check) previous function contains errors")
-    EchoErrorMsg("Error: (CheckAsync) detected error")
+    EchoErrorMsg("Error: (Check) the previous function contains errors")
+    EchoErrorMsg("Error: (CheckAsync) has detected an error")
   else
     CheckAsync(lang, tool, exttool, file)
   endif
@@ -433,12 +433,12 @@ export def SignsDebug(lang: string, tool: string, exttool: string, mode: string)
   var signs: list<dict<any>>
   var cycleline: number
   if index(CHECKER_ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg($"Error: debug information for filetype '{lang}' is not supported")
+    EchoErrorMsg($"Error: debug information for the filetype '{lang}' is not supported")
     return
   endif
   signs = sign_getplaced(curbuf)[0].signs
   if empty(signs)
-    EchoWarningMsg("Warning: signs not found in the current buffer")
+    EchoWarningMsg("Warning: signs were not found in the current buffer")
     return
   endif
   for sign in signs
@@ -463,7 +463,7 @@ export def SignsDebug(lang: string, tool: string, exttool: string, mode: string)
   elseif !empty(signs)
     signidline = signs[0]['id']
   else
-    EchoWarningMsg("Warning: sign id line not found")
+    EchoWarningMsg("Warning: sign id line was not found")
     return
   endif
   try
@@ -473,7 +473,7 @@ export def SignsDebug(lang: string, tool: string, exttool: string, mode: string)
       EchoErrorMsg(errout)
     endif
   catch
-    EchoWarningMsg($"Warning: sign id not found in line {signidline}")
+    EchoWarningMsg($"Warning: sign id was not found in the line '{signidline}'")
   endtry
 enddef
 
@@ -510,7 +510,7 @@ def ShowErrorPopup(lang: string, tool: string)
       )
     endif
   else
-    EchoWarningMsg("Warning: error popup not found")
+    EchoWarningMsg("Warning: error popup was not found")
   endif
 enddef
 

@@ -18,7 +18,7 @@ export def DirIsEmpty(path: string): bool
   var hidden: list<any>
   var nohidden: list<any>
   if getftype(path) != "dir"
-    EchoErrorMsg($"Error: {path} is not a directory")
+    EchoErrorMsg($"Error: '{path}' is not a directory or does not exist")
     return false
   endif
   nohidden = globpath(path, "*", 0, 1)
@@ -67,11 +67,11 @@ enddef
 # checks if the file is empty
 export def FileIsEmpty(file: string): bool
   if getftype(file) != "file"
-    EchoErrorMsg($"Error: {file} is not a normal file")
+    EchoErrorMsg($"Error: '{file}' is not a normal file")
     return true
   endif
   if !filereadable(file)
-    EchoErrorMsg($"Error: {file} is not readable")
+    EchoErrorMsg($"Error: '{file}' is not a readable file")
     return true
   endif
   return !getfsize(file)

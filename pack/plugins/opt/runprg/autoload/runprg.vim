@@ -56,7 +56,7 @@ enddef
 # detects if the shell is sh or bash using shebang
 def SHShellType(lang: string): string
   if lang != "sh"
-    EchoErrorMsg($"Error: lang '{lang}' is not supported")
+    EchoErrorMsg($"Error: the lang '{lang}' is not supported")
     return ''
   endif
   return getline(1) =~ "bash" ? "bash" : "sh"
@@ -75,7 +75,7 @@ export def Run(lang: string, file: string): void
   var cmd: string
   var theshell: string
   if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg($"Error: running lang '{lang}' is not supported")
+    EchoErrorMsg($"Error: running the lang '{lang}' is not supported")
     return
   endif
   if lang == "sh"
@@ -117,11 +117,11 @@ export def RunWindow(lang: string, file: string): void
   var runwinid = GetRunBufWinId()
   var selwinid = win_getid()
   if selwinid == runwinid
-    EchoWarningMsg($"Warning: already using the same window {BUFFER_NAME}")
+    EchoWarningMsg($"Warning: already using the same window '{BUFFER_NAME}'")
     return
   endif
   if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg($"Error: running lang '{lang}' is not supported")
+    EchoErrorMsg($"Error: running the lang '{lang}' is not supported")
     return
   endif
   if lang == "sh"
