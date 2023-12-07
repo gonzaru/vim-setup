@@ -38,6 +38,7 @@ enddef
 
 # format
 def Format(lang: string, file: string): void
+  var autoread_orig:  bool
   var outmsg: list<string>
   var cmd: string
   var theshell: string
@@ -52,7 +53,10 @@ def Format(lang: string, file: string): void
     EchoErrorMsg($"Error: the command '{cmd}' could not be executed correctly")
     return
   endif
-  checktime
+  autoread_orig = &l:autoread
+  setlocal autoread
+  silent checktime
+  &l:autoread = autoread_orig
   if empty(outmsg) || (lang == "python" && index(outmsg, "1 file left unchanged.") >= 0)
     echo $"Info: the file was not modified by cmd: '{cmd}'"
   endif
