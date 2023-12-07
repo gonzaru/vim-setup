@@ -745,10 +745,10 @@ command! -nargs=+ -complete=file Grepi {
   var grepprg_orig = &grepprg
   execute $"set grepprg={substitute(fnameescape(&grepprg), 'smart-case\|case-sensitive', 'ignore-case', '')}"
   execute "silent grep! <args>"
+  execute $"set grepprg={fnameescape(grepprg_orig)}"
   if !empty(getqflist())
     copen
   endif
-  execute $"set grepprg={fnameescape(grepprg_orig)}"
 }
 
 # find using searcher plugin
