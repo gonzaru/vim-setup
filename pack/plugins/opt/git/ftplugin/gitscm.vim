@@ -27,11 +27,17 @@ if get(g:, 'git_no_mappings') == 0
   if empty(mapcheck("<CR>", "n"))
     nnoremap <silent><buffer><CR> <Plug>(git-do-action))
   endif
+  if empty(mapcheck("gA", "n"))
+    nnoremap <silent><buffer>gA <Plug>(git-add-file)
+  endif
   if empty(mapcheck("gb", "n"))
     nnoremap <silent><buffer>gb <Plug>(git-blame)
   endif
   if empty(mapcheck("gB", "n"))
     nnoremap <silent><buffer>gB <Plug>(git-blame-short)
+  endif
+  if empty(mapcheck("gC", "n"))
+    nnoremap <silent><buffer>gC <Plug>(git-checkout-file)
   endif
   if empty(mapcheck("gd", "n"))
     nnoremap <silent><buffer>gd <Plug>(git-diff-file)
@@ -47,6 +53,9 @@ if get(g:, 'git_no_mappings') == 0
   endif
   if empty(mapcheck("gL", "n"))
     nnoremap <silent><buffer>gL <Plug>(git-log-one-file)
+  endif
+  if empty(mapcheck("gR", "n"))
+    nnoremap <silent><buffer>gR <Plug>(git-restore-staged-file)
   endif
   if empty(mapcheck("gs", "n"))
     nnoremap <silent><buffer>gs <Plug>(git-status-file)

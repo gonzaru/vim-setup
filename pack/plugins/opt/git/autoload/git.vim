@@ -22,15 +22,6 @@ def EchoErrorMsg(msg: string)
   endif
 enddef
 
-# prints the warning message and saves the message in the message-history
-def EchoWarningMsg(msg: string)
-  if !empty(msg)
-    echohl WarningMsg
-    echom msg
-    echohl None
-  endif
-enddef
-
 # gets the git buffer window id
 def GitBufWinId(): number
   return bufexists(GIT_BUFFER_NAME) ? bufwinid(GIT_BUFFER_NAME) : -1
@@ -66,20 +57,23 @@ enddef
 # help information
 export def Help()
   var lines =<< trim END
-    <CR>   # shows git commit
-    gb     # shows git blame
-    gB     # shows git blame (short version)
-    gd     # shows git diff file
-    gh     # shows git help information [H]
-    gl     # shows git log file
-    gL     # shows git log one file
-    gs     # shows git status file
-    gS     # shows git show file
+    <CR>   shows a commit or switch to a branch
+    gA     git add file
+    gb     git blame file
+    gB     git blame --date short file
+    gC     git checkout file
+    gd     git diff file
+    gh     help information [H]
+    gl     git log file
+    gL     git log --oneline file
+    gR     git restore --staged file
+    gs     git status file
+    gS     git show file
   END
   echo join(lines, "\n")
 enddef
 
-# git blame
+# shows revison and author of each line of a file
 export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
   var curline = line('.')
   var curcol = col('.')
@@ -102,6 +96,20 @@ export def Blame(file: string, cwddir: string, short: bool, selwin: bool): void
   else
     # TODO: selwin false
   endif
+enddef
+
+# restores a working tree file
+export def CheckOutFile(file: string, cwddir: string, short: bool, selwin: bool): void
+  var autoread_orig: bool
+  if !filereadable(file)
+    EchoErrorMsg($"Error: the file '{file}' is not readable")
+    return
+  endif
+  Run($"git checkout -- {file}", cwddir, selwin)
+  autoread_orig = &l:autoread
+  setlocal autoread
+  silent checktime
+  &l:autoread = autoread_orig
 enddef
 
 # checks if the local branch exists
@@ -143,7 +151,7 @@ def SetupWindow()
   endif
 enddef
 
-# selects a commit or branch
+# shows a commit or switch to a branch
 export def DoAction(line: string, cwddir: string, selwin: bool): void
   var curcol: number
   var curline: number
@@ -181,10 +189,11 @@ export def Run(args: string, cwddir: string, selwin: bool): void
   endif
   outmsg = systemlist($"cd {cwddir} && {args}")
   if v:shell_error != 0
-    EchoErrorMsg($"Error: exit code {v:shell_error}")
+    EchoErrorMsg($"Error: output by args: '{args}, message: '{join(outmsg)}', status: 'NOK'")
+    return
   endif
   if empty(outmsg)
-    EchoWarningMsg($"Warning: empty output by args: '{args}'")
+    echo $"Info: empty output by args: '{args}', status: {v:shell_error == 0 ? 'OK' : 'NOK'}"
     return
   endif
   SetGitPrevFile(curfile)
