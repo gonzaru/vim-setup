@@ -32,6 +32,8 @@ setlocal shiftwidth=2
 setlocal shiftround
 setlocal expandtab
 setlocal makeprg=sh\ -n\ %
+# see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
+&l:formatprg = $"shfmt -i {&l:shiftwidth} -"
 # if get(g:, "autoendstructs_enabled")
 #   if empty(mapcheck("<CR>", "i"))
 #     inoremap <buffer><CR> <Plug>(autoendstructs-end)

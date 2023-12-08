@@ -27,6 +27,8 @@ setlocal noexpandtab
 setlocal keywordprg=go\ doc
 # setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
+# see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
+setlocal formatprg=gofmt
 # if get(g:, "complementum_enabled")
 #   if empty(mapcheck(".", "i"))
 #     inoremap <silent><buffer>. .<Plug>(complementum-insertautocomplete)

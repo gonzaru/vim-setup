@@ -29,4 +29,6 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 #^ setlocal omnifunc=python3complete#Complete
 #^ setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
+# see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
+setlocal formatprg=black\ -S\ -l\ 79\ -q\ 2>/dev/null\ --stdin-filename\ %\ -
 matchadd('ColorColumn', '\%79v', 10)
