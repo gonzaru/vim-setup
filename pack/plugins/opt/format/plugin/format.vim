@@ -10,10 +10,10 @@ g:loaded_format = true
 
 # global variables
 if !exists('g:format_sh_command')
-  g:format_sh_command = ['shfmt', '-l', '-w']
+  g:format_sh_command = ['shfmt', '-i', &l:shiftwidth, '-l', '-w']
 endif
 if !exists('g:format_bash_command')
-  g:format_bash_command = ['shfmt', '-l', '-w']
+  g:format_bash_command = ['shfmt', '-i', &l:shiftwidth, '-l', '-w']
 endif
 if !exists('g:format_python_command')
   g:format_python_command = ['black', '-S', '-l', '88']
