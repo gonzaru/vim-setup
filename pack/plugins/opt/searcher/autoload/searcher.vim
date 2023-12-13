@@ -18,69 +18,42 @@ const COMMANDS = {
   }
 }
 
-# find files
-export def Find(args: string, mode: string): void
+# find files and grep searching
+export def Search(...args: list<string>): void
   var cmd: string
-  # var rangeargs: list<string>
-  var listargs = split(args, " ")
-  var numargs = len(listargs)
-  var firstarg: string
-  var lastarg = listargs[numargs - 1]
-  var findprg = COMMANDS['findprg']['command']
-  var ignorecase = false
-  var idx = index(listargs, "-i")
+  var idx: number
+  var kind = args[-2]
+  var mode = args[-1]
+  var nargs = args
+  var prg = COMMANDS[kind]['command']
+  var str: string
+  if index(nargs, '') >= 0
+    throw $"Error: the args '{args}' have empty values"
+  endif
+  idx = index(nargs, '-i')
+  if kind == 'findprg'
+    prg ..= ' ' .. (idx >= 0 ? join(g:searcher_findprg_insensitive) : join(g:searcher_findprg_sensitive))
+  elseif kind == 'grepprg'
+    prg ..= ' ' .. (idx >= 0 ? join(g:searcher_grepprg_insensitive) : join(g:searcher_grepprg_sensitive))
+  endif
+  remove(nargs, -2, -1)
   if idx >= 0
-    ignorecase = true
-    remove(listargs, idx)
-    --numargs
-  endif
-  firstarg = fnamemodify(listargs[0], ":p")
-  findprg ..= ' ' .. (
-    ignorecase ? join(g:searcher_findprg_insensitive) : join(g:searcher_findprg_sensitive)
-  )
-  if numargs >= 2 && getftype(firstarg) == "dir"
-    findprg ..= ' ' .. join(g:searcher_findprg_directory)
-    cmd = findprg .. ' ' .. shellescape(firstarg) .. " " .. shellescape(lastarg) .. " | xargs file | sed 's/:/:1:/'"
+    nargs[1] = $"'{nargs[1]}'"
+    remove(nargs, idx)
   else
-    cmd = findprg .. ' ' .. shellescape(join(listargs, " ")) .. " | xargs file | sed 's/:/:1:/'"
+    nargs[0] = $"'{nargs[0]}'"
   endif
-  if mode == "quickfix"
-    cgetexp system(cmd)
-    cwindow
-  elseif mode == "locationlist"
-    lgetexp system(cmd)
-    lwindow
+  nargs[-1] = $"'{fnamemodify(nargs[-1], ":p")}'"
+  if kind == 'findprg'
+    cmd = prg .. ' ' .. join(nargs) .. ' | tr "\n" "\0" | xargs -0 file | sed "s/:/:1:/"'
+  elseif kind == 'grepprg'
+    cmd = prg .. ' ' .. join(nargs)
   endif
-  # TODO: use ftplugin?
-  if &filetype == "qf"
-    setlocal number
-  endif
+  Run(cmd, mode)
 enddef
 
-# grep searching and find matches
-export def Grep(args: string, mode: string): void
-  var cmd: string
-  var rangeargs: list<string>
-  var listargs = split(args, " ")
-  var numargs = len(listargs)
-  var lastarg = fnamemodify(listargs[numargs - 1], ":p")
-  var grepprg = COMMANDS['grepprg']['command']
-  var ignorecase = false
-  var idx = index(listargs, "-i")
-  if idx >= 0
-    ignorecase = true
-    remove(listargs, idx)
-    --numargs
-  endif
-  grepprg ..= ' ' .. (
-    ignorecase ? join(g:searcher_grepprg_insensitive) : join(g:searcher_grepprg_sensitive)
-  )
-  if numargs >= 2 && (index(['file', 'dir'], getftype(lastarg)) >= 0 || lastarg =~ '*')
-    rangeargs = listargs[0 : numargs - 2]
-    cmd = grepprg .. ' ' .. shellescape(join(rangeargs, " ")) .. " " .. shellescape(lastarg)
-  else
-    cmd = grepprg .. ' ' .. shellescape(join(listargs, " "))
-  endif
+# run
+def Run(cmd: string, mode: string)
   if mode == "quickfix"
     cgetexp system(cmd)
     cwindow

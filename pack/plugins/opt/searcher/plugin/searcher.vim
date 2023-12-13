@@ -11,7 +11,7 @@ g:loaded_searcher = true
 # global variables
 if !exists('g:searcher_findprg_command')
   g:searcher_findprg_command = [
-    'fd', '--type', 'f', '--follow', '--strip-cwd-prefix', '--color=never', '--unrestricted', '--exclude', '.git'
+    'fd', '--type', 'f', '--follow', '--color=never', '--unrestricted', '--exclude', '.git'
   ]
 endif
 if !exists('g:searcher_findprg_sensitive')
@@ -40,17 +40,17 @@ import autoload '../autoload/searcher.vim'
 
 # define mappings
 nnoremap <silent> <script> <plug>(searcher-find)
-  \ <ScriptCmd>feedkeys(':SearcherFind -i ' .. fnamemodify(getcwd(), ":~") .. ' ')<CR>
+  \ <ScriptCmd>feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(getcwd(), ":~") .. "'<S-Left><S-Left><S-Left><Right>")<CR>
 nnoremap <silent> <script> <plug>(searcher-find-word)
-  \ <ScriptCmd>searcher.Find(expand('<cword>'), 'quickfix')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', fnamemodify(getcwd(), ":~"), 'findprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lfind-word)
-  \ <ScriptCmd>searcher.Find(expand('<cword>'), 'locationlist')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', fnamemodify(getcwd(), ":~"), 'findprg', 'locationlist')<CR>
 nnoremap <silent> <script> <plug>(searcher-grep)
-  \ <ScriptCmd>feedkeys(':SearcherGrep -i ' .. fnamemodify(getcwd(), ":~") .. '<C-f>Bba<Space><C-c>')<CR>
+  \ <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(getcwd(), ":~") .. "'<S-Left><S-Left><Right>")<CR>
 nnoremap <silent> <script> <plug>(searcher-grep-word)
-  \ <ScriptCmd>searcher.Grep(expand('<cword>'), 'quickfix')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), fnamemodify(getcwd(), ":~"), 'grepprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lgrep-word)
-  \ <ScriptCmd>searcher.Grep(expand('<cword>'), 'locationlist')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), fnamemodify(getcwd(), ":~"), 'grepprg', 'locationlist')<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -76,12 +76,12 @@ endif
 
 # set commands
 if get(g:, 'searcher_no_commands') == 0
-  command! -nargs=+ -complete=file -bar SearcherFind searcher.Find('<args>', 'quickfix')
-  command! -nargs=+ -complete=file -bar SearcherLFind searcher.Find('<args>', 'locationlist')
-  command! -nargs=0 -bar SearcherFindWord searcher.Find(expand('<cword>'), 'quickfix')
-  command! -nargs=0 -bar SearcherLFindWord searcher.Find(expand('<cword>'), 'locationlist')
-  command! -nargs=+ -complete=file -bar SearcherGrep searcher.Grep('<args>', 'quickfix')
-  command! -nargs=+ -complete=file -bar SearcherLGrep searcher.Grep('<args>', 'locationlist')
-  command! -nargs=0 -bar SearcherGrepWord searcher.Grep(expand('<cword>'), 'quickfix')
-  command! -nargs=0 -bar SearcherLGrepWord searcher.Grep(expand('<cword>'), 'locationlist')
+  command! -nargs=+ -complete=file -bar SearcherFind searcher.Search(<args>, 'findprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar SearcherLFind searcher.Search(<args>, 'findprg', 'locationlist')
+  command! -nargs=0 -bar SearcherFindWord execute "normal \<Plug>(searcher-find-word)"
+  command! -nargs=0 -bar SearcherLFindWord execute "normal \<Plug>(searcher-lfind-word)"
+  command! -nargs=+ -complete=file -bar SearcherGrep searcher.Search(<args>, 'grepprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar SearcherLGrep searcher.Search(<args>', 'grepprg', 'locationlist')
+  command! -nargs=0 -bar SearcherGrepWord execute "normal \<Plug>(searcher-grep-word)"
+  command! -nargs=0 -bar SearcherLGrepWord execute "normal \<Plug>(searcher-lgrep-word)"
 endif
