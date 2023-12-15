@@ -126,9 +126,7 @@ if get(g:, 'git_no_commands') == 0
     execute "silent grep! <args>"
     execute $"setlocal grepprg={fnameescape(grepprg_orig)}"
     execute $"setlocal grepformat={fnameescape(grepformat_orig)}"
-    if !empty(getqflist())
-      copen
-    endif
+    cwindow
   }
   command! GitAddFile execute "normal \<Plug>(git-add-file)"
   command! GitBlame execute "normal \<Plug>(git-blame)"
