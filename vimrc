@@ -573,6 +573,7 @@ nnoremap <silent><leader>st :Theme<CR>
 nnoremap <silent><leader>sa :ReloadVimrc<CR>:Theme<CR>
 
 # toggle
+nnoremap <leader>tgA :set autochdir! autochdir? \| echon " (set)"<CR>
 nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
@@ -604,6 +605,10 @@ else
 endif
 
 # terminal
+#augroup event_terminal
+#  autocmd!
+#  autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
+#augroup END
 nnoremap <silent><leader><CR> :below terminal<CR>
 if has('gui_running')
   # nnoremap <silent><C-z> :below terminal<CR>
@@ -642,6 +647,7 @@ if has('gui_running')
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
   tnoremap <C-Esc> <C-w>N
+  tnoremap <C-d> <C-w>c
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
@@ -735,20 +741,13 @@ nnoremap <leader><C-l> :vertical resize +5<CR>
 command! SwapWindow execute "normal! \<C-w>x"
 
 # grep using grepprg + quickfix
-command! -nargs=+ -complete=file Grep {
-  execute "silent grep! <args>"
-  if !empty(getqflist())
-    copen
-  endif
-}
+command! -nargs=+ -complete=file Grep execute "silent grep! <args>" | cwindow
 command! -nargs=+ -complete=file Grepi {
   var grepprg_orig = &grepprg
   execute $"set grepprg={substitute(fnameescape(&grepprg), 'smart-case\|case-sensitive', 'ignore-case', '')}"
   execute "silent grep! <args>"
   execute $"set grepprg={fnameescape(grepprg_orig)}"
-  if !empty(getqflist())
-    copen
-  endif
+  cwindow
 }
 
 # find using searcher plugin
@@ -756,6 +755,12 @@ if g:searcher_enabled
   command! -nargs=+ -complete=file -bar Find searcher#Find('<args>', 'quickfix')
   command! -nargs=+ -complete=file -bar Findi searcher#Find($'-i <args>', 'quickfix')
 endif
+
+# change to directory of the current file
+nnoremap <silent><leader>cd :LCDC<CR>
+nnoremap <silent><leader>cD :CDC<CR>
+command! CDC cd %:p:h
+command! LCDC lcd %:p:h
 
 # menu misc
 if g:misc_enabled
