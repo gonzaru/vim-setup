@@ -381,9 +381,10 @@ endif
 
 # utf-8 support
 if has("multi_byte")
-  set encoding=utf-8      # encoding displayed
-  set fileencoding=utf-8  # encoding written to file
-  set termencoding=utf-8  # encoding used for the terminal
+  set encoding=utf-8      # encoding editor
+  set fileencoding=utf-8  # encoding buffer
+  set termencoding=utf-8  # encoding terminal
+  scriptencoding utf-8    # encoding script (must be after enconding)
 endif
 
 # show special characters (listchars must be after enconding configuration)
