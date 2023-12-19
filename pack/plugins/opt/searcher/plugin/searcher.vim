@@ -42,15 +42,15 @@ import autoload '../autoload/searcher.vim'
 nnoremap <silent> <script> <plug>(searcher-find)
   \ <ScriptCmd>feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(getcwd(), ":~") .. "'<S-Left><S-Left><S-Left><Right>")<CR>
 nnoremap <silent> <script> <plug>(searcher-find-word)
-  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', fnamemodify(getcwd(), ":~"), 'findprg', 'quickfix')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', getcwd(), 'findprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lfind-word)
-  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', fnamemodify(getcwd(), ":~"), 'findprg', 'locationlist')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), '-p', getcwd(), 'findprg', 'locationlist')<CR>
 nnoremap <silent> <script> <plug>(searcher-grep)
   \ <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(getcwd(), ":~") .. "'<S-Left><S-Left><Right>")<CR>
 nnoremap <silent> <script> <plug>(searcher-grep-word)
-  \ <ScriptCmd>searcher.Search(expand('<cword>'), fnamemodify(getcwd(), ":~"), 'grepprg', 'quickfix')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'grepprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lgrep-word)
-  \ <ScriptCmd>searcher.Search(expand('<cword>'), fnamemodify(getcwd(), ":~"), 'grepprg', 'locationlist')<CR>
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'grepprg', 'locationlist')<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0

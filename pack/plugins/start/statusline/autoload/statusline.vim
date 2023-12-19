@@ -33,7 +33,7 @@ export def SetStatus(s: string)
 enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
-def ShortPath(path: string): string
+export def ShortPath(path: string): string
   var pathname = fnamemodify(path, ":~")
   var pathnamelist = split(pathname, "/")
   var pathnametail = fnamemodify(pathname, ":t")

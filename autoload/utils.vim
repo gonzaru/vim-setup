@@ -45,7 +45,7 @@ export def EchoWarningMsg(msg: string)
 enddef
 
 # returns an indicator that identifies a file (*/=@|)
-def FileIndicator(file: string): string
+export def FileIndicator(file: string): string
   var ftype = getftype(file)
   var symbol: string
   if ftype == "dir"

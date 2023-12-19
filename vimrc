@@ -374,7 +374,7 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %{statusline#ShortPath(getcwd())}$\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
@@ -560,9 +560,9 @@ inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<DEL>'
 nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
 nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
 nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. "/.vim/**," .. $VIMRUNTIME .. "/**")<CR>
-nnoremap <leader>ee :e **/*
 nnoremap <leader>eb :browse oldfiles<CR>
 nnoremap <leader>e; mt$a;<ESC>`t
+# nnoremap <leader>e* :e **/*
 
 # completion
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
@@ -753,9 +753,13 @@ command! -nargs=+ -complete=file Grepi {
 
 # find using searcher plugin
 if g:searcher_enabled
-  command! -nargs=+ -complete=file -bar Find searcher#Find('<args>', 'quickfix')
-  command! -nargs=+ -complete=file -bar Findi searcher#Find($'-i <args>', 'quickfix')
+  command! -nargs=+ -complete=file -bar Find searcher#Search(<q-args>, '-p', getcwd(), 'findprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar Findi searcher#Search('-i', <q-args>, '-p', getcwd(), 'findprg', 'quickfix')
 endif
+
+# edit file in the same directory as the active window one
+nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
+command! -nargs=1 -complete=customlist,misc#CompleteSameDir E e <args>
 
 # change to directory of the current file
 nnoremap <silent><leader>cd :LCDC<CR>

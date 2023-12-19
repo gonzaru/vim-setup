@@ -36,6 +36,14 @@ export def DiffToggle()
   v:statusmsg = $"diff={&diff}"
 enddef
 
+# complete files in the same directory as the file in the active window (:E command)
+export def CompleteSameDir(_, _, _): list<string>
+  var cwddir = expand('%:p:h')
+  var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), "fnamemodify(v:val, ':~') .. utils.FileIndicator(v:val)")
+  var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), "fnamemodify(v:val, ':~') .. utils.FileIndicator(v:val)")
+  return extend(nohidden, hidden)
+enddef
+
 # edit using a top window
 export def EditTop(file: string)
   if filereadable(file)
