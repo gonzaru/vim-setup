@@ -26,6 +26,12 @@ export def DirIsEmpty(path: string): bool
   return !len(extend(nohidden, hidden))
 enddef
 
+# to consume the space typed after an abbreviation
+export def Eatchar(pat: string): string
+  var c = nr2char(getchar(0))
+  return (c =~ pat) ? '' : c
+enddef
+
 # prints the error message and saves the message in the message-history
 export def EchoErrorMsg(msg: string)
   if !empty(msg)

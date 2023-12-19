@@ -759,7 +759,8 @@ endif
 
 # edit file in the same directory as the active window one
 nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
-command! -nargs=1 -complete=customlist,misc#CompleteSameDir E e <args>
+command! -nargs=1 -complete=customlist,misc#CompleteSameDir Ee e <args>
+cabbrev E e <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 
 # change to directory of the current file
 nnoremap <silent><leader>cd :LCDC<CR>
