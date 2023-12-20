@@ -65,6 +65,8 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscMapInsertTab misc.MapInsertTab()
   command! MiscMenuLanguageSpell misc.MenuLanguageSpell()
   command! MiscMenuMisc misc.MenuMisc()
+  command! -nargs=1 MiscRegisterDelete misc.RegisterDelete('<args>')
+  command! MiscRegisterDeleteAll misc.RegisterDeleteAll()
   command! -nargs=1 MiscReloadPluginOpt misc.ReloadPluginPack(<f-args>, "opt")
   command! -nargs=1 MiscReloadPluginStart misc.ReloadPluginPack(<f-args>, "start")
   command! MiscSH misc.SH()

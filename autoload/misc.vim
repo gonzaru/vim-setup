@@ -289,6 +289,32 @@ export def CheckTrailingSpaces()
   endif
 enddef
 
+# delete a register
+export def RegisterDelete(arg: string)
+  var exclude = [':', '=']
+  var regex = '[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-\"]'
+  if index(exclude, arg) == -1 && arg =~ regex && !empty(getreg(arg))
+    setreg(arg, [])
+  endif
+enddef
+
+# delete all registers
+export def RegisterDeleteAll()
+  var char: string
+  var lines: string
+  var exclude = [':', '=']
+  var regex = '[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-\"]'
+  redir => lines
+    execute "silent registers"
+  redir END
+  for line in split(lines, '\n')[1 : ]
+    char = substitute(split(line, ' ')[2], '^"', '', '')
+    if index(exclude, char) == -1 && char =~ regex && !empty(getreg(char))
+      setreg(char, [])
+    endif
+  endfor
+enddef
+
 # toggle sign column
 export def SignColumnToggle()
   execute "setlocal signcolumn=" .. (&l:signcolumn == "yes" ? "no" : "yes")

@@ -26,7 +26,7 @@ export def DirIsEmpty(path: string): bool
   return !len(extend(nohidden, hidden))
 enddef
 
-# to consume the space typed after an abbreviation
+# to consume the space typed after an abbreviation (:helpgrep Eatchar)
 export def Eatchar(pat: string): string
   var c = nr2char(getchar(0))
   return (c =~ pat) ? '' : c
