@@ -77,6 +77,7 @@ g:documentare_enabled = true      # document information helper
 g:esckey_enabled = true           # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
+g:habit_enabled = true            # habit
 g:misc_enabled = true             # miscelania functions
 g:runprg_enabled = true           # run programs
 g:scratch_enabled = true          # scratch stuff
@@ -101,6 +102,7 @@ const plugins = [
   'esckey',
   'format',
   'git',
+  'habit',
   'runprg',
   'scratch',
   'se',
@@ -112,6 +114,11 @@ for plugin in plugins
     execute $"packadd! {plugin}"
   endif
 endfor
+
+# arrowkeys plugin
+if g:arrowkeys_enabled
+  g:arrowkeys_mode = "soft"  # soft, hard
+endif
 
 # checker plugin
 if g:checker_enabled
@@ -125,7 +132,7 @@ endif
 
 # esckey plugin
 if g:esckey_enabled
-   g:esckey_key = "<C-l>"
+  g:esckey_key = "<C-l>"
 endif
 
 # format plugin
@@ -136,6 +143,11 @@ endif
 # git plugin
 if g:git_enabled
   g:git_position = "top"  # top, bottom
+endif
+
+# habit plugin
+if g:habit_enabled
+  g:habit_mode = "soft"  # soft, hard
 endif
 
 # se plugin (simple explorer)
@@ -150,9 +162,6 @@ endif
 if g:statusline_enabled
   g:statusline_showgitbranch = true
 endif
-
-# set python with dynamic support
-misc.SetPythonDynamic()
 
 # global settings
 set nocompatible            # use vim defaults instead of 100% vi compatibility
@@ -220,6 +229,7 @@ set matchpairs=(:),{:},[:]  # characters that form pairs (default)
 set nofoldenable            # when off, all folds are open
 set foldmethod=manual       # disable automatic folding
 set foldopen-=block         # don't open folds when jumping with "(", "{", "[[", "[{", etc.
+set foldlevelstart=99       # all folds open (default -1)
 set cursorline              # mark with another color the current cursor line
 set path=.,,,**             # set path for finding files with :find (default .,/usr/include,,)
 set noemoji                 # don't consider unicode emoji characters to be full width
@@ -356,6 +366,7 @@ if has("wildmenu")
   set wildmode=longest:full,full  # default (full)
   set nowildignorecase            # case is not ignored when completing files and directories (see fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
+  set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
 endif
 
 # balloons
@@ -374,7 +385,7 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %{statusline#ShortPath(getcwd())}$\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
@@ -547,6 +558,15 @@ misc.MapInsertTab()
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-\><C-o>:update<CR>
 
+# search the selected text (:help visual-search)
+# vnoremap <leader>* y/<C-r>"<CR>
+# vnoremap <leader># y?<C-r>"<CR>
+vnoremap <leader>* <ESC><ScriptCmd>misc.SearchSelectedText('forward')<CR>
+vnoremap <leader># <ESC><ScriptCmd>misc.SearchSelectedText('backward')<CR>
+
+# stop highlighting + clear and redraw the screen
+nnoremap <C-l> :nohlsearch<CR><C-l>
+
 # del
 # <C-l> goes to normal mode in evim/insertmode
 # <C-l> adds one character from the current match in completion
@@ -557,7 +577,7 @@ inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<DEL>'
 # nnoremap Y y$
 
 # edit
-nnoremap <leader>ev :e $HOME/.vim/vimrc<CR>
+nnoremap <leader>ev :e $MYVIMRC<CR>
 nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
 nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. "/.vim/**," .. $VIMRUNTIME .. "/**")<CR>
 nnoremap <leader>eb :browse oldfiles<CR>
@@ -759,8 +779,12 @@ endif
 
 # edit file in the same directory as the active window one
 nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
-command! -nargs=1 -complete=customlist,misc#CompleteSameDir Ee e <args>
+# command! -nargs=1 -complete=customlist,misc#CompleteSameDir Ee e <args>
+# cnoremap E e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
 cabbrev E e <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
+cabbrev Sp sp <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
+cabbrev Vs vsp <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
+cabbrev Tabe tabe <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 
 # change to directory of the current file
 nnoremap <silent><leader>cd :LCDC<CR>
@@ -802,7 +826,7 @@ command! Theme {
 # reload vimrc
 command! ReloadVimrc {
   g:loaded_vimrc = false
-  execute $"source {$HOME}/.vim/vimrc"
+  source $MYVIMRC
 }
 
 # reload plugin utils
