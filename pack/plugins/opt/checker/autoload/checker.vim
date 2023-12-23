@@ -52,6 +52,25 @@ const SIGNS_ERRORS = {
   }
 }
 
+# create signs
+if has('signs')
+  # SH
+  execute "sign define " .. SIGNS_ERRORS['sh']['sh']
+    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorSH') ? 'SyntaxErrorSH' : 'ErrorMsg')
+  execute "sign define " .. SIGNS_ERRORS['sh']['shellcheck']
+    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorSHELLCHECK') ? 'SyntaxErrorSHELLCHECK' : 'WarningMsg')
+  # Python
+  execute "sign define " .. SIGNS_ERRORS['python']['python']
+    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorPYTHON') ? 'SyntaxErrorPYTHON' : 'ErrorMsg')
+  execute "sign define " .. SIGNS_ERRORS['python']['pep8']
+    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorPEP8') ? 'SyntaxErrorPEP8' : 'WarningMsg')
+  # Go
+  execute "sign define " .. SIGNS_ERRORS['go']['go']
+    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
+  execute "sign define " .. SIGNS_ERRORS['go']['govet']
+    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
+endif
+
 # checker errors
 final ERRORS = {
   'sh': {
@@ -213,25 +232,6 @@ enddef
 #     endif
 #   endfor
 # enddef
-
-# create signs
-export def CreateSigns()
-  # SH
-  execute "sign define " .. SIGNS_ERRORS['sh']['sh']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorSH') ? 'SyntaxErrorSH' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['sh']['shellcheck']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorSHELLCHECK') ? 'SyntaxErrorSHELLCHECK' : 'WarningMsg')
-  # Python
-  execute "sign define " .. SIGNS_ERRORS['python']['python']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorPYTHON') ? 'SyntaxErrorPYTHON' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['python']['pep8']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorPEP8') ? 'SyntaxErrorPEP8' : 'WarningMsg')
-  # Go
-  execute "sign define " .. SIGNS_ERRORS['go']['go']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['go']['govet']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
-enddef
 
 # lang check
 export def Check(lang: string, tool: string, exttool: string, curbuf: string, mode: string): void

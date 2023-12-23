@@ -10,34 +10,38 @@ g:autoloaded_arrowkeys = true
 
 # enable arrow keys
 export def Enable()
-  nnoremap <up> <up>
-  nnoremap <down> <down>
-  nnoremap <left> <left>
-  nnoremap <right> <right>
-  inoremap <up> <up>
-  inoremap <down> <down>
-  inoremap <left> <left>
-  inoremap <right> <right>
-  vnoremap <up> <up>
-  vnoremap <down> <down>
-  vnoremap <left> <left>
-  vnoremap <right> <right>
+  nnoremap <Up> <Up>
+  nnoremap <Down> <Down>
+  nnoremap <Left> <Left>
+  nnoremap <Right> <Right>
+  inoremap <Up> <Up>
+  inoremap <Down> <Down>
+  inoremap <Left> <Left>
+  inoremap <Right> <Right>
+  vnoremap <Up> <Up>
+  vnoremap <Down> <Down>
+  vnoremap <Left> <Left>
+  vnoremap <Right> <Right>
 enddef
 
 # disable arrow keys
 export def Disable()
-  nnoremap <up> <nop>
-  nnoremap <down> <nop>
-  nnoremap <left> <nop>
-  nnoremap <right> <nop>
-  inoremap <up> <nop>
-  inoremap <down> <nop>
-  inoremap <left> <nop>
-  inoremap <right> <nop>
-  vnoremap <up> <nop>
-  vnoremap <down> <nop>
-  vnoremap <left> <nop>
-  vnoremap <right> <nop>
+  if g:arrowkeys_mode == 'soft' || g:arrowkeys_mode == 'hard'
+    nnoremap <Up> <Nop>
+    nnoremap <Down> <Nop>
+    nnoremap <Left> <Nop>
+    nnoremap <Right> <Nop>
+  endif
+  if g:arrowkeys_mode == 'hard'
+    inoremap <Up> <Nop>
+    inoremap <Down> <Nop>
+    inoremap <Left> <Nop>
+    inoremap <Right> <Nop>
+    vnoremap <Up> <Nop>
+    vnoremap <Down> <Nop>
+    vnoremap <Left> <Nop>
+    vnoremap <Right> <Nop>
+  endif
 enddef
 
 # toggle arrow keys

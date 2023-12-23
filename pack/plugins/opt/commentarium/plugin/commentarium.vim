@@ -35,11 +35,11 @@ if get(g:, 'commentarium_no_mappings') == 0
   if empty(mapcheck("<leader>?", "v"))
     vnoremap <leader>? <Plug>(commentarium-undo-range)
   endif
-  if empty(mapcheck("<leader>*", "n"))
-    nnoremap <leader>* I/*<SPACE><ESC>A<SPACE>*/<ESC>^
+  if empty(mapcheck("<leader>+", "n"))
+    nnoremap <leader>+ I/*<SPACE><ESC>A<SPACE>*/<ESC>^
   endif
-  if empty(mapcheck("<leader>*", "v"))
-    vnoremap <leader>* <ESC>'<<ESC>O/*<ESC>'><ESC>o*/<ESC><<
+  if empty(mapcheck("<leader>+", "v"))
+    vnoremap <leader>+ <ESC>'<<ESC>O/*<ESC>'><ESC>o*/<ESC><<
   endif
   if empty(mapcheck("<leader><", "n"))
     nnoremap <leader>< I<!--<SPACE><ESC>A<SPACE>--><ESC>^

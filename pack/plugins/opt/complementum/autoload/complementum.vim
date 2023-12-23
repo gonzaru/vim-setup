@@ -16,23 +16,6 @@ def DebugInfo()
   # .. $",selected:{complete_info().selected},items:{complete_info().items}}}"
 enddef
 
-# complementum enable
-export def Enable()
-  if empty(mapcheck("<Tab>", "i"))
-    inoremap <Tab> <Plug>(complementum-tab)
-  endif
-  if empty(mapcheck("<Backspace>", "i"))
-    inoremap <Backspace> <Plug>(complementum-backspace)
-  endif
-  if empty(mapcheck("<Space>", "i"))
-    inoremap <Space> <Plug>(complementum-space)
-  endif
-  if empty(mapcheck("<CR>", "i"))
-    inoremap <CR> <Plug>(complementum-enter)
-  endif
-  g:complementum_enabled = true
-enddef
-
 # complementum disable
 export def Disable()
   # TODO: remove it using g:complementum_keystroke_(tab|backspace|space|enter)

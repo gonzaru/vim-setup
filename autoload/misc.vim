@@ -290,11 +290,11 @@ export def CheckTrailingSpaces()
 enddef
 
 # delete a register
-export def RegisterDelete(arg: string)
-  var exclude = [':', '=']
-  var regex = '[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-\"]'
-  if index(exclude, arg) == -1 && arg =~ regex && !empty(getreg(arg))
-    setreg(arg, [])
+export def RegisterDelete(char: string)
+  var exclude = [':', '.', '%', '=', '#']
+  var regex = '[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/\-\"\+\*\~]'
+  if index(exclude, char) == -1 && char =~ regex && !empty(getreg(char))
+    setreg(char, [])
   endif
 enddef
 
@@ -302,17 +302,36 @@ enddef
 export def RegisterDeleteAll()
   var char: string
   var lines: string
-  var exclude = [':', '=']
-  var regex = '[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-\"]'
   redir => lines
     execute "silent registers"
   redir END
   for line in split(lines, '\n')[1 : ]
     char = substitute(split(line, ' ')[2], '^"', '', '')
-    if index(exclude, char) == -1 && char =~ regex && !empty(getreg(char))
-      setreg(char, [])
-    endif
+    RegisterDelete(char)
   endfor
+enddef
+
+# search the selected text
+export def SearchSelectedText(direction: string): void
+  var chars = ['.', '*', '^', '$', '/']
+  var vsel: string
+  var vselesc: string
+  vsel = getreg('*')
+  if vsel =~ '^\n$'
+    utils.EchoWarningMsg($"Warning: the selected text '{vsel}' is empty")
+    return
+  endif
+  # TODO: allow multiple lines
+  if len(split(vsel, '\n')) > 1
+    utils.EchoErrorMsg($"Error: multiple selected lines are not allowed")
+    return
+  endif
+  vselesc = escape(substitute(vsel, '\', '\\\', 'g'), join(chars))
+  if direction == 'forward'
+    feedkeys($"/{vselesc}\<CR>")
+  else
+    feedkeys($"?{vselesc}\<CR>n")
+  endif
 enddef
 
 # toggle sign column

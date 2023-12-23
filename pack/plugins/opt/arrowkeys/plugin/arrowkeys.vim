@@ -8,6 +8,11 @@ if get(g:, 'loaded_arrowkeys') || !get(g:, 'arrowkeys_enabled')
 endif
 g:loaded_arrowkeys = true
 
+# global variables
+if !exists('g:arrowkeys_mode')
+  g:arrowkeys_mode = 'soft'
+endif
+
 # autoload
 import autoload '../autoload/arrowkeys.vim'
 

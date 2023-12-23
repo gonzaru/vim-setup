@@ -65,6 +65,7 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscMapInsertTab misc.MapInsertTab()
   command! MiscMenuLanguageSpell misc.MenuLanguageSpell()
   command! MiscMenuMisc misc.MenuMisc()
+  command! MiscPythonDynamic misc.SetPythonDynamic()
   command! -nargs=1 MiscRegisterDelete misc.RegisterDelete('<args>')
   command! MiscRegisterDeleteAll misc.RegisterDeleteAll()
   command! -nargs=1 MiscReloadPluginOpt misc.ReloadPluginPack(<f-args>, "opt")

@@ -32,11 +32,6 @@ endif
 # autoload
 import autoload '../autoload/checker.vim'
 
-# signs
-if has("signs")
-  checker.CreateSigns()
-endif
-
 # SH
 if (executable("sh") || executable("bash")) && executable(TOOL['sh']['exttool'])
   augroup checker_sh

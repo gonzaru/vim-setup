@@ -57,7 +57,7 @@ augroup complementum_insert
 augroup END
 
 # define mappings
-nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>complementum.Enable()<CR>
+nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>Enable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
 inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
@@ -66,9 +66,26 @@ inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementu
 inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
 inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 
+# complementum enable
+def Enable()
+  if empty(mapcheck("<Tab>", "i"))
+    inoremap <Tab> <Plug>(complementum-tab)
+  endif
+  if empty(mapcheck("<Backspace>", "i"))
+    inoremap <Backspace> <Plug>(complementum-backspace)
+  endif
+  if empty(mapcheck("<Space>", "i"))
+    inoremap <Space> <Plug>(complementum-space)
+  endif
+  if empty(mapcheck("<CR>", "i"))
+    inoremap <CR> <Plug>(complementum-enter)
+  endif
+  g:complementum_enabled = true
+enddef
+
 # set mappings
 if get(g:, 'complementum_no_mappings') == 0
-  complementum.Enable()
+  Enable()
 endif
 
 # set commands
