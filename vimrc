@@ -130,6 +130,11 @@ if g:complementum_enabled
   g:complementum_debuginfo = false
 endif
 
+# cyclebuffers plugin
+if g:cyclebuffers_enabled
+  g:cyclebuffers_position = "bottom"  # top, bottom
+endif
+
 # esckey plugin
 if g:esckey_enabled
   g:esckey_key = "<C-l>"

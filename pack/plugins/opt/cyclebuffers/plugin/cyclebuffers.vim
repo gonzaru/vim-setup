@@ -8,12 +8,17 @@ if get(g:, 'loaded_cyclebuffers') || !get(g:, 'cyclebuffers_enabled')
 endif
 g:loaded_cyclebuffers = true
 
+# global variables
+if !exists('g:cyclebuffers_position')
+  g:cyclebuffers_position = "bottom"
+endif
+
 # autoload
 import autoload '../autoload/cyclebuffers.vim'
 
 # define mappings
 nnoremap <silent> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
-nnoremap <silent> <script> <Plug>(cyclebuffers-select) <ScriptCmd>cyclebuffers.SelectBuffer(getline('.'))<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'))<CR>
 
 # set mappings
 if get(g:, 'cyclebuffers_no_mappings') == 0
