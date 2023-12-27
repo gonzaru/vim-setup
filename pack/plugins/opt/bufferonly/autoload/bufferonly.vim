@@ -11,27 +11,24 @@ g:autoloaded_bufferonly = true
 # remove all buffers except the current one
 export def RemoveAllExceptCurrent(mode: string): void
   var bufinfo: list<dict<any>>
-  var curbufid: number
   var count = 0
+  var curbufid = bufnr()
   if index(['delete', 'delete!', 'wipe', 'wipe!'], mode) == -1
     return
   endif
-  if mode == 'delete' || mode == 'wipe'
-    bufinfo = getbufinfo({'buflisted': 1})
-  elseif mode == 'delete!' || mode == 'wipe!'
-    bufinfo = getbufinfo()
-  endif
-  curbufid = bufnr()
+  bufinfo = (mode == 'delete' || mode == 'wipe') ? getbufinfo({'buflisted': 1}) : getbufinfo()
   for b in bufinfo
-    if b.bufnr != curbufid
-      if mode == "delete" || mode == "delete!"
-        execute $"bd! {b.bufnr}"
-        ++count
-      elseif mode == "wipe" || mode == "wipe!"
-        execute $"bw! {b.bufnr}"
-        ++count
-      endif
+    if b.bufnr == curbufid
+      continue
     endif
+    if &buftype == 'terminal'
+      if mode == 'delete!' || mode == 'wipe!'
+        execute $'b{mode} {b.bufnr}'
+      endif
+    else
+      execute $'b{mode} {b.bufnr}'
+    endif
+    ++count
   endfor
   if count > 0
     echo $"{count} {count == 1 ? 'buffer' : 'buffers'} removed"
