@@ -68,8 +68,12 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscPythonDynamic misc.SetPythonDynamic()
   command! -nargs=1 MiscRegisterDelete misc.RegisterDelete('<args>')
   command! MiscRegisterDeleteAll misc.RegisterDeleteAll()
-  command! -nargs=1 MiscReloadPluginOpt misc.ReloadPluginPack(<f-args>, "opt")
-  command! -nargs=1 MiscReloadPluginStart misc.ReloadPluginPack(<f-args>, "start")
+  command! -nargs=1 -complete=customlist,misc#CompleteReloadPluginPack MiscReloadPluginOpt {
+    misc.ReloadPluginPack(<f-args>, "opt")
+  }
+  command! -nargs=1 -complete=customlist,misc#CompleteReloadPluginPack MiscReloadPluginStart {
+    misc.ReloadPluginPack(<f-args>, "start")
+  }
   command! MiscSH misc.SH()
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
   command! MiscSetPythonDynamic misc.SetPythonDynamic()

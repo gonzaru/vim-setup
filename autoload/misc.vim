@@ -36,7 +36,15 @@ export def DiffToggle()
   v:statusmsg = $"diff={&diff}"
 enddef
 
-# complete files in the same directory as the file in the active window (:E command)
+# complete plugin pack (:ReloadPluginPack)
+export def CompleteReloadPluginPack(_, CmdLine: string, _): list<string>
+  var kind = (trim(CmdLine) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'
+  var plugdir = $"{$HOME}/.vim/pack/plugins/{kind}"
+  var plugins = map(sort(globpath(plugdir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
+  return plugins
+enddef
+
+# complete files in the same directory as the file in the active window (:E)
 export def CompleteSameDir(_, _, _): list<string>
   var cwddir = expand('%:p:h')
   var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), "fnamemodify(v:val, ':~') .. utils.FileIndicator(v:val)")
@@ -208,14 +216,14 @@ export def MenuMisc(): void
 enddef
 
 # reload plugin (pack)
-export def ReloadPluginPack(plugin: string, type: string): void
+export def ReloadPluginPack(plugin: string, kind: string): void
   var dir: string
   var files: list<string>
   if !get(g:, $"{plugin}_enabled")
      utils.EchoErrorMsg($"Error: the plugin '{plugin}' is not enabled or does not exist")
      return
   endif
-  dir = $"{$HOME}/.vim/pack/plugins/{type}/{plugin}"
+  dir = $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}"
   if !isdirectory(dir)
      utils.EchoErrorMsg( $"Error: '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
      return
@@ -223,8 +231,8 @@ export def ReloadPluginPack(plugin: string, type: string): void
   execute $"g:loaded_{plugin} = false"
   execute $"g:autoloaded_{plugin} = false"
   files = [
-    $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/plugin/{plugin}.vim",
-    $"{$HOME}/.vim/pack/plugins/{type}/{plugin}/autoload/{plugin}.vim"
+    $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/plugin/{plugin}.vim",
+    $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/autoload/{plugin}.vim"
   ]
   for file in files
     if filereadable(file)
