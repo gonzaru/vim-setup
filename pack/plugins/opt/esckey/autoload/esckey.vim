@@ -15,10 +15,10 @@ export def Enable()
   if tolower(g:esckey_key) == "<c-l>"
     inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<ESC>'
   else
-    execute $"inoremap {g:esckey_key} <Esc>"
+    execute $"inoremap {g:esckey_key} <ESC>"
   endif
-  execute $"vnoremap {g:esckey_key} <Esc>"
-  execute $"cnoremap {g:esckey_key} <Esc>"
+  execute $"vnoremap {g:esckey_key} <ESC>"
+  execute $"cnoremap {g:esckey_key} <ESC>"
   g:esckey_key_enabled = true
 enddef
 

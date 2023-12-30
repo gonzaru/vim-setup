@@ -206,7 +206,7 @@ enddef
 # do checker
 export def DoChecker(lang: string, tool: string, exttool: string, file: string, mode: string): void
   if !g:checker_enabled || index(CHECKER_ALLOWED_TYPES, lang) == -1
-    || BufferIsEmpty() || !filereadable(file) || !empty(JOB_QUEUE[lang][exttool])
+    || BufferIsEmpty() || !empty(JOB_QUEUE[lang][exttool]) || (mode == 'read' && !filereadable(file))
     return
   endif
   Check(lang, tool, exttool, file, mode)

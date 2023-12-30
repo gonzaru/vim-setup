@@ -13,7 +13,7 @@ if !exists('g:complementum_debuginfo')
   g:complementum_debuginfo = false
 endif
 if !exists('g:complementum_minchars')
-  g:complementum_minchars = 2
+  g:complementum_minchars = 3
 endif
 if !exists('g:complementum_typedchars')
   g:complementum_typedchars = 0
@@ -22,10 +22,10 @@ if !exists('g:complementum_keystroke_default')
   g:complementum_keystroke_default = "\<C-n>"
 endif
 if !exists('g:complementum_keystroke_backspace')
-  g:complementum_keystroke_backspace = "\<Backspace>"
+  g:complementum_keystroke_backspace = "\<BS>"
 endif
 if !exists('g:complementum_keystroke_space')
-  g:complementum_keystroke_space = "\<Space>"
+  g:complementum_keystroke_space = "\<C-]>\<Space>"  # <C-]> trigger abbreviation
 endif
 if !exists('g:complementum_keystroke_enter')
   g:complementum_keystroke_enter = "\<CR>"
@@ -71,8 +71,8 @@ def Enable()
   if empty(mapcheck("<Tab>", "i"))
     inoremap <Tab> <Plug>(complementum-tab)
   endif
-  if empty(mapcheck("<Backspace>", "i"))
-    inoremap <Backspace> <Plug>(complementum-backspace)
+  if empty(mapcheck("<BS>", "i"))
+    inoremap <BS> <Plug>(complementum-backspace)
   endif
   if empty(mapcheck("<Space>", "i"))
     inoremap <Space> <Plug>(complementum-space)

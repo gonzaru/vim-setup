@@ -22,8 +22,8 @@ export def Disable()
   if !empty(mapcheck("<Tab>", "i"))
     iunmap <Tab>
   endif
-  if !empty(mapcheck("<Backspace>", "i"))
-    iunmap <Backspace>
+  if !empty(mapcheck("<BS>", "i"))
+    iunmap <BS>
   endif
   if !empty(mapcheck("<Space>", "i"))
     iunmap <Space>
@@ -33,7 +33,9 @@ export def Disable()
   endif
   # misc plugin
   if get(g:, "misc_enabled")
+    misc#MapInsertBackSpace()
     misc#MapInsertEnter()
+    misc#MapInsertSpace()
     misc#MapInsertTab()
   endif
   g:complementum_enabled = false

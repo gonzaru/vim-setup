@@ -23,10 +23,6 @@ setlocal nomodifiable
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
 if get(g:, 'cyclebuffers_no_mappings') == 0
-  if empty(mapcheck("<CR>", "n"))
-    nnoremap <buffer><CR> <Plug>(cyclebuffers-select)
-  endif
-  if empty(mapcheck("<Esc>", "n"))
-    nnoremap <buffer><Esc> :close<CR>
-  endif
+  nnoremap <buffer> <nowait> <CR> <Plug>(cyclebuffers-select)
+  nnoremap <buffer> <nowait> <ESC> :close<CR>
 endif

@@ -28,7 +28,5 @@ setlocal textwidth=0
 setlocal tags=$HOME/.vim/tags
 #^ setlocal keywordprg=:help
 # if get(g:, "autoendstructs_enabled")
-#   if empty(mapcheck("<CR>", "i"))
-#      inoremap <buffer><CR> <Plug>(autoendstructs-end)
-#   endif
+#   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 # endif

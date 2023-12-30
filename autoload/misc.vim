@@ -118,6 +118,17 @@ export def GuiMenuBarToggle(): void
   v:statusmsg = $"guioptions={&l:guioptions}"
 enddef
 
+# map insert backspace
+export def MapInsertBackSpace()
+  if !empty(mapcheck("<BS>", "i"))
+    iunmap <BS>
+  endif
+  inoremap <expr> <silent> <BS>
+  \ get(g:, 'complementum_enabled')
+  \ ? '<Plug>(complementum-backspace)'
+  \ : '<BS>'
+enddef
+
 # map insert enter
 export def MapInsertEnter()
   if !empty(mapcheck("<CR>", "i"))
@@ -131,12 +142,23 @@ export def MapInsertEnter()
   \ : '<CR>'
 enddef
 
+# map insert space
+export def MapInsertSpace()
+  if !empty(mapcheck("<Space>", "i"))
+    iunmap <Space>
+  endif
+  inoremap <expr> <silent> <Space>
+  \ get(g:, 'complementum_enabled')
+  \ ? '<Plug>(complementum-space)'
+  \ : '<C-]><Space>'  # <C-]> trigger abbreviation
+enddef
+
 # map insert tab
 export def MapInsertTab()
   if !empty(mapcheck("<Tab>", "i"))
     iunmap <Tab>
   endif
-  inoremap <silent><expr> <Tab>
+  inoremap <expr> <silent> <Tab>
   \ get(g:, 'complementum_enabled')
   \ ? '<Plug>(complementum-tab)'
   \ : pumvisible()

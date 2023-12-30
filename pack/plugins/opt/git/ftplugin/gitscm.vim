@@ -24,43 +24,17 @@ setlocal noswapfile
 setlocal buflisted
 setlocal syntax=on
 if get(g:, 'git_no_mappings') == 0
-  if empty(mapcheck("<CR>", "n"))
-    nnoremap <silent><buffer><CR> <Plug>(git-do-action))
-  endif
-  if empty(mapcheck("gA", "n"))
-    nnoremap <silent><buffer>gA <Plug>(git-add-file)
-  endif
-  if empty(mapcheck("gb", "n"))
-    nnoremap <silent><buffer>gb <Plug>(git-blame)
-  endif
-  if empty(mapcheck("gB", "n"))
-    nnoremap <silent><buffer>gB <Plug>(git-blame-short)
-  endif
-  if empty(mapcheck("gC", "n"))
-    nnoremap <silent><buffer>gC <Plug>(git-checkout-file)
-  endif
-  if empty(mapcheck("gd", "n"))
-    nnoremap <silent><buffer>gd <Plug>(git-diff-file)
-  endif
-  if empty(mapcheck("gh", "n"))
-    nnoremap <silent><buffer>gh <Plug>(git-help)
-  endif
-  if empty(mapcheck("H", "n"))
-    nnoremap <silent><buffer>H <Plug>(git-help)
-  endif
-  if empty(mapcheck("gl", "n"))
-    nnoremap <silent><buffer>gl <Plug>(git-log-file)
-  endif
-  if empty(mapcheck("gL", "n"))
-    nnoremap <silent><buffer>gL <Plug>(git-log-one-file)
-  endif
-  if empty(mapcheck("gR", "n"))
-    nnoremap <silent><buffer>gR <Plug>(git-restore-staged-file)
-  endif
-  if empty(mapcheck("gs", "n"))
-    nnoremap <silent><buffer>gs <Plug>(git-status-file)
-  endif
-  if empty(mapcheck("gS", "n"))
-    nnoremap <silent><buffer>gS <Plug>(git-show-file)
-  endif
+  nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action))
+  nnoremap <buffer> <nowait> <silent> gA <Plug>(git-add-file)
+  nnoremap <buffer> <nowait> <silent> gb <Plug>(git-blame)
+  nnoremap <buffer> <nowait> <silent> gB <Plug>(git-blame-short)
+  nnoremap <buffer> <nowait> <silent> gC <Plug>(git-checkout-file)
+  nnoremap <buffer> <nowait> <silent> gd <Plug>(git-diff-file)
+  nnoremap <buffer> <nowait> <silent> gh <Plug>(git-help)
+  nnoremap <buffer> <nowait> <silent> H <Plug>(git-help)
+  nnoremap <buffer> <nowait> <silent> gl <Plug>(git-log-file)
+  nnoremap <buffer> <nowait> <silent> gL <Plug>(git-log-one-file)
+  nnoremap <buffer> <nowait> <silent> gR <Plug>(git-restore-staged-file)
+  nnoremap <buffer> <nowait> <silent> gs <Plug>(git-status-file)
+  nnoremap <buffer> <nowait> <silent> gS <Plug>(git-show-file)
 endif

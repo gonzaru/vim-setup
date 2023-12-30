@@ -30,8 +30,6 @@ setlocal makeprg=go\ build
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 setlocal formatprg=gofmt
 # if get(g:, "complementum_enabled")
-#   if empty(mapcheck(".", "i"))
-#     inoremap <silent><buffer>. .<Plug>(complementum-insertautocomplete)
-#   endif
+#   inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
 # endif
 matchadd('ColorColumn', '\%120v', 10)

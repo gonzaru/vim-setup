@@ -12,6 +12,11 @@ if get(g:, 'loaded_vimrc')
 endif
 g:loaded_vimrc = true
 
+# only *nix version
+if !has('unix')
+  finish
+endif
+
 # autoload
 import autoload './autoload/misc.vim'
 
@@ -293,8 +298,8 @@ if !has('gui_running')
     ) && !screen
       # :help xterm-true-color
       if !jediterm
-        &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
-        &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+        &t_8f = "\<ESC>[38:2:%lu:%lu:%lum"
+        &t_8b = "\<ESC>[48:2:%lu:%lu:%lum"
       endif
       set termguicolors
     else
@@ -314,11 +319,14 @@ if has('gui_running')
     set antialias
   else
     execute $"set viminfofile={$HOME}/.viminfo_gvim_{v:version}"
-    # set guifont=SF\ Mono\ Medium\ 12
-    set guifont=DejaVu\ Sans\ Mono\ 12
+    if filereadable($"{$HOME}/.local/share/fonts/SF-Mono-Medium.otf")
+      set guifont=SF\ Mono\ Medium\ 12
+    else
+      set guifont=DejaVu\ Sans\ Mono\ 12
+    endif
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
-  set guioptions=acM                                   # do not load menus for gui (default aegimrLtT)
+  set guioptions=ackM                                  # do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
   set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
   set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
@@ -424,7 +432,7 @@ set showbreak=           # string to put at the start of wrapped lines. :set sbr
 set breakindent          # wrapped lines will follow indentation
 set breakindentopt+=sbr  # display the 'showbreak' value before the indentation
 
-# tabs/spaces
+# tabs/spaces (see :retab)
 set tabstop=2      # number of spaces a <tab> in the text stands for
 set softtabstop=2  # if non-zero, number of spaces to insert for a <tab>
 set shiftwidth=2   # number of spaces used for each step of (auto)indent
@@ -439,7 +447,7 @@ set grepformat=%f:%l:%c:%m,%f:%l:%m
 # backup files
 set backup
 set writebackup
-set backupcopy=auto
+set backupcopy=yes
 set backupdir=$HOME/.vim/backups
 set directory=$HOME/.vim/tmp//  # // use absolute path
 
@@ -459,13 +467,17 @@ if has('mksession')
   set sessionoptions-=localoptions
   set sessionoptions-=folds
   set sessionoptions-=terminal
+  set sessionoptions-=curdir
+  set sessionoptions+=sesdir
   set sessionoptions+=resize,winpos
 endif
 
 # views options
+set viewdir=${HOME}/.vim/view
 set viewoptions-=options
 set viewoptions-=localoptions
 set viewoptions-=folds
+set viewoptions-=curdir
 
 # buffers
 set hidden    # buffer becomes hidden when it is abandoned
@@ -555,8 +567,10 @@ g:maplocalleader = "\<C-\>"
 # the key that starts a <C-w> command in a terminal mode
 # set termwinkey=<C-s>
 
-# insert maps <cr> and <tab>
+# insert maps <bs>, <cr>, <space> and <tab>
+misc.MapInsertBackSpace()
 misc.MapInsertEnter()
+misc.MapInsertSpace()
 misc.MapInsertTab()
 
 # save
@@ -570,7 +584,7 @@ vnoremap <leader>* <ESC><ScriptCmd>misc.SearchSelectedText('forward')<CR>
 vnoremap <leader># <ESC><ScriptCmd>misc.SearchSelectedText('backward')<CR>
 
 # stop highlighting + clear and redraw the screen
-nnoremap <C-l> :nohlsearch<CR><C-l>
+nnoremap <silent> <leader><C-l> :nohlsearch<CR><C-l>
 
 # del
 # <C-l> goes to normal mode in evim/insertmode
@@ -593,10 +607,14 @@ nnoremap <leader>e; mt$a;<ESC>`t
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
 # see complementum plugin
 
+# abbreviation
+# <C-v> prevent an abbreviation from expanding (<C-]> expands it)
+# inoremap <silent> <Space> <C-v><Space>
+
 # source
-nnoremap <silent><leader>sv :ReloadVimrc<CR>
-nnoremap <silent><leader>st :Theme<CR>
-nnoremap <silent><leader>sa :ReloadVimrc<CR>:Theme<CR>
+nnoremap <silent> <leader>sv :ReloadVimrc<CR>
+nnoremap <silent> <leader>st :Theme<CR>
+nnoremap <silent> <leader>sa :ReloadVimrc<CR>:Theme<CR>
 
 # toggle
 nnoremap <leader>tgA :set autochdir! autochdir? \| echon " (set)"<CR>
@@ -623,7 +641,7 @@ endif
 # :sh
 if has('gui_running')
   if g:misc_enabled
-    # nnoremap <silent><leader>sh <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+    # nnoremap <silent> <leader>sh <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
     nnoremap <leader>sh <ScriptCmd>misc.SH()<CR>
   endif
 else
@@ -635,23 +653,23 @@ endif
 #  autocmd!
 #  autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
 #augroup END
-nnoremap <silent><leader><CR> :below terminal<CR>
+nnoremap <silent> <leader><CR> :below terminal<CR>
 if has('gui_running')
-  # nnoremap <silent><C-z> :below terminal<CR>
-  # nnoremap <silent><C-z> <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
-  nnoremap <silent><C-z> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent><leader><C-CR> :below terminal<CR>
-  nnoremap <silent><leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent><leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  # nnoremap <silent> <C-z> :below terminal<CR>
+  # nnoremap <silent> <C-z> <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+  nnoremap <silent> <C-z> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <leader><C-CR> :below terminal<CR>
+  nnoremap <silent> <leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
 endif
-nnoremap <silent><leader>z :terminal ++curwin ++noclose<CR>
-nnoremap <silent><leader><C-z> :terminal ++curwin ++noclose<CR>
+nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR>
+nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR>
 
 # move
 nnoremap <leader><C-d> :move .+1<CR>==
 nnoremap <leader><C-u> :move .-2<CR>==
-inoremap <leader><C-d> <Esc>:move .+1<CR>==gi
-inoremap <leader><C-u> <Esc>:move .-2<CR>==gi
+inoremap <leader><C-d> <ESC>:move .+1<CR>==gi
+inoremap <leader><C-u> <ESC>:move .-2<CR>==gi
 vnoremap <leader><C-d> :move '>+1<CR>gv=gv
 vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 
@@ -672,14 +690,14 @@ if has('gui_running')
   if g:misc_enabled
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
-  tnoremap <C-Esc> <C-w>N
+  tnoremap <C-ESC> <C-w>N
   tnoremap <C-d> <C-w>c
 endif
 nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
-# *avoid* to use <Esc> mappings in terminal mode
+# *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
-# tnoremap <expr> <C-[> (&ft == "fzf") ? "<Esc>" : "<C-w>N"
+# tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
 
 # buffers
 nnoremap <leader>n :bnext<CR>
@@ -701,6 +719,7 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
+# see N<C-^>
 # go to N buffer (up to 9 for now)
 # for i in range(1, 9)
 #   if i <= 9 && g:misc_enabled
@@ -760,10 +779,10 @@ endif
 nnoremap <leader>cw :close<CR>
 nnoremap <leader>ch :helpclose<CR>
 nnoremap <leader>ct :tabclose<CR>
-nnoremap <leader><C-j> :resize +5<CR>
-nnoremap <leader><C-k> :resize -5<CR>
-nnoremap <leader><C-h> :vertical resize -5<CR>
-nnoremap <leader><C-l> :vertical resize +5<CR>
+# nnoremap <leader><C-j> :resize +5<CR>
+# nnoremap <leader><C-k> :resize -5<CR>
+# nnoremap <leader><C-h> :vertical resize -5<CR>
+# nnoremap <leader><C-l> :vertical resize +5<CR>
 command! SwapWindow execute "normal! \<C-w>x"
 
 # grep using grepprg + quickfix
@@ -792,15 +811,15 @@ cabbrev Vs vsp <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('
 cabbrev Tabe tabe <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 
 # change to directory of the current file
-nnoremap <silent><leader>cd :LCDC<CR>
-nnoremap <silent><leader>cD :CDC<CR>
+nnoremap <silent> <leader>cd :LCDC<CR>
+nnoremap <silent> <leader>cD :CDC<CR>
 command! CDC cd %:p:h
 command! LCDC lcd %:p:h
 
 # menu misc
 if g:misc_enabled
-  nnoremap <silent><leader><F10> <ScriptCmd>misc.MenuMisc()<CR>
-  nnoremap <silent><leader>f0 <ScriptCmd>misc.MenuMisc()<CR>
+  nnoremap <silent> <leader><F10> <ScriptCmd>misc.MenuMisc()<CR>
+  nnoremap <silent> <leader>f0 <ScriptCmd>misc.MenuMisc()<CR>
 endif
 
 # plan9 theme
@@ -858,17 +877,24 @@ command! ReloadPluginMisc {
 command! SetGuiFont if has('gui_running') | set guifont=* | endif
 
 # vim events
-if !has('gui_running')
-  augroup event_vim
-    autocmd!
-    # reset the cursor shape and redraw the screen
-    # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
-    # clear the terminal on exit
-    if xterm
-      autocmd VimLeave * ++once silent !printf '\e[0m'
+augroup event_vim
+  autocmd!
+  # reset the cursor shape and redraw the screen
+  # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
+  # clear the terminal on exit
+  autocmd VimLeave * ++once {
+    if !has('gui_running') && xterm
+      silent !printf '\e[0m'
     endif
-  augroup END
-endif
+    var session_dir = $"{$HOME}/.vim/sessions"
+    if isdirectory(session_dir)
+      execute $"mksession! {session_dir}/last.vim"
+    endif
+    if isdirectory(&viewdir)
+      execute $"mkview! {&viewdir}/last.vim"
+    endif
+  }
+augroup END
 
 # load local config
 var vimrc_local = $"{$HOME}/.vimrc.local"
