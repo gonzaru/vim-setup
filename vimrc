@@ -18,7 +18,7 @@ if !has('unix')
 endif
 
 # autoload
-import autoload './autoload/misc.vim'
+import autoload $"{$HOME}/.vim/autoload/misc.vim"
 
 # config variables
 var colortheme = "darkula"                                                  # theme
@@ -666,12 +666,12 @@ nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR>
 
 # move
-nnoremap <leader><C-d> :move .+1<CR>==
-nnoremap <leader><C-u> :move .-2<CR>==
-inoremap <leader><C-d> <ESC>:move .+1<CR>==gi
-inoremap <leader><C-u> <ESC>:move .-2<CR>==gi
-vnoremap <leader><C-d> :move '>+1<CR>gv=gv
-vnoremap <leader><C-u> :move '<-2<CR>gv=gv
+nnoremap <leader><C-j> :move .+1<CR>==
+nnoremap <leader><C-k> :move .-2<CR>==
+inoremap <leader><C-j> <ESC>:move .+1<CR>==gi
+inoremap <leader><C-k> <ESC>:move .-2<CR>==gi
+vnoremap <leader><C-j> :move '>+1<CR>gv=gv
+vnoremap <leader><C-k> :move '<-2<CR>gv=gv
 
 # automatic close of chars
 # inoremap ' ''<left>
@@ -683,7 +683,7 @@ vnoremap <leader><C-u> :move '<-2<CR>gv=gv
 
 # gui
 if has('gui_running')
-  if has('linux')
+  if has('linux') || has('bsd')
     map <S-Insert> <Nop>
     map! <S-Insert> <MiddleMouse>
   endif
