@@ -293,6 +293,7 @@ if !has('gui_running')
       alacritty || alacritty_tmux || alacritty_zellij
       || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
       || jediterm || jediterm_tmux || jediterm_zellij
+      || tmux
       || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
       || xterm || xterm_tmux || xterm_zellij
     ) && !screen
