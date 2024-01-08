@@ -60,6 +60,16 @@ const GROUP_ACTION = {
       'keys': ['def', 'export def'],
       'trigger': '',
       'add': 'enddef'
+    },
+    'group7': {
+      'keys': ['interface'],
+      'trigger': '',
+      'add': 'endinterface'
+    },
+    'group8': {
+      'keys': ['class', 'abstract class', 'export class', 'export abstract'],
+      'trigger': '',
+      'add': 'endclass'
     }
   },
   'go': {
