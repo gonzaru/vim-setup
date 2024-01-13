@@ -691,7 +691,7 @@ if has('gui_running')
   if g:misc_enabled
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
-  tnoremap <C-ESC> <C-w>N
+  tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
   tnoremap <C-d> <C-w>c
 endif
 nnoremap <leader>, :tabprevious<CR>
