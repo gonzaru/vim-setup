@@ -84,12 +84,18 @@ endif
 nnoremap <silent> <script> <Plug>(checker-enable) <ScriptCmd>checker.Enable()<CR>
 nnoremap <silent> <script> <Plug>(checker-disable) <ScriptCmd>checker.Disable()<CR>
 nnoremap <silent> <script> <Plug>(checker-toggle) <ScriptCmd>checker.Toggle()<CR>
-nnoremap <silent> <script> <Plug>(checker-signsdebug-cur)
-\ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'cur')<CR>
-nnoremap <silent> <script> <Plug>(checker-signsdebug-prev)
-\ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'prev')<CR>
-nnoremap <silent> <script> <Plug>(checker-signsdebug-next)
-\ <ScriptCmd>checker.SignsDebug(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], 'next')<CR>
+nnoremap <silent> <script> <Plug>(checker-signsdebug-cur) <ScriptCmd>SignsDebug(&filetype, 'cur')<CR>
+nnoremap <silent> <script> <Plug>(checker-signsdebug-prev) <ScriptCmd>SignsDebug(&filetype, 'prev')<CR>
+nnoremap <silent> <script> <Plug>(checker-signsdebug-next) <ScriptCmd>SignsDebug(&filetype, 'next')<CR>
+
+# wrapper to the signs debug information function
+def SignsDebug(lang: string, mode: string)
+  if has_key(TOOL, lang)
+    checker.SignsDebug(lang, TOOL[lang]['default'], TOOL[lang]['exttool'], mode)
+  else
+    checker.EchoErrorMsg($"Error: debug information for the filetype '{lang}' is not supported")
+  endif
+enddef
 
 # set mappings
 if get(g:, 'checker_no_mappings') == 0
