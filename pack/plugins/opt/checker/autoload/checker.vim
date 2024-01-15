@@ -148,7 +148,7 @@ const FILES = {
 }
 
 # prints the error message and saves the message in the message-history
-def EchoErrorMsg(msg: string)
+export def EchoErrorMsg(msg: string)
   if !empty(msg)
     echohl ErrorMsg
     echom msg
