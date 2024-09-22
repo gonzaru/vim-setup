@@ -53,7 +53,8 @@ g:skip_defaults_vim = true
 g:loaded_2html_plugin =  true     # tohtml.vim
 g:loaded_getscriptPlugin = true   # getscriptPlugin.vim
 g:loaded_gzip = true              # gzip.vim
-g:loaded_logiPath = true          # logiPat.vim
+g:loaded_logiPat = true           # logiPat.vim
+g:loaded_manpager = true          # manpager.vim
 g:loaded_matchparen = true        # matchparen.vim
 g:loaded_netrw = true             # netrw autoload
 g:loaded_netrwPlugin = true       # netrwPlugin.vim
@@ -79,10 +80,10 @@ g:commentarium_enabled = true     # comment by language
 g:complementum_enabled = true     # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
-g:esckey_enabled = true           # use key as escape
+g:esckey_enabled = false          # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
-g:habit_enabled = true            # habit
+g:habit_enabled = false           # habit
 g:misc_enabled = true             # miscelania functions
 g:runprg_enabled = true           # run programs
 g:scratch_enabled = true          # scratch stuff
@@ -227,6 +228,7 @@ set ignorecase              # case-insensitive search (also affects if == 'var',
 set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set smartcase               # except if start with capital letter
 set tagcase=followscs       # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
+# set jumpoptions=stack     # make the jumplist behave like the tagstack
 set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
 set hlsearch                # to highlight all search matches
 set incsearch               # jumps to search word when typing on serch /foo (default no)
@@ -369,9 +371,26 @@ if has('mouse')
   set mouse=a
 endif
 
-# prevents that the langmap option applies to characters (from defaults.vim)
-if has("langmap") && exists("+langremap")
-  set nolangremap
+# utf-8 support
+if has("multi_byte")
+  set encoding=utf-8      # encoding editor
+  set fileencoding=utf-8  # encoding buffer
+  set termencoding=utf-8  # encoding terminal
+  scriptencoding utf-8    # encoding script (must be after enconding)
+endif
+
+# show special characters (listchars must be after enconding configuration)
+set nolist
+if &encoding == "utf-8"
+  set listchars=tab:»·,trail:¨,multispace:---+,precedes:<,extends:>
+endif
+
+# keyboard layout (see :help i_CTRL-^)
+if has('keymap') && has("langmap") && exists("+langremap")
+  set nolangremap            # prevents that the langmap option applies to characters (defaults.vim)
+  set keymap=russian-jcuken  # XFree86 'ru' keymap compatible
+  set iminsert=0             # 0 lmap is off and IM is off (default 0)
+  set imsearch=-1            # 0 lmap is off and IM is off (default -1)
 endif
 
 # wildmenu
@@ -402,20 +421,6 @@ if get(g:, "statusline_enabled")
   set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
-endif
-
-# utf-8 support
-if has("multi_byte")
-  set encoding=utf-8      # encoding editor
-  set fileencoding=utf-8  # encoding buffer
-  set termencoding=utf-8  # encoding terminal
-  scriptencoding utf-8    # encoding script (must be after enconding)
-endif
-
-# show special characters (listchars must be after enconding configuration)
-set nolist
-if &encoding == "utf-8"
-  set listchars=tab:»·,trail:¨,multispace:---+,precedes:<,extends:>
 endif
 
 # vertical seperator for vertical split windows
@@ -474,7 +479,7 @@ if has('mksession')
 endif
 
 # views options
-set viewdir=${HOME}/.vim/view
+set viewdir=$HOME/.vim/view
 set viewoptions-=options
 set viewoptions-=localoptions
 set viewoptions-=folds
@@ -513,9 +518,9 @@ endif
 # k: dictionary files with dictionary option
 # t: tags
 # set complete=.,w,b,u,k,t
-set complete=.,w,b,u,k
-set pumheight=15  # maximum number of items to show in the popup menu (default 0)
-set pumwidth=15   # minimum width to use for the popup menu (default 15)
+set complete=.,w,b,u,k  # (default .,w,b,u,k,t)
+set pumheight=15        # maximum number of items to show in the popup menu (default 0)
+set pumwidth=15         # minimum width to use for the popup menu (default 15)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -623,13 +628,13 @@ nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgR :set relativenumber! relativenumber? \| echon " (set)"<CR>
-nnoremap <leader>tgj :setlocal joinspaces! joinspaces?<CR>
+nnoremap <leader>tgj :setlocal joinspaces! joinspaces? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgl :setlocal list! list? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgL :set list! list? \| echon " (set)"<CR>
-nnoremap <leader>tgh :setlocal hlsearch! hlsearch?<CR>
-nnoremap <leader>tgp :setlocal paste! paste?<CR>
-nnoremap <leader>tgw :setlocal autowrite! autowrite?<CR>
-nnoremap <leader># :nohlsearch<CR>
+nnoremap <leader>tgh :setlocal hlsearch! hlsearch? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgp :setlocal paste! paste? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
+# nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgs <ScriptCmd>misc.SyntaxToggle()<CR>:echo v:statusmsg<CR>
@@ -650,10 +655,10 @@ else
 endif
 
 # terminal
-#augroup event_terminal
-#  autocmd!
-#  autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
-#augroup END
+# augroup event_terminal
+#   autocmd!
+#   autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
+# augroup END
 nnoremap <silent> <leader><CR> :below terminal<CR>
 if has('gui_running')
   # nnoremap <silent> <C-z> :below terminal<CR>
@@ -675,6 +680,7 @@ vnoremap <leader><C-j> :move '>+1<CR>gv=gv
 vnoremap <leader><C-k> :move '<-2<CR>gv=gv
 
 # automatic close of chars
+# see autoclosechars plugin
 # inoremap ' ''<left>
 # inoremap " ""<left>
 # inoremap ( ()<left>
@@ -787,13 +793,14 @@ nnoremap <leader>ct :tabclose<CR>
 command! SwapWindow execute "normal! \<C-w>x"
 
 # grep using grepprg + quickfix
-command! -nargs=+ -complete=file Grep execute "silent grep! <args>" | cwindow
+command! -nargs=+ -complete=file Grep execute "silent grep! <args>" | cwindow | redraw!
 command! -nargs=+ -complete=file Grepi {
   var grepprg_orig = &grepprg
   execute $"set grepprg={substitute(fnameescape(&grepprg), 'smart-case\|case-sensitive', 'ignore-case', '')}"
   execute "silent grep! <args>"
   execute $"set grepprg={fnameescape(grepprg_orig)}"
   cwindow
+  redraw!
 }
 
 # find using searcher plugin
@@ -884,10 +891,10 @@ augroup event_vim
   # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
   # clear the terminal on exit
   autocmd VimLeave * ++once {
+    var session_dir = $"{$HOME}/.vim/sessions"
     if !has('gui_running') && xterm
       silent !printf '\e[0m'
     endif
-    var session_dir = $"{$HOME}/.vim/sessions"
     if isdirectory(session_dir)
       execute $"mksession! {session_dir}/last.vim"
     endif
