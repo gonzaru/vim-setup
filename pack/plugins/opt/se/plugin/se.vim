@@ -23,7 +23,7 @@ if !exists('g:se_position')
   g:se_position = "left"
 endif
 if !exists('g:se_hiddenshow')
-  g:se_hiddenshow = true
+  g:se_hiddenshow = false
 endif
 if !exists('g:se_winsize')
   g:se_winsize = 20
