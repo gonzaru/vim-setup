@@ -22,6 +22,9 @@ endif
 if !exists('g:se_position')
   g:se_position = "left"
 endif
+if !exists('g:se_hiddenshow')
+  g:se_hiddenshow = true
+endif
 if !exists('g:se_winsize')
   g:se_winsize = 20
 endif
@@ -45,12 +48,8 @@ endif
 nnoremap <silent> <script> <Plug>(se-close) <Cmd>close<CR>
 nnoremap <silent> <script> <Plug>(se-help) <ScriptCmd>se.Help()<CR>
 nnoremap <silent> <script> <Plug>(se-toggle) <ScriptCmd>se.Toggle(expand('%:p'))<CR>
-nnoremap <silent> <script> <Plug>(se-toggle-hidden)
-  \ <ScriptCmd>b:selfile = substitute(getline('.'), '[/@\*\|=]$', '', '')<CR>
-  \ <ScriptCmd>g:se_hiddenfirst = !g:se_hiddenfirst<CR>
-  \ <ScriptCmd>se.Refresh(expand('%:p'))<CR>
-  \ <ScriptCmd>cursor(3, 1)<CR>
-  \ <ScriptCmd>se.SearchFile(b:selfile)<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-hidden-show) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "show")<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-hidden-position) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "position")<CR>
 nnoremap <silent> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
 nnoremap <silent> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDir(getenv('HOME'))<CR>
@@ -66,6 +65,12 @@ nnoremap <silent> <script> <Plug>(se-gofile-split) <ScriptCmd>se.GoFile(getline(
 nnoremap <silent> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.GoFile(getline('.'), "tabedit")<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.GoFile(getline('.'), "vsplit")<CR>
 nnoremap <silent> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh(expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(se-resize-left)
+  \ <ScriptCmd>:execute "vertical resize "  .. (g:se_position == 'right' ? '+1' : '-1')<CR>
+nnoremap <silent> <script> <Plug>(se-resize-right)
+  \ <ScriptCmd>:execute "vertical resize "  .. (g:se_position == 'right' ? '-1' : '+1')<CR>
+nnoremap <silent> <script> <Plug>(se-resize-restore)
+  \ <ScriptCmd>:execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
 
 # see ../ftplugin/se.vim
 

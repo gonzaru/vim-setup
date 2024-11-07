@@ -94,7 +94,8 @@ def ExitHandler(job: job, status: number)
       SetStatus(substitute(GetStatus(), '^ {\w\+}:.*\$$', "", ""))
     endif
     # redraw statusline
-    &l:statusline = &l:statusline
+    # &l:statusline = &l:statusline
+    redrawstatus
     delete(STATUSLINE_FILES['git'])
   endif
   idx = index(JOB_QUEUE, job_info(job)["process"])

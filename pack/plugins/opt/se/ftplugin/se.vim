@@ -41,11 +41,11 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> ~ <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> r <Plug>(se-refresh)
   nnoremap <buffer> <nowait> f <Plug>(se-followfile)
-  nnoremap <buffer> <nowait> l :execute "vertical resize "  .. (g:se_position == 'right' ? '-1' : '+1')<CR>
-  nnoremap <buffer> <nowait> h :execute "vertical resize "  .. (g:se_position == 'right' ? '+1' : '-1')<CR>
-  nnoremap <buffer> <nowait> o <Plug>(se-toggle-hidden)
-  nnoremap <buffer> <nowait> <BS> :execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
-  nnoremap <buffer> <nowait> = :execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
+  nnoremap <buffer> <nowait> h <Plug>(se-resize-left)
+  nnoremap <buffer> <nowait> l <Plug>(se-resize-right)
+  nnoremap <buffer> <nowait> o <Plug>(se-toggle-hidden-position)
+  nnoremap <buffer> <nowait> . <Plug>(se-toggle-hidden-show)
+  nnoremap <buffer> <nowait> = <Plug>(se-resize-restore)
   nnoremap <buffer> <nowait> H <Plug>(se-help)
   nnoremap <buffer> <nowait> K <Plug>(se-help)
 endif

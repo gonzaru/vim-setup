@@ -95,8 +95,9 @@ enddef
 
 # go to last edit cursor position
 export def GoLastEditCursorPos()
-  var lastcursorline = line("'\"")
-  if lastcursorline >= 1 && lastcursorline <= line("$") && &filetype !~ "commit"
+  var nline = line("'\"")
+  if nline >= 1 && nline <= line("$") && &filetype !~ "commit"
+     && index(['xxd', 'gitrebase'], &filetype) == -1
     execute "normal! g`\""
   endif
 enddef

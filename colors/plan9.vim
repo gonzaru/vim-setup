@@ -52,6 +52,8 @@ highlight! StatusLineNC guifg=white guibg=gray ctermfg=white ctermbg=gray gui=NO
 # vertical split color
 highlight! VertSplit guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
+# language keymap cursor (i_CTRL-^)
+highlight! link lCursor Cursor
 highlight! CursorLine guifg=NONE guibg=#d7d7af ctermfg=NONE ctermbg=187 gui=NONE cterm=NONE term=NONE
 # highlight! CursorLineNR guifg=white guibg=#5f5f5f ctermfg=white ctermbg=black gui=bold cterm=bold term=NONE
 highlight! CursorLineNR guifg=#4a4a4a guibg=#d7d7af ctermfg=238 ctermbg=187 gui=bold cterm=bold term=NONE
@@ -122,12 +124,14 @@ highlight! Title guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui
 highlight! Pmenu guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! PmenuSel guifg=black guibg=#ffffaf ctermfg=black ctermbg=lightyellow gui=NONE cterm=NONE term=NONE
 # TODO
-# PmenuThumb
-# PmenuSbar
-# PmenuKind
-# PmenuKindSel
 # PmenuExtra
 # PmenuExtraSel
+# PmenuKind
+# PmenuKindSel
+# PmenuMatch
+# PmenuMatchSel
+# PmenuSbar
+# PmenuThumb
 
 # see completepopup
 highlight! InfoPopup guifg=black guibg=lightgray ctermfg=black ctermbg=lightgray gui=NONE cterm=NONE term=NONE

@@ -26,12 +26,10 @@ enddef
 
 # disable arrow keys
 export def Disable()
-  if g:arrowkeys_mode == 'soft' || g:arrowkeys_mode == 'hard'
-    nnoremap <Up> <Nop>
-    nnoremap <Down> <Nop>
-    nnoremap <Left> <Nop>
-    nnoremap <Right> <Nop>
-  endif
+  nnoremap <Up> <Nop>
+  nnoremap <Down> <Nop>
+  nnoremap <Left> <Nop>
+  nnoremap <Right> <Nop>
   if g:arrowkeys_mode == 'hard'
     inoremap <Up> <Nop>
     inoremap <Down> <Nop>

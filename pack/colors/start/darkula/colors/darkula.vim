@@ -53,6 +53,8 @@ execute "highlight! StatusLineNC guifg=" .. COLORS['normal']['guifg'] .. " guibg
 execute "highlight! VertSplit guifg=" .. COLORS['normal']['guifg'] .. " guibg=#333333 ctermfg=" .. COLORS['normal']['ctermfg'] .. " ctermbg=236 gui=NONE cterm=NONE term=NONE"
 
 highlight! Cursor guifg=black guibg=#bbbbbb gui=NONE cterm=NONE term=NONE
+# language keymap cursor (i_CTRL-^)
+highlight! link lCursor Cursor
 highlight! CursorLine guifg=NONE guibg=#333333 ctermfg=NONE ctermbg=236 gui=NONE cterm=NONE term=NONE
 highlight! CursorLineNR guifg=#999999 guibg=#333333 ctermfg=102 ctermbg=236 gui=bold cterm=bold term=NONE
 highlight! link CursorColumn CursorLine
@@ -133,12 +135,14 @@ execute "highlight! Title guifg=" .. COLORS['normal']['guifg'] .. " guibg=" .. C
 highlight! Pmenu guifg=#bbbbbb guibg=#46484a ctermfg=145 ctermbg=238 gui=NONE cterm=NONE term=NONE
 highlight! PmenuSel guifg=#bbbbbb guibg=#113a5c ctermfg=145 ctermbg=25 gui=NONE cterm=NONE term=NONE
 # TODO
-# PmenuThumb
-# PmenuSbar
-# PmenuKind
-# PmenuKindSel
 # PmenuExtra
 # PmenuExtraSel
+# PmenuKind
+# PmenuKindSel
+# PmenuMatch
+# PmenuMatchSel
+# PmenuSbar
+# PmenuThumb
 
 # :help completepopup
 highlight! InfoPopup guifg=#bbbbbb guibg=#333333 ctermfg=145 ctermbg=236 gui=NONE cterm=NONE term=NONE

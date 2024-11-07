@@ -87,7 +87,8 @@ export def Help()
     h        # resize Se window to the left
     l        # resize Se window to the right
     o        # toggle the position of the hidden files
-    =        # resize Se window to default size [<BS>]
+    .        # toggle the visualization of the hidden files
+    =        # resize Se window to default size
     <ESC>    # close Se window
     H        # shows Se help information [K]
   END
@@ -98,7 +99,10 @@ enddef
 def Populate(cwddir: string)
   var parent2cwd: string
   var parentcwd: string
-  var hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
+  var hidden: list<string>
+  if g:se_hiddenshow
+    hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
+  endif
   var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')
   var lsf = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
@@ -169,6 +173,15 @@ def Show(filepath: string)
   endif
 enddef
 
+# searches Se file
+export def SearchFile(file: string)
+  var modfile: string
+  if !empty(file)
+    modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
+    silent! search('^' .. modfile .. '.\?\(*\|@\)\?$')
+  endif
+enddef
+
 # toggles Se
 export def Toggle(filepath: string)
   var bufinfo: list<dict<any>>
@@ -211,13 +224,18 @@ export def Toggle(filepath: string)
   endif
 enddef
 
-# searches Se file
-export def SearchFile(file: string)
-  var modfile: string
-  if !empty(file)
-    modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
-    silent! search('^' .. modfile .. '.\?\(*\|@\)\?$')
+# toggles Se hidden files
+export def ToggleHiddenFiles(filepath: string, mode: string)
+  var selfile = substitute(getline('.'), '[/@\*\|=]$', '', '')
+  if mode == "position"
+    g:se_hiddenshow = true
+    g:se_hiddenfirst = !g:se_hiddenfirst
+  elseif mode == "show"
+    g:se_hiddenshow = !g:se_hiddenshow
   endif
+  Refresh(expand('%:p'))
+  cursor(3, 1)
+  SearchFile(selfile)
 enddef
 
 # automatic follow file

@@ -33,10 +33,6 @@ export def Cycle(): void
   endif
   num = 1
   for buf in bufinfo
-    # TODO: add terminal
-    if getbufvar(buf.bufnr, '&buftype') == 'terminal'
-      continue
-    endif
     add(buflist, fnamemodify(bufname(buf.name), ":~"))
     SetBufferNum(num, buf.bufnr)
     ++num
