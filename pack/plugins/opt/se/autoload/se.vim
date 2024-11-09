@@ -15,6 +15,7 @@ g:autoloaded_se = true
 # script local variables
 const BUFFER_NAME = $"se_{strcharpart(sha256('se'), 0, 8)}"
 var PREV_CWD: string
+var PREV_CWDS: list<string>
 
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -80,13 +81,19 @@ export def Help()
     T        # edit the current file in a tab and toggle Se
     p        # preview the current file in a window
     P        # close the preview window currently open
-    -        # change to parent directory
-    ~        # change to home directory
+    d        # change to home directory [~]
+    g        # change to prompt directory
+    b        # change to parent directory [-]
+    f        # change to previous directory
+    F        # follow the current file
     r        # refresh the current directory
-    f        # follow the current file
     h        # resize Se window to the left
     l        # resize Se window to the right
     o        # toggle the position of the hidden files
+    m        # check the default app for mime type
+    M        # set default app for mime type
+    c        # open the file with a custom program
+    C        # open the file with the default program
     .        # toggle the visualization of the hidden files
     =        # resize Se window to default size
     <ESC>    # close Se window
@@ -100,10 +107,13 @@ def Populate(cwddir: string)
   var parent2cwd: string
   var parentcwd: string
   var hidden: list<string>
+  var curwildignore = &l:wildignore
+  execute $"setlocal wildignore={g:se_fileignore}"
   if g:se_hiddenshow
     hidden = map(sort(globpath(cwddir, ".*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')[2 : ]
   endif
   var nohidden = map(sort(globpath(cwddir, "*", 0, 1)), 'split(v:val, "/")[-1] .. FileIndicator(v:val)')
+  execute $"setlocal wildignore={curwildignore}"
   var lsf = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
     appendbufline(BUFFER_NAME, 0, lsf)
@@ -130,7 +140,7 @@ enddef
 
 # set prevcwd
 def SetPrevCwd(s: string)
-  if isdirectory(PREV_CWD)
+  if isdirectory(s)
     PREV_CWD = s
   endif
 enddef
@@ -138,6 +148,30 @@ enddef
 # get prevcwd
 def GetPrevCwd(): string
   return PREV_CWD
+enddef
+
+# set prevcwds
+def SetPrevCwds(s: string)
+  var cwd: string
+  if !isdirectory(s)
+    return
+  endif
+  if empty(PREV_CWDS)
+    add(PREV_CWDS, s)
+  else
+    cwd = getcwd()
+    if cwd != "/" && PREV_CWDS[-1] != cwd
+      add(PREV_CWDS, s)
+    endif
+    if len(PREV_CWDS) > g:se_prevdirhist
+      remove(PREV_CWDS, 0)
+    endif
+  endif
+enddef
+
+# get prevcwds
+export def GetPrevCwds(): list<string>
+  return PREV_CWDS
 enddef
 
 # shows Se
@@ -174,7 +208,7 @@ def Show(filepath: string)
 enddef
 
 # searches Se file
-export def SearchFile(file: string)
+def SearchFile(file: string)
   var modfile: string
   if !empty(file)
     modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
@@ -384,10 +418,132 @@ def EditTab(file: string)
   endif
 enddef
 
+# remove the file indicators
+def RemoveFileIndicators(filepath: string): string
+  return (
+    match(filepath, '^\.\.\?/ \[.*\]$') != -1 && index([1, 2], getpos('.')[1]) >= 0
+    ? split(filepath, " ")[0]
+    : fnamemodify(substitute(filepath, '*\|@$', "", ""), ":p")
+  )
+enddef
+
+# opens the file with a custom program
+export def OpenWith(filepath: string, default: bool): void
+  var program: string
+  var runprg: string
+  var selfile: string
+  var withterm: string
+  if !default
+    program = input($"Open the file '{fnamemodify(filepath, ":.")}' with: ", "", "shellcmd")
+    if empty(program)
+      return
+    endif
+  endif
+  runprg = !empty(program) ? program : g:se_opentool
+  if !executable(split(runprg)[0])
+    EchoErrorMsg($"Error: the program '{runprg}' is missing")
+    return
+  endif
+  redraw!
+  selfile = fnameescape(fnamemodify(RemoveFileIndicators(filepath), ":."))
+  job_start($'/bin/sh -c "exec setsid {runprg} \"' .. selfile .. '\" >/dev/null 2>&1')
+enddef
+
+# checks the file mime type
+export def CheckMimeType(filepath: string)
+ var xdgtype: string
+ var xdgprg: string
+ var mimetype: string
+ var mimeprg: string
+ var filetype: string
+ var fileprg: string
+ var output: list<string>
+ var selfile = shellescape(RemoveFileIndicators(filepath))
+ if executable("xdg-mime")
+   xdgtype = trim(system($"xdg-mime query filetype {selfile}"))
+   xdgprg = trim(system($"xdg-mime query default {xdgtype}"))
+   add(output, $"xdg-mime: '{xdgtype}' ({xdgprg})")
+ else
+   add(output, $"xdg-mime: command not found")
+ endif
+ if executable("mimetype")
+   mimetype = trim(system($"mimetype --brief {selfile}"))
+   mimeprg = trim(system($"xdg-mime query default {mimetype}"))
+   add(output, $"mimetype: '{mimetype}' ({mimeprg})")
+ else
+  add(output, "mimetype: command not found")
+ endif
+ if executable("file")
+   filetype = trim(system($"file --brief --mime-type {selfile}"))
+   fileprg = trim(system($"xdg-mime query default {filetype}"))
+   add(output, $"file:     '{filetype}' ({fileprg})")
+ else
+   add(output, "file: command not found")
+ endif
+ echo join(output, "\n")
+enddef
+
+# sets the default app for the mime type
+export def SetMimeType(filepath: string)
+  var program: string
+  var selfile = shellescape(RemoveFileIndicators(filepath))
+  var filemime = trim(system($"xdg-mime query filetype {selfile}"))
+  var defprgmime = trim(system($"xdg-mime query default {filemime}"))
+  program = input($"Set default mime type '{filemime}' ({defprgmime}): ")
+  program = substitute(program, '\.desktop$', "", "")
+  redraw
+  if !empty(program)
+    system($"xdg-mime default {program}.desktop {filemime}")
+    defprgmime = trim(system($"xdg-mime query default {filemime}"))
+    if v:shell_error != 0
+      EchoErrorMsg($"Error: failed to set the default mime for '{filemime}'")
+    else
+      echom $"The default mime type for '{filemime}' is now ({defprgmime})"
+    endif
+  endif
+enddef
+
 # goes to directory
-export def GoDir(cwddir: string)
-  execute $"lcd {fnameescape(cwddir)}"
-  Show(cwddir)
+def GoDir(dir: string, setcwd: bool)
+  if !isdirectory(dir)
+    EchoErrorMsg($"Error: the directory '{dir}' is not a directory")
+    return
+  endif
+  if setcwd
+    SetPrevCwds(getcwd())
+  endif
+  execute $"lcd {fnameescape(dir)}"
+  Show(dir)
+enddef
+
+# goes to home directory
+export def GoDirHome()
+  GoDir(getenv('HOME'), true)
+enddef
+
+# goes to parent directory
+export def GoDirParent()
+  var dir = fnamemodify(getcwd(), ":t")
+  cursor(1, 1)
+  GoFile(getline('.'), "edit")
+  SearchFile(dir)
+enddef
+
+# goes to previous directory
+export def GoDirPrev()
+  if !empty(PREV_CWDS)
+    GoDir(remove(PREV_CWDS, -1), false)
+    if !empty(PREV_CWDS)
+      SearchFile(PREV_CWDS[-1])
+    endif
+  endif
+enddef
+
+# goes to directory via prompt
+export def GoDirPrompt()
+  var dir = input("Go to directory: ", "", "dir")
+  redraw!
+  GoDir(dir, true)
 enddef
 
 # goes to file or directory
@@ -396,13 +552,9 @@ export def GoFile(filepath: string, mode: string): void
   if bufnr() != GetSeBufId()
     return
   endif
-  selfile = (
-    match(filepath, '^\.\.\?/ \[.*\]$') != -1 && index([1, 2], getpos('.')[1]) >= 0
-    ? split(filepath, " ")[0]
-    : fnamemodify(substitute(filepath, '*\|@$', "", ""), ":p")
-  )
+  selfile = RemoveFileIndicators(filepath)
   if isdirectory(selfile)
-    GoDir(selfile)
+    GoDir(selfile, true)
   else
     if mode == "edit"
       Edit(selfile)
