@@ -67,6 +67,9 @@ g:loaded_vimballPlugin = true     # vimballPlugin.vim
 g:loaded_zip = true               # zip.vim
 g:loaded_zipPlugin = true         # zipPlugin.vim
 
+# do not include the menu bar "Buffers" (gui)
+g:no_buffers_menu = true
+
 # disable localisations (syntax=diff)
 g:diff_translations = 0
 
@@ -329,7 +332,7 @@ if has('gui_running')
     endif
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
-  set guioptions=ackM                                  # do not load menus for gui (default aegimrLtT)
+  set guioptions=akMc                                  # do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
   set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
   set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
@@ -700,11 +703,13 @@ if has('gui_running')
   tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
   tnoremap <C-d> <C-w>c
 endif
-nnoremap <leader>, :tabprevious<CR>
-nnoremap <leader>. :tabnext<CR>
 # *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
 # tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
+
+# tabs
+nnoremap <leader>, :tabprevious<CR>
+nnoremap <leader>. :tabnext<CR>
 
 # buffers
 nnoremap <leader>n :bnext<CR>
@@ -882,7 +887,9 @@ command! ReloadPluginMisc {
 }
 
 # set gui font (shows a gui panel to pick a font)
-command! SetGuiFont if has('gui_running') | set guifont=* | endif
+if has('gui_running')
+  command! SetGuiFont set guifont=*
+endif
 
 # vim events
 augroup event_vim

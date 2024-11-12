@@ -79,12 +79,12 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscSetPythonDynamic misc.SetPythonDynamic()
   command! MiscSignColumnToggle misc.SignColumnToggle()
   command! MiscSyntaxToggle misc.SyntaxToggle()
-  command! MiscChangeTerminalColors {
+  command! MiscTerminalColorsChange {
     highlight! Terminal guifg=#f4f4f4 guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
     highlight! StatusLineTerm guifg=black guibg=#ffffd7 ctermfg=black ctermbg=230 gui=NONE cterm=NONE term=NONE
     highlight! link StatusLineTermNC StatusLineNC
   }
-  command! MiscRestoreTerminalColors {
+  command! MiscTerminalColorsRestore {
     highlight! link Terminal Normal
     highlight! link StatusLineTerm StatusLine
     highlight! link StatusLineTermNC StatusLineNC

@@ -242,6 +242,7 @@ enddef
 export def ReloadPluginPack(plugin: string, kind: string): void
   var dir: string
   var files: list<string>
+  var ftplugin: string
   if !get(g:, $"{plugin}_enabled")
      utils.EchoErrorMsg($"Error: the plugin '{plugin}' is not enabled or does not exist")
      return
@@ -251,8 +252,16 @@ export def ReloadPluginPack(plugin: string, kind: string): void
      utils.EchoErrorMsg( $"Error: '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
      return
   endif
+  if plugin == "cyclebuffers"
+    ftplugin = "cb"
+  elseif plugin == "git"
+    ftplugin = "gitscm"
+  else
+    ftplugin = plugin
+  endif
   execute $"g:loaded_{plugin} = false"
   execute $"g:autoloaded_{plugin} = false"
+  execute $"b:did_ftplugin_{ftplugin} = false"
   files = [
     $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/plugin/{plugin}.vim",
     $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/autoload/{plugin}.vim"
