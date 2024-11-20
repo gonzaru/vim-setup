@@ -541,7 +541,7 @@ enddef
 
 # goes to directory via prompt
 export def GoDirPrompt()
-  var dir = input("Go to directory: ", "", "dir")
+  var dir = fnamemodify(input("Go to directory: ", "", "dir"), ":p:h")
   redraw!
   GoDir(dir, true)
 enddef
