@@ -18,7 +18,6 @@ g:autoloaded_misc = true
 
 # autoload
 import autoload './utils.vim'
-import autoload '../pack/plugins/opt/arrowkeys/autoload/arrowkeys.vim'
 
 # toggle background
 export def BackgroundToggle()
@@ -111,10 +110,12 @@ export def GuiMenuBarToggle(): void
   if &l:guioptions =~ "m"
     setlocal guioptions-=m
     setlocal guioptions+=M
-  elseif !exists('g:did_install_default_menus')
-    source $VIMRUNTIME/menu.vim
+   else
     setlocal guioptions-=M
     setlocal guioptions+=m
+    if !exists('g:did_install_default_menus')
+      source $VIMRUNTIME/menu.vim
+    endif
   endif
   v:statusmsg = $"guioptions={&l:guioptions}"
 enddef
@@ -229,9 +230,9 @@ export def MenuMisc(): void
       return
     endif
     if choice == 1
-      arrowkeys.Enable()
+      arrowkeys#Enable()
     else
-      arrowkeys.Disable()
+      arrowkeys#Disable()
     endif
   elseif choice == 3
     GuiMenuBarToggle()
