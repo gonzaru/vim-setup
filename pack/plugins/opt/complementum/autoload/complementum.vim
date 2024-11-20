@@ -10,8 +10,7 @@ g:autoloaded_complementum = true
 
 # complementum debug info
 def DebugInfo()
-  echo $"g:complementum_typedchars: {g:complementum_typedchars} "
-    .. $"| mode: {mode()} | state: {state()} | pumvisible: {pumvisible()} "
+  echo $"| mode: {mode()} | state: {state()} | pumvisible: {pumvisible()}"
   # .. $"| complete_info: {{pum_visible:{complete_info().pum_visible},mode:{complete_info().mode}"
   # .. $",selected:{complete_info().selected},items:{complete_info().items}}}"
 enddef
@@ -71,10 +70,30 @@ export def CompleteKey(key: string)
       feedkeys(g:complementum_keystroke_enter, "n")
     endif
   endif
-  g:complementum_typedchars = 0
   if g:complementum_debuginfo
     DebugInfo()
   endif
+enddef
+
+# checks if the keystroke is triggerable (default)
+def IsTriggerable(): bool
+  var num: number
+  var char: string
+  var cline = getline('.')
+  var ccol = col('.')
+  # start of line
+  if (ccol - 2) == 1 && len(trim(cline)) >= g:complementum_minchars - 1
+    return true
+  endif
+  num = 0
+  while num <= g:complementum_minchars
+    char = cline[ccol - 1 - num]
+    if char == ' '
+      break
+    endif
+    ++num
+  endwhile
+  return num == g:complementum_minchars
 enddef
 
 # complete
@@ -85,7 +104,6 @@ export def Complete(lang: string): void
   # \k
   var chregex = '\s\|[(){}\|\[\];:",<>/>?`~_\-=+!@#$%^&*]'
   if v:char =~ chregex || v:char == "'" || pumvisible() || state('m') == 'm'
-    g:complementum_typedchars = 0
     if g:complementum_debuginfo
       DebugInfo()
     endif
@@ -95,17 +113,12 @@ export def Complete(lang: string): void
   if v:char == "."
     if lang == "go"
       GoInsertAutoComplete(lang)
-      g:complementum_typedchars = 0
       if g:complementum_debuginfo
         DebugInfo()
       endif
     endif
-  else
-    ++g:complementum_typedchars
-    if g:complementum_typedchars == g:complementum_minchars
-      feedkeys(g:complementum_keystroke_default, "i")
-      g:complementum_typedchars = 0
-    endif
+  elseif !pumvisible() && IsTriggerable()
+    feedkeys(g:complementum_keystroke_default, "i")
   endif
   if g:complementum_debuginfo
     DebugInfo()

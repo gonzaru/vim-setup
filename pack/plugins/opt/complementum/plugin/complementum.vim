@@ -15,9 +15,6 @@ endif
 if !exists('g:complementum_minchars')
   g:complementum_minchars = 3
 endif
-if !exists('g:complementum_typedchars')
-  g:complementum_typedchars = 0
-endif
 if !exists('g:complementum_keystroke_default')
   g:complementum_keystroke_default = "\<C-n>"
 endif
@@ -46,12 +43,9 @@ import autoload '../autoload/complementum.vim'
 # autocmd
 augroup complementum_insert
   autocmd!
-  autocmd InsertEnter,InsertLeave,CompleteDone * g:complementum_typedchars = 0
   autocmd InsertCharPre * {
     if g:complementum_enabled && !pumvisible() && state('m') == ''
       noautocmd complementum.Complete(&filetype)
-    else
-      g:complementum_typedchars = 0
     endif
   }
 augroup END
