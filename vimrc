@@ -68,7 +68,7 @@ g:loaded_zip = true               # zip.vim
 g:loaded_zipPlugin = true         # zipPlugin.vim
 
 # do not include the menu bar "Buffers" (gui)
-g:no_buffers_menu = true
+# g:no_buffers_menu = true
 
 # disable localisations (syntax=diff)
 g:diff_translations = 0
@@ -136,6 +136,7 @@ endif
 
 # complementum plugin
 if g:complementum_enabled
+  g:complementum_keystroke_default = "\<C-x>\<C-n>"  # (default "\<C-n>")
   g:complementum_debuginfo = false
 endif
 
@@ -332,7 +333,7 @@ if has('gui_running')
     endif
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
-  set guioptions=akMc                                  # do not load menus for gui (default aegimrLtT)
+  set guioptions=acdkM                                 # do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
   set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
   set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
@@ -501,12 +502,14 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # set smartindent   # clever autoindenting, works for C-like programs (see cinwords)
 
 # :help ins-completion
+# set iskeyword+=-  # keywords (default "@,48-57,_,192-255")
 # <C-x><C-o>
 set omnifunc=syntaxcomplete#Complete
 # <C-x><C-u>
 set completefunc=syntaxcomplete#Complete
 
 # completion
+set dictionary=${HOME}/.vim/dictionaries/languages/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noinsert
 if has('popupwin')
   set completeopt+=popup  # popup extra info, like using omnicompletion
@@ -521,9 +524,9 @@ endif
 # k: dictionary files with dictionary option
 # t: tags
 # set complete=.,w,b,u,k,t
-set complete=.,w,b,u,k  # (default .,w,b,u,k,t)
-set pumheight=15        # maximum number of items to show in the popup menu (default 0)
-set pumwidth=15         # minimum width to use for the popup menu (default 15)
+set complete=.,w,b,u  # (default .,w,b,u,k,t)
+set pumheight=15      # maximum number of items to show in the popup menu (default 0)
+set pumwidth=15       # minimum width to use for the popup menu (default 15)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -698,6 +701,7 @@ if has('gui_running')
     map! <S-Insert> <MiddleMouse>
   endif
   if g:misc_enabled
+    nnoremap <leader>tgm <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
     nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
   tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
