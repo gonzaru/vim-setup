@@ -274,6 +274,37 @@ export def ReloadPluginPack(plugin: string, kind: string): void
   endfor
 enddef
 
+# set input method options (see help: i_CTRL-^)
+export def SetImOptions()
+  var deflang = "en"
+  var langs = ["ru"]
+  if &l:iminsert == 1
+    execute $"set dictionary-={$HOME}/.vim/dict/lang/{deflang}"
+    if &l:keymap =~ "^russian"
+      set dictionary+=${HOME}/.vim/dict/lang/ru
+      set spelllang=ru
+    endif
+  else
+    for lang in langs
+      execute $"set dictionary-={$HOME}/.vim/dict/lang/{lang}"
+    endfor
+    execute $"set dictionary+={$HOME}/.vim/dict/lang/{deflang}"
+    execute $"set spelllang={deflang}"
+  endif
+enddef
+
+# get input method options (see help: i_CTRL-^)
+export def GetImOptions(kind: string, fsl: bool): string
+  var str = ""
+  if kind == "lang"
+    if mode() == "i" && &l:iminsert == 1
+      # add space for statusline
+      str = fsl ? $" {b:keymap_name}" : b:keymap_name
+    endif
+  endif
+  return str
+enddef
+
 # set maximum foldlevel
 export def SetMaxFoldLevel()
   var mfl = max(map(range(1, line('$')), 'foldlevel(v:val)'))
