@@ -25,4 +25,5 @@ setlocal shiftround
 setlocal expandtab
 setlocal cscopetag
 setlocal cscopetagorder=0
+setlocal iskeyword=a-z,A-Z,48-57,_,.,-,>  # see 'complete'
 #^ setlocal omnifunc=ccomplete#Complete

@@ -13,5 +13,7 @@ b:did_ftplugin_after = true
 
 # text
 setlocal syntax=off
+setlocal ignorecase
+setlocal infercase
 setlocal wrap
 setlocal showbreak=>\ 
