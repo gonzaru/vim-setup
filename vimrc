@@ -136,7 +136,7 @@ endif
 
 # complementum plugin
 if g:complementum_enabled
-  g:complementum_keystroke_default = "\<C-x>\<C-n>"  # (default "\<C-n>")
+  # g:complementum_keystroke_default = "\<C-x>\<C-n>"  # (default "\<C-n>")
   g:complementum_debuginfo = false
 endif
 
@@ -391,10 +391,12 @@ endif
 
 # keyboard layout (see :help i_CTRL-^)
 if has('keymap') && has("langmap") && exists("+langremap")
-  set nolangremap            # prevents that the langmap option applies to characters (defaults.vim)
-  set keymap=russian-jcuken  # XFree86 'ru' keymap compatible
-  set iminsert=0             # 0 lmap is off and IM is off (default 0)
-  set imsearch=-1            # 0 lmap is off and IM is off (default -1)
+  set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
+  set keymap=russian-jcuken     # XFree86 'ru' keymap compatible
+  set iminsert=0                # 0 lmap is off and IM is off (default 0)
+  set imsearch=-1               # 0 lmap is off and IM is off (default -1)
+  # set imstatusfunc=SetImFunc  # called to obtain the status of input method
+  inoremap <C-^> <C-^><C-\><C-o><ScriptCmd>misc.SetImOptions()<CR>
 endif
 
 # wildmenu
@@ -420,9 +422,9 @@ if get(g:, "tabline_enabled")
   set tabline=%!tabline#MyTabLine()
 endif
 # custom statusline
-if get(g:, "statusline_enabled")
+if get(g:, "statusline_enabled") && get(g:, "misc_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{misc#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
@@ -509,7 +511,7 @@ set omnifunc=syntaxcomplete#Complete
 set completefunc=syntaxcomplete#Complete
 
 # completion
-set dictionary=${HOME}/.vim/dictionaries/languages/en  # lookup words (<C-x><C-k>)
+set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noinsert
 if has('popupwin')
   set completeopt+=popup  # popup extra info, like using omnicompletion
@@ -634,6 +636,8 @@ nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
 nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgR :set relativenumber! relativenumber? \| echon " (set)"<CR>
+nnoremap <leader>tgi :setlocal infercase! infercase? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgI :set infercase! infercase? \| echon " (set)"<CR>
 nnoremap <leader>tgj :setlocal joinspaces! joinspaces? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgl :setlocal list! list? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgL :set list! list? \| echon " (set)"<CR>
