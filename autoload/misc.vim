@@ -92,15 +92,6 @@ export def GoBufferPos(bnum: number)
   endif
 enddef
 
-# go to last edit cursor position
-export def GoLastEditCursorPos()
-  var nline = line("'\"")
-  if nline >= 1 && nline <= line("$") && &filetype !~ "commit"
-     && index(['xxd', 'gitrebase'], &filetype) == -1
-    execute "normal! g`\""
-  endif
-enddef
-
 # toggle gui menu bar
 export def GuiMenuBarToggle(): void
   if !has('gui_running')
@@ -110,7 +101,7 @@ export def GuiMenuBarToggle(): void
   if &l:guioptions =~ "m"
     setlocal guioptions-=m
     setlocal guioptions+=M
-   else
+  else
     setlocal guioptions-=M
     setlocal guioptions+=m
     if !exists('g:did_install_default_menus')
@@ -168,77 +159,6 @@ export def MapInsertTab()
   \ : '<Tab>'
 enddef
 
-# menu spell
-export def MenuLanguageSpell(): void
-  var choice = inputlist(
-    [
-      'Select:',
-      '1. English',
-      '2. Spanish',
-      '3. Catalan',
-      '4. Russian',
-      '5. Disable spell'
-    ]
-  )
-  if empty(choice)
-    return
-  endif
-  if choice < 1 || choice > 5
-    utils.EchoErrorMsg($"Error: wrong option '{choice}'")
-    return
-  endif
-  if choice >= 1 && choice <= 4
-    setlocal spell
-  endif
-  if choice == 1
-    setlocal spelllang=en
-    # setlocal spellfile=~/.vim/spell/en.utf-8.spl.add
-  elseif choice == 2
-    setlocal spelllang=es
-    # setlocal spellfile=~/.vim/spell/es.utf-8.spl.add
-  elseif choice == 3
-    setlocal spelllang=ca
-    # setlocal spellfile=~/.vim/spell/ca.utf-8.spl.add
-  elseif choice == 4
-    setlocal spelllang=ru
-    # setlocal spellfile=~/.vim/spell/ru.utf-8.spl.add
-  elseif choice == 5
-    setlocal nospell
-  endif
-enddef
-
-# menu misc
-export def MenuMisc(): void
-  var choice = inputlist(
-    [
-      'Select:',
-      '1. Enable arrow keys',
-      '2. Disable arrow keys',
-      '3. Toggle gui menu bar'
-    ]
-  )
-  if empty(choice)
-    return
-  endif
-  if choice < 1 || choice > 3
-    utils.EchoErrorMsg($"Error: wrong option '{choice}'")
-    return
-  endif
-  if choice == 1 || choice == 2
-    if !get(g:, 'arrowkeys_enabled')
-      utils.EchoErrorMsg("Error: the plugin 'arrowkeys' is not enabled")
-      return
-    endif
-    if choice == 1
-      arrowkeys#Enable()
-    else
-      arrowkeys#Disable()
-    endif
-  elseif choice == 3
-    GuiMenuBarToggle()
-  endif
-enddef
-
 # reload plugin (pack)
 export def ReloadPluginPack(plugin: string, kind: string): void
   var dir: string
@@ -293,18 +213,6 @@ export def SetImOptions()
   endif
 enddef
 
-# get input method options (see help: i_CTRL-^)
-export def GetImOptions(kind: string, fsl: bool): string
-  var str = ""
-  if kind == "lang"
-    if mode() == "i" && &l:iminsert == 1
-      # add space for statusline
-      str = fsl ? $" {b:keymap_name}" : b:keymap_name
-    endif
-  endif
-  return str
-enddef
-
 # set maximum foldlevel
 export def SetMaxFoldLevel()
   var mfl = max(map(range(1, line('$')), 'foldlevel(v:val)'))
@@ -350,15 +258,6 @@ export def SH(): void
   setlocal guioptions+=!
   sh
   execute $"setlocal guioptions={guioptions_orig}"
-enddef
-
-# check trailing spaces
-export def CheckTrailingSpaces()
-  var nline: number
-  nline = search('\s\+$', 'n')
-  if nline > 0
-    utils.EchoWarningMsg($"Warning: there are trailing spaces in the line '{nline}'")
-  endif
 enddef
 
 # delete a register

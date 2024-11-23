@@ -19,12 +19,30 @@ g:loaded_misc = true
 # autoload
 import autoload '../autoload/misc.vim'
 
+# go to last edit cursor position
+def GoLastEditCursorPos()
+  var nline = line("'\"")
+  if nline >= 1 && nline <= line("$") && &filetype !~ "commit"
+     && index(['xxd', 'gitrebase'], &filetype) == -1
+    execute "normal! g`\""
+  endif
+enddef
+
+# check trailing spaces
+def CheckTrailingSpaces()
+  var nline: number
+  nline = search('\s\+$', 'n')
+  if nline > 0
+    utils#EchoWarningMsg($"Warning: there are trailing spaces in the line '{nline}'")
+  endif
+enddef
+
 # autocmd
 augroup misc_golasteditcursor
   autocmd!
   autocmd BufReadPost * {
     if g:misc_enabled
-      misc.GoLastEditCursorPos()
+      GoLastEditCursorPos()
     endif
   }
 augroup END
@@ -33,16 +51,16 @@ augroup misc_checktrailingspaces
   autocmd!
   autocmd BufWinEnter,BufWritePost * {
     if g:misc_enabled && index(['help', 'git', 'gitscm', 'qf'], &filetype) == -1 && &buftype != 'terminal'
-      misc.CheckTrailingSpaces()
+      CheckTrailingSpaces()
     endif
   }
 augroup END
 
 # define mappings
-nnoremap <silent> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>misc.GoLastEditCursorPos()<CR>
-inoremap <silent> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
-inoremap <silent> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
-nnoremap <silent> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>misc.CheckTrailingSpaces()<CR>
+nnoremap <silent> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>GoLastEditCursorPos()<CR>
+# inoremap <silent> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
+# inoremap <silent> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
+nnoremap <silent> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>CheckTrailingSpaces()<CR>
 
 # TODO:
 # set mappings
@@ -55,11 +73,11 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=file MiscEditTopFile misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
-  command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
+  command! MiscCheckTrailingSpaces CheckTrailingSpaces()
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
-  command! MiscGoLastEditCursor misc.GoLastEditCursorPos()
+  command! MiscGoLastEditCursor GoLastEditCursorPos()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
   command! MiscMapInsertEnter misc.MapInsertEnter()
   command! MiscMapInsertTab misc.MapInsertTab()

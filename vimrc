@@ -17,34 +17,23 @@ if !has('unix')
   finish
 endif
 
-# autoload
-import autoload $"{$HOME}/.vim/autoload/misc.vim"
-
 # config variables
 var colortheme = "darkula"                                                  # theme
 var background = "dark"                                                     # background
 var tmux = !empty($TMUX) || &term =~ "tmux"                                 # tmux
-var screen = (!empty($STY) || &term =~ "screen") && !tmux                   # screen
-var zellij = !empty($ZELLIJ) && !screen && !tmux                            # zellij
-var multiplexer = screen || tmux || zellij                                  # multiplexer
+var multiplexer = tmux                                                      # multiplexer
 var alacritty = !empty($ALACRITTY_SOCKET) && !multiplexer                   # alacritty
 var alacritty_tmux = !empty($ALACRITTY_SOCKET) && tmux                      # alacritty + tmux
-var alacritty_zellij = !empty($ALACRITTY_SOCKET) && zellij                  # alacritty + zellij
 var apple_terminal = $TERM_PROGRAM == "Apple_Terminal"  && !multiplexer     # terminal.app
 var apple_terminal_tmux = !empty($TERM_SESSION_ID) && tmux                  # terminal.app + tmux
-var apple_terminal_zellij = !empty($TERM_SESSION_ID) && zellij              # terminal.app + zellij
 var gnome_terminal = !empty($GNOME_TERMINAL_SCREEN) && !multiplexer         # gnome
 var gnome_terminal_tmux = !empty($GNOME_TERMINAL_SCREEN) && tmux            # gnome + tmux
-var gnome_terminal_zellij = !empty($GNOME_TERMINAL_SCREEN) && zellij        # gnome + zellij
 var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer   # jediterm
 var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux      # jediterm + tmux
-var jediterm_zellij = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && zellij  # jediterm + zellij
 var vim_terminal = !empty($VIM_TERMINAL)                                    # vim terminal
 var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
-var vim_terminal_zellij = !empty($VIM_TERMINAL) && zellij                   # vim terminal + zellij
 var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
 var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
-var xterm_zellij = !empty($XTERM_VERSION) && zellij                         # xterm + zellij
 
 # don't load defaults.vim
 g:skip_defaults_vim = true
@@ -87,6 +76,7 @@ g:esckey_enabled = false          # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
 g:habit_enabled = false           # habit
+g:menu_enabled = true             # menu options
 g:misc_enabled = true             # miscelania functions
 g:runprg_enabled = true           # run programs
 g:scratch_enabled = true          # scratch stuff
@@ -112,6 +102,7 @@ const plugins = [
   'format',
   'git',
   'habit',
+  'menu',
   'runprg',
   'scratch',
   'se',
@@ -136,7 +127,8 @@ endif
 
 # complementum plugin
 if g:complementum_enabled
-  # g:complementum_keystroke_default = "\<C-x>\<C-n>"  # (default "\<C-n>")
+  # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default "\<C-n>")
+  # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
 endif
 
@@ -262,30 +254,30 @@ if !has('gui_running')
   # &t_SR = blinking underscore   (REPLACE MODE)
   # &t_EI = blinking block        (NORMAL MODE)
   if has('mac') && (
-    alacritty || alacritty_tmux || alacritty_zellij
-    || apple_terminal || apple_terminal_tmux || apple_terminal_zellij
+    alacritty || alacritty_tmux
+    || apple_terminal || apple_terminal_tmux
   )
     &t_SI ..= "\eP\e[5 q\e\\"
     &t_SR ..= "\eP\e[3 q\e\\"
     &t_EI ..= "\eP\e[1 q\e\\"
   elseif (
-    alacritty || alacritty_tmux || alacritty_zellij
-    || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
-    || jediterm || jediterm_tmux || jediterm_zellij
-    || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
-    || xterm || xterm_tmux || xterm_zellij
+    alacritty || alacritty_tmux
+    || gnome_terminal || gnome_terminal_tmux
+    || jediterm || jediterm_tmux
+    || vim_terminal || vim_terminal_tmux
+    || xterm || xterm_tmux
   )
     &t_SI ..= "\e[6 q"
     &t_SR ..= "\e[4 q"
     &t_EI ..= "\e[2 q"
   endif
-  # screen/tmux/alacritty mouse codes
-  if match(&term, '^\(screen\|tmux\|alacritty\)') != -1
+  # tmux/alacritty mouse codes
+  if match(&term, '^\(tmux\|alacritty\)') != -1
     # Terminal.app or xterm >= 277
     set ttymouse=sgr
   endif
-  # automatically is on when term is xterm/screen (fast terminal)
-  if match(&term, '^\(xterm\|screen\|tmux\|alacritty\)') != -1
+  # automatically is on when term is xterm (fast terminal)
+  if match(&term, '^\(xterm\|tmux\|alacritty\)') != -1
     set ttyfast
   endif
   # italic fonts support
@@ -296,13 +288,12 @@ if !has('gui_running')
   # 24-bit terminal color
   if has('termguicolors') && str2nr(&t_Co) >= 256
     if (
-      alacritty || alacritty_tmux || alacritty_zellij
-      || gnome_terminal || gnome_terminal_tmux || gnome_terminal_zellij
-      || jediterm || jediterm_tmux || jediterm_zellij
+      alacritty || alacritty_tmux
+      || gnome_terminal || gnome_terminal_tmux
+      || jediterm || jediterm_tmux
       || tmux
-      || vim_terminal || vim_terminal_tmux || vim_terminal_zellij
-      || xterm || xterm_tmux || xterm_zellij
-    ) && !screen
+      || vim_terminal || vim_terminal_tmux
+    )
       # :help xterm-true-color
       if !jediterm
         &t_8f = "\<ESC>[38:2:%lu:%lu:%lum"
@@ -396,7 +387,8 @@ if has('keymap') && has("langmap") && exists("+langremap")
   set iminsert=0                # 0 lmap is off and IM is off (default 0)
   set imsearch=-1               # 0 lmap is off and IM is off (default -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
-  inoremap <C-^> <C-^><C-\><C-o><ScriptCmd>misc.SetImOptions()<CR>
+  # TODO <leader>?
+  inoremap <C-^> <C-^><C-\><C-o><ScriptCmd>misc#SetImOptions()<CR>
 endif
 
 # wildmenu
@@ -424,7 +416,7 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled") && get(g:, "misc_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{misc#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{statusline#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
 else
   set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
@@ -582,10 +574,11 @@ g:maplocalleader = "\<C-\>"
 # set termwinkey=<C-s>
 
 # insert maps <bs>, <cr>, <space> and <tab>
-misc.MapInsertBackSpace()
-misc.MapInsertEnter()
-misc.MapInsertSpace()
-misc.MapInsertTab()
+# misc#MapInsertBackSpace()
+# misc#MapInsertEnter()
+# misc#MapInsertSpace()
+# misc#MapInsertTab()
+inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 
 # save
 nnoremap <leader><C-w> :update<CR>
@@ -594,8 +587,8 @@ inoremap <leader><C-w> <C-\><C-o>:update<CR>
 # search the selected text (:help visual-search)
 # vnoremap <leader>* y/<C-r>"<CR>
 # vnoremap <leader># y?<C-r>"<CR>
-vnoremap <leader>* <ESC><ScriptCmd>misc.SearchSelectedText('forward')<CR>
-vnoremap <leader># <ESC><ScriptCmd>misc.SearchSelectedText('backward')<CR>
+vnoremap <leader>* <ESC><ScriptCmd>misc#SearchSelectedText('forward')<CR>
+vnoremap <leader># <ESC><ScriptCmd>misc#SearchSelectedText('backward')<CR>
 
 # stop highlighting + clear and redraw the screen
 nnoremap <silent> <leader><C-l> :nohlsearch<CR><C-l>
@@ -646,19 +639,19 @@ nnoremap <leader>tgp :setlocal paste! paste? \| echon " (setlocal)"<CR>
 nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
 # nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
-  nnoremap <leader>tgd <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
-  nnoremap <leader>tgs <ScriptCmd>misc.SyntaxToggle()<CR>:echo v:statusmsg<CR>
-  nnoremap <leader>tgb <ScriptCmd>misc.BackgroundToggle()<CR>:echo v:statusmsg<CR>
-  nnoremap <leader>tgc <ScriptCmd>misc.SignColumnToggle()<CR>:echo v:statusmsg<CR>
-  nnoremap <leader>tgf <ScriptCmd>misc.FoldColumnToggle()<CR>:echo v:statusmsg<CR>
-  nnoremap <leader>tgz <ScriptCmd>misc.FoldToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgd <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgs <ScriptCmd>misc#SyntaxToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgb <ScriptCmd>misc#BackgroundToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgo <ScriptCmd>misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgf <ScriptCmd>misc#FoldColumnToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgz <ScriptCmd>misc#FoldToggle()<CR>:echo v:statusmsg<CR>
 endif
 
 # :sh
 if has('gui_running')
   if g:misc_enabled
-    # nnoremap <silent> <leader>sh <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
-    nnoremap <leader>sh <ScriptCmd>misc.SH()<CR>
+    # nnoremap <silent> <leader>sh <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+    nnoremap <leader>sh <ScriptCmd>misc#SH()<CR>
   endif
 else
   nnoremap <leader>sh :sh<CR>
@@ -672,7 +665,7 @@ endif
 nnoremap <silent> <leader><CR> :below terminal<CR>
 if has('gui_running')
   # nnoremap <silent> <C-z> :below terminal<CR>
-  # nnoremap <silent> <C-z> <ScriptCmd>misc.SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+  # nnoremap <silent> <C-z> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
   nnoremap <silent> <C-z> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
   nnoremap <silent> <leader><C-CR> :below terminal<CR>
   nnoremap <silent> <leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
@@ -705,8 +698,8 @@ if has('gui_running')
     map! <S-Insert> <MiddleMouse>
   endif
   if g:misc_enabled
-    nnoremap <leader>tgm <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
-    nnoremap <leader><S-F10> <ScriptCmd>misc.GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
+    nnoremap <leader>tgm <ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
+    nnoremap <leader><S-F10> <ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
   tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
   tnoremap <C-d> <C-w>c
@@ -743,7 +736,7 @@ nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 # go to N buffer (up to 9 for now)
 # for i in range(1, 9)
 #   if i <= 9 && g:misc_enabled
-#     execute "nnoremap <leader>b" ..  i .. " <ScriptCmd>misc.GoBufferPos(" .. i .. ")<CR>"
+#     execute "nnoremap <leader>b" ..  i .. " <ScriptCmd>misc#GoBufferPos(" .. i .. ")<CR>"
 #    endif
 # endfor
 
@@ -768,13 +761,10 @@ nnoremap <leader>cP <ScriptCmd>popup_clear(1)<CR>
 # case sensitive/insensitive
 nnoremap <leader>ss /\C
 nnoremap <leader>si /\c
-if g:misc_enabled
-  nnoremap <leader>sl <ScriptCmd>misc.MenuLanguageSpell()<CR>
-endif
 
 # diff (see copy-diff)
 if g:misc_enabled
-  nnoremap <localleader>dt <ScriptCmd>misc.DiffToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <localleader>dt <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
 endif
 nnoremap <localleader>de :diffthis<CR>
 nnoremap <localleader>dw :windo diffthis<CR>
@@ -836,12 +826,6 @@ nnoremap <silent> <leader>cd :LCDC<CR>
 nnoremap <silent> <leader>cD :CDC<CR>
 command! CDC cd %:p:h
 command! LCDC lcd %:p:h
-
-# menu misc
-if g:misc_enabled
-  nnoremap <silent> <leader><F10> <ScriptCmd>misc.MenuMisc()<CR>
-  nnoremap <silent> <leader>f0 <ScriptCmd>misc.MenuMisc()<CR>
-endif
 
 # plan9 theme
 command! Plan9 {
