@@ -32,6 +32,18 @@ export def SetStatus(s: string)
   g:statusline_full = s
 enddef
 
+# get input method options (see help: i_CTRL-^)
+export def GetImOptions(kind: string, fsl: bool): string
+  var str = ""
+  if kind == "lang"
+    if mode() == "i" && &l:iminsert == 1
+      # add space for statusline
+      str = fsl ? $" {b:keymap_name}" : b:keymap_name
+    endif
+  endif
+  return str
+enddef
+
 # short path: /full/path/to/dir -> /f/p/t/dir
 def ShortPath(path: string): string
   var pathname = fnamemodify(path, ":~")

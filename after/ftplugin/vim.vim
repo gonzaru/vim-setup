@@ -27,6 +27,6 @@ setlocal matchpairs+=<:>
 setlocal textwidth=0
 setlocal tags=$HOME/.vim/tags
 #^ setlocal keywordprg=:help
-# if get(g:, "autoendstructs_enabled")
-#   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
-# endif
+if get(g:, "autoendstructs_enabled")
+  inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
+endif

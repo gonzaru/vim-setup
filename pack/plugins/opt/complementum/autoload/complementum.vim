@@ -18,25 +18,25 @@ enddef
 # complementum disable
 export def Disable()
   # TODO: remove it using g:complementum_keystroke_(tab|backspace|space|enter)
-  if !empty(mapcheck("<Tab>", "i"))
-    iunmap <Tab>
-  endif
-  if !empty(mapcheck("<BS>", "i"))
-    iunmap <BS>
-  endif
-  if !empty(mapcheck("<Space>", "i"))
-    iunmap <Space>
-  endif
-  if !empty(mapcheck("<CR>", "i"))
-    iunmap <CR>
-  endif
-  # misc plugin
-  if get(g:, "misc_enabled")
-    misc#MapInsertBackSpace()
-    misc#MapInsertEnter()
-    misc#MapInsertSpace()
-    misc#MapInsertTab()
-  endif
+  # if !empty(mapcheck("<Tab>", "i"))
+  #   iunmap <Tab>
+  # endif
+  # if !empty(mapcheck("<BS>", "i"))
+  #   iunmap <BS>
+  # endif
+  # if !empty(mapcheck("<Space>", "i"))
+  #   iunmap <Space>
+  # endif
+  # if !empty(mapcheck("<CR>", "i"))
+  #   iunmap <CR>
+  # endif
+  ## misc plugin
+  # if get(g:, "misc_enabled")
+  #   misc#MapInsertBackSpace()
+  #   misc#MapInsertEnter()
+  #   misc#MapInsertSpace()
+  #   misc#MapInsertTab()
+  # endif
   g:complementum_enabled = false
 enddef
 
@@ -48,6 +48,17 @@ export def Toggle()
     Enable()
   endif
   v:statusmsg = $"complementum={g:complementum_enabled}"
+enddef
+
+# toggle default keystroke
+export def ToggleDefaultKeystroke()
+  if g:complementum_keystroke_default != g:complementum_keystroke_default_toggle
+    g:complementum_keystroke_default_orig = g:complementum_keystroke_default
+    g:complementum_keystroke_default = g:complementum_keystroke_default_toggle
+  else
+    g:complementum_keystroke_default = g:complementum_keystroke_default_orig
+  endif
+  v:statusmsg = $"g:complementum_keystroke_default={strtrans(g:complementum_keystroke_default)}"
 enddef
 
 # complete the key
@@ -81,14 +92,19 @@ def IsTriggerable(): bool
   var char: string
   var cline = getline('.')
   var ccol = col('.')
+  if g:complementum_minchars < 1
+    return false
+  endif
   # start of line
-  if (ccol - 2) == 1 && len(trim(cline)) >= g:complementum_minchars - 1
-    return true
+  if (ccol - g:complementum_minchars) == 0
+    if g:complementum_minchars == 1 || len(trim(cline)) == g:complementum_minchars - 1 && cline[0] =~ '^\w$'
+      return true
+    endif
   endif
   num = 0
   while num <= g:complementum_minchars
-    char = cline[ccol - 1 - num]
-    if char == ' '
+    char = cline[ccol - num - 1]
+    if char =~ '^\W$' # non-word character
       break
     endif
     ++num
@@ -98,12 +114,8 @@ enddef
 
 # complete
 export def Complete(lang: string): void
-  # var prevchar: string
-  # prevchar = getline('.')[col('.') - 2]
-  # \w word character
-  # \k
-  var chregex = '\s\|[(){}\|\[\];:",<>/>?`~_\-=+!@#$%^&*]'
-  if v:char =~ chregex || v:char == "'" || pumvisible() || state('m') == 'm'
+  # \W non-word character
+  if v:char =~ '^\W$' || pumvisible() || state('m') == 'm'
     if g:complementum_debuginfo
       DebugInfo()
     endif
@@ -129,6 +141,9 @@ enddef
 def GoInsertAutoComplete(lang: string)
   var curline = getline('.')
   var curcol = col('.')
+  if g:complementum_minchars < 1
+    return
+  endif
   if lang == "go"
   && index(["go#complete#Complete", "GOVIM_internal_Complete"], &omnifunc) >= 0
   && strcharpart(curline[curcol - (g:complementum_minchars + 1) : ], 0, 1) =~ '\h\|\d'

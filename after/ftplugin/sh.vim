@@ -34,7 +34,7 @@ setlocal expandtab
 setlocal makeprg=sh\ -n\ %
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 &l:formatprg = $"shfmt -i {&l:shiftwidth} -"
-# if get(g:, "autoendstructs_enabled")
-#   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
-# endif
+if get(g:, "autoendstructs_enabled")
+  inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
+endif
 matchadd('ColorColumn', '\%120v', 10)

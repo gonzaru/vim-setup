@@ -13,10 +13,16 @@ if !exists('g:complementum_debuginfo')
   g:complementum_debuginfo = false
 endif
 if !exists('g:complementum_minchars')
-  g:complementum_minchars = 3
+  g:complementum_minchars = 3  # >= 1
 endif
 if !exists('g:complementum_keystroke_default')
   g:complementum_keystroke_default = "\<C-n>"
+endif
+if !exists('g:complementum_keystroke_default_orig')
+  g:complementum_keystroke_default_orig = g:complementum_keystroke_default
+endif
+if !exists('g:complementum_keystroke_default_toggle')
+  g:complementum_keystroke_default_toggle = "\<C-x>\<C-n>"
 endif
 if !exists('g:complementum_keystroke_backspace')
   g:complementum_keystroke_backspace = "\<BS>"
@@ -54,25 +60,34 @@ augroup END
 nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>Enable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
-inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
-inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
-inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
-inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
-inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
+nnoremap <silent> <script> <Plug>(complementum-toggle-default-keystroke)
+  \ <ScriptCmd>complementum.ToggleDefaultKeystroke()<CR>
+# inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
+# inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
+# inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
+# inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
+# inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 
 # complementum enable
 def Enable()
-  if empty(mapcheck("<Tab>", "i"))
-    inoremap <Tab> <Plug>(complementum-tab)
+  # if empty(mapcheck("<Tab>", "i"))
+  #   inoremap <Tab> <Plug>(complementum-tab)
+  # endif
+  # if empty(mapcheck("<BS>", "i"))
+  #   inoremap <BS> <Plug>(complementum-backspace)
+  # endif
+  # if empty(mapcheck("<Space>", "i"))
+  #   inoremap <Space> <Plug>(complementum-space)
+  # endif
+  # if empty(mapcheck("<CR>", "i"))
+  #   inoremap <CR> <Plug>(complementum-enter)
+  # endif
+  # toggle
+  if empty(mapcheck("<leader>tgc", "n"))
+    nnoremap <leader>tgc <Plug>(complementum-toggle):echo v:statusmsg<CR>
   endif
-  if empty(mapcheck("<BS>", "i"))
-    inoremap <BS> <Plug>(complementum-backspace)
-  endif
-  if empty(mapcheck("<Space>", "i"))
-    inoremap <Space> <Plug>(complementum-space)
-  endif
-  if empty(mapcheck("<CR>", "i"))
-    inoremap <CR> <Plug>(complementum-enter)
+  if empty(mapcheck("<leader>tgC", "n"))
+    nnoremap <leader>tgC <Plug>(complementum-toggle-default-keystroke):echo v:statusmsg<CR>
   endif
   g:complementum_enabled = true
 enddef
@@ -87,4 +102,5 @@ if get(g:, 'complementum_no_commands') == 0
   command! ComplementumEnable execute "normal \<Plug>(complementum-enable)"
   command! ComplementumDisable execute "normal \<Plug>(complementum-disable)"
   command! ComplementumToggle execute "normal \<Plug>(complementum-toggle)"
+  command! ComplementumToggleDefaultKeystroke execute "normal \<Plug>(complementum-toggle-default-keystroke)"
 endif
