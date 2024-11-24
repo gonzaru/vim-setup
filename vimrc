@@ -521,7 +521,7 @@ endif
 # t: tags
 # set complete=.,w,b,u,k,t
 set complete=.,w,b,u  # (default .,w,b,u,k,t)
-set pumheight=15      # maximum number of items to show in the popup menu (default 0)
+set pumheight=25      # maximum number of items to show in the popup menu (default 0)
 set pumwidth=15       # minimum width to use for the popup menu (default 15)
 
 # (empty) default vim clipboard
