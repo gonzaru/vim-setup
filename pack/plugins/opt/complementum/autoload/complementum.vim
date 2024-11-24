@@ -103,13 +103,13 @@ def IsTriggerable(): bool
   endif
   num = 0
   while num <= g:complementum_minchars
-    char = cline[ccol - num - 1]
+    char = cline[ccol - 2 - num]
     if char =~ '^\W$' # non-word character
       break
     endif
     ++num
   endwhile
-  return num == g:complementum_minchars
+  return num == g:complementum_minchars - 1
 enddef
 
 # complete
