@@ -111,6 +111,22 @@ export def GuiMenuBarToggle(): void
   v:statusmsg = $"guioptions={&l:guioptions}"
 enddef
 
+# toggle cmd menu bar
+export def CmdMenuBarToggle(): void
+  var msg: string
+  if pumvisible()
+    feedkeys("\<Esc>", "n")
+    msg = $"pumvisible={pumvisible()}"
+  else
+    if !exists('g:did_install_default_menus')
+      source $VIMRUNTIME/menu.vim
+    endif
+    feedkeys($":emenu\<Space>{!empty(&wildcharm) ? nr2char(&wildcharm) : "\<Tab>"}", "nt")
+    msg = $"g:did_install_default_menus={g:did_install_default_menus}"
+  endif
+  v:statusmsg = msg
+enddef
+
 # map insert backspace
 export def MapInsertBackSpace()
   if !empty(mapcheck("<BS>", "i"))

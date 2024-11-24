@@ -63,13 +63,14 @@ export def Misc(): void
       'Select:',
       '1. Enable arrow keys',
       '2. Disable arrow keys',
-      '3. Toggle gui menu bar'
+      '3. Toggle cmd menu bar',
+      '4. Toggle gui menu bar'
     ]
   )
   if empty(choice)
     return
   endif
-  if choice < 1 || choice > 3
+  if choice < 1 || choice > 4
     EchoErrorMsg($"Error: wrong option '{choice}'")
     return
   endif
@@ -83,22 +84,21 @@ export def Misc(): void
     else
       arrowkeys#Disable()
     endif
-  elseif choice == 3
+  elseif choice == 3 || choice == 4
     if !get(g:, 'misc_enabled')
       EchoErrorMsg("Error: the plugin 'misc' is not enabled")
       return
     endif
-    misc#GuiMenuBarToggle()
+    if choice == 3
+      misc#CmdMenuBarToggle()
+    else
+      misc#GuiMenuBarToggle()
+    endif
   endif
 enddef
 
-# menu gui extra
-export def GuiExtra()
-  # only if menu bar is present
-  if &l:guioptions !~ "m"
-    return
-  endif
-
+# menu extra
+export def MenuExtra()
   # remove menu extra
   try
     aunmenu &Extra
@@ -188,7 +188,7 @@ export def GuiExtra()
   # menu
   anoremenu 1000.1000.1014.1 &Extra.&Plugins.&Menu.&LanguageSpell<Tab><Leader>ms <Plug>(menu-language-spell)
   anoremenu 1000.1000.1014.2 &Extra.&Plugins.&Menu.&Misc<Tab><Leader>mm <Plug>(menu-misc)
-  anoremenu 1000.1000.1014.3 &Extra.&Plugins.&Menu.&GuiExtra<Tab><Leader>me <Plug>(menu-gui-extra)
+  anoremenu 1000.1000.1014.3 &Extra.&Plugins.&Menu.&MenuExtra<Tab><Leader>me <Plug>(menu-menu-extra)
 
   # runprg
   anoremenu 1000.1000.1015.1 &Extra.&Plugins.&Runprg.&Run<Tab><Leader>ru <Plug>(runprg-run)

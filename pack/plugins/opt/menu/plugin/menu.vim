@@ -17,12 +17,12 @@ import autoload '../autoload/menu.vim'
 # define mappings
 nnoremap <silent> <script> <Plug>(menu-language-spell) <ScriptCmd>menu.LanguageSpell()<CR>
 nnoremap <silent> <script> <Plug>(menu-misc) <ScriptCmd>menu.Misc()<CR>
-nnoremap <silent> <script> <Plug>(menu-gui-extra) <ScriptCmd>menu.GuiExtra()<CR>
+nnoremap <silent> <script> <Plug>(menu-menu-extra) <ScriptCmd>menu.MenuExtra()<CR>
 
 # set mappings
 if get(g:, 'menu_no_mappings') == 0
   if empty(mapcheck("<leader>me", "n"))
-    nnoremap <leader>me <Plug>(menu-gui-extra)
+    nnoremap <leader>me <Plug>(menu-menu-extra)
   endif
   if empty(mapcheck("<leader>mm", "n"))
     nnoremap <leader>mm <Plug>(menu-misc)
@@ -34,5 +34,8 @@ endif
 
 # set commands
 if get(g:, 'menu_no_commands') == 0
-  command! MenuGuiExtra execute "normal \<Plug>(menu-gui-extra)"
+  command! MenuExtra execute "normal \<Plug>(menu-menu-extra)"
+  # TODO: <Plug>?
+  command! MenuLanguageSpell menu.LanguageSpell()
+  command! MenuMisc menu.Misc()
 endif

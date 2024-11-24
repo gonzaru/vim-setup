@@ -393,6 +393,8 @@ endif
 
 # wildmenu
 if has("wildmenu")
+  set wildchar=<Tab>              # character to type to start wildcard expansion (default <Tab>)
+  set wildcharm=<C-z>             # like 'wildchar' but it works in macros and mappings (<C-z> becomes <Tab>)
   set wildmenu                    # enchange command line completion
   set wildmode=longest:full,full  # default (full)
   set nowildignorecase            # case is not ignored when completing files and directories (see fileignorecase)
@@ -645,6 +647,11 @@ if g:misc_enabled
   nnoremap <leader>tgo <ScriptCmd>misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgf <ScriptCmd>misc#FoldColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgz <ScriptCmd>misc#FoldToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <expr> <leader>tgm
+  \ has('gui_running')
+  \ ? '<ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>'
+  \ : '<ScriptCmd>misc#CmdMenuBarToggle()<CR>:echo v:statusmsg<CR>'
+  nnoremap <leader>tgM <ScriptCmd>misc#CmdMenuBarToggle()<CR>:echo v:statusmsg<CR>
 endif
 
 # :sh
@@ -696,10 +703,6 @@ if has('gui_running')
   if has('linux') || has('bsd')
     map <S-Insert> <Nop>
     map! <S-Insert> <MiddleMouse>
-  endif
-  if g:misc_enabled
-    nnoremap <leader>tgm <ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
-    nnoremap <leader><S-F10> <ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>
   endif
   tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
   tnoremap <C-d> <C-w>c
