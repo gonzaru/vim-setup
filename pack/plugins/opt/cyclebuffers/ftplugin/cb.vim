@@ -23,6 +23,12 @@ setlocal nomodifiable
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
 if get(g:, 'cyclebuffers_no_mappings') == 0
-  nnoremap <buffer> <nowait> <CR> <Plug>(cyclebuffers-select)
-  nnoremap <buffer> <nowait> <ESC> :close<CR>
+  nnoremap <buffer> <nowait> <ESC> <Plug>(cyclebuffers-close)
+  nnoremap <buffer> <nowait> <CR> <Plug>(cyclebuffers-select-edit)
+  nnoremap <buffer> <nowait> e <Plug>(cyclebuffers-select-edit)
+  nnoremap <buffer> <nowait> s <Plug>(cyclebuffers-select-split)
+  nnoremap <buffer> <nowait> v <Plug>(cyclebuffers-select-vsplit)
+  nnoremap <buffer> <nowait> t <Plug>(cyclebuffers-select-tabedit)
+  nnoremap <buffer> <nowait> H <Plug>(cyclebuffers-help)
+  nnoremap <buffer> <nowait> K <Plug>(cyclebuffers-help)
 endif

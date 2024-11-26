@@ -17,8 +17,13 @@ endif
 import autoload '../autoload/cyclebuffers.vim'
 
 # define mappings
+nnoremap <silent> <script> <Plug>(cyclebuffers-close) <Cmd>close<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-help) <ScriptCmd>cyclebuffers.Help()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
-nnoremap <silent> <script> <Plug>(cyclebuffers-select) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'))<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-edit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "edit")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-split) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "split")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-vsplit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "vsplit")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-tabedit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "tabedit")<CR>
 
 # set mappings
 if get(g:, 'cyclebuffers_no_mappings') == 0
