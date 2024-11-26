@@ -39,7 +39,7 @@ var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xt
 g:skip_defaults_vim = true
 
 # disable built-in plugins
-g:loaded_2html_plugin =  true     # tohtml.vim
+g:loaded_2html_plugin = true      # tohtml.vim
 g:loaded_getscriptPlugin = true   # getscriptPlugin.vim
 g:loaded_gzip = true              # gzip.vim
 g:loaded_logiPat = true           # logiPat.vim
@@ -585,6 +585,15 @@ inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 # save
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-\><C-o>:update<CR>
+command! Please {
+  var msg = "Are you sure to write it using sudo? (yes, no): "
+  if input(msg) == "yes"
+    write !sudo /usr/bin/tee % >/dev/null
+    edit!
+    feedkeys("\<CR>", "n")
+  endif
+  redraw!
+}
 
 # search the selected text (:help visual-search)
 # vnoremap <leader>* y/<C-r>"<CR>
@@ -739,7 +748,7 @@ nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 # go to N buffer (up to 9 for now)
 # for i in range(1, 9)
 #   if i <= 9 && g:misc_enabled
-#     execute "nnoremap <leader>b" ..  i .. " <ScriptCmd>misc#GoBufferPos(" .. i .. ")<CR>"
+#     execute "nnoremap <leader>b" .. i .. " <ScriptCmd>misc#GoBufferPos(" .. i .. ")<CR>"
 #    endif
 # endfor
 
