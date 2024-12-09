@@ -34,6 +34,8 @@ var vim_terminal = !empty($VIM_TERMINAL)                                    # vi
 var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
 var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
 var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
+var st = $TERM == "st-256color" && !multiplexer                             # st
+var st_tmux = $TMUX_PARENT_TERM == "st-256color" && tmux                    # st + tmux
 
 # don't load defaults.vim
 g:skip_defaults_vim = true
@@ -85,6 +87,7 @@ g:searcher_enabled = true         # search files and find matches
 g:statusline_enabled = true       # statusline
 g:tabline_enabled = true          # tab page
 g:utils_enabled = true            # utils for misc plugin and generic use
+g:xkb_enabled = false             # xkb
 
 # add plugins
 # set packpath=$HOME/.vim,$VIMRUNTIME
@@ -107,7 +110,8 @@ const plugins = [
   'scratch',
   'se',
   'searcher',
-  'tabline'
+  'tabline',
+  'xkb'
 ]
 for plugin in plugins
   if get(g:, $"{plugin}_enabled")
@@ -170,6 +174,15 @@ if g:statusline_enabled
   g:statusline_showgitbranch = true
 endif
 
+# xkb plugin
+if g:xkb_enabled
+  g:xkb_layout_first = "level3(caps_switch)"
+  g:xkb_layout_next = "capslock(escape)"
+  g:xkb_cmd_layout_first = ["setxkbsw", "-s", "0"]  # first
+  g:xkb_cmd_layout_next = ["setxkbsw", "-s", "1"]   # next
+  g:xkb_debug_info = true
+endif
+
 # global settings
 set nocompatible            # use vim defaults instead of 100% vi compatibility
 # set verbose=16            # if > 0; then vim will give debug messages
@@ -177,6 +190,7 @@ set debug=throw             # throw an exception on errors and set v:errmsg
 set shortmess=a             # abbreviation status messages shorter (default filnxtToOS)
 set shortmess+=I            # no vim splash
 set shortmess+=c            # don't give ins-completion-menu messages
+set shortmess+=t            # truncate message when necessary
 set cmdheight=1             # space for displaying status messages (default is 1)
 set noerrorbells            # turn off error bells (do not bell on errors)
 set belloff=all             # turn off error bells (do not bell on all events)
@@ -233,7 +247,7 @@ set spelloptions+=camel     # camel CaseWord is considered a separate word
 set spellsuggest=best,15    # method and the maximum number of suggestions (default best)
 set noshowmatch             # disable matching parenthesis
 set matchtime=1             # seconds to show matching parenthesis
-set matchpairs=(:),{:},[:]  # characters that form pairs (default)
+set matchpairs=(:),{:},[:]  # characters that form pairs (default "(:),{:},[:]")
 set nofoldenable            # when off, all folds are open
 set foldmethod=manual       # disable automatic folding
 set foldopen-=block         # don't open folds when jumping with "(", "{", "[[", "[{", etc.
@@ -266,6 +280,7 @@ if !has('gui_running')
     || jediterm || jediterm_tmux
     || vim_terminal || vim_terminal_tmux
     || xterm || xterm_tmux
+    || st || st_tmux
   )
     &t_SI ..= "\e[6 q"
     &t_SR ..= "\e[4 q"
@@ -291,8 +306,9 @@ if !has('gui_running')
       alacritty || alacritty_tmux
       || gnome_terminal || gnome_terminal_tmux
       || jediterm || jediterm_tmux
-      || tmux
       || vim_terminal || vim_terminal_tmux
+      || xterm || xterm_tmux
+      || st || st_tmux
     )
       # :help xterm-true-color
       if !jediterm
@@ -303,6 +319,16 @@ if !has('gui_running')
     else
       set notermguicolors
     endif
+  endif
+  # FocusGained, FocusLost (see :help xterm-focus-event)
+  if alacritty || alacritty_tmux || st || st_tmux
+    &t_fe = "\<Esc>[?1004h"
+    &t_fd = "\<Esc>[?1004l"
+    execute "set <FocusGained>=\<Esc>[I"
+    execute "set <FocusLost>=\<Esc>[O"
+  else
+    &t_fe = ""
+    &t_fd = ""
   endif
 endif
 
@@ -454,13 +480,14 @@ set grepformat=%f:%l:%c:%m,%f:%l:%m
 set backup
 set writebackup
 set backupcopy=yes
+set backupext=~                   # (default is "~")
 set backupdir=$HOME/.vim/backups
-set directory=$HOME/.vim/tmp//  # // use absolute path
+set directory=$HOME/.vim/tmp//    # // use absolute path
 
 # :help undo-persistence
 if has('persistent_undo')
   set undofile                    # automatically save your undo history when you write a file
-  set undolevels=1000             # default is 1000
+  set undolevels=1000             # (default is 1000)
   set undodir=$HOME/.vim/undodir  # directory to store undo files
 endif
 
@@ -567,7 +594,7 @@ endif
 # <C-@> needs to be entered as <C-S-2>
 
 # mapping leaders
-g:mapleader = "\<C-s>"
+g:mapleader = "\<C-s>"  # (see terminal "stty -ixon")
 
 # alternative second leader
 g:maplocalleader = "\<C-\>"
@@ -585,6 +612,7 @@ inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 # save
 nnoremap <leader><C-w> :update<CR>
 inoremap <leader><C-w> <C-\><C-o>:update<CR>
+nnoremap <leader><C-b> :Backup<CR>
 command! Please {
   var msg = "Are you sure to write it using sudo? (yes, no): "
   if input(msg) == "yes"
@@ -593,6 +621,10 @@ command! Please {
     feedkeys("\<CR>", "n")
   endif
   redraw!
+}
+command! Backup {
+  var bak = $"{&backupdir}/{expand('%:t')}-{strftime('%Y%m%d%H%M%S')}{&backupext}"
+  execute $"write {bak}"
 }
 
 # search the selected text (:help visual-search)
@@ -678,17 +710,25 @@ endif
 #   autocmd!
 #   autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
 # augroup END
-nnoremap <silent> <leader><CR> :below terminal<CR>
 if has('gui_running')
-  # nnoremap <silent> <C-z> :below terminal<CR>
+  if has('linux') || has('bsd')
+    map <S-Insert> <Nop>
+    map! <S-Insert> <MiddleMouse>
+  endif
   # nnoremap <silent> <C-z> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
-  nnoremap <silent> <C-z> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent> <leader><C-CR> :below terminal<CR>
-  nnoremap <silent> <leader><S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent> <leader><C-S-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <C-z> :below terminal<CR>
+  nnoremap <silent> <leader><CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <leader><C-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+else
+  nnoremap <silent> <leader><CR> :below terminal ++close /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR>
 endif
 nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR>
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR>
+# *avoid* to use <ESC> mappings in terminal mode
+# tnoremap <C-[> <C-w>N
+# tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
+tnoremap <C-w><Esc> <C-w>N:doautocmd CmdwinLeave<CR>
+tnoremap <C-d> <C-w>c
 
 # move
 nnoremap <leader><C-j> :move .+1<CR>==
@@ -706,19 +746,6 @@ vnoremap <leader><C-k> :move '<-2<CR>gv=gv
 # inoremap [ []<left>
 # inoremap { {}<left>
 # inoremap {<CR> {<CR>}<C-\><C-o>O
-
-# gui
-if has('gui_running')
-  if has('linux') || has('bsd')
-    map <S-Insert> <Nop>
-    map! <S-Insert> <MiddleMouse>
-  endif
-  tnoremap <C-ESC> <C-w>N:doautocmd CmdwinLeave<CR>
-  tnoremap <C-d> <C-w>c
-endif
-# *avoid* to use <ESC> mappings in terminal mode
-# tnoremap <C-[> <C-w>N
-# tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
 
 # tabs
 nnoremap <leader>, :tabprevious<CR>
@@ -903,8 +930,13 @@ augroup event_vim
   # clear the terminal on exit
   autocmd VimLeave * ++once {
     var session_dir = $"{$HOME}/.vim/sessions"
-    if !has('gui_running') && xterm
-      silent !printf '\e[0m'
+    if !has('gui_running')
+      if xterm
+        silent !printf '\e[0m'
+      elseif st || st_tmux
+        # 2: block cursor "█"
+        silent !printf "\e[2 q"
+      endif
     endif
     if isdirectory(session_dir)
       execute $"mksession! {session_dir}/last.vim"

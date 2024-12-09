@@ -198,4 +198,9 @@ export def MenuExtra()
   # statusline
   anoremenu 1000.1000.1016.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
 
+  # xkb
+  anoremenu 1000.1000.1017.1 &Extra.&Plugins.&Xkb.&XkbLayoutFirst <Plug>(xkb-layout-first)
+  anoremenu 1000.1000.1017.2 &Extra.&Plugins.&Xkb.&XkbLayoutNext <Plug>(xkb-layout-next)
+  anoremenu 1000.1000.1017.3 &Extra.&Plugins.&Xkb.&XkbToggleLayout<Tab><Leader>xt <Plug>(xkb-toggle-layout)
+
 enddef
