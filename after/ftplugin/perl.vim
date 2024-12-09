@@ -24,6 +24,7 @@ setlocal softtabstop=4
 setlocal shiftwidth=4
 setlocal shiftround
 setlocal expandtab
+setlocal iskeyword=@,48-57,_,192-255,$,%,@-@,:,#  # see 'complete'
 #^ setlocal keywordprg=perldoc\ -f
 setlocal makeprg=perl\ -c\ %
 matchadd('ColorColumn', '\%120v', 10)
