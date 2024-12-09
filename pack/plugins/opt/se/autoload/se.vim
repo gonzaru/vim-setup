@@ -89,13 +89,14 @@ export def Help()
     r        # refresh the current directory
     h        # resize Se window to the left
     l        # resize Se window to the right
+    =        # resize Se window to default size
+    +        # resize Se window to maximum column size
     o        # toggle the position of the hidden files
     m        # check the default app for mime type
     M        # set default app for mime type
     c        # open the file with a custom program
     C        # open the file with the default program
     .        # toggle the visualization of the hidden files
-    =        # resize Se window to default size
     <ESC>    # close Se window
     H        # shows Se help information [K]
   END
@@ -193,7 +194,7 @@ def Show(filepath: string)
     execute $"lcd {fnameescape(prevcwd)}"
     Populate(prevcwd)
     setlocal nomodifiable
-    execute $"vertical resize {g:se_winsize}"
+    execute $"vertical resize {g:se_winsize + wincol() - 1}"
     if g:se_followfile
       SearchFile(filepath)
     endif
@@ -231,7 +232,7 @@ export def Toggle(filepath: string)
         execute $"vertical topleft sbuffer {bid}"
       endif
       execute $"lcd {fnameescape(GetPrevCwd())}"
-      execute $"vertical resize {g:se_winsize}"
+      execute $"vertical resize {g:se_winsize + wincol() - 1}"
       if g:se_followfile
         FollowFile(filepath)
       endif
@@ -318,7 +319,7 @@ def Edit(file: string)
       execute $"rightbelow vnew {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize + wincol() - 1}")
   endif
 enddef
 
@@ -339,7 +340,7 @@ def EditKeep(file: string)
     endif
     bid = GetSeBufId()
     win_gotoid(bufwinid(bid))
-    execute $"vertical resize {g:se_winsize}"
+    execute $"vertical resize {g:se_winsize + wincol() - 1}"
   endif
 enddef
 
@@ -362,7 +363,7 @@ def EditPedit(file: string)
       execute $"vertical rightbelow pedit {file}"
     endif
     win_gotoid(bufwinid(bid))
-    execute $"vertical resize {g:se_winsize}"
+    execute $"vertical resize {g:se_winsize + wincol() - 1}"
   endif
 enddef
 
@@ -383,7 +384,7 @@ def EditSplitH(file: string)
       execute $"rightbelow vsplit {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize + wincol() - 1}")
   endif
 enddef
 
@@ -405,7 +406,7 @@ def EditSplitV(file: string)
       execute $"rightbelow vsplit {file}"
     endif
     bid = GetSeBufId()
-    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize}")
+    win_execute(bufwinid(bid), $"vertical resize {g:se_winsize + wincol() - 1}")
   endif
 enddef
 
@@ -569,5 +570,19 @@ export def GoFile(filepath: string, mode: string): void
     elseif mode == "tabedit"
       EditTab(selfile)
     endif
+  endif
+enddef
+
+# resize Se window
+export def Resize(mode: string): void
+  if mode == "left"
+    execute $"vertical resize {(g:se_position == 'right' ? '+1' : '-1')}"
+  elseif mode == "right"
+    execute $"vertical resize {(g:se_position == 'right' ? '-1' : '+1')}"
+  elseif mode == "restore"
+    execute $"vertical resize {g:se_winsize + wincol() - 1}"
+    cursor(line('.'), 1)
+  elseif mode == "maxcol"
+    execute $"vertical resize {max(map(getline(1, '$'), 'len(v:val)')) + wincol() - 1}"
   endif
 enddef

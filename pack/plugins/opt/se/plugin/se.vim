@@ -77,12 +77,10 @@ nnoremap <silent> <script> <Plug>(se-set-mime) <ScriptCmd>se.SetMimeType(getline
 nnoremap <silent> <script> <Plug>(se-open-with-default) <ScriptCmd>se.OpenWith(getline('.'), true)<CR>
 nnoremap <silent> <script> <Plug>(se-open-with-custom) <ScriptCmd>se.OpenWith(getline('.'), false)<CR>
 nnoremap <silent> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh(expand('%:p'))<CR>
-nnoremap <silent> <script> <Plug>(se-resize-left)
-  \ <ScriptCmd>:execute "vertical resize "  .. (g:se_position == 'right' ? '+1' : '-1')<CR>
-nnoremap <silent> <script> <Plug>(se-resize-right)
-  \ <ScriptCmd>:execute "vertical resize "  .. (g:se_position == 'right' ? '-1' : '+1')<CR>
-nnoremap <silent> <script> <Plug>(se-resize-restore)
-  \ <ScriptCmd>:execute ":vertical resize " .. g:se_winsize<CR><ScriptCmd>cursor(line('.'), 1)<CR>
+nnoremap <silent> <script> <Plug>(se-resize-left) <ScriptCmd>se.Resize("left")<CR>
+nnoremap <silent> <script> <Plug>(se-resize-right) <ScriptCmd>se.Resize("right")<CR>
+nnoremap <silent> <script> <Plug>(se-resize-restore) <ScriptCmd>se.Resize("restore")<CR>
+nnoremap <silent> <script> <Plug>(se-resize-maxcol) <ScriptCmd>se.Resize("maxcol")<CR>
 
 # see ../ftplugin/se.vim
 

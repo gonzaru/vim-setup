@@ -13,6 +13,9 @@ setlocal statusline=%y:%<%{getcwd()->fnamemodify(':~')}%=b%n,w%{win_getid()}
 setlocal winfixheight
 setlocal winfixwidth
 setlocal noconfirm
+setlocal nonumber
+setlocal norelativenumber
+setlocal signcolumn=no
 setlocal cursorline
 setlocal nocursorcolumn
 setlocal nowrap
@@ -47,13 +50,14 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> F <Plug>(se-followfile)
   nnoremap <buffer> <nowait> h <Plug>(se-resize-left)
   nnoremap <buffer> <nowait> l <Plug>(se-resize-right)
+  nnoremap <buffer> <nowait> = <Plug>(se-resize-restore)
+  nnoremap <buffer> <nowait> + <Plug>(se-resize-maxcol)
   nnoremap <buffer> <nowait> c <Plug>(se-open-with-custom)
   nnoremap <buffer> <nowait> C <Plug>(se-open-with-default)
   nnoremap <buffer> <nowait> o <Plug>(se-toggle-hidden-position)
   nnoremap <buffer> <nowait> m <Plug>(se-check-mime)
   nnoremap <buffer> <nowait> M <Plug>(se-set-mime)
   nnoremap <buffer> <nowait> . <Plug>(se-toggle-hidden-show)
-  nnoremap <buffer> <nowait> = <Plug>(se-resize-restore)
   nnoremap <buffer> <nowait> H <Plug>(se-help)
   nnoremap <buffer> <nowait> K <Plug>(se-help)
 endif
