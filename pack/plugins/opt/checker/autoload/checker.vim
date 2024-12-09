@@ -114,35 +114,36 @@ const REGEX_STATUSLINE_SIGNS = '^\[..=\d*\]\[..=\d*N\?E\?\] '
 const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
 
 # checker files
+const pid = getpid()
 const FILES = {
   'sh': {
     'sh': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_syntax-{pid}.log"
     },
     'shellcheck': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_syntax-{pid}.log"
     }
   },
   'python': {
     'python': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_python_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_python_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_python_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_python_syntax-{pid}.log"
     },
     'pep8': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_syntax-{pid}.log"
     }
   },
   'go': {
     'go': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_go_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_go_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_go_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_go_syntax-{pid}.log"
     },
     'govet': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_govet_buffer.txt",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_govet_syntax.txt"
+      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_govet_buffer-{pid}.log",
+      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_govet_syntax-{pid}.log"
     }
   }
 }

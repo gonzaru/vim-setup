@@ -18,8 +18,9 @@ g:statusline_full = ''
 const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
 
 # statusline files
+const pid = getpid()
 const STATUSLINE_FILES = {
-  'git': $"{TMPDIR}/{$USER}-vim-statusline_git.txt"
+  'git': $"{TMPDIR}/{$USER}-vim-statusline_git-{pid}.log"
 }
 
 # get statusline
