@@ -149,6 +149,8 @@ export def MenuExtra()
   anoremenu 1000.1000.1007.3 &Extra.&Plugins.&Complementum.&Toggle<Tab><leader>tgc <Plug>(complementum-toggle)
   anoremenu 1000.1000.1007.4 &Extra.&Plugins.&Complementum.&ToggleDefaultKeystroke
     \<Tab><leader>tgC <Plug>(complementum-toggle-default-keystroke)
+  anoremenu 1000.1000.1007.5 &Extra.&Plugins.&Complementum.&ToggleDefaultOmniKeystroke
+    \<Tab><leader>tGC <Plug>(complementum-toggle-default-omni-keystroke)
 
   # cycleBuffers
   anoremenu 1000.1000.1008.1 &Extra.&Plugins.&CycleBuffers.&Cycle<Tab><leader><Space> <Plug>(cyclebuffers-cycle)

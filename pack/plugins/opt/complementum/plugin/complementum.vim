@@ -15,6 +15,20 @@ endif
 if !exists('g:complementum_minchars')
   g:complementum_minchars = 3  # >= 1
 endif
+if !exists('g:complementum_omnichars')
+  g:complementum_omnichars = {
+    'python': ["."],
+    'go': ["."],
+    'c': [".", "#"],
+  }
+endif
+if !exists('g:complementum_omnifuncs')
+  g:complementum_omnifuncs = {
+    'python': ["python3complete#Complete", "g:LspOmniFunc"],
+    'go': ["go#complete#Complete", "g:LspOmniFunc"],
+    'c': ["ccomplete#Complete", "g:LspOmniFunc"]
+  }
+endif
 if !exists('g:complementum_keystroke_default')
   g:complementum_keystroke_default = "\<C-n>"
 endif
@@ -51,7 +65,7 @@ augroup complementum_insert
   autocmd!
   autocmd InsertCharPre * {
     if g:complementum_enabled && !pumvisible() && state('m') == ''
-      noautocmd complementum.Complete(&filetype)
+      noautocmd complementum.Complete(&filetype, v:char)
     endif
   }
 augroup END
@@ -61,8 +75,10 @@ nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>Enable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle-default-keystroke)
-  \ <ScriptCmd>complementum.ToggleDefaultKeystroke()<CR>
-# inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype)<CR>
+  \ <ScriptCmd>complementum.ToggleDefaultKeystroke("default_toggle")<CR>
+nnoremap <silent> <script> <Plug>(complementum-toggle-default-omni-keystroke)
+  \ <ScriptCmd>complementum.ToggleDefaultKeystroke("omni")<CR>
+# inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype, v:char)<CR>
 # inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
 # inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
 # inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
@@ -89,6 +105,9 @@ def Enable()
   if empty(mapcheck("<leader>tgC", "n"))
     nnoremap <leader>tgC <Plug>(complementum-toggle-default-keystroke):echo v:statusmsg<CR>
   endif
+  if empty(mapcheck("<leader>tGC", "n"))
+    nnoremap <leader>tGC <Plug>(complementum-toggle-default-omni-keystroke):echo v:statusmsg<CR>
+  endif
   g:complementum_enabled = true
 enddef
 
@@ -103,4 +122,5 @@ if get(g:, 'complementum_no_commands') == 0
   command! ComplementumDisable execute "normal \<Plug>(complementum-disable)"
   command! ComplementumToggle execute "normal \<Plug>(complementum-toggle)"
   command! ComplementumToggleDefaultKeystroke execute "normal \<Plug>(complementum-toggle-default-keystroke)"
+  command! ComplementumToggleDefaultOmniKeystroke execute "normal \<Plug>(complementum-toggle-default-omni-keystroke)"
 endif

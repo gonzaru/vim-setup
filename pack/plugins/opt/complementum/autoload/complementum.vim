@@ -51,10 +51,16 @@ export def Toggle()
 enddef
 
 # toggle default keystroke
-export def ToggleDefaultKeystroke()
-  if g:complementum_keystroke_default != g:complementum_keystroke_default_toggle
+export def ToggleDefaultKeystroke(option: string)
+  var keystroke: string
+  if option == "default_toggle"
+    keystroke = g:complementum_keystroke_default_toggle
+  elseif option == "omni"
+    keystroke = g:complementum_keystroke_omni
+  endif
+  if g:complementum_keystroke_default != keystroke
     g:complementum_keystroke_default_orig = g:complementum_keystroke_default
-    g:complementum_keystroke_default = g:complementum_keystroke_default_toggle
+    g:complementum_keystroke_default = keystroke
   else
     g:complementum_keystroke_default = g:complementum_keystroke_default_orig
   endif
@@ -63,6 +69,9 @@ enddef
 
 # complete the key
 export def CompleteKey(key: string)
+  if g:complementum_debuginfo
+    defer DebugInfo()
+  endif
   if key == "tab"
     if pumvisible()
       feedkeys(g:complementum_keystroke_tab_pumvisible, "n")
@@ -81,20 +90,19 @@ export def CompleteKey(key: string)
       feedkeys(g:complementum_keystroke_enter, "n")
     endif
   endif
-  if g:complementum_debuginfo
-    DebugInfo()
-  endif
 enddef
 
 # checks if the keystroke is triggerable (default)
-def IsTriggerable(): bool
+def IsTriggerableDefault(): bool
   var num: number
   var char: string
-  var cline = getline('.')
-  var ccol = col('.')
+  var cline: string
+  var ccol: number
   if g:complementum_minchars < 1
     return false
   endif
+  cline = getline('.')
+  ccol = col('.')
   # start of line
   if (ccol - g:complementum_minchars) == 0
     if g:complementum_minchars == 1 || len(trim(cline)) == g:complementum_minchars - 1 && cline[0] =~ '^\w$'
@@ -112,41 +120,49 @@ def IsTriggerable(): bool
   return num == g:complementum_minchars - 1
 enddef
 
-# complete
-export def Complete(lang: string): void
-  # \W non-word character
-  if v:char =~ '^\W$' || pumvisible() || state('m') == 'm'
-    if g:complementum_debuginfo
-      DebugInfo()
-    endif
-    return
+# checks if the keystroke is triggerable (omni)
+def IsTriggerableOmni(lang: string, ichar: string): bool
+  var cline: string
+  var ccol: number
+  var omni = false
+  if !has_key(g:complementum_omnichars, lang)
+    return false
   endif
-  # go plugins (vim-go/govim) must be enabled
-  if v:char == "."
-    if lang == "go"
-      GoInsertAutoComplete(lang)
-      if g:complementum_debuginfo
-        DebugInfo()
-      endif
-    endif
-  elseif !pumvisible() && IsTriggerable()
-    feedkeys(g:complementum_keystroke_default, "i")
+  cline = getline('.')
+  ccol = col('.')
+  if index(g:complementum_omnichars[lang], ichar) >= 0
+    omni = true
+  elseif g:complementum_minchars == 1 && index(g:complementum_omnichars[lang], cline[ccol - 2]) >= 0
+    omni = true
+  elseif g:complementum_minchars < 1 || cline[ccol - 2] !~ '^\w$' || ichar =~ '^\W$'
+    omni = false
+  elseif cline[ccol - 2 - g:complementum_minchars] =~ '^\w$'
+    && index(g:complementum_omnichars[lang], cline[ccol - 1 - g:complementum_minchars]) >= 0
+    omni = true
   endif
+  return omni
+enddef
+
+# complete (default)
+export def Complete(lang: string, ichar: string)
   if g:complementum_debuginfo
-    DebugInfo()
+    defer DebugInfo()
+  endif
+  if !pumvisible() && IsTriggerableOmni(lang, ichar)
+    CompleteOmni(lang)
+  elseif ichar =~ '^\W$' || pumvisible() || state('m') == 'm'
+    # do nothing
+  elseif !pumvisible() && IsTriggerableDefault()
+    feedkeys(g:complementum_keystroke_default, "i")
   endif
 enddef
 
-# Go (golang) insert autocompletion
-def GoInsertAutoComplete(lang: string)
-  var curline = getline('.')
-  var curcol = col('.')
-  if g:complementum_minchars < 1
+# complete (omni)
+def CompleteOmni(lang: string): void
+  if !has_key(g:complementum_omnifuncs, lang)
     return
   endif
-  if lang == "go"
-  && index(["go#complete#Complete", "GOVIM_internal_Complete"], &omnifunc) >= 0
-  && strcharpart(curline[curcol - (g:complementum_minchars + 1) : ], 0, 1) =~ '\h\|\d'
+  if index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "i")
   endif
 enddef
