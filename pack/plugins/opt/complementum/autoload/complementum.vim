@@ -52,17 +52,19 @@ enddef
 
 # toggle default keystroke
 export def ToggleDefaultKeystroke(option: string)
-  var keystroke: string
   if option == "default_toggle"
-    keystroke = g:complementum_keystroke_default_toggle
+    if g:complementum_keystroke_default == g:complementum_keystroke_omni
+      g:complementum_keystroke_default = g:complementum_keystroke_default_orig
+    elseif g:complementum_keystroke_default != g:complementum_keystroke_default_toggle
+      g:complementum_keystroke_default_orig = g:complementum_keystroke_default
+      g:complementum_keystroke_default = g:complementum_keystroke_default_toggle
+      g:complementum_keystroke_default_toggle = g:complementum_keystroke_default_orig
+    endif
   elseif option == "omni"
-    keystroke = g:complementum_keystroke_omni
-  endif
-  if g:complementum_keystroke_default != keystroke
-    g:complementum_keystroke_default_orig = g:complementum_keystroke_default
-    g:complementum_keystroke_default = keystroke
-  else
-    g:complementum_keystroke_default = g:complementum_keystroke_default_orig
+    if g:complementum_keystroke_default != g:complementum_keystroke_omni
+      g:complementum_keystroke_default_orig = g:complementum_keystroke_default
+      g:complementum_keystroke_default = g:complementum_keystroke_omni
+    endif
   endif
   v:statusmsg = $"g:complementum_keystroke_default={strtrans(g:complementum_keystroke_default)}"
 enddef
