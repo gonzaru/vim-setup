@@ -35,6 +35,18 @@ export def DiffToggle()
   v:statusmsg = $"diff={&diff}"
 enddef
 
+# toggle popup
+export def PopupToggle(): void
+  var id = popup_findinfo()
+  if id > 0
+    if popup_getpos(id)['visible']
+      popup_hide(id)
+    else
+      popup_show(id)
+    endif
+  endif
+enddef
+
 # complete plugin pack (:ReloadPluginPack)
 export def CompleteReloadPluginPack(_, CmdLine: string, _): list<string>
   var kind = (trim(CmdLine) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'

@@ -41,22 +41,23 @@ var st_tmux = $TMUX_PARENT_TERM == "st-256color" && tmux                    # st
 g:skip_defaults_vim = true
 
 # disable built-in plugins
-g:loaded_2html_plugin = true      # tohtml.vim
-g:loaded_getscriptPlugin = true   # getscriptPlugin.vim
-g:loaded_gzip = true              # gzip.vim
-g:loaded_logiPat = true           # logiPat.vim
-g:loaded_manpager = true          # manpager.vim
-g:loaded_matchparen = true        # matchparen.vim
-g:loaded_netrw = true             # netrw autoload
-g:loaded_netrwPlugin = true       # netrwPlugin.vim
-g:loaded_rrhelper = true          # rrhelper.vim
-g:loaded_spellfile_plugin = true  # spellfile.vim
-g:loaded_tar = true               # pi_tar
-g:loaded_tarPlugin = true         # tarPlugin.vim
-g:loaded_vimball = true           # vimball autoload
-g:loaded_vimballPlugin = true     # vimballPlugin.vim
-g:loaded_zip = true               # zip.vim
-g:loaded_zipPlugin = true         # zipPlugin.vim
+g:loaded_2html_plugin = true       # tohtml.vim
+g:loaded_getscriptPlugin = true    # getscriptPlugin.vim
+g:loaded_gzip = true               # gzip.vim
+g:loaded_logiPat = true            # logiPat.vim
+g:loaded_manpager = true           # manpager.vim
+g:loaded_matchparen = true         # matchparen.vim
+g:loaded_netrw = true              # netrw autoload
+g:loaded_netrwPlugin = true        # netrwPlugin.vim
+g:loaded_rrhelper = true           # rrhelper.vim
+g:loaded_spellfile_plugin = true   # spellfile.vim
+g:loaded_tar = true                # pi_tar
+g:loaded_tarPlugin = true          # tarPlugin.vim
+g:loaded_tutor_mode_plugin = true  # tutor
+g:loaded_vimball = true            # vimball autoload
+g:loaded_vimballPlugin = true      # vimballPlugin.vim
+g:loaded_zip = true                # zip.vim
+g:loaded_zipPlugin = true          # zipPlugin.vim
 
 # do not include the menu bar "Buffers" (gui)
 # g:no_buffers_menu = true
@@ -189,7 +190,7 @@ set nocompatible            # use vim defaults instead of 100% vi compatibility
 set debug=throw             # throw an exception on errors and set v:errmsg
 set shortmess=a             # abbreviation status messages shorter (default filnxtToOS)
 set shortmess+=I            # no vim splash
-set shortmess+=c            # don't give ins-completion-menu messages
+# set shortmess+=c          # don't give ins-completion-menu messages
 set shortmess+=t            # truncate message when necessary
 set cmdheight=1             # space for displaying status messages (default is 1)
 set noerrorbells            # turn off error bells (do not bell on errors)
@@ -330,6 +331,8 @@ if !has('gui_running')
     &t_fe = ""
     &t_fd = ""
   endif
+  # disable xon/xoff handshaking (<C-s>)
+  &t_xo = ""
 endif
 
 # gui
@@ -414,7 +417,7 @@ if has('keymap') && has("langmap") && exists("+langremap")
   set imsearch=-1               # 0 lmap is off and IM is off (default -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
   # TODO <leader>?
-  inoremap <C-^> <C-^><C-\><C-o><ScriptCmd>misc#SetImOptions()<CR>
+  inoremap <C-^> <C-^><ScriptCmd>misc#SetImOptions()<CR>
 endif
 
 # wildmenu
@@ -535,10 +538,11 @@ set completefunc=syntaxcomplete#Complete
 set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noinsert
 if has('popupwin')
-  set completeopt+=popup  # popup extra info, like using omnicompletion
+  set completeopt+=popuphidden  # like popup option but hidden by default
+  inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
 endif
 if exists('+completepopup')
-  set completepopup+=highlight:InfoPopup  # see InfoPopUp in theme
+  set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
 endif
 # .: the current buffer
 # w: buffers in other windows
@@ -594,7 +598,7 @@ endif
 # <C-@> needs to be entered as <C-S-2>
 
 # mapping leaders
-g:mapleader = "\<C-s>"  # (see terminal "stty -ixon")
+g:mapleader = "\<C-s>"  # (see terminal "stty -ixon" and &t_xo)
 
 # alternative second leader
 g:maplocalleader = "\<C-\>"
@@ -611,7 +615,7 @@ inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 
 # save
 nnoremap <leader><C-w> :update<CR>
-inoremap <leader><C-w> <C-\><C-o>:update<CR>
+inoremap <leader><C-w> <Cmd>update<CR>
 nnoremap <leader><C-b> :Backup<CR>
 command! Please {
   var msg = "Are you sure to write it using sudo? (yes, no): "
