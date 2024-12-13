@@ -48,11 +48,11 @@ export def PopupToggle(): void
 enddef
 
 # complete plugin pack (:ReloadPluginPack)
-export def CompleteReloadPluginPack(_, CmdLine: string, _): list<string>
+export def CompleteReloadPluginPack(ArgLead: string, CmdLine: string, _): list<string>
   var kind = (trim(CmdLine) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'
   var plugdir = $"{$HOME}/.vim/pack/plugins/{kind}"
   var plugins = map(sort(globpath(plugdir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
-  return plugins
+  return filter(plugins, $"v:val =~ '^{ArgLead}'")
 enddef
 
 # complete files in the same directory as the file in the active window (:E)
