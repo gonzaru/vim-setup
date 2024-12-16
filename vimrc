@@ -47,6 +47,7 @@ g:loaded_gzip = true               # gzip.vim
 g:loaded_logiPat = true            # logiPat.vim
 g:loaded_manpager = true           # manpager.vim
 g:loaded_matchparen = true         # matchparen.vim
+g:loaded_matchit = true            # matchit.vim
 g:loaded_netrw = true              # netrw autoload
 g:loaded_netrwPlugin = true        # netrwPlugin.vim
 g:loaded_rrhelper = true           # rrhelper.vim
@@ -132,8 +133,8 @@ endif
 
 # complementum plugin
 if g:complementum_enabled
-  # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default "\<C-n>")
-  # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default "\<C-x>\<C-n>")
+  g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default "\<C-n>")
+  g:complementum_keystroke_default_toggle = "\<C-n>"  # (default "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
 endif
 
@@ -190,7 +191,8 @@ set nocompatible            # use vim defaults instead of 100% vi compatibility
 set debug=throw             # throw an exception on errors and set v:errmsg
 set shortmess=a             # abbreviation status messages shorter (default filnxtToOS)
 set shortmess+=I            # no vim splash
-# set shortmess+=c          # don't give ins-completion-menu messages
+set shortmess+=c            # don't give ins-completion-menu messages
+set shortmess+=C            # don't give messages while scanning for ins-completion
 set shortmess+=t            # truncate message when necessary
 set cmdheight=1             # space for displaying status messages (default is 1)
 set noerrorbells            # turn off error bells (do not bell on errors)
@@ -218,6 +220,7 @@ set helpheight=0            # zero disables this (default 20)
 set formatoptions-=cro      # remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
 set formatoptions+=j        # delete comment character when joining commented lines (:help fo-table) (default is tcq)
 set nrformats-=octal        # do not recognize octal numbers for Ctrl-A and Ctrl-X
+set commentstring=          # empty template for a comment (default /* %s */)
 set scrolloff=5             # minimal number of screen lines to keep above and below the cursor (default is 5)
 set sidescrolloff=5         # minimal number of screen columns to keep to the left and to the right of the cursor
 set nostartofline           # some jump commands move the cursor to the first non-blank like <C-^> previous buffer
@@ -536,7 +539,7 @@ set completefunc=syntaxcomplete#Complete
 
 # completion
 set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-set completeopt=menuone,noinsert
+set completeopt=menuone,noinsert,noselect
 if has('popupwin')
   set completeopt+=popuphidden  # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
@@ -611,7 +614,9 @@ g:maplocalleader = "\<C-\>"
 # misc#MapInsertEnter()
 # misc#MapInsertSpace()
 # misc#MapInsertTab()
-inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
+# inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
+inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
+inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
 
 # save
 nnoremap <leader><C-w> :update<CR>
@@ -712,27 +717,32 @@ endif
 # terminal
 # augroup event_terminal
 #   autocmd!
-#   autocmd TerminalOpen * setlocal nonumber norelativenumber signcolumn=no
+#   # TODO: laststatus=0
+#   autocmd TerminalWinOpen * setlocal nonumber norelativenumber signcolumn=no statusline=%#Normal#
 # augroup END
 if has('gui_running')
   if has('linux') || has('bsd')
     map <S-Insert> <Nop>
     map! <S-Insert> <MiddleMouse>
+    tnoremap <S-Insert> <C-w>"+
   endif
   # nnoremap <silent> <C-z> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
-  nnoremap <silent> <C-z> :below terminal<CR>
-  nnoremap <silent> <leader><CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-  nnoremap <silent> <leader><C-CR> :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <C-z> :below terminal<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+  nnoremap <silent> <leader><CR>
+    \ :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
+    \ <ScriptCmd>misc#SetTerminalOptions()<CR>
 else
-  nnoremap <silent> <leader><CR> :below terminal ++close /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR>
+  nnoremap <silent> <leader><CR>
+    \ :below terminal ++close /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR>
+    \ <ScriptCmd>misc#SetTerminalOptions()<CR>
 endif
-nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR>
-nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR>
+nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 # *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
 # tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
 tnoremap <C-w><Esc> <C-w>N:doautocmd CmdwinLeave<CR>
-tnoremap <C-d> <C-w>c
+tnoremap <C-d> <C-w>N:bd!<CR>
 
 # move
 nnoremap <leader><C-j> :move .+1<CR>==

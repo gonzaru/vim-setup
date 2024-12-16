@@ -275,6 +275,17 @@ export def SetPythonDynamic()
   endif
 enddef
 
+# set terminal options
+export def SetTerminalOptions()
+  if &buftype == "terminal"
+    # TODO: laststatus=0
+    # highlight! link StatusLineTerm Normal
+    # highlight! link StatusLineTermNC Normal
+    # setlocal statusline=%#Normal#%{repeat('-',winwidth('.'))}
+    setlocal nonumber norelativenumber signcolumn=no statusline=%#Normal#
+  endif
+enddef
+
 # sh
 export def SH(): void
   var guioptions_orig: string
