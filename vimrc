@@ -168,6 +168,7 @@ if g:se_enabled
   g:se_followfile = false
   g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
+  g:se_resizemaxcol = false
   g:se_winsize = 20
 endif
 
@@ -415,12 +416,12 @@ endif
 # keyboard layout (see :help i_CTRL-^)
 if has('keymap') && has("langmap") && exists("+langremap")
   set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
-  set keymap=russian-jcuken     # XFree86 'ru' keymap compatible
+  # set keymap=russian-jcuken   # XFree85 'ru' keymap compatible (see inoremap <C-^>)
   set iminsert=0                # 0 lmap is off and IM is off (default 0)
   set imsearch=-1               # 0 lmap is off and IM is off (default -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
   # TODO <leader>?
-  inoremap <C-^> <C-^><ScriptCmd>misc#SetImOptions()<CR>
+  inoremap <C-^> <Cmd>if empty(&keymap) \| set keymap=russian-jcuken \| endif<CR><C-^><ScriptCmd>misc#SetImOptions()<CR>
 endif
 
 # wildmenu
@@ -615,8 +616,23 @@ g:maplocalleader = "\<C-\>"
 # misc#MapInsertSpace()
 # misc#MapInsertTab()
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
-inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
-inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
+# inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
+# inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
+def MapInsertTab(): string
+  if pumvisible()
+    if complete_info()["selected"] != -1
+      return "\<C-y>"
+    elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
+      return copilot#Accept()
+    else
+      return "\<C-e>"
+    endif
+  elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
+    return copilot#Accept()
+  endif
+  return "\<Tab>"
+enddef
+inoremap <silent><nowait> <Tab> <C-r>=<SID>MapInsertTab()<CR>
 
 # save
 nnoremap <leader><C-w> :update<CR>

@@ -225,17 +225,15 @@ enddef
 # set input method options (see help: i_CTRL-^)
 export def SetImOptions()
   var deflang = "en"
-  var langs = ["ru"]
+  var imlang = "ru"
   if &l:iminsert == 1
     execute $"set dictionary-={$HOME}/.vim/dict/lang/{deflang}"
-    if &l:keymap =~ "^russian"
-      set dictionary+=${HOME}/.vim/dict/lang/ru
-      set spelllang=ru
+    if exists("b:keymap_name") && b:keymap_name == imlang
+      execute $"set dictionary+={$HOME}/.vim/dict/lang/{imlang}"
+      execute $"set spelllang={imlang}"
     endif
   else
-    for lang in langs
-      execute $"set dictionary-={$HOME}/.vim/dict/lang/{lang}"
-    endfor
+    execute $"set dictionary-={$HOME}/.vim/dict/lang/{imlang}"
     execute $"set dictionary+={$HOME}/.vim/dict/lang/{deflang}"
     execute $"set spelllang={deflang}"
   endif
