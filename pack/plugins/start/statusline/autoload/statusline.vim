@@ -38,8 +38,8 @@ export def GetImOptions(kind: string, fsl: bool): string
   var str = ""
   if kind == "lang"
     if mode() == "i" && &l:iminsert == 1
-      # add space for statusline
-      str = fsl ? $" {b:keymap_name}" : b:keymap_name
+      # add spaces for statusline
+      str = fsl ? $"{empty(GetStatus()) ? ' ' : '  '}{b:keymap_name}" : b:keymap_name
     endif
   endif
   return str
