@@ -55,6 +55,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> c <Plug>(se-open-with-custom)
   nnoremap <buffer> <nowait> C <Plug>(se-open-with-default)
   nnoremap <buffer> <nowait> o <Plug>(se-toggle-hidden-position)
+  nnoremap <buffer> <nowait> u <Plug>(se-toggle-perms-show)
   nnoremap <buffer> <nowait> m <Plug>(se-check-mime)
   nnoremap <buffer> <nowait> M <Plug>(se-set-mime)
   nnoremap <buffer> <nowait> . <Plug>(se-toggle-hidden-show)

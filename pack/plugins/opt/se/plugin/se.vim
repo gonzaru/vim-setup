@@ -29,11 +29,17 @@ endif
 if !exists('g:se_opentool')
   g:se_opentool = "xdg-open"
 endif
+if !exists('g:se_permsshow')
+  g:se_permsshow = false
+endif
 if !exists('g:se_position')
   g:se_position = "left"
 endif
 if !exists('g:se_prevdirhist')
   g:se_prevdirhist = 50
+endif
+if !exists('g:se_resizemaxcol')
+  g:se_resizemaxcol = false
 endif
 if !exists('g:se_winsize')
   g:se_winsize = 20
@@ -60,6 +66,7 @@ nnoremap <silent> <script> <Plug>(se-help) <ScriptCmd>se.Help()<CR>
 nnoremap <silent> <script> <Plug>(se-toggle) <ScriptCmd>se.Toggle(expand('%:p'))<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-hidden-show) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "show")<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-hidden-position) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "position")<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-perms-show) <ScriptCmd>se.TogglePermsShow()<CR>
 nnoremap <silent> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
 nnoremap <silent> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDirHome()<CR>
