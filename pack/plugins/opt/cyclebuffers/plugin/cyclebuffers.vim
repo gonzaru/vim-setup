@@ -20,6 +20,10 @@ import autoload '../autoload/cyclebuffers.vim'
 nnoremap <silent> <script> <Plug>(cyclebuffers-close) <Cmd>close<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-help) <ScriptCmd>cyclebuffers.Help()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-delete) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "delete")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-delete!) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "delete!")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-wipe) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "wipe")<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-select-wipe!) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "wipe!")<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-edit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "edit")<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-split) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "split")<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-vsplit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "vsplit")<CR>

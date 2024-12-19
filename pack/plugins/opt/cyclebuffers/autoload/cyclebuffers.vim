@@ -23,6 +23,10 @@ enddef
 # help information
 export def Help()
   var lines =<< trim END
+    d        # delete the current buffer
+    D        # delete the current buffer (with "!")
+    w        # wipe the current buffer
+    W        # wipe the current buffer (with "!")
     e        # edit the current buffer [<CR>]
     s        # edit the current buffer in split mode
     v        # edit the current buffer in a vertical split mode
@@ -115,5 +119,13 @@ export def SelectBuffer(line: number, mode: string)
     execute $"vertical sbuffer {bufnr}"
   elseif mode == "tabedit"
     execute $"tab sbuffer {bufnr}"
+  elseif mode == "delete"
+    execute $"bd {bufnr}"
+  elseif mode == "delete!"
+    execute $"bd! {bufnr}"
+  elseif mode == "wipe"
+    execute $"bw {bufnr}"
+  elseif mode == "wipe!"
+    execute $"bw! {bufnr}"
   endif
 enddef
