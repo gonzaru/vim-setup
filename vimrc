@@ -619,18 +619,23 @@ g:maplocalleader = "\<C-\>"
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
 # inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
 def MapInsertTab(): string
+  var wordmatch: string
+  var worditem: string
+  var keystroke = "\<Tab>"
   if pumvisible()
-    if complete_info()["selected"] != -1
-      return "\<C-y>"
+    if complete_info().selected != -1
+      wordmatch = matchstr(strpart(getline('.'), 0, col('.') - 1), '\k\+$')
+      worditem = complete_info()["items"][complete_info().selected].word
+      keystroke = wordmatch == worditem ? "\<C-y>\<Tab>" : "\<C-y>"
     elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
-      return copilot#Accept()
+      keystroke = copilot#Accept()
     else
-      return "\<C-e>"
+      keystroke = "\<C-e>"
     endif
   elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
-    return copilot#Accept()
+    keystroke = copilot#Accept()
   endif
-  return "\<Tab>"
+  return keystroke
 enddef
 inoremap <silent><nowait> <Tab> <C-r>=<SID>MapInsertTab()<CR>
 
