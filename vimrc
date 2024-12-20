@@ -540,7 +540,7 @@ set completefunc=syntaxcomplete#Complete
 
 # completion
 set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-set completeopt=menuone,noinsert,noselect
+set completeopt=menuone,noinsert  # ,noselect
 if has('popupwin')
   set completeopt+=popuphidden  # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
@@ -618,26 +618,20 @@ g:maplocalleader = "\<C-\>"
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
 # inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
-def MapInsertTab(): string
-  var wordmatch: string
-  var worditem: string
+def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
-  if pumvisible()
+  if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
+    keystroke = copilot#Accept()
+  elseif pumvisible()
     if complete_info().selected != -1
-      wordmatch = matchstr(strpart(getline('.'), 0, col('.') - 1), '\k\+$')
-      worditem = complete_info()["items"][complete_info().selected].word
-      keystroke = wordmatch == worditem ? "\<C-y>\<Tab>" : "\<C-y>"
-    elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
-      keystroke = copilot#Accept()
+      keystroke = "\<C-y>"
     else
       keystroke = "\<C-e>"
     endif
-  elseif get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion()['text'])
-    keystroke = copilot#Accept()
   endif
   return keystroke
 enddef
-inoremap <silent><nowait> <Tab> <C-r>=<SID>MapInsertTab()<CR>
+inoremap <silent><nowait> <Tab> <C-r>=<SID>MapInsertTab("tab")<CR>
 
 # save
 nnoremap <leader><C-w> :update<CR>
