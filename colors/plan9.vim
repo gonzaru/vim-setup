@@ -5,7 +5,7 @@ vim9script noclear
 # My plan9 theme :)
 
 # colors
-# 228 (yellow plan9)
+# 229 (yellow plan9)
 # 195 (cyan)
 # 147 (purple)
 # 144 (green/brown numbers)
@@ -35,15 +35,15 @@ endif
 # colorscheme
 g:colors_name = "plan9"
 
-highlight! Normal guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! Normal guifg=black guibg=#ffffaf ctermfg=black ctermbg=229 gui=NONE cterm=NONE term=NONE
 
 highlight! MatchParen guifg=black guibg=#afaf87 ctermfg=black ctermbg=144 gui=NONE cterm=NONE term=NONE
 
-highlight! Visual guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Visual guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 # TODO
 # VisualNOS
 
-highlight! WildMenu guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! WildMenu guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 
 # split windows
 highlight! StatusLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
@@ -56,7 +56,7 @@ highlight! Cursor guifg=white guibg=#606060 gui=NONE cterm=NONE term=NONE
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 highlight! CursorLine guifg=NONE guibg=#d7d787 ctermfg=NONE ctermbg=186 gui=NONE cterm=NONE term=NONE
-highlight! CursorLineNR guifg=#d70000 guibg=#ffff87 ctermfg=160 ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! CursorLineNR guifg=#d70000 guibg=#ffffaf ctermfg=160 ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -74,11 +74,11 @@ highlight! SpellRare guifg=pink guibg=#ff8787 ctermfg=black ctermbg=210 gui=unde
 highlight! SpellCap guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=underline cterm=underline term=NONE
 highlight! link SpellLocal SpellRare
 
-highlight! Search guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Search guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 highlight! link CurSearch Search
 highlight! link IncSearch Search
 
-highlight! LineNr guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! LineNr guifg=black guibg=#ffffaf ctermfg=black ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! link LineNrAbove LineNr
 highlight! link LineNrBelow LineNr
 
@@ -103,7 +103,7 @@ highlight! link diffSubname Normal
 
 highlight! Conceal guifg=black guibg=#ffff00 ctermfg=black ctermbg=226 gui=NONE cterm=NONE term=NONE
 
-highlight! NonText guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! NonText guifg=black guibg=#ffffaf ctermfg=black ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! link EndOfBuffer NonText
 
 # tabs
@@ -111,26 +111,26 @@ highlight! TabLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE 
 highlight! TabLineSel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
 highlight! TabLineFill guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 
-highlight! Folded guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Folded guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 highlight! FoldColumn guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
 highlight! SyntaxFoldLevel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
 
-highlight! Directory guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Directory guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 
-highlight! Question guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Question guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 
-highlight! MoreMsg guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! MoreMsg guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 
-highlight! Title guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! Title guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 
 # complete popup menu
 highlight! Pmenu guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! PmenuSel guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
-highlight! PmenuMatch guifg=#ffff5f guibg=black ctermfg=227 ctermbg=black gui=NONE cterm=NONE term=NONE
-highlight! PmenuMatchSel guifg=#d70000 guibg=#ffff5f ctermfg=160 ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! PmenuSel guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! PmenuMatch guifg=#ffff87 guibg=black ctermfg=228 ctermbg=black gui=NONE cterm=NONE term=NONE
+highlight! PmenuMatchSel guifg=#d70000 guibg=#ffff87 ctermfg=160 ctermbg=228 gui=NONE cterm=NONE term=NONE
 highlight! link PmenuKind Pmenu
 highlight! link PmenuKindSel PmenuSel
-highlight! PmenuSbar guifg=NONE guibg=#ffff87 ctermfg=NONE ctermbg=228 gui=NONE cterm=NONE term=NONE
+highlight! PmenuSbar guifg=NONE guibg=#ffffaf ctermfg=NONE ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! PmenuThumb guifg=NONE guibg=#afafff ctermfg=NONE ctermbg=147 gui=NONE cterm=NONE term=NONE
 # TODO
 # PmenuExtra
@@ -193,7 +193,7 @@ highlight! ErrorMsg guifg=white guibg=#ff0000 ctermfg=white ctermbg=1 gui=NONE c
 highlight! WarningMsg guifg=black guibg=#ffff00 ctermfg=black ctermbg=11 gui=NONE cterm=NONE term=NONE
 highlight! SyntaxErrorClear guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! SyntaxError guifg=black guibg=#ff0000 ctermfg=black ctermbg=9 gui=NONE cterm=NONE term=NONE
-highlight! SyntaxWarning guifg=black guibg=#ffff5f ctermfg=black ctermbg=227 gui=NONE cterm=NONE term=NONE
+highlight! SyntaxWarning guifg=black guibg=#ffff87 ctermfg=black ctermbg=228 gui=NONE cterm=NONE term=NONE
 highlight! SyntaxErrorPlus guifg=#800000 guibg=#ffffff ctermfg=1 ctermbg=15 gui=NONE cterm=NONE term=NONE
 
 # checker sh
