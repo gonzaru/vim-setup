@@ -669,6 +669,17 @@ inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<DEL>'
 # yank
 # nnoremap Y y$
 
+# paste
+# useful when in a termimal
+command! Paste {
+  var keeppaste = &l:paste
+  setlocal paste
+  normal! "+p
+  if !keeppaste
+    setlocal nopaste
+  endif
+}
+
 # edit
 nnoremap <leader>ev :e $MYVIMRC<CR>
 nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
