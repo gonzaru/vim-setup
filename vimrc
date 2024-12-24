@@ -907,25 +907,33 @@ command! CDC cd %:p:h
 command! LCDC lcd %:p:h
 
 # plan9 theme
-command! Plan9 {
+def Plan9(style: string)
+  g:plan9_style = style
   g:loaded_plan9 = false
   set background=light
   colorscheme plan9
-}
+enddef
+command! Plan9 Plan9("light")
+command! Plan9Light Plan9("light")
+command! Plan9Dark Plan9("dark")
 
 # darkula theme
-command! Darkula {
+def Darkula(style: string)
+  g:darkula_style = style
   g:loaded_darkula = false
   set background=dark
   colorscheme darkula
-}
+enddef
+command! Darkula Darkula("light")
+command! DarkulaLight Darkula("light")
+command! DarkulaDark Darkula("dark")
 
 # reload the current theme
 command! Theme {
   if g:colors_name == "plan9"
-    silent execute "normal! :Plan9\<CR>"
+    Plan9(g:plan9_style)
   elseif g:colors_name == "darkula"
-    silent execute "normal! :Darkula\<CR>"
+    Darkula(g:darkula_style)
   else
     silent execute $"colorscheme {g:colors_name}"
   endif
