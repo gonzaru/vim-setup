@@ -32,8 +32,6 @@ setlocal makeprg=pep8\ %
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 setlocal formatprg=black\ -S\ -l\ 79\ -q\ 2>/dev/null\ --stdin-filename\ %\ -
 # matchadd('ColorColumn', '\%79v', 10)
-augroup ftplugin_python
-  autocmd!
-  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%79v', 10)
-  autocmd BufLeave <buffer> clearmatches()
-augroup END
+if g:misc_enabled
+  misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%79v', 'priority': 10})
+endif

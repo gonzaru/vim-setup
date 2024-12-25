@@ -28,8 +28,6 @@ setlocal iskeyword=@,48-57,_,192-255,$,%,@-@,:,#  # see 'complete'
 #^ setlocal keywordprg=perldoc\ -f
 setlocal makeprg=perl\ -c\ %
 # matchadd('ColorColumn', '\%120v', 10)
-augroup ftplugin_perl
-  autocmd!
-  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
-  autocmd BufLeave <buffer> clearmatches()
-augroup END
+if g:misc_enabled
+  misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})
+endif

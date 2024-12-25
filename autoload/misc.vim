@@ -187,6 +187,34 @@ export def MapInsertTab()
   \ : '<Tab>'
 enddef
 
+# matchadd() using autocmds with <buffer>
+export def MatchAdd(item: dict<any>)
+  b:misc_matchadd = item
+  execute $"augroup ftplugin_{&filetype}"
+    autocmd!
+    autocmd BufEnter,WinEnter <buffer> {
+      var found = false
+      b:misc_matchadd.id = win_getid()
+      for m in getmatches()
+        if m == b:misc_matchadd
+          found = true
+          break
+        endif
+      endfor
+      if !found
+        matchadd(b:misc_matchadd.group, b:misc_matchadd.pattern, b:misc_matchadd.priority, b:misc_matchadd.id)
+      endif
+    }
+    autocmd BufLeave <buffer> {
+      for m in getmatches()
+        if m == b:misc_matchadd
+          matchdelete(m.id)
+        endif
+      endfor
+    }
+  augroup END
+enddef
+
 # reload plugin (pack)
 export def ReloadPluginPack(plugin: string, kind: string): void
   var dir: string

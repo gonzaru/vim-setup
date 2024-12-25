@@ -33,8 +33,6 @@ setlocal formatprg=gofmt
 #   inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
 # endif
 # matchadd('ColorColumn', '\%120v', 10)
-augroup ftplugin_go
-  autocmd!
-  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
-  autocmd BufLeave <buffer> clearmatches()
-augroup END
+if g:misc_enabled
+  misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})
+endif
