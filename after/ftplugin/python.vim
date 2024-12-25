@@ -14,8 +14,8 @@ b:did_ftplugin_after = true
 # Python
 setlocal syntax=on
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 #^ setlocal suffixesadd=.py
 #^ setlocal wildignore+=*.pyc
 setlocal nowrap
@@ -31,4 +31,9 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 setlocal makeprg=pep8\ %
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 setlocal formatprg=black\ -S\ -l\ 79\ -q\ 2>/dev/null\ --stdin-filename\ %\ -
-matchadd('ColorColumn', '\%79v', 10)
+# matchadd('ColorColumn', '\%79v', 10)
+augroup ftplugin_python
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%79v', 10)
+  autocmd BufLeave <buffer> clearmatches()
+augroup END

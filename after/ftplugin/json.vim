@@ -17,8 +17,8 @@ setlocal syntax=on
 #^ setlocal comments=
 #^ setlocal commentstring=
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal tabstop=2
 setlocal softtabstop=2

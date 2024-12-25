@@ -14,8 +14,8 @@ b:did_ftplugin_after = true
 # C++
 setlocal syntax=on
 #^ setlocal formatoptions-=t
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=2

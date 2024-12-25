@@ -15,8 +15,8 @@ b:did_ftplugin_after = true
 setlocal syntax=on
 #^ setlocal formatoptions-=t
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=4
@@ -32,4 +32,9 @@ setlocal formatprg=gofmt
 # if get(g:, "complementum_enabled")
 #   inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
 # endif
-matchadd('ColorColumn', '\%120v', 10)
+# matchadd('ColorColumn', '\%120v', 10)
+augroup ftplugin_go
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
+  autocmd BufLeave <buffer> clearmatches()
+augroup END

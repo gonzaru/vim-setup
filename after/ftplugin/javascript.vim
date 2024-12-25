@@ -15,8 +15,8 @@ b:did_ftplugin_after = true
 setlocal syntax=on
 #^ setlocal formatoptions-=t
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 #^ setlocal suffixesadd+=.js,.jsx,.es,.es6,.cjs,.mjs,.jsm,.vue,.json
 setlocal nowrap
 setlocal showbreak=NONE

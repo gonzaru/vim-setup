@@ -15,8 +15,8 @@ b:did_ftplugin_after = true
 setlocal syntax=on
 #^ setlocal formatoptions-=t
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=4
@@ -27,4 +27,9 @@ setlocal expandtab
 setlocal iskeyword=@,48-57,_,192-255,$,%,@-@,:,#  # see 'complete'
 #^ setlocal keywordprg=perldoc\ -f
 setlocal makeprg=perl\ -c\ %
-matchadd('ColorColumn', '\%120v', 10)
+# matchadd('ColorColumn', '\%120v', 10)
+augroup ftplugin_perl
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
+  autocmd BufLeave <buffer> clearmatches()
+augroup END

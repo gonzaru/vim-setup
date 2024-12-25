@@ -14,8 +14,8 @@ b:did_ftplugin_after = true
 setlocal syntax=on
 #^ setlocal formatoptions-=t
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal tabstop=2
 setlocal softtabstop=2

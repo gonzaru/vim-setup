@@ -14,8 +14,8 @@ b:did_ftplugin_after = true
 # PHP
 setlocal syntax=on
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=4
@@ -26,4 +26,9 @@ setlocal expandtab
 setlocal makeprg=php\ -lq\ %
 #^ setlocal omnifunc=phpcomplete#CompletePHP
 setlocal suffixesadd+=.tpl.php
-matchadd('ColorColumn', '\%120v', 10)
+# matchadd('ColorColumn', '\%120v', 10)
+augroup ftplugin_php
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
+  autocmd BufLeave <buffer> clearmatches()
+augroup END

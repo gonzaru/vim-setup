@@ -22,8 +22,8 @@ setlocal syntax=on
 #^ setlocal formatoptions-=t formatoptions+=croql
 setlocal formatoptions-=cro  # don't auto comment new lines
 # setlocal signcolumn=auto
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=2
@@ -37,4 +37,9 @@ setlocal makeprg=sh\ -n\ %
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 endif
-matchadd('ColorColumn', '\%120v', 10)
+# matchadd('ColorColumn', '\%120v', 10)
+augroup ftplugin_sh
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> matchadd('ColorColumn', '\%120v', 10)
+  autocmd BufLeave <buffer> clearmatches()
+augroup END

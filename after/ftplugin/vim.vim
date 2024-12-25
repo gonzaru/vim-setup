@@ -14,8 +14,8 @@ b:did_ftplugin_after = true
 setlocal syntax=on
 #^ setlocal fo-=t fo+=croql
 setlocal formatoptions-=cro  # don't auto comment new lines
-setlocal number
-setlocal cursorline
+# setlocal number
+# setlocal cursorline
 setlocal nowrap
 setlocal showbreak=NONE
 setlocal tabstop=2
