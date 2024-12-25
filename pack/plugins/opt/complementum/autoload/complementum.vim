@@ -146,15 +146,18 @@ def IsTriggerableOmni(lang: string, ichar: string): bool
 enddef
 
 # complete (default)
-export def Complete(lang: string, ichar: string)
+export def Complete(lang: string, ichar: string): void
   if g:complementum_debuginfo
     defer DebugInfo()
   endif
-  if !pumvisible() && IsTriggerableOmni(lang, ichar)
+  if pumvisible()
+    return
+  endif
+  if IsTriggerableOmni(lang, ichar)
     CompleteOmni(lang)
-  elseif ichar =~ '^\W$' || pumvisible() || state('m') == 'm'
+  elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing
-  elseif !pumvisible() && IsTriggerableDefault()
+  elseif IsTriggerableDefault()
     feedkeys(g:complementum_keystroke_default, "i")
   endif
 enddef
@@ -166,5 +169,8 @@ def CompleteOmni(lang: string): void
   endif
   if index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "i")
+  else
+    # fallback to default
+    feedkeys(g:complementum_keystroke_default, "i")
   endif
 enddef
