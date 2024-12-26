@@ -156,9 +156,8 @@ highlight! link PmenuKind Pmenu
 highlight! link PmenuKindSel PmenuSel
 execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NONE ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 highlight! PmenuThumb guifg=NONE guibg=#afafff ctermfg=NONE ctermbg=147 gui=NONE cterm=NONE term=NONE
-# TODO
-# PmenuExtra
-# PmenuExtraSel
+highlight! link PmenuExtra Pmenu
+highlight! link PmenuExtraSel PmenuSel
 
 # :help completepopup
 highlight! InfoPopup guifg=black guibg=lightgray ctermfg=black ctermbg=lightgray gui=NONE cterm=NONE term=NONE

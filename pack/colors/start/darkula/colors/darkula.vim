@@ -149,9 +149,8 @@ execute $"highlight! PmenuKind guifg=#cc7832 guibg={isdark ? '#3a3a3a' : '#46484
 highlight! PmenuKindSel guifg=#cc7832 guibg=#113a5c ctermfg=172 ctermbg=25 gui=NONE cterm=NONE term=NONE
 execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NONE ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuThumb guifg=NONE guibg={isdark ? '#303030' : '#999999'} ctermfg=NONE ctermbg={isdark ? 236 : 102} gui=NONE cterm=NONE term=NONE"
-# TODO
-# PmenuExtra
-# PmenuExtraSel
+execute $"highlight! PmenuExtra guifg=#808080 guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=244 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuExtraSel guifg=#949494 guibg=#113a5c ctermfg=246 ctermbg=25 gui=NONE cterm=NONE term=NONE"
 
 # :help completepopup
 execute $"highlight! InfoPopup guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
@@ -234,7 +233,7 @@ execute $"highlight! SyntaxErrorGOVET guifg={colors.normal.guifg} guibg=NONE cte
 
 # go syntax
 # go#config#HighlightFunctions()
-execute $"highlight! goFunction guifg=#ffc66d guibg={colors.normal.guibg} ctermfg=221 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! goFunction guifg=#ffd75f guibg={colors.normal.guibg} ctermfg=221 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! goReceiverVar guifg=#4eade5 guibg={colors.normal.guibg} ctermfg=74 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! goReceiverType guifg=#6fafbd guibg={colors.normal.guibg} ctermfg=73 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 highlight! link goPointerOperator Normal
@@ -244,7 +243,7 @@ highlight! link goParamName Normal
 
 # go#config#HighlightFunctionCalls()
 # TODO ctermfg=137
-execute $"highlight! goFunctionCall guifg=#b09d79 guibg={colors.normal.guibg} ctermfg=137 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! goFunctionCall guifg=#d7af5f guibg={colors.normal.guibg} ctermfg=179 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # go#config#HighlightTypes()
 execute $"highlight! goTypeConstructor guifg=#6fafbd guibg={colors.normal.guibg} ctermfg=73 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
@@ -266,7 +265,7 @@ execute $"highlight! goGenerate guifg=#629755 guibg={colors.normal.guibg} ctermf
 
 # custom
 # see ~/.vim/after/syntax/go.vim
-execute $"highlight! goCustomFunctionName guifg=#afbf7e guibg={colors.normal.guibg} ctermfg=144 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! goCustomFunctionName1 guifg=#afbf7e guibg={colors.normal.guibg} ctermfg=144 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # vim syntax
 execute $"highlight! vimEnvVar guifg=#b09d79 guibg={colors.normal.guibg} ctermfg=137 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
