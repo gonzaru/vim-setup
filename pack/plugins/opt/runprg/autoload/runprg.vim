@@ -11,25 +11,6 @@ g:autoloaded_runprg = true
 # script local variables
 const BUFFER_NAME = $"runprg_{strcharpart(sha256('runprg'), 0, 8)}"
 
-# allowed file types
-const ALLOWED_TYPES = ["sh", "python", "go"]
-
-# run commands
-const COMMANDS = {
-  'sh': {
-    'command': join(g:runprg_sh_command)
-  },
-  'bash': {
-    'command': join(g:runprg_bash_command)
-  },
-  'python': {
-    'command': join(g:runprg_python_command)
-  },
-  'go': {
-    'command': join(g:runprg_go_command)
-  }
-}
-
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
@@ -53,15 +34,6 @@ def GetRunBufWinId(): number
   return bufexists(BUFFER_NAME) ? bufwinid(BUFFER_NAME) : -1
 enddef
 
-# detects if the shell is sh or bash using shebang
-def SHShellType(lang: string): string
-  if lang != "sh"
-    EchoErrorMsg($"Error: the lang '{lang}' is not supported")
-    return ''
-  endif
-  return getline(1) =~ "bash" ? "bash" : "sh"
-enddef
-
 # close
 export def Close()
   var runwinid = GetRunBufWinId()
@@ -71,48 +43,42 @@ export def Close()
 enddef
 
 # run
-export def Run(lang: string, file: string): void
-  var cmd: string
-  var theshell: string
-  if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg($"Error: running the lang '{lang}' is not supported")
+export def Run(cmd: string, file: string): void
+  if empty(cmd) || !executable(split(cmd)[0])
+    EchoErrorMsg($"Error: the cmd '{cmd}' is not executable")
     return
   endif
-  if lang == "sh"
-    theshell = SHShellType(lang)
-    cmd = COMMANDS[theshell]["command"]
-  else
-    cmd = COMMANDS[lang]["command"]
-  endif
-  echo system($"{cmd} {file}")
+  echo !empty(file) ? system($"{cmd} {file}") : system(cmd)
   if v:shell_error != 0
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
 enddef
 
 # run setup window
-def RunSetupWindow()
-  var bid = GetRunBufWinId()
-  if bid > 0
-    win_gotoid(bid)
-  elseif bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
-    execute $"rightbelow split {BUFFER_NAME}"
+def RunSetupWindow(lines: list<string>, position: string)
+  Close()
+  if bufexists(BUFFER_NAME) && getbufinfo(BUFFER_NAME)[0].hidden
+    if position == "below"
+      execute $"rightbelow split {BUFFER_NAME}"
+    elseif position == "above"
+      execute $"leftabove split {BUFFER_NAME}"
+    endif
   else
-    below new
+    if position == "below"
+      below new
+    elseif position == "above"
+      aboveleft new
+    endif
     silent execute $"file {BUFFER_NAME}"
-    &l:statusline = $"[runprg]:{bufname('#')->fnamemodify(':~')}"
-    setlocal winfixheight
-    setlocal winfixwidth
-    setlocal buftype=nofile
-    setlocal noswapfile
-    setlocal buflisted
   endif
+  silent deletebufline(BUFFER_NAME, 1, '$')
+  appendbufline(BUFFER_NAME, 0, lines)
+  deletebufline(BUFFER_NAME, '$')
+  setlocal filetype=runprg
 enddef
 
 # run with window
-export def RunWindow(lang: string, file: string): void
-  var cmd: string
-  var theshell: string
+export def RunWindow(cmd: string, file: string, position: string, gowin: bool): void
   var outmsg: list<string>
   var runwinid = GetRunBufWinId()
   var selwinid = win_getid()
@@ -120,17 +86,15 @@ export def RunWindow(lang: string, file: string): void
     EchoWarningMsg($"Warning: already using the same window '{BUFFER_NAME}'")
     return
   endif
-  if index(ALLOWED_TYPES, lang) == -1
-    EchoErrorMsg($"Error: running the lang '{lang}' is not supported")
+  if empty(cmd) || !executable(split(cmd)[0])
+    EchoErrorMsg($"Error: the command '{cmd}' is not executable")
     return
   endif
-  if lang == "sh"
-    theshell = SHShellType(lang)
-    cmd = COMMANDS[theshell]["command"]
-  else
-    cmd = COMMANDS[lang]["command"]
+  if index(['below', 'above'], position) == -1
+    EchoErrorMsg($"Error: the position '{position}' is not allowed")
+    return
   endif
-  outmsg = systemlist($"{cmd} {file}")
+  outmsg = !empty(file) ? systemlist($"{cmd} {file}") : systemlist(cmd)
   if v:shell_error != 0
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
@@ -138,12 +102,10 @@ export def RunWindow(lang: string, file: string): void
     EchoWarningMsg("Warning: empty output")
     return
   endif
-  RunSetupWindow()
+  RunSetupWindow(outmsg, position)
+  &l:statusline = $"[runprg]: {cmd} {!empty(file) ? fnamemodify(file, ':~') : ''} {&l:statusline}"
   runwinid = GetRunBufWinId()
-  silent deletebufline(BUFFER_NAME, 1, '$')
-  appendbufline(BUFFER_NAME, 0, outmsg)
-  deletebufline(BUFFER_NAME, '$')
   win_execute(runwinid, "cursor(1, 1)")
   win_execute(runwinid, $"resize {len(outmsg)}")
-  win_gotoid(selwinid)
+  win_gotoid(gowin ? runwinid : selwinid)
 enddef

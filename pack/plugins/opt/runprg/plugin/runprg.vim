@@ -8,26 +8,28 @@ if get(g:, 'loaded_runprg') || !get(g:, 'runprg_enabled')
 endif
 g:loaded_runprg = true
 
-# global variables
-if !exists('g:runprg_sh_command')
-  g:runprg_sh_command = ['sh']
-endif
-if !exists('g:runprg_bash_command')
-  g:runprg_bash_command = ['bash']
-endif
-if !exists('g:runprg_python_command')
-  g:runprg_python_command = ['python3']
-endif
-if !exists('g:runprg_go_command')
-  g:runprg_go_command = ['go run']
-endif
-
 # autoload
 import autoload '../autoload/runprg.vim'
 
+# get run commands
+def GetRunCommand(lang: string): string
+  var cmds = {
+    'sh': getline(1) =~ "bash" ? 'bash' : 'sh',
+    'bash': 'bash',
+    'python': 'python3',
+    'go': 'go run'
+  }
+  if !has_key(cmds, lang)
+    throw $"Error: the lang '{lang}' is not supported"
+  endif
+  return cmds[lang]
+enddef
+
 # define mappings
-nnoremap <silent> <script> <Plug>(runprg-run) <ScriptCmd>runprg.Run(&filetype, expand('%:p'))<CR>
-nnoremap <silent> <script> <Plug>(runprg-window) <ScriptCmd>runprg.RunWindow(&filetype, expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(runprg-run)
+  \ <ScriptCmd>runprg.Run(GetRunCommand(&filetype), expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(runprg-window)
+  \ <ScriptCmd>runprg.RunWindow(GetRunCommand(&filetype), expand('%:p'), 'below', false)<CR>
 nnoremap <silent> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
