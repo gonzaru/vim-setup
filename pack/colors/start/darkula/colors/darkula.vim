@@ -52,7 +52,8 @@ highlight! Visual guifg=NONE guibg=#214283 ctermfg=NONE ctermbg=25 gui=NONE cter
 # TODO
 # VisualNOS
 
-execute $"highlight! WildMenu guifg=#113a5c guibg={colors.normal.guifg} ctermfg=25 ctermbg={colors.normal.ctermfg} gui=NONE cterm=NONE term=NONE"
+# see PmenuSel
+execute $"highlight! WildMenu guifg={colors.normal.guifg} guibg=#113a5c ctermfg={colors.normal.ctermfg} ctermbg=25 gui=NONE cterm=NONE term=NONE"
 
 # split windows
 execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
