@@ -19,9 +19,10 @@ setlocal nocursorcolumn
 setlocal nowrap
 setlocal nospell
 setlocal nolist
-setlocal buftype=nofile
 setlocal noswapfile
-setlocal buflisted
+setlocal nobuflisted
+setlocal buftype=nowrite
+setlocal bufhidden=wipe
 setlocal syntax=on
 if get(g:, 'git_no_mappings') == 0
   nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action))
