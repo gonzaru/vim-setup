@@ -47,6 +47,15 @@ export def PopupToggle(): void
   endif
 enddef
 
+# check trailing spaces
+export def CheckTrailingSpaces()
+  var nline: number
+  nline = search('\s\+$', 'n')
+  if nline > 0
+    utils.EchoWarningMsg($"Warning: there are trailing spaces in the line '{nline}'")
+  endif
+enddef
+
 # complete plugin pack (:ReloadPluginPack)
 export def CompleteReloadPluginPack(ArgLead: string, CmdLine: string, _): list<string>
   var kind = (trim(CmdLine) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'

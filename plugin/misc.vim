@@ -19,21 +19,12 @@ g:loaded_misc = true
 # autoload
 import autoload '../autoload/misc.vim'
 
-# go to last edit cursor position
+# go to last edit cursor position (see :help restore-cursor)
 def GoLastEditCursorPos()
   var nline = line("'\"")
   if nline >= 1 && nline <= line("$") && &filetype !~ "commit"
      && index(['xxd', 'gitrebase'], &filetype) == -1
     execute "normal! g`\""
-  endif
-enddef
-
-# check trailing spaces
-def CheckTrailingSpaces()
-  var nline: number
-  nline = search('\s\+$', 'n')
-  if nline > 0
-    utils#EchoWarningMsg($"Warning: there are trailing spaces in the line '{nline}'")
   endif
 enddef
 
@@ -49,9 +40,9 @@ augroup END
 
 augroup misc_checktrailingspaces
   autocmd!
-  autocmd BufWinEnter,BufWritePost * {
+  autocmd BufWritePost * {
     if g:misc_enabled && index(['help', 'git', 'gitscm', 'qf'], &filetype) == -1 && &buftype != 'terminal'
-      CheckTrailingSpaces()
+      misc.CheckTrailingSpaces()
     endif
   }
 augroup END
@@ -60,7 +51,7 @@ augroup END
 nnoremap <silent> <script> <Plug>(misc-golasteditcursor) <ScriptCmd>GoLastEditCursorPos()<CR>
 # inoremap <silent> <script> <Plug>(misc-mapinsertenter) <ScriptCmd>misc.MapInsertEnter()<CR>
 # inoremap <silent> <script> <Plug>(misc-mapinserttab) <ScriptCmd>misc.MapInsertTab()<CR>
-nnoremap <silent> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>CheckTrailingSpaces()<CR>
+nnoremap <silent> <script> <Plug>(misc-checktrailingspaces) <ScriptCmd>misc.CheckTrailingSpaces()<CR>
 
 # TODO:
 # set mappings
@@ -73,7 +64,7 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=file MiscEditTopFile misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
-  command! MiscCheckTrailingSpaces CheckTrailingSpaces()
+  command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
