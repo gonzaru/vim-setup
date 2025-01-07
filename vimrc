@@ -20,17 +20,23 @@ endif
 # config variables
 var colortheme = "darkula"                                                  # theme
 var background = "dark"                                                     # background
+g:darkula_style = "dark"                                                    # light or dark
+g:darkula_cursor2 = has('gui_running')                                      # alternative cursor n2
+var host = hostname()                                                       # hostname
+var sessiondir = $"{$HOME}/.vim/sessions"                                   # session dir
 var tmux = !empty($TMUX) || &term =~ "tmux"                                 # tmux
 var multiplexer = tmux                                                      # multiplexer
 var alacritty = !empty($ALACRITTY_SOCKET) && !multiplexer                   # alacritty
 var alacritty_tmux = !empty($ALACRITTY_SOCKET) && tmux                      # alacritty + tmux
+var ghostty = $TERM_PROGRAM == "ghostty" && !multiplexer                    # ghostty
+var ghostty_tmux = $TMUX_PARENT_TERM == "xterm-ghostty" && tmux             # ghostty + tmux
 var apple_terminal = $TERM_PROGRAM == "Apple_Terminal"  && !multiplexer     # terminal.app
 var apple_terminal_tmux = !empty($TERM_SESSION_ID) && tmux                  # terminal.app + tmux
 var gnome_terminal = !empty($GNOME_TERMINAL_SCREEN) && !multiplexer         # gnome
 var gnome_terminal_tmux = !empty($GNOME_TERMINAL_SCREEN) && tmux            # gnome + tmux
 var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer   # jediterm
 var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux      # jediterm + tmux
-var vim_terminal = !empty($VIM_TERMINAL)                                    # vim terminal
+var vim_terminal = !empty($VIM_TERMINAL) && !multiplexer                    # vim terminal
 var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
 var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
 var xterm_tmux = !empty($XTERM_VERSION) && tmux                             # xterm + tmux
@@ -222,8 +228,10 @@ set formatoptions-=cro      # remove '"' line below automatically when current l
 set formatoptions+=j        # delete comment character when joining commented lines (:help fo-table) (default is tcq)
 set nrformats-=octal        # do not recognize octal numbers for Ctrl-A and Ctrl-X
 set commentstring=          # empty template for a comment (default /* %s */)
-set scrolloff=5             # minimal number of screen lines to keep above and below the cursor (default is 5)
-set sidescrolloff=5         # minimal number of screen columns to keep to the left and to the right of the cursor
+set scrolloff=0             # minimal number of screen lines to keep above/below the cursor (0, defaults.vim 5, 999 center)
+set sidescroll=0            # minimal number of columns to scroll horizontally (default 0)
+set sidescrolloff=0         # minimal number of screen columns to keep to the left and to the right of the cursor
+# set smoothscroll          # scrolling using screen lines
 set nostartofline           # some jump commands move the cursor to the first non-blank like <C-^> previous buffer
 set nojoinspaces            # disable adding to spaces after '.' when joining a file, adding one instead of two
 set nofixeol                # do not add an EOL at the end of file if missing, keep original file as is (default on)
@@ -234,17 +242,17 @@ set keymodel=startsel       # using a shifted special key starts (<S-Left,Right,
 set keymodel+=stopsel       # using non shifted stops (visual or select mode)
 set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 # set cpoptions+=n          # the column used for 'number' and 'relativenumber' will be used for text of wrapped lines
-set number                  # print the line number in front of each line
-# set relativenumber        # show the line number relative to the line
+set nonumber                # do not print the line number in front of each line
+set relativenumber          # show the line number relative to the line
 # set numberwidth=4         # minimal number of columns to use for the line number (default 4)
 set laststatus=2            # to display the status line always
 set display=lastline        # the last line in a window will be displayed if possible
 set ignorecase              # case-insensitive search (also affects if == 'var', use if == 'var')
-set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set smartcase               # except if start with capital letter
 set tagcase=followscs       # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
-# set jumpoptions=stack     # make the jumplist behave like the tagstack
+set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
+# set jumpoptions=stack     # make the jumplist behave like the tagstack
 set hlsearch                # to highlight all search matches
 set incsearch               # jumps to search word when typing on serch /foo (default no)
 set nospell                 # disable spell checking
@@ -258,6 +266,7 @@ set foldmethod=manual       # disable automatic folding
 set foldopen-=block         # don't open folds when jumping with "(", "{", "[[", "[{", etc.
 set foldlevelstart=99       # all folds open (default -1)
 set cursorline              # mark with another color the current cursor line
+set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
 set path=.,,,**             # set path for finding files with :find (default .,/usr/include,,)
 set noemoji                 # don't consider unicode emoji characters to be full width
 set updatetime=300          # used for the |CursorHold| autocommand event
@@ -272,27 +281,19 @@ if !has('gui_running')
   # &t_SI = blinking vertical bar (INSERT MODE)
   # &t_SR = blinking underscore   (REPLACE MODE)
   # &t_EI = blinking block        (NORMAL MODE)
-  if has('mac') && (
-    alacritty || alacritty_tmux
-    || apple_terminal || apple_terminal_tmux
-  )
-    &t_SI ..= "\eP\e[5 q\e\\"
-    &t_SR ..= "\eP\e[3 q\e\\"
-    &t_EI ..= "\eP\e[1 q\e\\"
-  elseif (
-    alacritty || alacritty_tmux
-    || gnome_terminal || gnome_terminal_tmux
+  if gnome_terminal || gnome_terminal_tmux
     || jediterm || jediterm_tmux
-    || vim_terminal || vim_terminal_tmux
     || xterm || xterm_tmux
-    || st || st_tmux
-  )
-    &t_SI ..= "\e[6 q"
-    &t_SR ..= "\e[4 q"
-    &t_EI ..= "\e[2 q"
+    &t_SI = "\e[6 q"
+    &t_SR = "\e[4 q"
+    &t_EI = "\e[2 q"
+  else
+    &t_SI = "\eP\e[5 q\e\\"
+    &t_SR = "\eP\e[3 q\e\\"
+    &t_EI = "\eP\e[1 q\e\\"
   endif
   # tmux/alacritty mouse codes
-  if match(&term, '^\(tmux\|alacritty\)') != -1
+  if match(&term, '^\(tmux\|alacritty\|xterm-ghostty\)') != -1
     # Terminal.app or xterm >= 277
     set ttymouse=sgr
   endif
@@ -301,7 +302,7 @@ if !has('gui_running')
     set ttyfast
   endif
   # italic fonts support
-  if (xterm || apple_terminal) && !multiplexer
+  if (empty(&t_ZH) || empty(&t_ZR)) && (xterm || apple_terminal) && !multiplexer
     &t_ZH = "\e[3m"
     &t_ZR = "\e[23m"
   endif
@@ -309,6 +310,7 @@ if !has('gui_running')
   if has('termguicolors') && str2nr(&t_Co) >= 256
     if (
       alacritty || alacritty_tmux
+      || ghostty || ghostty_tmux
       || gnome_terminal || gnome_terminal_tmux
       || jediterm || jediterm_tmux
       || vim_terminal || vim_terminal_tmux
@@ -316,9 +318,9 @@ if !has('gui_running')
       || st || st_tmux
     )
       # :help xterm-true-color
-      if !jediterm
-        &t_8f = "\<ESC>[38:2:%lu:%lu:%lum"
-        &t_8b = "\<ESC>[48:2:%lu:%lu:%lum"
+      if !jediterm && (empty(&t_8f) || empty(&t_8b))
+        &t_8f = "\e[38:2:%lu:%lu:%lum"
+        &t_8b = "\e[48:2:%lu:%lu:%lum"
       endif
       set termguicolors
     else
@@ -326,9 +328,9 @@ if !has('gui_running')
     endif
   endif
   # FocusGained, FocusLost (see :help xterm-focus-event)
-  if alacritty || alacritty_tmux || st || st_tmux
-    &t_fe = "\<Esc>[?1004h"
-    &t_fd = "\<Esc>[?1004l"
+  if alacritty || alacritty_tmux || ghostty || ghostty_tmux || st || st_tmux
+    &t_fe = "\e[?1004h"
+    &t_fd = "\e[?1004l"
     execute "set <FocusGained>=\<Esc>[I"
     execute "set <FocusLost>=\<Esc>[O"
   else
@@ -351,9 +353,9 @@ if has('gui_running')
   else
     execute $"set viminfofile={$HOME}/.viminfo_gvim_{v:version}"
     if filereadable($"{$HOME}/.local/share/fonts/SF-Mono-Medium.otf")
-      set guifont=SF\ Mono\ Medium\ 12
+      execute $"set guifont=SF\\ Mono\\ Medium\\ {host == 'vologda' ? 12.5 : 12}"
     else
-      set guifont=DejaVu\ Sans\ Mono\ 12
+      execute $"set guifont=DejaVu\\ Sans\\ Mono\\ {host == 'vologda' ? 12.8 : 12}"
     endif
   endif
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
@@ -372,7 +374,10 @@ endif
 # maximum column for syntax items (default 3000)
 if has("syntax")
   syntax manual
-  set synmaxcol=1024
+  # debug :syntime on, :syntime report
+  # .vim/after/syntax
+  # syntax sync fromstart
+  set synmaxcol=512
 endif
 
 # see :filetype
@@ -385,13 +390,10 @@ if !empty($SHELL) && executable($SHELL)
   set shell=$SHELL
 elseif executable("/bin/bash")
   set shell=/bin/bash
+elseif executable("bash")
+  set shell=/usr/bin/env\ bash
 else
   set shell=/bin/sh
-endif
-
-# behavior of cursorline {line, number} (default both)
-if exists('+cursorlineopt')
-  set cursorlineopt=both
 endif
 
 # mouse support
@@ -416,7 +418,7 @@ endif
 # keyboard layout (see :help i_CTRL-^)
 if has('keymap') && has("langmap") && exists("+langremap")
   set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
-  # set keymap=russian-jcuken   # XFree85 'ru' keymap compatible (see inoremap <C-^>)
+  # set keymap=russian-jcuken   # XFree86 'ru' keymap compatible (see inoremap <C-^>)
   set iminsert=0                # 0 lmap is off and IM is off (default 0)
   set imsearch=-1               # 0 lmap is off and IM is off (default -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
@@ -429,9 +431,10 @@ if has("wildmenu")
   set wildchar=<Tab>              # character to type to start wildcard expansion (default <Tab>)
   set wildcharm=<C-z>             # like 'wildchar' but it works in macros and mappings (<C-z> becomes <Tab>)
   set wildmenu                    # enchange command line completion
-  set wildmode=longest:full,full  # default (full)
-  set nowildignorecase            # case is not ignored when completing files and directories (see fileignorecase)
+  set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default full)
+  set wildignorecase              # case is ignored when completing files and directories (see fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
+  # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
   set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
 endif
 
@@ -477,6 +480,7 @@ set softtabstop=2  # if non-zero, number of spaces to insert for a <tab>
 set shiftwidth=2   # number of spaces used for each step of (auto)indent
 set shiftround     # round to shiftwidth for "<<" and ">>"
 set expandtab      # expand <tab> to spaces in insert mode
+set smarttab       # inserts blanks according to shiftwidth
 
 # search files
 # [l]grep[add][!]: grep -n $* /dev/null (default)
@@ -508,8 +512,14 @@ if has('mksession')
   set sessionoptions-=folds
   set sessionoptions-=terminal
   set sessionoptions-=curdir
+  set sessionoptions-=blank
   set sessionoptions+=sesdir
   set sessionoptions+=resize,winpos
+  command! Session {
+    if filereadable($"{sessiondir}/last.vim")
+      execute $"source {sessiondir}/last.vim"
+    endif
+  }
 endif
 
 # views options
@@ -540,13 +550,14 @@ set completefunc=syntaxcomplete#Complete
 
 # completion
 set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-set completeopt=menuone,noinsert  # ,noselect
+set completeopt=menuone,noinsert,fuzzy  # ,noselect
 if has('popupwin')
-  set completeopt+=popuphidden  # like popup option but hidden by default
+  # set completeopt+=popup        # show extra information in a popup window
+  # set completeopt+=popuphidden  # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
-endif
-if exists('+completepopup')
-  set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
+  if exists('+completepopup')
+    set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
+  endif
 endif
 # .: the current buffer
 # w: buffers in other windows
@@ -657,8 +668,8 @@ command! Backup {
 vnoremap <leader>* <ESC><ScriptCmd>misc#SearchSelectedText('forward')<CR>
 vnoremap <leader># <ESC><ScriptCmd>misc#SearchSelectedText('backward')<CR>
 
-# stop highlighting + clear and redraw the screen
-nnoremap <silent> <leader><C-l> :nohlsearch<CR><C-l>
+# stop highlighting + update diff (if present) + clear and redraw the screen
+nnoremap <silent> <leader><C-l> :nohlsearch <bar> if &l:diff <bar> diffupdate <bar> endif<CR><C-l>
 
 # del
 # <C-l> goes to normal mode in evim/insertmode
@@ -687,6 +698,11 @@ nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. 
 nnoremap <leader>eb :browse oldfiles<CR>
 nnoremap <leader>e; mt$a;<ESC>`t
 # nnoremap <leader>e* :e **/*
+
+# man
+if g:runprg_enabled
+  command! -nargs=1 -complete=shellcmd Man runprg#RunWindow($'man {<f-args>}', '', 'above', v:true)
+endif
 
 # completion
 # :help ins-completion, ins-completion-menu, popupmenu-keys, complete_CTRL-Y
@@ -723,6 +739,8 @@ if g:misc_enabled
   nnoremap <leader>tgo <ScriptCmd>misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgf <ScriptCmd>misc#FoldColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgz <ScriptCmd>misc#FoldToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgy <ScriptCmd>misc#FuzzyToggle("completeopt")<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgY <ScriptCmd>misc#FuzzyToggle("wildoptions")<CR>:echo v:statusmsg<CR>
   nnoremap <expr> <leader>tgm
   \ has('gui_running')
   \ ? '<ScriptCmd>misc#GuiMenuBarToggle()<CR>:echo v:statusmsg<CR>'
@@ -752,29 +770,28 @@ if has('gui_running')
     map! <S-Insert> <MiddleMouse>
     tnoremap <S-Insert> <C-w>"+
   endif
-  # nnoremap <silent> <C-z> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
-  nnoremap <silent> <C-z> :below terminal<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
-  nnoremap <silent> <leader><CR>
-    \ :below terminal ++close /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR>
-    \ <ScriptCmd>misc#SetTerminalOptions()<CR>
+  # nnoremap <silent> <leader><CR> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+  nnoremap <silent> <leader><CR> :below terminal<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+  nnoremap <silent> <C-z>
+    \ :below terminal ++close ++norestore
+    \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 else
   nnoremap <silent> <leader><CR>
-    \ :below terminal ++close /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR>
-    \ <ScriptCmd>misc#SetTerminalOptions()<CR>
+    \ :below terminal ++close ++norestore
+    \ /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 endif
-nnoremap <silent> <leader>z :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 # *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
 # tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
 tnoremap <C-w><Esc> <C-w>N:doautocmd CmdwinLeave<CR>
-tnoremap <C-d> <C-w>N:bd!<CR>
+tnoremap <C-d> <C-w>:bd!<CR>
 
 # move
 nnoremap <leader><C-j> :move .+1<CR>==
 nnoremap <leader><C-k> :move .-2<CR>==
-inoremap <leader><C-j> <ESC>:move .+1<CR>==gi
-inoremap <leader><C-k> <ESC>:move .-2<CR>==gi
+inoremap <leader><C-j> <C-\><C-n>:move .+1<CR>==gi
+inoremap <leader><C-k> <C-\><C-n>:move .-2<CR>==gi
 vnoremap <leader><C-j> :move '>+1<CR>gv=gv
 vnoremap <leader><C-k> :move '<-2<CR>gv=gv
 
@@ -913,7 +930,7 @@ def Plan9(style: string)
   set background=light
   colorscheme plan9
 enddef
-command! Plan9 Plan9("light")
+command! Plan9 Plan9(get(g:, "plan9_style", "light"))
 command! Plan9Light Plan9("light")
 command! Plan9Dark Plan9("dark")
 
@@ -924,9 +941,10 @@ def Darkula(style: string)
   set background=dark
   colorscheme darkula
 enddef
-command! Darkula Darkula("light")
+command! Darkula Darkula(get(g:, "darkula_style", "dark"))
 command! DarkulaLight Darkula("light")
 command! DarkulaDark Darkula("dark")
+command! DarkulaToggleCursor g:darkula_cursor2 = !g:darkula_cursor2 | Darkula
 
 # reload the current theme
 command! Theme {
@@ -970,6 +988,13 @@ if has('gui_running')
   command! SetGuiFont set guifont=*
 endif
 
+# nosmartcase for wildmenu
+# augroup event_cmdsmartcase
+#     autocmd!
+#     autocmd CmdLineEnter : setlocal nosmartcase
+#     autocmd CmdLineLeave : setlocal smartcase
+# augroup END
+
 # vim events
 augroup event_vim
   autocmd!
@@ -977,7 +1002,6 @@ augroup event_vim
   # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
   # clear the terminal on exit
   autocmd VimLeave * ++once {
-    var session_dir = $"{$HOME}/.vim/sessions"
     if !has('gui_running')
       if xterm
         silent !printf '\e[0m'
@@ -986,8 +1010,8 @@ augroup event_vim
         silent !printf "\e[2 q"
       endif
     endif
-    if isdirectory(session_dir)
-      execute $"mksession! {session_dir}/last.vim"
+    if isdirectory(sessiondir)
+      execute $"mksession! {sessiondir}/last.vim"
     endif
     if isdirectory(&viewdir)
       execute $"mkview! {&viewdir}/last.vim"

@@ -10,6 +10,7 @@ b:did_ftplugin_cb = true
 
 # cb (cycle buffers)
 setlocal statusline=%{getline('.')}\ [%{cyclebuffers#GetBufferNum(line('.'))}]%=%{line('$')}\ [CB]
+setlocal winfixbuf
 setlocal signcolumn=no
 setlocal number
 setlocal cursorline

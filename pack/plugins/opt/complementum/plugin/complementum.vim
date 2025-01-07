@@ -61,11 +61,16 @@ endif
 import autoload '../autoload/complementum.vim'
 
 # autocmd
+def CheckInsertCharPre()
+  if !pumvisible() && state('m') == ''
+    noautocmd complementum.Complete(&filetype, v:char)
+  endif
+enddef
 augroup complementum_insert
   autocmd!
   autocmd InsertCharPre * {
-    if g:complementum_enabled && !pumvisible() && state('m') == ''
-      noautocmd complementum.Complete(&filetype, v:char)
+    if g:complementum_enabled
+      CheckInsertCharPre()
     endif
   }
 augroup END

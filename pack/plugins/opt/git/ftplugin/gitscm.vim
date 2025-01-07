@@ -12,6 +12,7 @@ b:did_ftplugin_git = true
 setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->fnamemodify(':~')\ :\ 'none'}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 setlocal winfixheight
 setlocal winfixwidth
+setlocal winfixbuf
 setlocal noconfirm
 setlocal number
 setlocal cursorline

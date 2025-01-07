@@ -23,7 +23,7 @@ import autoload '../autoload/misc.vim'
 def GoLastEditCursorPos()
   var nline = line("'\"")
   if nline >= 1 && nline <= line("$") && &filetype !~ "commit"
-     && index(['xxd', 'gitrebase'], &filetype) == -1
+    && index(['xxd', 'gitrebase'], &filetype) == -1
     execute "normal! g`\""
   endif
 enddef
@@ -68,6 +68,8 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
+  command! MiscFuzzyCompleteOptToggle misc.FuzzyToggle("completeopt")
+  command! MiscFuzzyWildOptionsToggle misc.FuzzyToggle("wildoptions")
   command! MiscGoLastEditCursor GoLastEditCursorPos()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
   command! MiscCmdMenuBarToggle misc.CmdMenuBarToggle()
@@ -83,6 +85,8 @@ if get(g:, 'misc_no_commands') == 0
     misc.ReloadPluginPack(<f-args>, "start")
   }
   command! MiscSH misc.SH()
+  command! MiscScrollToggleGlobal misc.ScrollToggle("set")
+  command! MiscScrollToggleLocal misc.ScrollToggle("setlocal")
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
   command! MiscSetPythonDynamic misc.SetPythonDynamic()
   command! MiscSignColumnToggle misc.SignColumnToggle()

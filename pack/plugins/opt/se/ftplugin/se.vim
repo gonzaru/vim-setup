@@ -12,6 +12,7 @@ b:did_ftplugin_se = true
 setlocal statusline=%y:%<%{getcwd()->fnamemodify(':~')}%=b%n,w%{win_getid()}
 setlocal winfixheight
 setlocal winfixwidth
+setlocal winfixbuf
 setlocal noconfirm
 setlocal nonumber
 setlocal norelativenumber

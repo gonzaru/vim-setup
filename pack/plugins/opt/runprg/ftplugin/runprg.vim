@@ -10,6 +10,7 @@ b:did_ftplugin_runprg = true
 
 # runprg
 setlocal statusline=%<\ %=b%{bufnr()},w%{win_getid()}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-15.(%l,%c%V%)\ %P
+setlocal winfixbuf
 setlocal signcolumn=no
 setlocal nonumber
 setlocal norelativenumber

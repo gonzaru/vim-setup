@@ -21,7 +21,7 @@ import autoload './utils.vim'
 
 # toggle background
 export def BackgroundToggle()
-  execute "set background=" .. (&background == "dark" ? "light" : "dark")
+  execute $"set background={&background == "dark" ? "light" : "dark"}"
   v:statusmsg = $"background={&background}"
 enddef
 
@@ -35,8 +35,27 @@ export def DiffToggle()
   v:statusmsg = $"diff={&diff}"
 enddef
 
+# toggle fuzzy
+export def FuzzyToggle(opt: string)
+  if opt == "completeopt"
+    if &completeopt =~ "fuzzy"
+      set completeopt-=fuzzy
+    else
+      set completeopt+=fuzzy
+    endif
+    v:statusmsg = $"completeopt={&completeopt}"
+  elseif opt == "wildoptions"
+    if &wildoptions =~ "fuzzy"
+      set wildoptions-=fuzzy
+    else
+      set wildoptions+=fuzzy
+    endif
+    v:statusmsg = $"wildoptions={&wildoptions}"
+  endif
+enddef
+
 # toggle popup
-export def PopupToggle(): void
+export def PopupToggle()
   var id = popup_findinfo()
   if id > 0
     if popup_getpos(id)['visible']
@@ -82,13 +101,13 @@ enddef
 
 # toggle fold column
 export def FoldColumnToggle()
-  execute "setlocal foldcolumn=" .. (&l:foldcolumn ? 0 : 1)
+  execute $"setlocal foldcolumn={&l:foldcolumn ? 0 : 1}"
   v:statusmsg = $"foldcolumn={&l:foldcolumn}"
 enddef
 
 # toggle fold
 export def FoldToggle()
-  if &foldlevel
+  if &foldlevel >= 1
     execute "normal! zM"
   else
     execute "normal! zR"
@@ -264,15 +283,15 @@ export def SetImOptions()
   var deflang = "en"
   var imlang = "ru"
   if &l:iminsert == 1
-    execute $"set dictionary-={$HOME}/.vim/dict/lang/{deflang}"
+    execute $"setlocal dictionary-={$HOME}/.vim/dict/lang/{deflang}"
     if exists("b:keymap_name") && b:keymap_name == imlang
-      execute $"set dictionary+={$HOME}/.vim/dict/lang/{imlang}"
-      execute $"set spelllang={imlang}"
+      execute $"setlocal dictionary+={$HOME}/.vim/dict/lang/{imlang}"
+      execute $"setlocal spelllang={imlang}"
     endif
   else
-    execute $"set dictionary-={$HOME}/.vim/dict/lang/{imlang}"
-    execute $"set dictionary+={$HOME}/.vim/dict/lang/{deflang}"
-    execute $"set spelllang={deflang}"
+    execute $"setlocal dictionary-={$HOME}/.vim/dict/lang/{imlang}"
+    execute $"setlocal dictionary+={$HOME}/.vim/dict/lang/{deflang}"
+    execute $"setlocal spelllang={deflang}"
   endif
 enddef
 
@@ -379,16 +398,28 @@ export def SearchSelectedText(direction: string): void
   endif
 enddef
 
+# toggle scroll
+export def ScrollToggle(opt: string)
+  # TODO: sidescroll, sidescrolloff
+  if opt == "set"
+     execute $"set scrolloff={&scrolloff < 1 ? 999 : 0}"
+    v:statusmsg = $"scrolloff={&scrolloff}"
+  elseif opt == "setlocal"
+    execute $"setlocal scrolloff={&l:scrolloff < 1 ? 999 : 0}"
+    v:statusmsg = $"scrolloff={&l:scrolloff}"
+  endif
+enddef
+
 # toggle sign column
 export def SignColumnToggle()
-  execute "setlocal signcolumn=" .. (&l:signcolumn == "yes" ? "no" : "yes")
+  execute $"setlocal signcolumn={&l:signcolumn == "yes" ? "no" : "yes"}"
   v:statusmsg = $"signcolumn={&l:signcolumn}"
 enddef
 
 # toggle sytnax
 export def SyntaxToggle()
   if !empty(&l:syntax)
-    execute "setlocal syntax=" .. (&l:syntax == "on" ? "OFF" : "ON")
+    execute $"setlocal syntax={&l:syntax =~ '^\(on\|ON\)$' ? "OFF" : "ON"}"
     v:statusmsg = $"setlocal syntax={&l:syntax}"
   else
     # global syntax

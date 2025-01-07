@@ -21,7 +21,7 @@ endif
 g:loaded_plan9 = true
 
 # number of colors
-if !has('gui_running') && str2nr(&t_Co) != 256
+if !has('gui_running') && str2nr(&t_Co) < 256
   finish
 endif
 
@@ -158,6 +158,9 @@ execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NO
 highlight! PmenuThumb guifg=NONE guibg=#afafff ctermfg=NONE ctermbg=147 gui=NONE cterm=NONE term=NONE
 highlight! link PmenuExtra Pmenu
 highlight! link PmenuExtraSel PmenuSel
+
+# :help ins-completion
+# highlight! link ComplMatchIns Normal
 
 # :help completepopup
 highlight! InfoPopup guifg=black guibg=lightgray ctermfg=black ctermbg=lightgray gui=NONE cterm=NONE term=NONE

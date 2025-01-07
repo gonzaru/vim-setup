@@ -11,7 +11,7 @@ endif
 g:loaded_darkula = true
 
 # number of colors
-if !has('gui_running') && str2nr(&t_Co) != 256
+if !has('gui_running') && str2nr(&t_Co) < 256
   finish
 endif
 
@@ -32,9 +32,20 @@ g:colors_name = "darkula"
 if !exists('g:darkula_style')
   g:darkula_style = "light"  # light, dark
 endif
+if !exists('g:darkula_cursor2')
+  g:darkula_cursor2 = false  # true, false
+endif
+if !exists('g:darkula_cursor2')
+  g:darkula_cursor2 = false  # true, false
+endif
+if !exists('g:darkula_pmenumatch2')
+  g:darkula_pmenumatch2 = false  # true, false
+endif
 
 # colors
 const isdark = g:darkula_style == "dark" ? true : false
+const cursor2 = g:darkula_cursor2
+const pmenumatch2 = g:darkula_pmenumatch2
 const colors = {
   'normal': {
     'guifg': '#bbbbbb',
@@ -62,8 +73,7 @@ execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg={isdark ? '#
 # vertical split
 execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
 
-execute $"highlight! Cursor guifg=black guibg={colors.normal.guifg} gui=NONE cterm=NONE term=NONE"
-# execute $"highlight! Cursor guifg=white guibg=#606060 gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Cursor guifg={cursor2 ? "white" : "black"} guibg={cursor2 ? "#606060" : colors.normal.guifg} gui=NONE cterm=NONE term=NONE"
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={isdark ? '#262626' : '#333333'} ctermfg=NONE ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
@@ -144,14 +154,17 @@ execute $"highlight! Title guifg={colors.normal.guifg} guibg={colors.normal.guib
 # complete popup menu
 execute $"highlight! Pmenu guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuSel guifg={colors.normal.guifg} guibg=#113a5c ctermfg={colors.normal.ctermfg} ctermbg=25 gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PmenuMatch guifg=#eeeeee guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=255 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
-highlight! PmenuMatchSel guifg=#eeeeee guibg=#113a5c ctermfg=255 ctermbg=25 gui=NONE cterm=NONE term=NONE
+execute $"highlight! PmenuMatch guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={pmenumatch2 ? 215 : 255} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuMatchSel guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg=#113a5c ctermfg={pmenumatch2 ? 215 : 255} ctermbg=25 gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuKind guifg=#cc7832 guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=172 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 highlight! PmenuKindSel guifg=#cc7832 guibg=#113a5c ctermfg=172 ctermbg=25 gui=NONE cterm=NONE term=NONE
 execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NONE ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuThumb guifg=NONE guibg={isdark ? '#303030' : '#999999'} ctermfg=NONE ctermbg={isdark ? 236 : 102} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuExtra guifg=#808080 guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=244 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuExtraSel guifg=#949494 guibg=#113a5c ctermfg=246 ctermbg=25 gui=NONE cterm=NONE term=NONE"
+
+# :help ins-completion
+# highlight! link ComplMatchIns Normal
 
 # :help completepopup
 execute $"highlight! InfoPopup guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
