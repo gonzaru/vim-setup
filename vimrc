@@ -20,8 +20,7 @@ endif
 # config variables
 var colortheme = "darkula"                                                  # theme
 var background = "dark"                                                     # background
-g:darkula_style = "dark"                                                    # light or dark
-g:darkula_cursor2 = has('gui_running')                                      # alternative cursor n2
+var tabasesc = false                                                        # tab as escape
 var host = hostname()                                                       # hostname
 var sessiondir = $"{$HOME}/.vim/sessions"                                   # session dir
 var tmux = !empty($TMUX) || &term =~ "tmux"                                 # tmux
@@ -36,6 +35,7 @@ var gnome_terminal = !empty($GNOME_TERMINAL_SCREEN) && !multiplexer         # gn
 var gnome_terminal_tmux = !empty($GNOME_TERMINAL_SCREEN) && tmux            # gnome + tmux
 var jediterm = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && !multiplexer   # jediterm
 var jediterm_tmux = $TERMINAL_EMULATOR == "JetBrains-JediTerm" && tmux      # jediterm + tmux
+var vimrc_local = $"{$HOME}/.vimrc.local"                                   # vimrc local config
 var vim_terminal = !empty($VIM_TERMINAL) && !multiplexer                    # vim terminal
 var vim_terminal_tmux = !empty($VIM_TERMINAL) && tmux                       # vim terminal + tmux
 var xterm = !empty($XTERM_VERSION) && !multiplexer                          # xterm
@@ -149,6 +149,13 @@ if g:cyclebuffers_enabled
   g:cyclebuffers_position = "bottom"  # top, bottom
 endif
 
+# darkula theme
+if colortheme == "darkula"
+  g:darkula_style = "dark"                # light or dark
+  g:darkula_cursor2 = has('gui_running')  # alternative cursor n2
+  g:darkula_pmenumatch2 = false           # pmenu match color n2
+endif
+
 # esckey plugin
 if g:esckey_enabled
   g:esckey_key = "<C-l>"
@@ -189,7 +196,7 @@ if g:xkb_enabled
   g:xkb_layout_next = "capslock(escape)"
   g:xkb_cmd_layout_first = ["setxkbsw", "-s", "0"]  # first
   g:xkb_cmd_layout_next = ["setxkbsw", "-s", "1"]   # next
-  g:xkb_debug_info = true
+  g:xkb_debug_info = false
 endif
 
 # global settings
@@ -209,7 +216,7 @@ set title                   # update title window (dwm top bar)
 set titlestring=%F          # when non-empty, sets the title of the window. it uses statusline syntax (default empty)
 set titleold=               # do not show default title "thanks for flying vim" if set notitle
 set noicon                  # the icon text of the window will not be set to the value of iconstring
-set noallowrevins           # allow ctrl-_ in insert and cwmmand-line mode (default is off)
+set noallowrevins           # allow ctrl-_ in insert and command-line mode (default is off)
 set noshowmode              # don't show current mode insert, command, replace, visual, etc
 set noshowcmd               # don't show command on the last line of screen (ex: see visual mode)
 set esckeys                 # allow usage of cursor keys within insert mode
@@ -242,7 +249,7 @@ set keymodel=startsel       # using a shifted special key starts (<S-Left,Right,
 set keymodel+=stopsel       # using non shifted stops (visual or select mode)
 set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 # set cpoptions+=n          # the column used for 'number' and 'relativenumber' will be used for text of wrapped lines
-set nonumber                # do not print the line number in front of each line
+set number                  # print the line number in front of each line
 set relativenumber          # show the line number relative to the line
 # set numberwidth=4         # minimal number of columns to use for the line number (default 4)
 set laststatus=2            # to display the status line always
@@ -284,13 +291,13 @@ if !has('gui_running')
   if gnome_terminal || gnome_terminal_tmux
     || jediterm || jediterm_tmux
     || xterm || xterm_tmux
-    &t_SI = "\e[6 q"
-    &t_SR = "\e[4 q"
-    &t_EI = "\e[2 q"
+    &t_SI ..= "\e[6 q"
+    &t_SR ..= "\e[4 q"
+    &t_EI ..= "\e[2 q"
   else
-    &t_SI = "\eP\e[5 q\e\\"
-    &t_SR = "\eP\e[3 q\e\\"
-    &t_EI = "\eP\e[1 q\e\\"
+    &t_SI ..= "\eP\e[5 q\e\\"
+    &t_SR ..= "\eP\e[3 q\e\\"
+    &t_EI ..= "\eP\e[1 q\e\\"
   endif
   # tmux/alacritty mouse codes
   if match(&term, '^\(tmux\|alacritty\|xterm-ghostty\)') != -1
@@ -303,8 +310,8 @@ if !has('gui_running')
   endif
   # italic fonts support
   if (empty(&t_ZH) || empty(&t_ZR)) && (xterm || apple_terminal) && !multiplexer
-    &t_ZH = "\e[3m"
-    &t_ZR = "\e[23m"
+    &t_ZH ..= "\e[3m"
+    &t_ZR ..= "\e[23m"
   endif
   # 24-bit terminal color
   if has('termguicolors') && str2nr(&t_Co) >= 256
@@ -319,8 +326,8 @@ if !has('gui_running')
     )
       # :help xterm-true-color
       if !jediterm && (empty(&t_8f) || empty(&t_8b))
-        &t_8f = "\e[38:2:%lu:%lu:%lum"
-        &t_8b = "\e[48:2:%lu:%lu:%lum"
+        &t_8f ..= "\e[38:2:%lu:%lu:%lum"
+        &t_8b ..= "\e[48:2:%lu:%lu:%lum"
       endif
       set termguicolors
     else
@@ -329,8 +336,8 @@ if !has('gui_running')
   endif
   # FocusGained, FocusLost (see :help xterm-focus-event)
   if alacritty || alacritty_tmux || ghostty || ghostty_tmux || st || st_tmux
-    &t_fe = "\e[?1004h"
-    &t_fd = "\e[?1004l"
+    &t_fe ..= "\e[?1004h"
+    &t_fd ..= "\e[?1004l"
     execute "set <FocusGained>=\<Esc>[I"
     execute "set <FocusLost>=\<Esc>[O"
   else
@@ -339,6 +346,12 @@ if !has('gui_running')
   endif
   # disable xon/xoff handshaking (<C-s>)
   &t_xo = ""
+  # enable modifyOtherKeys level 2 (see :help modifyOtherKeys)
+  # <C-Tab>, <C-S-Tab>
+  if alacritty || alacritty_tmux
+    &t_ti ..= "\<Esc>[>4;2m"
+    &t_te ..= "\<Esc>[>4;m"
+  endif
 endif
 
 # gui
@@ -422,8 +435,8 @@ if has('keymap') && has("langmap") && exists("+langremap")
   set iminsert=0                # 0 lmap is off and IM is off (default 0)
   set imsearch=-1               # 0 lmap is off and IM is off (default -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
-  # TODO <leader>?
-  inoremap <C-^> <Cmd>if empty(&keymap) \| set keymap=russian-jcuken \| endif<CR><C-^><ScriptCmd>misc#SetImOptions()<CR>
+  # TODO <leader><C-^>
+  inoremap <C-^> <Cmd>if empty(&keymap) <bar> set keymap=russian-jcuken <bar> endif<CR><C-^><ScriptCmd>misc#SetImOptions()<CR>
 endif
 
 # wildmenu
@@ -515,10 +528,13 @@ if has('mksession')
   set sessionoptions-=blank
   set sessionoptions+=sesdir
   set sessionoptions+=resize,winpos
-  command! Session {
-    if filereadable($"{sessiondir}/last.vim")
-      execute $"source {sessiondir}/last.vim"
-    endif
+  def CompleteSessionLoad(arglead: string, _, _): list<string>
+    var sessions = map(sort(globpath(sessiondir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
+    return filter(sessions, $"v:val =~ '^{arglead}'")
+  enddef
+  command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionLoad execute $"source {sessiondir}/{<f-args>}"
+  command! -nargs=1 SessionWrite {
+    execute $"mksession! {sessiondir}/{expand('<args>') =~ '\.vim$' ? expand('<args>') : expand('<args>') .. '.vim'}"
   }
 endif
 
@@ -550,7 +566,7 @@ set completefunc=syntaxcomplete#Complete
 
 # completion
 set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-set completeopt=menuone,noinsert,fuzzy  # ,noselect
+set completeopt=menuone,noinsert  # noselect,fuzzy
 if has('popupwin')
   # set completeopt+=popup        # show extra information in a popup window
   # set completeopt+=popuphidden  # like popup option but hidden by default
@@ -591,21 +607,23 @@ if has("signs")
   set signcolumn=number
 endif
 
-#--------------
+#-------------"
 # key mapping |
-#---------------------------------------------------------------------------"
-# Commands / Modes | Normal | Insert | Command | Visual | Select | Operator |
-#------------------|--------|--------|---------|--------|--------|----------|
-# map  / noremap   |    x   |   -    |    -    |   x    |   x    |    x     |
-# nmap / nnoremap  |    x   |   -    |    -    |   -    |   -    |    -     |
-# vmap / vnoremap  |    -   |   -    |    -    |   x    |   x    |    -     |
-# omap / onoremap  |    -   |   -    |    -    |   -    |   -    |    x     |
-# xmap / xnoremap  |    -   |   -    |    -    |   x    |   -    |    -     |
-# smap / snoremap  |    -   |   -    |    -    |   -    |   x    |    -     |
-# map! / noremap!  |    -   |   x    |    x    |   -    |   -    |    -     |
-# imap / inoremap  |    -   |   x    |    -    |   -    |   -    |    -     |
-# cmap / cnoremap  |    -   |   -    |    x    |   -    |   -    |    -     |
-#---------------------------------------------------------------------------"
+#-------------------------------------------------------------------------------------------------"
+# Commands / Modes | Normal | Insert | Command | Visual | Select | Operator | Terminal | Lang-Arg |
+#------------------|--------|--------|---------|--------|--------|----------|----------|----------|
+# map  / noremap   |    x   |   -    |    -    |   x    |   x    |    x     |    -     |    -     |
+# nmap / nnoremap  |    x   |   -    |    -    |   -    |   -    |    -     |    -     |    -     |
+# vmap / vnoremap  |    -   |   -    |    -    |   x    |   x    |    -     |    -     |    -     |
+# omap / onoremap  |    -   |   -    |    -    |   -    |   -    |    x     |    -     |    -     |
+# xmap / xnoremap  |    -   |   -    |    -    |   x    |   -    |    -     |    -     |    -     |
+# smap / snoremap  |    -   |   -    |    -    |   -    |   x    |    -     |    -     |    -     |
+# map! / noremap!  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    -     |
+# imap / inoremap  |    -   |   x    |    -    |   -    |   -    |    -     |    -     |    -     |
+# lmap / lnoremap  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    x     |
+# cmap / cnoremap  |    -   |   -    |    x    |   -    |   -    |    -     |    -     |    -     |
+# tmap / tnoremap  |    -   |   -    |    -    |   -    |   -    |    -     |    x     |    -     |
+#-------------------------------------------------------------------------------------------------"
 
 # macOS default Terminal.app
 # :help mac-lack
@@ -616,7 +634,7 @@ endif
 g:mapleader = "\<C-s>"  # (see terminal "stty -ixon" and &t_xo)
 
 # alternative second leader
-g:maplocalleader = "\<C-\>"
+g:maplocalleader = "\<C-_>"
 
 # the key that starts a <C-w> command in a terminal mode
 # set termwinkey=<C-s>
@@ -634,15 +652,22 @@ def MapInsertTab(mode: string): string
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
   elseif pumvisible()
-    if complete_info().selected != -1
-      keystroke = "\<C-y>"
-    else
-      keystroke = "\<C-e>"
-    endif
+    keystroke = complete_info().selected != -1 ? "\<C-y>" : "\<C-e>"
   endif
   return keystroke
 enddef
-inoremap <silent><nowait> <Tab> <C-r>=<SID>MapInsertTab("tab")<CR>
+if tabasesc && (has('gui_running') || (&t_ti =~ "\<Esc>[>4;2m" && &t_te =~ "\<Esc>[>4;m"))
+  inoremap <silent> <C-i> <C-r>=<SID>MapInsertTab("tab")<CR>
+  inoremap <silent> <C-Tab> <C-r>=<SID>MapInsertTab("tab")<CR>
+  inoremap <Tab> <C-\><C-n>
+  vnoremap <Tab> <C-\><C-n>gV
+  cnoremap <C-Tab> <C-c><C-\><C-n>
+  # inoremap <Esc> <Nop>
+  # vnoremap <Esc> <Nop>
+  # cnoremap <Esc> <Nop>
+else
+  inoremap <silent> <Tab> <C-r>=<SID>MapInsertTab("tab")<cr>
+endif
 
 # save
 nnoremap <leader><C-w> :update<CR>
@@ -665,8 +690,8 @@ command! Backup {
 # search the selected text (:help visual-search)
 # vnoremap <leader>* y/<C-r>"<CR>
 # vnoremap <leader># y?<C-r>"<CR>
-vnoremap <leader>* <ESC><ScriptCmd>misc#SearchSelectedText('forward')<CR>
-vnoremap <leader># <ESC><ScriptCmd>misc#SearchSelectedText('backward')<CR>
+vnoremap <leader>* <C-\><C-n><ScriptCmd>misc#SearchSelectedText('forward')<CR>
+vnoremap <leader># <C-\><C-n><ScriptCmd>misc#SearchSelectedText('backward')<CR>
 
 # stop highlighting + update diff (if present) + clear and redraw the screen
 nnoremap <silent> <leader><C-l> :nohlsearch <bar> if &l:diff <bar> diffupdate <bar> endif<CR><C-l>
@@ -693,10 +718,10 @@ command! Paste {
 
 # edit
 nnoremap <leader>ev :e $MYVIMRC<CR>
-nnoremap <leader>eV :e $HOME/.vimrc.local<CR>
+nnoremap <leader>eV <ScriptCmd>if filereadable(vimrc_local) <bar> execute $"e {vimrc_local}" <bar> endif<CR>
 nnoremap <leader>et :execute "e " .. findfile(g:colors_name .. ".vim", $HOME .. "/.vim/**," .. $VIMRUNTIME .. "/**")<CR>
 nnoremap <leader>eb :browse oldfiles<CR>
-nnoremap <leader>e; mt$a;<ESC>`t
+nnoremap <leader>e; mt$a;<C-\><C-n>`t
 # nnoremap <leader>e* :e **/*
 
 # man
@@ -714,23 +739,24 @@ endif
 
 # source
 nnoremap <silent> <leader>sv :ReloadVimrc<CR>
+nnoremap <silent> <leader>sV :ReloadVimrcLocal<CR>
 nnoremap <silent> <leader>st :Theme<CR>
-nnoremap <silent> <leader>sa :ReloadVimrc<CR>:Theme<CR>
+nnoremap <silent> <leader>sa :ReloadVimrc<CR>:ReloadVimrcLocal<CR>:Theme<CR>
 
 # toggle
-nnoremap <leader>tgA :set autochdir! autochdir? \| echon " (set)"<CR>
-nnoremap <leader>tgn :setlocal number! number? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgN :set number! number? \| echon " (set)"<CR>
-nnoremap <leader>tgr :setlocal relativenumber! relativenumber? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgR :set relativenumber! relativenumber? \| echon " (set)"<CR>
-nnoremap <leader>tgi :setlocal infercase! infercase? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgI :set infercase! infercase? \| echon " (set)"<CR>
-nnoremap <leader>tgj :setlocal joinspaces! joinspaces? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgl :setlocal list! list? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgL :set list! list? \| echon " (set)"<CR>
-nnoremap <leader>tgh :setlocal hlsearch! hlsearch? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgp :setlocal paste! paste? \| echon " (setlocal)"<CR>
-nnoremap <leader>tgw :setlocal autowrite! autowrite? \| echon " (setlocal)"<CR>
+nnoremap <leader>tgA :set autochdir! autochdir? <bar> echon " (set)"<CR>
+nnoremap <leader>tgn :setlocal number! number? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgN :set number! number? <bar> echon " (set)"<CR>
+nnoremap <leader>tgr :setlocal relativenumber! relativenumber? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgR :set relativenumber! relativenumber? <bar> echon " (set)"<CR>
+nnoremap <leader>tgi :setlocal infercase! infercase? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgI :set infercase! infercase? <bar> echon " (set)"<CR>
+nnoremap <leader>tgj :setlocal joinspaces! joinspaces? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgl :setlocal list! list? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgL :set list! list? <bar> echon " (set)"<CR>
+nnoremap <leader>tgh :setlocal hlsearch! hlsearch? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgp :setlocal paste! paste? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgw :setlocal autowrite! autowrite? <bar> echon " (setlocal)"<CR>
 # nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
@@ -848,8 +874,8 @@ nnoremap <leader>lc :lclose<CR>
 nnoremap <leader>cl :clist<CR>
 nnoremap <leader>cf :cfirst<CR>
 nnoremap <leader>ce :clast<CR>
-nnoremap <leader>cx <ScriptCmd>setqflist([], 'r')<CR>
-nnoremap <leader>lx <ScriptCmd>setloclist(0, [], 'r')<CR>
+nnoremap <leader>cx <ScriptCmd>setqflist([], 'r') <bar> cclose<CR>
+nnoremap <leader>lx <ScriptCmd>setloclist(0, [], 'r') <bar> lclose<CR>
 
 # popup window
 nnoremap <leader>cP <ScriptCmd>popup_clear(1)<CR>
@@ -901,12 +927,23 @@ command! -nargs=+ -complete=file Grepi {
   cwindow
   redraw!
 }
+# vimgrep + quickfix
+command! -nargs=+ -complete=file Vimgrep execute "silent vimgrep! <args>" | cwindow | redraw!
+nnoremap <leader>/ mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
 
 # find using searcher plugin
 if g:searcher_enabled
   command! -nargs=+ -complete=file -bar Find searcher#Search(<q-args>, '-p', getcwd(), 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findi searcher#Search('-i', <q-args>, '-p', getcwd(), 'findprg', 'quickfix')
 endif
+def FindPrg(file: string, _): list<string>
+  var exclude = fnamemodify(getcwd(), ":p") =~ '/\.vim/' ? "--exclude undodir --exclude backups" : ""
+  var cmd = $"fd --type f --follow --ignore-case --color=never --unrestricted --exclude .git {exclude}"
+  var files = systemlist(cmd)
+  return filter(files, $"v:val =~? '{file}'")
+enddef
+# :find with a function
+set findfunc=FindPrg
 
 # edit file in the same directory as the active window one
 nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
@@ -961,6 +998,14 @@ command! Theme {
 command! ReloadVimrc {
   g:loaded_vimrc = false
   source $MYVIMRC
+}
+
+# reload vimrc local
+command! ReloadVimrcLocal {
+  if filereadable(vimrc_local)
+    g:loaded_vimrc_local = false
+    execute $"source {vimrc_local}"
+  endif
 }
 
 # reload plugin utils
@@ -1020,7 +1065,6 @@ augroup event_vim
 augroup END
 
 # load local config
-var vimrc_local = $"{$HOME}/.vimrc.local"
 if filereadable(vimrc_local)
   execute $"source {vimrc_local}"
 endif

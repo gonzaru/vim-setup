@@ -65,11 +65,11 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
   command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
+  command! MiscCompleteOptFuzzyToggle misc.SettingsOptToggle("set", "completeopt", "fuzzy")
+  command! MiscCompleteOptNoSelectToggle misc.SettingsOptToggle("set", "completeopt", "noselect")
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
-  command! MiscFuzzyCompleteOptToggle misc.FuzzyToggle("completeopt")
-  command! MiscFuzzyWildOptionsToggle misc.FuzzyToggle("wildoptions")
   command! MiscGoLastEditCursor GoLastEditCursorPos()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
   command! MiscCmdMenuBarToggle misc.CmdMenuBarToggle()
@@ -101,4 +101,5 @@ if get(g:, 'misc_no_commands') == 0
     highlight! link StatusLineTerm StatusLine
     highlight! link StatusLineTermNC StatusLineNC
   }
+  command! MiscWildOptionsFuzzyToggle misc.SettingsOptToggle("set", "wildoptions", "fuzzy")
 endif

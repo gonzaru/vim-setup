@@ -26,5 +26,5 @@ endif
 if get(g:, 'autoendstructs_no_commands') == 0
   command! AutoEndStructsEnable g:autoendstructs_enabled = true
   command! AutoEndStructsDisable g:autoendstructs_enabled = false
-  command! AutoEndStructsToggle execute "normal \<Plug>(autoendstructs-toggle)"
+  command! AutoEndStructsToggle g:autoendstructs_enabled = !g:autoendstructs_enabled
 endif

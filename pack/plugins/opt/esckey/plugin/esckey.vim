@@ -16,6 +16,9 @@ endif
 # autoload
 import autoload '../autoload/esckey.vim'
 
+# enable
+esckey.Enable()
+
 # define mappings
 nnoremap <silent> <script> <Plug>(esckey-enable) <ScriptCmd>esckey.Enable()<CR>
 nnoremap <silent> <script> <Plug>(esckey-disable) <ScriptCmd>esckey.Disable()<CR>

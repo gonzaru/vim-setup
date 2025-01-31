@@ -158,6 +158,7 @@ execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NO
 highlight! PmenuThumb guifg=NONE guibg=#afafff ctermfg=NONE ctermbg=147 gui=NONE cterm=NONE term=NONE
 highlight! link PmenuExtra Pmenu
 highlight! link PmenuExtraSel PmenuSel
+highlight! link PopupSelected PmenuSel
 
 # :help ins-completion
 # highlight! link ComplMatchIns Normal

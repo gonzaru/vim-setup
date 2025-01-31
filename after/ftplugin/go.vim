@@ -32,6 +32,9 @@ setlocal formatprg=gofmt
 # if get(g:, "complementum_enabled")
 #   inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
 # endif
+if get(g:, "autoendstructs_enabled")
+  inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
+endif
 # matchadd('ColorColumn', '\%120v', 10)
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})

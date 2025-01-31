@@ -81,7 +81,7 @@ augroup xkb_events
   }
   autocmd FocusLost * {
     if g:xkb_enabled
-      xkb.Layout(["FocusLost"], "first", "job")
+      xkb.Layout(["FocusLost"], "first", "shell")
     endif
   }
 augroup END

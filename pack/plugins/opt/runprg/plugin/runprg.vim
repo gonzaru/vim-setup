@@ -50,4 +50,5 @@ if get(g:, 'runprg_no_commands') == 0
   command! Run execute "normal \<Plug>(runprg-run)"
   command! RunWindow execute "normal \<Plug>(runprg-window)"
   command! RunClose execute "normal \<Plug>(runprg-close)"
+  command! -nargs=1 -complete=shellcmd RunCmd runprg.RunWindow($'{<f-args>}', '', 'above', v:true)
 endif

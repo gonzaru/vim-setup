@@ -35,25 +35,6 @@ export def DiffToggle()
   v:statusmsg = $"diff={&diff}"
 enddef
 
-# toggle fuzzy
-export def FuzzyToggle(opt: string)
-  if opt == "completeopt"
-    if &completeopt =~ "fuzzy"
-      set completeopt-=fuzzy
-    else
-      set completeopt+=fuzzy
-    endif
-    v:statusmsg = $"completeopt={&completeopt}"
-  elseif opt == "wildoptions"
-    if &wildoptions =~ "fuzzy"
-      set wildoptions-=fuzzy
-    else
-      set wildoptions+=fuzzy
-    endif
-    v:statusmsg = $"wildoptions={&wildoptions}"
-  endif
-enddef
-
 # toggle popup
 export def PopupToggle()
   var id = popup_findinfo()
@@ -76,11 +57,11 @@ export def CheckTrailingSpaces()
 enddef
 
 # complete plugin pack (:ReloadPluginPack)
-export def CompleteReloadPluginPack(ArgLead: string, CmdLine: string, _): list<string>
-  var kind = (trim(CmdLine) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'
+export def CompleteReloadPluginPack(arglead: string, cmdline: string, _): list<string>
+  var kind = (trim(cmdline) =~ 'MiscReloadPluginStart') ? 'start' : 'opt'
   var plugdir = $"{$HOME}/.vim/pack/plugins/{kind}"
   var plugins = map(sort(globpath(plugdir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
-  return filter(plugins, $"v:val =~ '^{ArgLead}'")
+  return filter(plugins, $"v:val =~ '^{arglead}'")
 enddef
 
 # complete files in the same directory as the file in the active window (:E)
@@ -219,27 +200,27 @@ enddef
 export def MatchAdd(item: dict<any>)
   b:misc_matchadd = item
   execute $"augroup ftplugin_{&filetype}"
-    autocmd!
-    autocmd BufEnter,WinEnter <buffer> {
-      var found = false
-      b:misc_matchadd.id = win_getid()
-      for m in getmatches()
-        if m == b:misc_matchadd
-          found = true
-          break
-        endif
-      endfor
-      if !found
-        matchadd(b:misc_matchadd.group, b:misc_matchadd.pattern, b:misc_matchadd.priority, b:misc_matchadd.id)
+  autocmd!
+  autocmd BufEnter,WinEnter <buffer> {
+    var found = false
+    b:misc_matchadd.id = win_getid()
+    for m in getmatches()
+      if m == b:misc_matchadd
+        found = true
+        break
       endif
-    }
-    autocmd BufLeave <buffer> {
-      for m in getmatches()
-        if m == b:misc_matchadd
-          matchdelete(m.id)
-        endif
-      endfor
-    }
+    endfor
+    if !found
+      matchadd(b:misc_matchadd.group, b:misc_matchadd.pattern, b:misc_matchadd.priority, b:misc_matchadd.id)
+    endif
+  }
+  autocmd BufLeave <buffer> {
+    for m in getmatches()
+      if m == b:misc_matchadd
+        matchdelete(m.id)
+      endif
+    endfor
+  }
   augroup END
 enddef
 
@@ -399,15 +380,25 @@ export def SearchSelectedText(direction: string): void
 enddef
 
 # toggle scroll
-export def ScrollToggle(opt: string)
+export def ScrollToggle(mode: string)
   # TODO: sidescroll, sidescrolloff
-  if opt == "set"
+  if mode == "set"
      execute $"set scrolloff={&scrolloff < 1 ? 999 : 0}"
     v:statusmsg = $"scrolloff={&scrolloff}"
-  elseif opt == "setlocal"
+  elseif mode == "setlocal"
     execute $"setlocal scrolloff={&l:scrolloff < 1 ? 999 : 0}"
     v:statusmsg = $"scrolloff={&l:scrolloff}"
   endif
+enddef
+
+# settings option toggle
+export def SettingsOptToggle(mode: string, setting: string, opt: string)
+  if eval($"&{setting}") =~ opt
+    execute $"{mode} {setting}-={opt}"
+  else
+    execute $"{mode} {setting}+={opt}"
+  endif
+  v:statusmsg = $"{mode} {setting}=" .. eval($"&{setting}")
 enddef
 
 # toggle sign column
