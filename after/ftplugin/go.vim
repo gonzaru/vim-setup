@@ -25,6 +25,7 @@ setlocal shiftwidth=4
 setlocal shiftround
 setlocal noexpandtab
 setlocal keywordprg=go\ doc
+# setlocal keywordprg=:GoKeywordPrg
 # setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)

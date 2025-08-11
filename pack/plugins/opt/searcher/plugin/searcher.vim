@@ -24,8 +24,9 @@ if !exists('g:searcher_findprg_directory')
   g:searcher_findprg_directory = ['--absolute-path', '--base-directory']
 endif
 if !exists('g:searcher_grepprg_command')
+  # --vimgrep
   g:searcher_grepprg_command = [
-    'rg', '--vimgrep', '--line-number', '--no-heading', '--color=never', '-uu', '--glob', '!.git/'
+    'rg', '--with-filename', '--line-number', '--column', '--no-heading', '--color=never', '-uu', '--glob', '!.git/'
   ]
 endif
 if !exists('g:searcher_grepprg_sensitive')
@@ -33,6 +34,17 @@ if !exists('g:searcher_grepprg_sensitive')
 endif
 if !exists('g:searcher_grepprg_insensitive')
   g:searcher_grepprg_insensitive = ['--ignore-case']
+endif
+if !exists('g:searcher_gitprg_command')
+  g:searcher_gitprg_command = [
+    'git', 'grep', '--line-number', '--column', '--color=never'
+  ]
+endif
+if !exists('g:searcher_gitprg_sensitive')
+  g:searcher_gitprg_sensitive = []
+endif
+if !exists('g:searcher_gitprg_insensitive')
+  g:searcher_gitprg_insensitive = ['--ignore-case']
 endif
 
 # autoload
@@ -55,6 +67,12 @@ nnoremap <silent> <script> <plug>(searcher-grep-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'grepprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lgrep-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'grepprg', 'locationlist')<CR>
+nnoremap <silent> <script> <plug>(searcher-git)
+  \ <ScriptCmd>feedkeys(":SearcherGit '-i', '', '" .. fnamemodify(getcwd(), ":~") .. "'<S-Left><S-Left><Right>")<CR>
+nnoremap <silent> <script> <plug>(searcher-git-word)
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'quickfix')<CR>
+nnoremap <silent> <script> <plug>(searcher-lgit-word)
+  \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'locationlist')<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -82,6 +100,18 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>SG", "n"))
     nnoremap <leader>SG <Plug>(searcher-lgrep-word)
   endif
+  if empty(mapcheck("<leader>sp", "n"))
+    nnoremap <leader>sp <Plug>(searcher-git)
+  endif
+  if empty(mapcheck("<leader>Sp", "n"))
+    nnoremap <leader>Sp <Plug>(searcher-lgit)
+  endif
+  if empty(mapcheck("<leader>sP", "n"))
+    nnoremap <leader>sP <Plug>(searcher-git-word)
+  endif
+  if empty(mapcheck("<leader>SP", "n"))
+    nnoremap <leader>SP <Plug>(searcher-lgit-word)
+  endif
 endif
 
 # set commands
@@ -94,4 +124,8 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=+ -complete=file -bar SearcherLGrep searcher.Search(<args>, 'grepprg', 'locationlist')
   command! -nargs=0 -bar SearcherGrepWord execute "normal \<Plug>(searcher-grep-word)"
   command! -nargs=0 -bar SearcherLGrepWord execute "normal \<Plug>(searcher-lgrep-word)"
+  command! -nargs=+ -complete=file -bar SearcherGit searcher.Search(<args>, 'gitprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar SearcherLGit searcher.Search(<args>, 'gitprg', 'locationlist')
+  command! -nargs=0 -bar SearcherGitWord execute "normal \<Plug>(searcher-git-word)"
+  command! -nargs=0 -bar SearcherLGitWord execute "normal \<Plug>(searcher-lgit-word)"
 endif

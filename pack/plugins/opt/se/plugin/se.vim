@@ -13,6 +13,9 @@ endif
 g:loaded_se = true
 
 # global variables
+if !exists('g:se_autochdir')
+  g:se_autochdir = false
+endif
 if !exists('g:se_fileignore')
   # do not list these patterns
   g:se_fileignore = "*.o,*.obj,*.pyc,*.swp"

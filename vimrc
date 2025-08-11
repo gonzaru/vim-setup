@@ -158,7 +158,12 @@ endif
 
 # esckey plugin
 if g:esckey_enabled
-  g:esckey_key = "<C-l>"
+  # g:esckey_key = "<C-l>"
+  if has('gui_running')
+    g:esckey_key = "<F23>"
+  else
+    g:esckey_key = "<F3>"
+  endif
 endif
 
 # format plugin
@@ -178,6 +183,7 @@ endif
 
 # se plugin (simple explorer)
 if g:se_enabled
+  g:se_autochdir = true
   g:se_followfile = false
   g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
@@ -261,6 +267,7 @@ set noinfercase             # when ignorecase is on and doing completion, the ty
 set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
 # set jumpoptions=stack     # make the jumplist behave like the tagstack
 set hlsearch                # to highlight all search matches
+nohlsearch                  # but stop highlighting initially
 set incsearch               # jumps to search word when typing on serch /foo (default no)
 set nospell                 # disable spell checking
 set spelloptions+=camel     # camel CaseWord is considered a separate word
@@ -371,6 +378,7 @@ if has('gui_running')
       execute $"set guifont=DejaVu\\ Sans\\ Mono\\ {host == 'vologda' ? 12.8 : 12}"
     endif
   endif
+  g:guifont_orig = &guifont
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
   set guioptions=acdkM                                 # do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
@@ -496,9 +504,11 @@ set expandtab      # expand <tab> to spaces in insert mode
 set smarttab       # inserts blanks according to shiftwidth
 
 # search files
-# [l]grep[add][!]: grep -n $* /dev/null (default)
-set grepprg=rg\ --vimgrep\ --line-number\ --no-heading\ --smart-case\ --color=never\ -uu\ --glob\ '!.git/'
-set grepformat=%f:%l:%c:%m,%f:%l:%m
+# [l]grep[add][!]: grep -n $* /dev/null  (default)
+# %f:%l:%m,%f:%l%m,%f  %l%m (default)
+# --vimgrep
+set grepprg=rg\ --with-filename\ --line-number\ --column\ --no-heading\ --smart-case\ --color=never\ -uu\ --glob\ '!.git/'
+set grepformat=%f:%l:%c:%m
 
 # backup files
 set backup
@@ -687,11 +697,17 @@ command! Backup {
   execute $"write {bak}"
 }
 
+# search & replace
+nnoremap <leader>% :%s/\<<C-r>=expand("<cword>")<CR>\>//g<Left><Left>
+
 # search the selected text (:help visual-search)
 # vnoremap <leader>* y/<C-r>"<CR>
 # vnoremap <leader># y?<C-r>"<CR>
 vnoremap <leader>* <C-\><C-n><ScriptCmd>misc#SearchSelectedText('forward')<CR>
 vnoremap <leader># <C-\><C-n><ScriptCmd>misc#SearchSelectedText('backward')<CR>
+
+# show the name of highlighting groups
+nnoremap <leader>hg :echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ",")<CR>
 
 # stop highlighting + update diff (if present) + clear and redraw the screen
 nnoremap <silent> <leader><C-l> :nohlsearch <bar> if &l:diff <bar> diffupdate <bar> endif<CR><C-l>
@@ -777,7 +793,7 @@ endif
 # :sh
 if has('gui_running')
   if g:misc_enabled
-    # nnoremap <silent> <leader>sh <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+    # nnoremap <silent> <leader>sh <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s gvim-builtin<CR>
     nnoremap <leader>sh <ScriptCmd>misc#SH()<CR>
   endif
 else
@@ -796,15 +812,15 @@ if has('gui_running')
     map! <S-Insert> <MiddleMouse>
     tnoremap <S-Insert> <C-w>"+
   endif
-  # nnoremap <silent> <leader><CR> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s default<CR>
+  # nnoremap <silent> <leader><CR> <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s gvim-builtin<CR>
   nnoremap <silent> <leader><CR> :below terminal<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
   nnoremap <silent> <C-z>
     \ :below terminal ++close ++norestore
-    \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s default"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+    \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s gvim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 else
   nnoremap <silent> <leader><CR>
     \ :below terminal ++close ++norestore
-    \ /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s default"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+    \ /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s vim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 endif
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 # *avoid* to use <ESC> mappings in terminal mode
@@ -854,6 +870,7 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprev<CR>
 nnoremap <leader>bj :bnext<CR>:redraw!<CR>:ls<CR>
 nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
+nnoremap <leader>bK <ScriptCmd>misc#BufferKill()<CR>
 # see N<C-^>
 # go to N buffer (up to 9 for now)
 # for i in range(1, 9)
@@ -861,6 +878,9 @@ nnoremap <leader>bk :bprev<CR>:redraw!<CR>:ls<CR>
 #     execute "nnoremap <leader>b" .. i .. " <ScriptCmd>misc#GoBufferPos(" .. i .. ")<CR>"
 #    endif
 # endfor
+if g:misc_enabled
+  command! Bk :MiscBufferKill
+endif
 
 # quickfix/location list
 nnoremap <leader>cn :cnext<CR>
@@ -871,6 +891,8 @@ nnoremap <leader>co :copen<CR>
 nnoremap <leader>lo :lopen<CR>
 nnoremap <leader>cc :cclose<CR>
 nnoremap <leader>lc :lclose<CR>
+nnoremap <leader>pc :pclose<CR>
+nnoremap <leader>pC :pclose<CR>:cclose<CR>
 nnoremap <leader>cl :clist<CR>
 nnoremap <leader>cf :cfirst<CR>
 nnoremap <leader>ce :clast<CR>
@@ -938,7 +960,7 @@ if g:searcher_enabled
 endif
 def FindPrg(file: string, _): list<string>
   var exclude = fnamemodify(getcwd(), ":p") =~ '/\.vim/' ? "--exclude undodir --exclude backups" : ""
-  var cmd = $"fd --type f --follow --ignore-case --color=never --unrestricted --exclude .git {exclude}"
+  var cmd = $"fd --type f --follow --smart-case --color=never --unrestricted --exclude .git {exclude}"
   var files = systemlist(cmd)
   return filter(files, $"v:val =~? '{file}'")
 enddef
@@ -1031,6 +1053,12 @@ command! ReloadPluginMisc {
 # set gui font (shows a gui panel to pick a font)
 if has('gui_running')
   command! SetGuiFont set guifont=*
+  command! Fonti misc#FontSize("increase")
+  command! Fontd misc#FontSize("decrease")
+  command! Fontr misc#FontSize("reset")
+  noremap <leader>+ <ScriptCmd>misc#FontSize("increase")<CR>
+  noremap <leader>- <ScriptCmd>misc#FontSize("decrease")<CR>
+  noremap <leader>= <ScriptCmd>misc#FontSize("reset")<CR>
 endif
 
 # nosmartcase for wildmenu
@@ -1053,6 +1081,11 @@ augroup event_vim
       elseif st || st_tmux
         # 2: block cursor "█"
         silent !printf "\e[2 q"
+      # elseif alacritty_tmux
+      #   if index(systemlist("tmux display-message -p '#S'"), "scratchpad") != -1
+      #     silent !printf "\e[4 q"
+      #   endif
+      # endif
       endif
     endif
     if isdirectory(sessiondir)

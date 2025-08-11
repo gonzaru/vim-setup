@@ -47,6 +47,18 @@ export def PopupToggle()
   endif
 enddef
 
+# buffer kill
+export def BufferKill()
+  var selbuf = bufnr()
+  var altbuf = bufnr('#')
+  if altbuf == -1
+    utils.EchoWarningMsg("Warning: no alternate buffer available")
+    return
+  endif
+  execute $"b {altbuf}"
+  execute $"bw {selbuf}"
+enddef
+
 # check trailing spaces
 export def CheckTrailingSpaces()
   var nline: number
@@ -94,6 +106,32 @@ export def FoldToggle()
     execute "normal! zR"
   endif
   v:statusmsg = $"foldlevel={&foldlevel}"
+enddef
+
+# increase, decrease and reset the gui font size
+export def FontSize(opt: string): void
+  var new: string
+  var num: number
+  var spl: list<string>
+  if opt == "reset"
+    &guifont = g:guifont_orig
+    return
+  endif
+  # TODO
+  # if has('gui_macvim') "Menlo Regular:h16"
+  spl = split(&guifont)
+  if opt == "increase"
+    num = str2nr(spl[-1]) + 1
+  elseif opt == "decrease"
+    num = str2nr(spl[-1]) - 1
+    if num < 1
+      num = 1
+    endif
+  endif
+  if num >= 1
+    new = escape($"{join(spl[: -2])} {num}", " ")
+    execute $"set guifont={new}"
+  endif
 enddef
 
 # go to N buffer position

@@ -15,10 +15,13 @@ const COMMANDS = {
   },
   'grepprg': {
     'command': join(g:searcher_grepprg_command)
+  },
+  'gitprg': {
+    'command': join(g:searcher_gitprg_command)
   }
 }
 
-# find files and grep searching
+# find files, grep and git grep searching
 export def Search(...args: list<string>): void
   var cmd: string
   var idx: number
@@ -35,6 +38,8 @@ export def Search(...args: list<string>): void
     prg ..= ' ' .. (idx >= 0 ? join(g:searcher_findprg_insensitive) : join(g:searcher_findprg_sensitive))
   elseif kind == 'grepprg'
     prg ..= ' ' .. (idx >= 0 ? join(g:searcher_grepprg_insensitive) : join(g:searcher_grepprg_sensitive))
+  elseif kind == 'gitprg'
+    prg ..= ' ' .. (idx >= 0 ? join(g:searcher_gitprg_insensitive) : join(g:searcher_gitprg_sensitive))
   endif
   remove(nargs, -2, -1)
   if idx >= 0
@@ -48,6 +53,8 @@ export def Search(...args: list<string>): void
     cmd = prg .. ' ' .. join(nargs) .. ' | tr "\n" "\0" | xargs -0 file | sed "s/:/:1:/"'
   elseif kind == 'grepprg'
     cmd = prg .. ' ' .. join(nargs)
+  elseif kind == 'gitprg'
+    cmd = prg .. ' ' .. join(nargs)
   endif
   Run(cmd, mode)
 enddef
@@ -55,10 +62,10 @@ enddef
 # run
 def Run(cmd: string, mode: string)
   if mode == "quickfix"
-    cgetexp system(cmd)
+    cgetexp systemlist(cmd)
     cwindow
   elseif mode == "locationlist"
-    lgetexp system(cmd)
+    lgetexp systemlist(cmd)
     lwindow
   endif
   # TODO: use ftplugin?

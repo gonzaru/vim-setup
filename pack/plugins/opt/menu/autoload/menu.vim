@@ -140,7 +140,7 @@ export def MenuExtra()
   anoremenu 1000.1000.1006.2 &Extra.&Plugins.&Commentarium.&DoRange<Tab><leader>/\ \ (visual) <Plug>(commentarium-do-range)
   anoremenu 1000.1000.1006.3 &Extra.&Plugins.&Commentarium.&Undo<Tab><leader>?\ \ (normal) <Plug>(commentarium-undo)
   anoremenu 1000.1000.1006.4 &Extra.&Plugins.&Commentarium.&UndoRange<Tab><leader>?\ \ (visual) <Plug>(commentarium-undo-range)
-  anoremenu 1000.1000.1006.5 &Extra.&Plugins.&Commentarium.&+<Tab><leader>+\ \/*\ abc\ */\ \(normal\ \|\ visual) :<CR>
+  anoremenu 1000.1000.1006.5 &Extra.&Plugins.&Commentarium.&+<Tab><leader>#\ \/*\ abc\ */\ \(normal\ \|\ visual) :<CR>
   anoremenu 1000.1000.1006.7 &Extra.&Plugins.&Commentarium.&<<Tab><leader><\ \<!--\ abc\ -->\ \(normal\ \|\ visual) :<CR>
 
   # complementum

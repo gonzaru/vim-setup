@@ -64,6 +64,7 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=file MiscEditTopFile misc.EditTop(<f-args>)
   command! -nargs=1 MiscGoBufferPos misc.GoBufferPos(str2nr(<f-args>))
   command! MiscBackGroundToggle misc.BackgroundToggle()
+  command! MiscBufferKill misc.BufferKill()
   command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
   command! MiscCompleteOptFuzzyToggle misc.SettingsOptToggle("set", "completeopt", "fuzzy")
   command! MiscCompleteOptNoSelectToggle misc.SettingsOptToggle("set", "completeopt", "noselect")

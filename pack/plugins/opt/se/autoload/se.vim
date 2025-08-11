@@ -577,13 +577,22 @@ enddef
 
 # goes to file or directory
 export def GoFile(filepath: string, mode: string)
+  var cwddir: string
+  var dochdir = true
   var selfile: string
   if bufnr() != GetSeBufId()
     return
   endif
+  if g:se_autochdir
+    cwddir = getcwd()
+  endif
   selfile = RemoveFileIndicators(RemoveFilePerms(filepath))
   if isdirectory(selfile)
     GoDir(selfile, true)
+    if g:se_autochdir
+      cwddir = getcwd()
+    endif
+    dochdir = false
   elseif mode == "edit"
     Edit(selfile)
   elseif mode == "editk"
@@ -596,6 +605,9 @@ export def GoFile(filepath: string, mode: string)
     EditSplitV(selfile)
   elseif mode == "tabedit"
     EditTab(selfile)
+  endif
+  if dochdir && g:se_autochdir
+    execute $"lcd {cwddir}"
   endif
 enddef
 

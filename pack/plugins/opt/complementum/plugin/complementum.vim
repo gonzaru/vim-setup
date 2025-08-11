@@ -20,13 +20,15 @@ if !exists('g:complementum_omnichars')
     'python': ["."],
     'go': ["."],
     'c': [".", "#"],
+    'terraform': ["."],
   }
 endif
 if !exists('g:complementum_omnifuncs')
   g:complementum_omnifuncs = {
     'python': ["python3complete#Complete", "g:LspOmniFunc"],
     'go': ["go#complete#Complete", "g:LspOmniFunc"],
-    'c': ["ccomplete#Complete", "g:LspOmniFunc"]
+    'c': ["ccomplete#Complete", "g:LspOmniFunc"],
+    'terraform': ["g:LspOmniFunc"],
   }
 endif
 if !exists('g:complementum_keystroke_default')
