@@ -25,11 +25,21 @@ if !exists('g:complementum_omnichars')
 endif
 if !exists('g:complementum_omnifuncs')
   g:complementum_omnifuncs = {
-    'python': ["python3complete#Complete", "g:LspOmniFunc"],
-    'go': ["go#complete#Complete", "g:LspOmniFunc"],
-    'c': ["ccomplete#Complete", "g:LspOmniFunc"],
+    'python': ["python3complete#Complete"],
+    'go': ["go#complete#Complete"],
+    'c': ["ccomplete#Complete"],
+  }
+endif
+if !exists('g:complementum_lspfuncs')
+  g:complementum_lspfuncs = {
+    'python': ["g:LspOmniFunc"],
+    'go': ["g:LspOmniFunc"],
+    'c': ["g:LspOmniFunc"],
     'terraform': ["g:LspOmniFunc"],
   }
+endif
+if !exists('g:complementum_regex_dict')
+  g:complementum_regex_dict = 'go-stdlib.dict\|go-project.dict'
 endif
 if !exists('g:complementum_keystroke_default')
   g:complementum_keystroke_default = "\<C-n>"
@@ -39,6 +49,12 @@ if !exists('g:complementum_keystroke_default_orig')
 endif
 if !exists('g:complementum_keystroke_default_toggle')
   g:complementum_keystroke_default_toggle = "\<C-x>\<C-n>"
+endif
+if !exists('g:complementum_keystroke_dict')
+  g:complementum_keystroke_dict = "\<C-x>\<C-k>"
+endif
+if !exists('g:complementum_keystroke_func')
+  g:complementum_keystroke_func = "\<C-x>\<C-u>"
 endif
 if !exists('g:complementum_keystroke_backspace')
   g:complementum_keystroke_backspace = "\<BS>"
@@ -63,17 +79,36 @@ endif
 import autoload '../autoload/complementum.vim'
 
 # autocmd
-def CheckInsertCharPre()
-  if !pumvisible() && state('m') == ''
-    noautocmd complementum.Complete(&filetype, v:char)
-  endif
-enddef
 augroup complementum_insert
   autocmd!
   autocmd InsertCharPre * {
     if g:complementum_enabled
-      CheckInsertCharPre()
+      if !pumvisible() && state('m') == ''
+        complementum.Complete(&filetype, v:char)
+      endif
     endif
+  }
+augroup END
+
+# dict
+augroup complementum_dict
+  autocmd!
+  autocmd FileType go {
+    autocmd BufWritePost <buffer>
+    \ if executable($HOME .. "/.vim/tools/go/gendict-project.sh") |
+    \   job_start($HOME .. "/.vim/tools/go/gendict-project.sh") |
+    \ endif
+  }
+augroup END
+
+# tags
+augroup complementum_tags
+  autocmd!
+  autocmd FileType go {
+    autocmd BufWritePost <buffer>
+    \ if executable($HOME .. "/.vim/tools/go/gentags-project.sh") |
+    \   job_start($HOME .. "/.vim/tools/go/gentags-project.sh") |
+    \ endif
   }
 augroup END
 

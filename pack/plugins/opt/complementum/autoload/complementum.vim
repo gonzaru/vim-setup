@@ -124,14 +124,12 @@ enddef
 
 # checks if the keystroke is triggerable (omni)
 def IsTriggerableOmni(lang: string, ichar: string): bool
-  var cline: string
-  var ccol: number
-  var omni = false
   if !has_key(g:complementum_omnichars, lang)
     return false
   endif
-  cline = getline('.')
-  ccol = col('.')
+  var cline = getline('.')
+  var ccol = col('.')
+  var omni = false
   if index(g:complementum_omnichars[lang], ichar) >= 0
     omni = true
   elseif g:complementum_minchars == 1 && index(g:complementum_omnichars[lang], cline[ccol - 2]) >= 0
@@ -167,8 +165,34 @@ def CompleteOmni(lang: string): void
   if !has_key(g:complementum_omnifuncs, lang)
     return
   endif
-  if index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
+  # lsp
+  # omnni
+  # dictionary
+  # default
+  if get(g:, 'lsp_enabled') && get(g:, 'lsp_complementum')
+      && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
+    # TODO: omnifunc function
+    timer_start(0, (_) => {
+      lsp#Completion()
+    })
+  elseif get(g:, 'loaded_lsp') && index(g:complementum_lspfuncs[lang], &omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "i")
+  elseif index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
+    feedkeys(g:complementum_keystroke_omni, "i")
+  elseif &dictionary =~ g:complementum_regex_dict
+      var iskeyword_orig = &l:iskeyword
+      setlocal iskeyword+=.
+      feedkeys(g:complementum_keystroke_dict, "i")
+      timer_start(0, (_) => {
+        # restore iskeyword
+        execute $"setlocal iskeyword={iskeyword_orig}"
+      })
+      # fallback to function completion
+      # timer_start(15, (_) => {
+      #   if !pumvisible()
+      #    feedkeys(g:complementum_keystroke_func, 'i')
+      #   endif
+      # })
   else
     # fallback to default
     feedkeys(g:complementum_keystroke_default, "i")
