@@ -245,9 +245,9 @@ export def Check(lang: string, tool: string, exttool: string, curbuf: string, mo
       .. $"[{SIGNS_TITLES[lang][tool]}={ERRORS[lang][tool]}]"
       .. $"[{SIGNS_TITLES[lang][exttool]}=N] {prevstatusline}"
     throw $"Error: ({mode}) {errout}"
-  elseif mode == "write"
+  #elseif mode == "write"
     # for autocmd BufWriteCmd (see v:event)
-    noautocmd write
+    # noautocmd write
   endif
 enddef
 
@@ -361,9 +361,9 @@ export def CheckAsync(lang: string, tool: string, exttool: string, file: string)
     newjob = job_start(
       cmd,
       {
-        "out_cb": "s:OutHandlerCheck",
-        "err_cb": "s:ErrHandlerCheck",
-        "exit_cb": "s:ExitHandlerCheck",
+        "out_cb": function(OutHandlerCheck),
+        "err_cb": function(ErrHandlerCheck),
+        "exit_cb": function(ExitHandlerCheck),
         "out_io": "file",
         "out_name": syntaxfile,
         "out_msg": 0,

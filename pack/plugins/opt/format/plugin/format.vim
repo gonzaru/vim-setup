@@ -27,7 +27,7 @@ import autoload '../autoload/format.vim'
 
 # define mappings
 nnoremap <silent> <script> <Plug>(format-language)
-\ <ScriptCmd>noautocmd format.Language(&filetype, expand('%:p'))<CR>
+\ <ScriptCmd>format.Language(&filetype, expand('%:p'))<CR>
 
 # set mappings
 if get(g:, 'format_no_mappings') == 0

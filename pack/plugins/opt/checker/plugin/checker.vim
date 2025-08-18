@@ -38,11 +38,11 @@ if (executable("sh") || executable("bash")) && executable(TOOL['sh']['exttool'])
     autocmd!
     # autocmd DiffUpdated FileType sh b:checker_enabled = false
     autocmd FileType sh {
-      autocmd BufWinEnter <buffer> noautocmd
+      autocmd BufWinEnter <buffer>
       \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "read")
     }
     autocmd FileType sh {
-      autocmd BufWriteCmd <buffer> noautocmd
+      autocmd BufWrite <buffer>
       \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "write")
     }
   augroup END
@@ -54,11 +54,11 @@ if executable("python3") && executable(TOOL['python']['exttool'])
     autocmd!
     # autocmd DiffUpdated FileType python b:checker_enabled = false
     autocmd FileType python {
-      autocmd BufWinEnter <buffer> noautocmd
+      autocmd BufWinEnter <buffer>
       \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "read")
     }
     autocmd FileType python {
-      autocmd BufWriteCmd <buffer> noautocmd
+      autocmd BufWrite <buffer>
       \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "write")
     }
   augroup END
@@ -70,11 +70,11 @@ if executable("go") && executable("gofmt")
     autocmd!
     # autocmd DiffUpdated *.go b:checker_enabled = false
     autocmd FileType go {
-      autocmd BufWinEnter <buffer> noautocmd
+      autocmd BufWinEnter <buffer>
       \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "read")
     }
     autocmd FileType go {
-      autocmd BufWriteCmd <buffer> noautocmd
+      autocmd BufWrite <buffer>
       \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "write")
     }
   augroup END
