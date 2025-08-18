@@ -75,9 +75,9 @@ export def MyStatusLineAsync(file: string)
     newjob = job_start(
       ['git', '--no-pager', 'rev-parse', '--abbrev-ref', 'HEAD'],
       {
-        "out_cb": "s:OutHandler",
-        "err_cb": "s:ErrHandler",
-        "exit_cb": "s:ExitHandler",
+        "out_cb": function(OutHandler),
+        "err_cb": function(ErrHandler),
+        "exit_cb": function(ExitHandler),
         "out_io": "file",
         "out_name": STATUSLINE_FILES['git'],
         "out_msg": 0,
@@ -89,11 +89,13 @@ export def MyStatusLineAsync(file: string)
   endif
 enddef
 
-# def OutHandler(channel: channel, message: string)
-# enddef
+# out handler
+def OutHandler(channel: channel, message: string)
+enddef
 
-# def ErrHandler(channel: channel, message: string)
-# enddef
+# err handler
+def ErrHandler(channel: channel, message: string)
+enddef
 
 # exit handler for when the job ends
 def ExitHandler(job: job, status: number)
