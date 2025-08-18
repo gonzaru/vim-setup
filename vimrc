@@ -5,8 +5,8 @@ vim9script noclear
 # do not read the file if it is already loaded
 if get(g:, 'loaded_vimrc')
   echohl WarningMsg
-  echom $"Warning: the file '{expand('<sfile>:~')}' is already loaded"
-  echom ":ReloadVimrc (to reload it)"
+  echomsg $"Warning: the file '{expand('<sfile>:~')}' is already loaded"
+  echomsg ":ReloadVimrc (to reload it)"
   echohl None
   finish
 endif
@@ -51,11 +51,12 @@ g:loaded_2html_plugin = true       # tohtml.vim
 g:loaded_getscriptPlugin = true    # getscriptPlugin.vim
 g:loaded_gzip = true               # gzip.vim
 g:loaded_logiPat = true            # logiPat.vim
-g:loaded_manpager = true           # manpager.vim
+g:loaded_manpager_plugin = true    # manpager.vim
 g:loaded_matchparen = true         # matchparen.vim
 g:loaded_matchit = true            # matchit.vim
 g:loaded_netrw = true              # netrw autoload
 g:loaded_netrwPlugin = true        # netrwPlugin.vim
+g:loaded_openPlugin = true         # openPlugin.vim
 g:loaded_rrhelper = true           # rrhelper.vim
 g:loaded_spellfile_plugin = true   # spellfile.vim
 g:loaded_tar = true                # pi_tar
@@ -82,10 +83,11 @@ g:commentarium_enabled = true     # comment by language
 g:complementum_enabled = true     # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
-g:esckey_enabled = false          # use key as escape
+g:esckey_enabled = true           # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
 g:habit_enabled = false           # habit
+g:lsp_enabled = true              # lsp
 g:menu_enabled = true             # menu options
 g:misc_enabled = true             # miscelania functions
 g:runprg_enabled = true           # run programs
@@ -113,6 +115,7 @@ const plugins = [
   'format',
   'git',
   'habit',
+  'lsp',
   'menu',
   'runprg',
   'scratch',
@@ -183,7 +186,7 @@ endif
 
 # se plugin (simple explorer)
 if g:se_enabled
-  g:se_autochdir = true
+  g:se_autochdir = false
   g:se_followfile = false
   g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
@@ -287,10 +290,15 @@ set updatetime=300          # used for the |CursorHold| autocommand event
 set t_ut=                   # disable background color erase (BCE)
 # set t_ti= t_te=           # do not restore screen contents when exiting Vim (see: help norestorescreen / xterm alternate screen)
 
+# tags
+# echo tagfiles()
+set tags=./tags;,tags,./TAGS;,TAGS
+set tagrelative
+
 # vim
 if !has('gui_running')
   # viminfo with vim version
-  execute $"set viminfofile={$HOME}/.viminfo_{v:version}"
+  execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
   # cursor shapes
   # &t_SI = blinking vertical bar (INSERT MODE)
   # &t_SR = blinking underscore   (REPLACE MODE)
@@ -366,21 +374,20 @@ if has('gui_running')
   # see :SetGuiFont
   if has('gui_macvim')
     # viminfo with macvim version
-    execute $"set viminfofile={$HOME}/.viminfo_macvim_{v:version}"
     # set guifont=SFMono-Regular:h16
     set guifont=Menlo\ Regular:h16
     set antialias
   else
-    execute $"set viminfofile={$HOME}/.viminfo_gvim_{v:version}"
     if filereadable($"{$HOME}/.local/share/fonts/SF-Mono-Medium.otf")
       execute $"set guifont=SF\\ Mono\\ Medium\\ {host == 'vologda' ? 12.5 : 12}"
     else
       execute $"set guifont=DejaVu\\ Sans\\ Mono\\ {host == 'vologda' ? 12.8 : 12}"
     endif
   endif
+  execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
   g:guifont_orig = &guifont
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
-  set guioptions=acdkM                                 # do not load menus for gui (default aegimrLtT)
+  set guioptions=acdgkM                                # do not load menus for gui (default aegimrLtT)
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
   set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
   set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
@@ -542,9 +549,32 @@ if has('mksession')
     var sessions = map(sort(globpath(sessiondir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
     return filter(sessions, $"v:val =~ '^{arglead}'")
   enddef
-  command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionLoad execute $"source {sessiondir}/{<f-args>}"
+  command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionLoad {
+    execute $"source {sessiondir}/{<f-args>}"
+    silent echomsg $"session {fnamemodify(v:this_session, ":p:~")} loaded"
+  }
+  command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionDelete {
+    var bfile = $"{sessiondir}/{<f-args>}"
+    var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
+    if filereadable(dfile)
+      if delete(dfile) == 0
+        echomsg $"session '{expand('<args>')}' removed"
+      else
+        echoerr $"failed to delete session '{expand('<args>')}'"
+      endif
+    else
+      echoerr $"session '{expand('<args>')}' is not readable"
+    endif
+  }
   command! -nargs=1 SessionWrite {
-    execute $"mksession! {sessiondir}/{expand('<args>') =~ '\.vim$' ? expand('<args>') : expand('<args>') .. '.vim'}"
+    var bfile = $"{sessiondir}/{<f-args>}"
+    var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
+    execute $"mksession! {dfile}"
+    if filereadable(dfile)
+      echomsg $"session '{expand('<args>')}' created"
+    else
+      echoerr $"session '{expand('<args>')}' is not readable"
+    endif
   }
 endif
 
@@ -579,7 +609,7 @@ set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noinsert  # noselect,fuzzy
 if has('popupwin')
   # set completeopt+=popup        # show extra information in a popup window
-  # set completeopt+=popuphidden  # like popup option but hidden by default
+  set completeopt+=popuphidden    # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
   if exists('+completepopup')
     set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
@@ -882,6 +912,10 @@ if g:misc_enabled
   command! Bk :MiscBufferKill
 endif
 
+# see :oldfiles, :browse oldfiles
+nnoremap <leader>of :CycleOldFiles<CR>
+command! History :CycleOldFiles
+
 # quickfix/location list
 nnoremap <leader>cn :cnext<CR>
 nnoremap <leader>cp :cprev<CR>
@@ -1071,6 +1105,15 @@ endif
 # vim events
 augroup event_vim
   autocmd!
+  # save the session and the view
+  autocmd VimLeavePre * ++once {
+    if isdirectory(sessiondir)
+      execute $"mksession! {sessiondir}/last.vim"
+    endif
+    if isdirectory(&viewdir)
+      execute $"mkview! {&viewdir}/last.vim"
+    endif
+  }
   # reset the cursor shape and redraw the screen
   # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
   # clear the terminal on exit
@@ -1087,12 +1130,6 @@ augroup event_vim
       #   endif
       # endif
       endif
-    endif
-    if isdirectory(sessiondir)
-      execute $"mksession! {sessiondir}/last.vim"
-    endif
-    if isdirectory(&viewdir)
-      execute $"mkview! {&viewdir}/last.vim"
     endif
   }
 augroup END
