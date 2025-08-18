@@ -20,6 +20,7 @@ import autoload '../autoload/cyclebuffers.vim'
 nnoremap <silent> <script> <Plug>(cyclebuffers-close) <Cmd>close<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-help) <ScriptCmd>cyclebuffers.Help()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-oldfiles) <ScriptCmd>cyclebuffers.CycleOldFiles()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-delete) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "delete")<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-delete!) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "delete!")<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-wipe) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "wipe")<CR>
@@ -39,4 +40,5 @@ endif
 # set commands
 if get(g:, 'cyclebuffers_no_commands') == 0
   command! CycleBuffers execute "normal \<Plug>(cyclebuffers-cycle)"
+  command! CycleOldFiles execute "normal \<Plug>(cyclebuffers-oldfiles)"
 endif

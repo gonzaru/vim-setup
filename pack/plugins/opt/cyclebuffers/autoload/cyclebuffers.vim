@@ -62,6 +62,24 @@ export def Cycle(): void
   endif
 enddef
 
+# cyle between old files
+export def CycleOldFiles(): void
+  if empty(v:oldfiles)
+    EchoWarningMsg("Warning: 'v:oldfiles' is empty")
+    return
+  endif
+  if g:cyclebuffers_position == "top"
+    topleft split new
+  else
+    botright split new
+  endif
+  appendbufline('%', 0, v:oldfiles)
+  deletebufline('%', '$')
+  execute $"resize {line('$')}"
+  setlocal filetype=cb
+  cursor(1, 1)
+enddef
+
 # get the line number from buffer number
 def GetBufferLine(bufnr: number): number
   for lb in LINEBUF
@@ -107,18 +125,23 @@ enddef
 
 # go to the selected buffer
 export def SelectBuffer(line: number, mode: string)
+  var oldfile: string
   var prevwinid = bufwinid('#')
   var bufnr = GetBufferNum(line)
+  # TODO: workaround for oldfiles
+  if bufnr == -1
+    oldfile = getline('.')
+  endif
   close
   win_gotoid(prevwinid)
   if mode == "edit"
-    execute $"buffer {bufnr}"
+    execute !empty(oldfile) ? $"edit {oldfile}" : $"buffer {bufnr}"
   elseif mode == "split"
-    execute $"sbuffer {bufnr}"
+    execute !empty(oldfile) ? $"split {oldfile}" : $"sbuffer {bufnr}"
   elseif mode == "vsplit"
-    execute $"vertical sbuffer {bufnr}"
+    execute !empty(oldfile) ? $"vsplit {oldfile}" : $"vertical sbuffer {bufnr}"
   elseif mode == "tabedit"
-    execute $"tab sbuffer {bufnr}"
+    execute !empty(oldfile) ? $"tabedit {oldfile}" : $"tab sbuffer {bufnr}"
   elseif mode == "delete"
     execute $"bd {bufnr}"
   elseif mode == "delete!"
