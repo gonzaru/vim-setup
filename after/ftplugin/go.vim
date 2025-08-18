@@ -24,15 +24,25 @@ setlocal softtabstop=4
 setlocal shiftwidth=4
 setlocal shiftround
 setlocal noexpandtab
-setlocal keywordprg=go\ doc
-# setlocal keywordprg=:GoKeywordPrg
+#setlocal keywordprg=go\ doc
+setlocal keywordprg=:GoKeywordPrg
 # setlocal makeprg=gofmt\ -e\ %\ >/dev/null
 setlocal makeprg=go\ build
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 setlocal formatprg=gofmt
-# if get(g:, "complementum_enabled")
-#   inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
-# endif
+if get(g:, "complementum_enabled")
+  # inoremap <buffer> <nowait> <silent> . .<Plug>(complementum-insertautocomplete)
+  var gofileproj = trim(system("dirname $(go env GOMOD)")) .. "/go-project.dict"
+  if filereadable(gofileproj)
+    execute $"setlocal dictionary^={gofileproj}"
+  endif
+  if filereadable(expand("$HOME/.vim/dict/go/go-stdlib.dict"))
+    setlocal dictionary^=$HOME/.vim/dict/go/go-stdlib.dict
+  endif
+  if filereadable(expand("$HOME/.vim/tags/go/go-stdlib.tags"))
+    setlocal tags+=$HOME/.vim/tags/go/go-stdlib.tags
+  endif
+endif
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 endif
