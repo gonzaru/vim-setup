@@ -88,6 +88,7 @@ export def Help()
     P        # close the preview window currently open
     d        # change to home directory [~]
     g        # change to prompt directory
+    y        # toggle to show only directories
     b        # change to parent directory [-]
     f        # change to previous directory
     F        # follow the current file
@@ -102,6 +103,10 @@ export def Help()
     M        # set default app for mime type
     c        # open the file with a custom program
     C        # open the file with the default program
+    w        # change to git root directory
+    W        # change to custom root directory (g:se_rootdir)
+    z        # set the current directory as custom root directory
+    Z        # unset the custom root directory
     .        # toggle the visualization of the hidden files
     <ESC>    # close Se window
     H        # shows Se help information [K]
@@ -131,7 +136,7 @@ def Populate(cwddir: string)
   execute $"setlocal wildignore={curwildignore}"
   lsf = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
   if len(lsf) > 0
-    appendbufline(BUFFER_NAME, 0, lsf)
+    appendbufline(BUFFER_NAME, 0, g:se_onlydirs ? filter(lsf, 'isdirectory(v:val)') : lsf)
   else
     EchoWarningMsg($"Warning: the directory '{fnamemodify(cwddir, ':t')}' is empty")
     sleep! 1
@@ -151,6 +156,11 @@ def Populate(cwddir: string)
   appendbufline(BUFFER_NAME, 1, [$"./ [{parentcwd}]"])
   deletebufline(BUFFER_NAME, '$')
   cursor(line('$') > 2 ? 3 : 1, 1)
+enddef
+
+# set custom root directory
+export def SetRootDir(s: string)
+  g:se_rootdir = s
 enddef
 
 # set prevcwd
@@ -288,6 +298,12 @@ enddef
 # toggles Se to show the file permissions
 export def TogglePermsShow()
   g:se_permsshow = !g:se_permsshow
+  Refresh(expand('%:p'))
+enddef
+
+# toggles Se to show only directories
+export def ToggleOnlyDirsShow()
+  g:se_onlydirs = !g:se_onlydirs
   Refresh(expand('%:p'))
 enddef
 
@@ -544,9 +560,32 @@ def GoDir(dir: string, setcwd: bool): void
   Show(dir)
 enddef
 
+# goes to git root dir directory
+export def GoDirGit()
+   var groot = trim(system("git rev-parse --show-toplevel"))
+   if isdirectory(groot)
+     GoDir(groot, true)
+    else
+      EchoErrorMsg($"Error: does not have a git root directory")
+   endif
+enddef
+
 # goes to home directory
 export def GoDirHome()
   GoDir(getenv('HOME'), true)
+enddef
+
+# goes to custom root directory
+export def GoDirRoot(): void
+  # fallback to git root
+  if empty(g:se_rootdir)
+    g:se_rootdir = trim(system("git rev-parse --show-toplevel"))
+  endif
+  if empty(g:se_rootdir) || !isdirectory(g:se_rootdir)
+    EchoErrorMsg($"Error: 'g:se_rootdir' is empty or is not a directory")
+    return
+  endif
+  GoDir(g:se_rootdir, true)
 enddef
 
 # goes to parent directory
@@ -576,7 +615,7 @@ export def GoDirPrompt()
 enddef
 
 # goes to file or directory
-export def GoFile(filepath: string, mode: string)
+export def GoFile(filepath: string, mode: string): void
   var cwddir: string
   var dochdir = true
   var selfile: string
@@ -587,6 +626,14 @@ export def GoFile(filepath: string, mode: string)
     cwddir = getcwd()
   endif
   selfile = RemoveFileIndicators(RemoveFilePerms(filepath))
+  if selfile == "../" && !empty(g:se_rootdir)
+    var kdir = fnamemodify(g:se_rootdir, ":p")
+    var pdir = fnamemodify("../", ":p")
+    if stridx(pdir, kdir) == -1
+      EchoWarningMsg($"g:se_rootdir: {fnamemodify(g:se_rootdir, ':p:~')}")
+      return
+    endif
+  endif
   if isdirectory(selfile)
     GoDir(selfile, true)
     if g:se_autochdir

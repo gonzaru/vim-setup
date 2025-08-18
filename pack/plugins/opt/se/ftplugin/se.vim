@@ -46,6 +46,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> ~ <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> d <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> g <Plug>(se-godir-prompt)
+  nnoremap <buffer> <nowait> y <Plug>(se-toggle-onlydirs-show)
   nnoremap <buffer> <nowait> r <Plug>(se-refresh)
   nnoremap <buffer> <nowait> f <Plug>(se-godir-prev)
   nnoremap <buffer> <nowait> F <Plug>(se-followfile)
@@ -62,4 +63,8 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> . <Plug>(se-toggle-hidden-show)
   nnoremap <buffer> <nowait> H <Plug>(se-help)
   nnoremap <buffer> <nowait> K <Plug>(se-help)
+  nnoremap <buffer> <nowait> w <Plug>(se-godir-git)
+  nnoremap <buffer> <nowait> W <Plug>(se-godir-root)
+  nnoremap <buffer> <nowait> z <Plug>(se-set-rootdir)
+  nnoremap <buffer> <nowait> Z <Plug>(se-unset-rootdir)
 endif

@@ -29,6 +29,9 @@ endif
 if !exists('g:se_hiddenshow')
   g:se_hiddenshow = false
 endif
+if !exists('g:se_onlydirs')
+  g:se_onlydirs = false
+endif
 if !exists('g:se_opentool')
   g:se_opentool = "xdg-open"
 endif
@@ -43,6 +46,9 @@ if !exists('g:se_prevdirhist')
 endif
 if !exists('g:se_resizemaxcol')
   g:se_resizemaxcol = false
+endif
+if !exists('g:se_rootdir')
+  g:se_rootdir = ""
 endif
 if !exists('g:se_winsize')
   g:se_winsize = 20
@@ -72,7 +78,10 @@ nnoremap <silent> <script> <Plug>(se-toggle-hidden-position) <ScriptCmd>se.Toggl
 nnoremap <silent> <script> <Plug>(se-toggle-perms-show) <ScriptCmd>se.TogglePermsShow()<CR>
 nnoremap <silent> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
+nnoremap <silent> <script> <Plug>(se-godir-git) <ScriptCmd>se.GoDirGit()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDirHome()<CR>
+nnoremap <silent> <script> <Plug>(se-godir-root) <ScriptCmd>se.GoDirRoot()<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-onlydirs-show) <ScriptCmd>se.ToggleOnlyDirsShow()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-parent) <ScriptCmd>se.GoDirParent()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-prev) <ScriptCmd>se.GoDirPrev()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-prompt) <ScriptCmd>se.GoDirPrompt()<CR>
@@ -83,6 +92,8 @@ nnoremap <silent> <script> <Plug>(se-gofile-split) <ScriptCmd>se.GoFile(getline(
 nnoremap <silent> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.GoFile(getline('.'), "tabedit")<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-vsplit) <ScriptCmd>se.GoFile(getline('.'), "vsplit")<CR>
 nnoremap <silent> <script> <Plug>(se-check-mime) <ScriptCmd>se.CheckMimeType(getline('.'))<CR>
+nnoremap <silent> <script> <Plug>(se-set-rootdir) <ScriptCmd>se.SetRootDir(getcwd())<CR>
+nnoremap <silent> <script> <Plug>(se-unset-rootdir) <ScriptCmd>se.SetRootDir("")<CR>
 nnoremap <silent> <script> <Plug>(se-set-mime) <ScriptCmd>se.SetMimeType(getline('.'))<CR>
 nnoremap <silent> <script> <Plug>(se-open-with-default) <ScriptCmd>se.OpenWith(getline('.'), true)<CR>
 nnoremap <silent> <script> <Plug>(se-open-with-custom) <ScriptCmd>se.OpenWith(getline('.'), false)<CR>
@@ -103,7 +114,18 @@ endif
 
 # set commands
 if get(g:, 'se_no_commands') == 0
-  command! Se execute "normal \<Plug>(se-toggle)"
+  command! -nargs=? -complete=dir_in_path Se {
+    var arg = fnamemodify(expand('<args>'), ":p")
+    if !empty(arg) && isdirectory(arg)
+      execute "normal \<Plug>(se-toggle)"
+      if &filetype == "se"
+        execute $"lcd {arg}"
+        execute "normal \<Plug>(se-refresh)"
+      endif
+    else
+      execute "normal \<Plug>(se-toggle)"
+    endif
+  }
   command! SeHelp execute "normal \<Plug>(se-help)"
   command! SeToggle execute "normal \<Plug>(se-toggle)"
 endif
