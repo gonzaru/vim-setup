@@ -55,9 +55,9 @@ augroup xkb_events
       endif
     endif
   }
-  autocmd VimLeave * ++once {
+  autocmd VimLeavePre * ++once {
     if g:xkb_enabled
-      xkb.Layout(["VimLeave"], "first", "shell")
+      xkb.Layout(["VimLeavePre"], "first", "shell")
     endif
   }
   autocmd VimResume * {

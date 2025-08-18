@@ -24,7 +24,7 @@ enddef
 def Run(mode: string, cmd: list<any>)
   var newjob: job
   if mode == "job" && empty(JOB_QUEUE)
-    newjob = job_start(cmd, {"exit_cb": "s:ExitHandler"})
+    newjob = job_start(cmd, {"exit_cb": function(ExitHandler)})
     add(JOB_QUEUE, job_info(newjob)['process'])
   elseif mode == "shell"
     # silent! to avoid some terminal garbage (see :h xterm-focus-event)
