@@ -33,9 +33,21 @@ nnoremap <silent> <script> <Plug>(lsp-restart) <ScriptCmd>lsp.Restart()<CR>
 nnoremap <silent> <script> <Plug>(lsp-info) <ScriptCmd>lsp.Info()<CR>
 nnoremap <silent> <script> <Plug>(lsp-enable) <ScriptCmd>lsp.Enable()<CR>
 nnoremap <silent> <script> <Plug>(lsp-disable) <ScriptCmd>lsp.Disable()<CR>
+nnoremap <silent> <script> <Plug>(lsp-definition) <ScriptCmd>lsp.Definition()<CR>
+nnoremap <silent> <script> <Plug>(lsp-hover) <ScriptCmd>lsp.Hover()<CR>
+nnoremap <silent> <script> <Plug>(lsp-references) <ScriptCmd>lsp.References()<CR>
+nnoremap <silent> <script> <Plug>(lsp-rename) <ScriptCmd>lsp.Rename()<CR>
 
-# TODO
 # set mappings
+if get(g:, 'lsp_no_mappings') == 0
+  if empty(mapcheck("<leader>gd", "n"))
+    nnoremap <leader>gd <Plug>(lsp-definition)
+    nnoremap <leader><C-]> <Plug>(lsp-definition)
+    nnoremap <leader>gi <Plug>(lsp-hover)
+    nnoremap <leader>gs <Plug>(lsp-references)
+    nnoremap <leader>gr <Plug>(lsp-rename)
+  endif
+endif
 
 # set commands
 if get(g:, 'lsp_no_commands') == 0
@@ -45,5 +57,9 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPRestart execute "normal \<Plug>(lsp-restart)"
   command! LSPInfo execute "normal \<Plug>(lsp-info)"
   command! LSPEnable execute "normal \<Plug>(lsp-enable)"
+  command! LSPDefinition execute "normal \<Plug>(lsp-definition)"
   command! LSPDisable execute "normal \<Plug>(lsp-disable)"
+  command! LSPHover execute "normal \<Plug>(lsp-hover)"
+  command! LSPReferences execute "normal \<Plug>(lsp-references)"
+  command! LSPRename execute "normal \<Plug>(lsp-rename)"
 endif

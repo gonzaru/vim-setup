@@ -163,6 +163,7 @@ enddef
 # complete (omni)
 def CompleteOmni(lang: string): void
   if !has_key(g:complementum_omnifuncs, lang)
+  && !has_key(g:complementum_lspfuncs, lang)
     return
   endif
   # lsp
@@ -170,7 +171,7 @@ def CompleteOmni(lang: string): void
   # dictionary
   # default
   if get(g:, 'lsp_enabled') && get(g:, 'lsp_complementum')
-      && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
+  && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
     # TODO: omnifunc function
     timer_start(0, (_) => {
       lsp#Completion()

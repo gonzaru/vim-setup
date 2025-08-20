@@ -8,7 +8,7 @@ if get(g:, 'autoloaded_lsp') || !get(g:, 'lsp_enabled')
 endif
 g:autoloaded_lsp = true
 
-# languages
+# supported languages
 const LANGUAGES = {
   'go': 1,
   'python': 2,
@@ -16,17 +16,21 @@ const LANGUAGES = {
 }
 
 # id
-def ID(): number
-  return LANGUAGES[&filetype]
+def ID(lang: string): number
+  return LANGUAGES[lang]
 enddef
 
 # id request
 const ID_REQUEST_INITIALIZE = 1
 const ID_REQUEST_TEXT_DOCUMENT_COMPLETION = 2
-const ID_REQUEST_SHUTDOWN = 3
+const ID_REQUEST_TEXT_DOCUMENT_DEFINITION = 3
+const ID_REQUEST_TEXT_DOCUMENT_REFERENCES = 4
+const ID_REQUEST_TEXT_DOCUMENT_RENAME = 5
+const ID_REQUEST_TEXT_DOCUMENT_HOVER = 6
+const ID_REQUEST_SHUTDOWN = 99
 
 # kinds
-var DEFAULT_KINDS = {
+const DEFAULT_KINDS = {
    '1': 't', # Text
    '2': 'm', # Method
    '3': 'f', # Function
@@ -103,7 +107,7 @@ servers[LANGUAGES['python']] = NewServer({
   'language': "python"
 })
 
-# terraform
+# terraform-ls
 servers[LANGUAGES['terraform']] = NewServer({
   'id': LANGUAGES['terraform'],
   'name': "terraform-ls",
@@ -143,13 +147,13 @@ def ActiveServers(): list<string>
   return active
 enddef
 
-# enable
+# enable plugin
 export def Enable()
   g:lsp_enabled = true
   g:lsp_complementum = true  # complementum plugin
 enddef
 
-# disable
+# disable plugin
 export def Disable()
   g:lsp_enabled = false
   g:lsp_complementum = false  # complementum plugin
@@ -160,30 +164,30 @@ def ActiveServer(name: string): bool
   return index(ActiveServers(), name) >= 0
 enddef
 
-# pre check
+# pre-check requisites
 def PreCheck(server: dict<any>): string
   if !has_key(LANGUAGES, &filetype)
     return $"lsp: the filetype '{&filetype}' is not supported"
   endif
   if !executable(server.cmd)
-	  return $"server: {server.cmd} command not found"
+    return $"server: {server.cmd} command not found"
   endif
   if ActiveServer(server.name)
-	  return $"server: {server.name} is already active"
+    return $"server: {server.name} is already active"
   endif
   return ""
 enddef
 
-# start
+# start server
 export def Start(): void
-  var server = servers[ID()]
+  var server = servers[ID(&filetype)]
   var err = PreCheck(server)
   if !empty(err)
-	  EchoErrorMsg(err)
-	  return
+    EchoErrorMsg(err)
+    return
   endif
   var job = job_start(server.cmd .. ' ' .. join(server.args), {
-	  'in_mode': 'lsp',
+    'in_mode': 'lsp',
     'out_mode': 'lsp',
     'err_mode': 'raw',
     'noblock': 1,
@@ -198,38 +202,38 @@ export def Start(): void
   server.job = job
   server.channel = job_getchannel(job)
   server.pid = job_info(job)['process']
-	server.active = true
-	RequestInitialize(server)
+  server.active = true
+  RequestInitialize(server)
 enddef
 
-# stop
-export def Stop(sid: number = -1)
-  const id = sid == -1 ? ID() : sid
+# stop server
+export def Stop(sid: number = -1): void
+  const id = sid == -1 ? ID(&filetype) : sid
   var server = servers[id]
-  if server.active
-    ch_sendexpr(server.channel, {
-      jsonrpc: '2.0',
-      id: ID_REQUEST_SHUTDOWN,
-      method: 'shutdown',
-      params: v:null
-    })
-    ch_sendexpr(server.channel, {
-      jsonrpc: '2.0',
-      method: 'exit',
-      params: v:null
-    })
-    if has_key(server, 'job') && server.job isnot 0
-      job_stop(server.job)
-    endif
-    # cleanup
-	  server.ready = false
-	  server.active = false
-	else
+  if !server.active
     EchoWarningMsg($"server: {server.name} is not active")
+    return
   endif
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_SHUTDOWN,
+    method: 'shutdown',
+    params: v:null
+  })
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    method: 'exit',
+    params: v:null
+  })
+  if has_key(server, 'job') && server.job isnot 0
+    job_stop(server.job)
+  endif
+  # cleanup
+  server.ready = false
+  server.active = false
 enddef
 
-# stop all
+# stop all servers
 export def StopAll()
   for k in keys(servers)
     if servers[k].active
@@ -238,127 +242,55 @@ export def StopAll()
   endfor
 enddef
 
-# restart
+# restart server
 export def Restart()
   Stop()
   sleep! 500m
   Start()
 enddef
 
-# info
-export def Info()
-  for k in keys(servers)
-    echo servers[k]
-    read
+# server info
+export def Info(): void
+  if !executable("jq")
+    echo servers
+    input('Press ENTER to continue')
+    return
+  endif
+  var scopy = deepcopy(servers)
+  for k in keys(scopy)
+    for f in ['job', 'channel']
+      if has_key(scopy[k], f)
+        remove(scopy[k], f)
+      endif
+    endfor
   endfor
+  var jdict = json_encode(scopy)
+  new
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  setlocal filetype=json
+  setline(1, [jdict])
+  execute 'silent :%!jq .'
 enddef
 
-# request initialize
-def RequestInitialize(server: dict<any>)
-	if server.language == 'go'
-    server.rootPath = trim(system('dirname $(go env GOMOD)'))
-    server.rootUri = $"file://{trim(system('dirname $(go env GOMOD)'))}"
-  else
-    server.rootPath = fnamemodify(expand('%:p'), ':h')
-    server.rootUri = $"file://{substitute(fnamemodify(expand('%:p'), ':h'), ' ', '%20', 'g')}"
-  endif
-  ch_sendexpr(server.channel, {
-    jsonrpc: '2.0',
-    id: ID_REQUEST_INITIALIZE,
-    method: 'initialize',
-    params: {
-      processId: server.pid,
-			rootUri: server.rootUri,
-      workspaceFolders: [{
-          name: fnamemodify(server.rootPath, ':t'),
-          uri: server.rootUri
-      }],
-			capabilities: {
-        textDocument: {
-          synchronization: {
-            didSave: v:false,
-            willSave: v:false,
-            dynamicRegistration: v:false
-          }
-        },
-      },
-      trace: 'off',
-    },
-  })
+# get the current line and column
+def GetCurPos(): list<number>
+  var pos = getcurpos()
+  var line0 = pos[1] - 1
+  var byteCol0 = pos[2] - 1
+  var lineText = getline(line0 + 1)
+  var prefix = strpart(lineText, 0, byteCol0)
+  var u16 = 0
+  for ch in split(prefix, '\zs')
+    var cp = char2nr(ch)
+    u16 += (cp > 0xFFFF ? 2 : 1)
+  endfor
+  return [line0, u16]
 enddef
 
-# response initialize
-def ResponseInitialize(server: dict<any>, channel: channel, message: any): string
-  if has_key(message, 'error')
-    return $"initialize error: {string(message.error)}"
-  endif
-
-  ch_sendexpr(server.channel, {
-    jsonrpc: '2.0',
-    method: 'initialized',
-    params: {}
-  })
-
-  var abs = fnamemodify(expand('%:p'), ':p')
-  server.uri = $"file://{substitute(abs, ' ', '%20', 'g')}"
-	server.version = 1
-  var text = join(getline(1, '$'), "\n")
-  ch_sendexpr(server.channel, {
-    jsonrpc: '2.0',
-    method: 'textDocument/didOpen',
-    params: {
-      textDocument: {
-        uri: server.uri,
-        languageId: server.language,
-        version: server.version,
-        text: text,
-      }
-    }
-  })
-
-  # python only
-	if server.language == 'python'
-  	ch_sendexpr(server.channel, {
-    	jsonrpc: '2.0',
-    	method: 'workspace/didChangeConfiguration',
-    	params: {
-      	settings: {
-        	python: {
-          	analysis: {
-            	autoImportCompletions: v:false
-          	}
-        	}
-      	}
-    	}
-  	})
-	endif
-
-	# wait a small time
-	if has_key(server, 'waitInit') && server.waitInit
-	  echo $"{server.name} waiting to initialize.."
-	  sleep! 5
-	endif
-	server.ready = true
-  echomsg $"{server.name} initialized OK"
-  return ""
-enddef
-
-# do completion
-export def Completion(): void
-  var server = servers[ID()]
-	if !server.ready || empty(server.uri)
-		EchoWarningMsg($"{server.name} is not initialized")
-		Start()
-		sleep! 500m
-	endif
-	RequestCompletion(server)
-enddef
-
-# request completion
-def RequestCompletion(server: dict<any>)
+# request did change
+def RequestDidChange(server: dict<any>)
   server.version += 1
-	var buftext = join(getline(1, '$'), "\n")
-
+  var buftext = join(getline(1, '$'), "\n")
   ch_sendexpr(server.channel, {
     jsonrpc: '2.0',
     method: 'textDocument/didChange',
@@ -370,19 +302,168 @@ def RequestCompletion(server: dict<any>)
       contentChanges: [ { text: buftext } ],
     }
   })
+enddef
 
-	var pos = getcurpos()
-  var line0 = pos[1] - 1
-  var byteCol0 = pos[2] - 1
-  var lineText = getline(line0 + 1)
-  var prefix = strpart(lineText, 0, byteCol0)
+# request initialize
+def RequestInitialize(server: dict<any>)
+  # git
+  # language
+  # default
+  var rootGit = trim(system("git rev-parse --show-toplevel"))
+  if isdirectory(rootGit)
+    server.rootPath = rootGit
+    server.rootUri = $"file://{rootGit}"
+  else
+    var rootDir = fnamemodify(expand('%:p'), ':h')
+    server.rootPath = rootDir
+    server.rootUri = $"file://{substitute(rootDir, ' ', '%20', 'g')}"
+  endif
+  if server.language == 'go'
+    var rootMod = trim(system('dirname $(go env GOMOD)'))
+    if isdirectory(rootMod)
+      server.rootPath = rootMod
+      server.rootUri = $"file://{rootMod}"
+    endif
+  endif
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_INITIALIZE,
+    method: 'initialize',
+    params: {
+      processId: server.pid,
+      rootUri: server.rootUri,
+      workspaceFolders: [{
+          name: fnamemodify(server.rootPath, ':t'),
+          uri: server.rootUri
+      }],
+      capabilities: {
+        general: {
+          positionEncodings: ['utf-16']
+        },
+        textDocument: {
+          synchronization: {
+            didSave: v:false,
+            willSave: v:false,
+            dynamicRegistration: v:false
+          }
+        },
+      },
+      initializationOptions: {
+        experimentalFeatures: {
+          validateOnSave: v:false
+        },
+        # terraform only
+        terraform: {
+          languageServer: {
+            ignoreDirectoryNames: ['.git', '.terraform', 'node_modules']
+          }
+        },
+      },
+      trace: 'off',
+    },
+  })
+enddef
 
-  var u16 = 0
-  for ch in split(prefix, '\zs')
-    var cp = char2nr(ch)
-    u16 += (cp > 0xFFFF ? 2 : 1)
-  endfor
+# response initialize
+def ResponseInitialize(server: dict<any>, channel: channel, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"initialize error: {string(message.error.message)}"
+  endif
 
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    method: 'initialized',
+    params: {}
+  })
+
+  # go only
+  if server.language == 'go'
+    ch_sendexpr(server.channel, {
+      jsonrpc: '2.0',
+      method: 'workspace/didChangeConfiguration',
+      params: {
+        settings: {
+          gopls: {
+            diagnosticsTrigger: "Save",
+            analyses: {
+              unusedparams: false,
+              unusedvariable: false,
+              unreachable: false,
+              nilness: false,
+              printf: false,
+              shadow: false,
+              unusedwrite: false
+            },
+            staticcheck: false,
+            vulncheck: "Off"
+          }
+        }
+      }
+    })
+  endif
+
+  # python only
+  if server.language == 'python'
+    ch_sendexpr(server.channel, {
+      jsonrpc: '2.0',
+      method: 'workspace/didChangeConfiguration',
+      params: {
+        settings: {
+          python: {
+            analysis: {
+              typeCheckingMode: "off",
+              diagnosticMode: "openFilesOnly",
+              autoImportCompletions: v:false
+            }
+          }
+        }
+      }
+    })
+  endif
+
+  var abs = fnamemodify(expand('%:p'), ':p')
+  server.uri = $"file://{substitute(abs, ' ', '%20', 'g')}"
+  server.version = 1
+  var text = join(getline(1, '$'), "\n")
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    method: 'textDocument/didOpen',
+    params: {
+      textDocument: {
+        uri: server.uri,
+        languageId: server.language,
+        version: server.version,
+        text: text
+      }
+    }
+  })
+
+  # wait a small time
+  if has_key(server, 'waitInit') && server.waitInit
+    echo $"{server.name} waiting to initialize.."
+    sleep! 5
+  endif
+
+  server.ready = true
+  echomsg $"{server.name} initialized OK"
+  return ""
+enddef
+
+# completion
+export def Completion(): void
+  var server = servers[ID(&filetype)]
+  if !server.ready || empty(server.uri)
+    EchoWarningMsg($"{server.name} is not initialized")
+    Start()
+    sleep! 500m
+  endif
+  RequestCompletion(server)
+enddef
+
+# request completion
+def RequestCompletion(server: dict<any>)
+  RequestDidChange(server)
+  var pos = GetCurPos()
   ch_sendexpr(server.channel, {
     jsonrpc: '2.0',
     id: ID_REQUEST_TEXT_DOCUMENT_COMPLETION,
@@ -392,19 +473,23 @@ def RequestCompletion(server: dict<any>)
         uri: server.uri
       },
       position: {
-        line: line0,
-        character: u16
+        line: pos[0],
+        character: pos[1]
       },
-			context: {
-				triggerKind: 2,  # 2 = TriggerCharacter ".'
-				triggerCharacter: '.'
-			},
+      context: {
+        triggerKind: 2,  # 2 = TriggerCharacter ".'
+        triggerCharacter: '.'
+      },
     }
   })
 enddef
 
 # response completion
 def ResponseCompletion(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"completion error: {string(message.error.message)}"
+  endif
+
   var items = []
   if has_key(message, 'result')
     if has_key(message.result, 'items')
@@ -413,9 +498,11 @@ def ResponseCompletion(server: dict<any>, message: any): string
       items = message.result
     endif
   endif
+
   if empty(items)
-    echo $"{server.name} completion: (empty)"
+    return $"{server.name} completion: (empty)"
   endif
+
   # python only
   if server.language == 'python'
     if !g:lsp_python_auto_imports
@@ -426,17 +513,18 @@ def ResponseCompletion(server: dict<any>, message: any): string
       items = sort(items, (a, b) => Key(a) < Key(b) ? -1 : Key(a) > Key(b) ? 1 : 0)
     endif
   endif
-	ShowCompletion(server, items)
-	return ""
+
+  ShowCompletion(server, items)
+  return ""
 enddef
 
 # show completion
 def ShowCompletion(server: dict<any>, items: list<dict<any>>)
-	var label: string
-	var detail: string
-	var kind: number
-	var compl = []
-	for it in items
+  var label: string
+  var detail: string
+  var kind: number
+  var compl = []
+  for it in items
     label  = get(it, 'label', '')
     detail = get(it, 'detail', '')
     kind = get(it, 'kind', '')
@@ -452,8 +540,289 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>)
       'info': detail,
       'menu': printf('%s', detail)
     })
-	endfor
-	complete(col('.'), compl)
+  endfor
+  complete(col('.'), compl)
+enddef
+
+# definition
+export def Definition(): void
+  var server = servers[ID(&filetype)]
+  RequestDefinition(server)
+enddef
+
+# request definition
+def RequestDefinition(server: dict<any>)
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_DEFINITION,
+    method: 'textDocument/definition',
+    params: {
+      textDocument: {
+        uri: server.uri
+      },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      }
+    }
+  })
+enddef
+
+# response definition
+def ResponseDefinition(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"definition error: {string(message.error.message)}"
+  endif
+  var items = []
+  if has_key(message, 'result')
+    items = message.result
+  endif
+  if empty(items)
+    return $"{server.name} definition: (empty)"
+  endif
+  # TODO: use UTF-16
+  setqflist([], 'r')
+  for [key, _] in items(items)
+    var path: string
+    path = substitute(items[key].uri, '^file://', "", "")
+    path = substitute(path, '%20', ' ', 'g')
+    var line = items[key].range.start.line + 1
+    var col = items[key].range.start.character + 1
+    setqflist([{'filename': $'{path}', 'lnum': line, 'col': col}], 'a')
+  endfor
+  if len(getqflist()) >= 2
+    copen
+  else
+    # results are already in the quickfix
+    var item = getqflist()
+    var path = bufname(item[0].bufnr)
+    var line = item[0].lnum
+    var col = item[0].col
+    execute $"edit {path}"
+    cursor(line, col)
+    # setqflist([], 'r')
+  endif
+  return ""
+enddef
+
+# references
+export def References(): void
+  var server = servers[ID(&filetype)]
+  RequestReferences(server)
+enddef
+
+# request references
+def RequestReferences(server: dict<any>)
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_REFERENCES,
+    method: 'textDocument/references',
+    params: {
+      textDocument: {
+        uri: server.uri
+      },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      },
+      context: {
+        includeDeclaration: true  # true all project references
+      }
+    }
+  })
+enddef
+
+# response references
+def ResponseReferences(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"references error: {string(message.error.message)}"
+  endif
+  var items = []
+  if has_key(message, 'result')
+    items = message.result
+  endif
+  if empty(items)
+    return $"{server.name} references: (empty)"
+  endif
+  # TODO: use UTF-16
+  setqflist([], 'r')
+  for [key, _] in items(items)
+    var path: string
+    path = substitute(items[key].uri, '^file://', "", "")
+    path = substitute(path, '%20', ' ', 'g')
+    var line = items[key].range.start.line + 1
+    var col = items[key].range.start.character + 1
+    setqflist([{'filename': $'{path}', 'lnum': line, 'col': col}], 'a')
+  endfor
+  if !empty(getqflist())
+    copen
+  endif
+  return ""
+enddef
+
+# rename
+export def Rename()
+  var server = servers[ID(&filetype)]
+  var err = RequestRename(server)
+  if !empty(err)
+    EchoErrorMsg(err)
+  endif
+enddef
+
+# request rename
+def RequestRename(server: dict<any>): string
+  var curWord = expand('<cword>')
+  var newWord = trim(input($"Rename '{curWord}' to: ", ''))
+  if empty(newWord)
+    return $"the new value '{newWord}' cannot be empty"
+  endif
+  if newWord == curWord
+    return $"rename to the same value '{newWord}' is not allowed"
+  endif
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_RENAME,
+    method: 'textDocument/rename',
+    params: {
+      textDocument: {
+        uri: server.uri
+      },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      },
+      newName: newWord
+    }
+  })
+  return ""
+enddef
+
+# response rename
+def ResponseRename(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"rename error: {string(message.error.message)}"
+  endif
+
+  var items: list<dict<any>>
+  if has_key(message, 'result')
+    if has_key(message.result, 'documentChanges')
+      items = message.result.documentChanges
+    elseif has_key(message.result, 'changes')
+      # TODO
+      # items = message.result.changes
+      EchoWarningMsg("rename TODO: when message.result.changes")
+      return ""
+    endif
+  endif
+
+  if empty(items)
+    return $"{server.name} rename: (empty)"
+  endif
+
+  for [key, _] in items(items)
+    for edit in reverse(items[key].edits)
+      var startLine = edit.range.start.line + 1
+      var startCol = edit.range.start.character + 1
+      var endLine = edit.range.end.line + 1
+      var endCol = edit.range.end.character + 1
+      var newText = edit.newText
+      var lines = getline(startLine, endLine)
+      var head = strcharpart(lines[0], 0, startCol - 1)
+      var tail = strcharpart(lines[-1], endCol - 1)
+      var newLines = [head .. newText .. tail]
+      setline(startLine, newLines)
+      if endLine > startLine
+        deletebufline('%', startLine + 1, endLine)
+      endif
+    endfor
+  endfor
+  return ""
+enddef
+
+# hover
+export def Hover(): void
+  var server = servers[ID(&filetype)]
+  RequestHover(server)
+enddef
+
+# request hover
+def RequestHover(server: dict<any>)
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_HOVER,
+    method: 'textDocument/hover',
+    params: {
+      textDocument: {
+        uri: server.uri
+      },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      }
+    }
+  })
+enddef
+
+# response hover
+def ResponseHover(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"hover error: {string(message.error.message)}"
+  endif
+  if !has_key(message, 'result')
+    return $"{server.name} hover: (empty)"
+  endif
+  if has_key(message, 'result')
+    if message.result == null
+      EchoWarningMsg($"{server.name} hover: no data available (null)")
+      return ""
+    endif
+  endif
+  var value = message.result.contents.value
+  var kind = message.result.contents.kind
+  value = substitute(value, '\r\n', "\n", 'g')
+  value = substitute(value, '\r', "\n", 'g')
+  value = substitute(value, '\%x00', "\n", 'g')
+  var lines = split(value, "\n", 1)
+  # kind: markdown, plaintext, etc.
+  if kind == "markdown"
+    lines = filter(lines, (_, s) => s !~ '^\s*$')
+    lines = filter(lines, (_, s) => s !~ '^\s*```')
+    # lines = filter(lines, (_, s) => s !~ '^\s*[-*_]\{3,}\s*$')
+  endif
+  PopupHover(lines, kind)
+  return ""
+enddef
+
+# popup hover
+def PopupHover(text: list<string>, kind: string)
+  var id = popup_create(
+    text, {
+      title: "",
+      post: 'topleft',
+      line: 'cursor+1',
+      col: 1,
+      moved: 'any',
+      border: [],
+      close: 'click',
+      mapping: false,
+      wrap: false
+    }
+  )
+  if kind == "markdown"
+    win_execute(id, 'setlocal syntax=off')
+    win_execute(id, 'setlocal filetype=markdown')
+    win_execute(id, 'setlocal conceallevel=0')
+  else
+    win_execute(id, 'setlocal syntax=off')
+  endif
 enddef
 
 # out handler
@@ -471,21 +840,57 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=99 response of request text document completion
-	if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_COMPLETION
-	  var err = ResponseCompletion(server, message)
-	  if !empty(err)
-	    EchoErrorMsg(err)
-	  endif
-  	return
+  # id=2 response of request text document completion
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_COMPLETION
+    var err = ResponseCompletion(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
+  endif
+
+  # id=3 response of request text document definition
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_DEFINITION
+    var err = ResponseDefinition(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
+  endif
+
+  # id=4 response of request text document references
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_REFERENCES
+    var err = ResponseReferences(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
+  endif
+
+  # id=5 response of request text document rename
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_RENAME
+    var err = ResponseRename(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
+  endif
+
+  # id=6 response of request text document hover
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_HOVER
+    var err = ResponseHover(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
   endif
 enddef
 
 # error handler
 def ErrHandler(server: dict<any>, channel: channel, message: string)
-	if !empty(message)
-	  EchoErrorMsg($"{server.name} stderr: {message}")
-	endif
+  if !empty(message)
+    EchoErrorMsg($"{server.name} stderr: {message}")
+    endif
 enddef
 
 # exit handler
@@ -497,6 +902,6 @@ def ExitHandler(server: dict<any>, job: job, status: number)
   echomsg $"{inf['cmd'][0]}: {sts}"
   # check active
   if ActiveServer(server.name)
-	  EchoErrorMsg($"server: {server.name} still active")
+    EchoErrorMsg($"server: {server.name} still active")
   endif
 enddef
