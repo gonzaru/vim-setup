@@ -48,18 +48,14 @@ def Format(lang: string, file: string): void
   else
     cmd = COMMANDS[lang]["command"]
   endif
-  outmsg = systemlist($"{cmd} {file}")
-  if v:shell_error != 0
-    EchoErrorMsg($"Error: the command '{cmd}' could not be executed correctly")
-    return
-  endif
-  autoread_orig = &l:autoread
-  setlocal autoread
-  silent checktime
-  &l:autoread = autoread_orig
-  if empty(outmsg) || (lang == "python" && index(outmsg, "1 file left unchanged.") >= 0)
-    echo $"Info: the file was not modified by cmd: '{cmd}'"
-  endif
+  var pos = getcurpos()
+  try
+    silent! execute $":%!{cmd}"
+    catch /.*/  # any error
+      throw $"failed to ejecute {cmd}"
+    finally
+      setpos('.', pos)
+  endtry
 enddef
 
 # format by language
