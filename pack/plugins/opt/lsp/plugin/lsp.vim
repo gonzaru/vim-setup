@@ -16,6 +16,9 @@ endif
 if !exists('g:lsp_python_sort_dunders')
   g:lsp_python_sort_dunders = true
 endif
+if !exists('g:lsp_rename_confirm')
+  g:lsp_rename_confirm = true
+endif
 
 # complementum plugin
 if !exists('g:lsp_complementum')
@@ -37,6 +40,8 @@ nnoremap <silent> <script> <Plug>(lsp-definition) <ScriptCmd>lsp.Definition()<CR
 nnoremap <silent> <script> <Plug>(lsp-hover) <ScriptCmd>lsp.Hover()<CR>
 nnoremap <silent> <script> <Plug>(lsp-references) <ScriptCmd>lsp.References()<CR>
 nnoremap <silent> <script> <Plug>(lsp-rename) <ScriptCmd>lsp.Rename()<CR>
+nnoremap <silent> <script> <Plug>(lsp-running) <ScriptCmd>lsp.Running()<CR>
+nnoremap <silent> <script> <Plug>(lsp-ready) <ScriptCmd>lsp.Ready()<CR>
 
 # set mappings
 if get(g:, 'lsp_no_mappings') == 0
@@ -62,4 +67,18 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPHover execute "normal \<Plug>(lsp-hover)"
   command! LSPReferences execute "normal \<Plug>(lsp-references)"
   command! LSPRename execute "normal \<Plug>(lsp-rename)"
+  command! LSPRunning execute "normal \<Plug>(lsp-running)"
+  command! LSPReady execute "normal \<Plug>(lsp-ready)"
+  command! LSPUp {
+    execute "normal \<Plug>(lsp-start)"
+    execute "normal \<Plug>(lsp-enable)"
+  }
+  command! LSPDown {
+    execute "normal \<Plug>(lsp-stop)"
+    execute "normal \<Plug>(lsp-disable)"
+  }
+  command! LSPDownAll {
+    execute "normal \<Plug>(lsp-stop-all)"
+    execute "normal \<Plug>(lsp-disable)"
+  }
 endif

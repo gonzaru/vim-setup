@@ -184,6 +184,11 @@ if g:habit_enabled
   g:habit_mode = "soft"  # soft, hard
 endif
 
+# lsp plugin
+if g:lsp_enabled
+  g:lsp_complementum = false  # complementum plugin
+endif
+
 # se plugin (simple explorer)
 if g:se_enabled
   g:se_autochdir = false

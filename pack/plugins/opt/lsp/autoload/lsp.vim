@@ -67,7 +67,7 @@ const defaultServer = {
   'args': [],
   'desc': '',
   'language': '',
-  'active': false,
+  'running': false,
   'ready': false,
   'job': null,
   'channel': null,
@@ -136,15 +136,15 @@ def EchoWarningMsg(msg: string)
   endif
 enddef
 
-# active servers
-def ActiveServers(): list<string>
-  var active = []
+# running servers
+def RunningServers(): list<string>
+  var svrs = []
   for k in keys(servers)
-    if servers[k].active
-      add(active, servers[k].name)
+    if servers[k].running
+      add(svrs, servers[k].name)
     endif
   endfor
-  return active
+  return svrs
 enddef
 
 # enable plugin
@@ -159,9 +159,21 @@ export def Disable()
   g:lsp_complementum = false  # complementum plugin
 enddef
 
-# active server
-def ActiveServer(name: string): bool
-  return index(ActiveServers(), name) >= 0
+# running server
+def RunningServer(name: string): bool
+  return index(RunningServers(), name) >= 0
+enddef
+
+# running
+export def Running()
+  var server = servers[ID(&filetype)]
+  echo $"{server.name}: {server.running}"
+enddef
+
+# ready
+export def Ready()
+  var server = servers[ID(&filetype)]
+  echo $"{server.name}: {server.ready}"
 enddef
 
 # pre-check requisites
@@ -172,8 +184,19 @@ def PreCheck(server: dict<any>): string
   if !executable(server.cmd)
     return $"server: {server.cmd} command not found"
   endif
-  if ActiveServer(server.name)
-    return $"server: {server.name} is already active"
+  if RunningServer(server.name)
+    return $"server: {server.name} is already running"
+  endif
+  return ""
+enddef
+
+# check server
+def CheckServer(server: dict<any>): string
+  if !server.running
+    return $"server: {server.name} is not running"
+  endif
+  if !server.ready
+    return $"server: {server.name} is not ready"
   endif
   return ""
 enddef
@@ -202,7 +225,7 @@ export def Start(): void
   server.job = job
   server.channel = job_getchannel(job)
   server.pid = job_info(job)['process']
-  server.active = true
+  server.running = true
   RequestInitialize(server)
 enddef
 
@@ -210,8 +233,9 @@ enddef
 export def Stop(sid: number = -1): void
   const id = sid == -1 ? ID(&filetype) : sid
   var server = servers[id]
-  if !server.active
-    EchoWarningMsg($"server: {server.name} is not active")
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
     return
   endif
   ch_sendexpr(server.channel, {
@@ -230,22 +254,28 @@ export def Stop(sid: number = -1): void
   endif
   # cleanup
   server.ready = false
-  server.active = false
+  server.running = false
 enddef
 
 # stop all servers
 export def StopAll()
+  var num = 0
+  var svrs = []
   for k in keys(servers)
-    if servers[k].active
+    if servers[k].running
       Stop(servers[k].id)
+      add(svrs, servers[k].name)
+      ++num
     endif
   endfor
+  sleep! 200m
+  echomsg $"lsp: ({num}) servers stopped: {join(svrs, ',')}"
 enddef
 
 # restart server
 export def Restart()
   Stop()
-  sleep! 500m
+  sleep! 200m
   Start()
 enddef
 
@@ -325,40 +355,67 @@ def RequestInitialize(server: dict<any>)
       server.rootUri = $"file://{rootMod}"
     endif
   endif
+
+  # initialization options
+  var initOpts = {}
+
+  # terraform-ls only
+  if server.name == "terraform-ls"
+    initOpts = {
+      experimentalFeatures: { validateOnSave: false },
+      indexing: { ignoreDirectoryNames: ['.git', '.terraform', 'node_modules'] }
+    }
+  endif
+
+  # initialize
   ch_sendexpr(server.channel, {
     jsonrpc: '2.0',
     id: ID_REQUEST_INITIALIZE,
     method: 'initialize',
     params: {
-      processId: server.pid,
+      # parent process that started the server
+      processId: getpid(),
+      clientInfo: {
+        name: v:progname,
+        version: string(v:version)
+      },
       rootUri: server.rootUri,
       workspaceFolders: [{
           name: fnamemodify(server.rootPath, ':t'),
           uri: server.rootUri
       }],
       capabilities: {
-        general: {
-          positionEncodings: ['utf-16']
-        },
+        general: { positionEncodings: ['utf-16'] },
+        workspace: { workspaceFolders: true },
         textDocument: {
           synchronization: {
-            didSave: v:false,
-            willSave: v:false,
-            dynamicRegistration: v:false
-          }
+            dynamicRegistration: false,
+            didSave: false,
+            willSave: false,
+            willSaveWaitUntil: false
+          },
+          completion: {
+            dynamicRegistration: false,
+            contextSupport: true,
+            completionItem: {
+              snippetSupport: false,
+              documentationFormat: ['plaintext']  # ['markdown', 'plaintext']
+            }
+          },
+          hover: { contentFormat: ['plaintext'] },  # ['markdown', 'plaintext']
+          signatureHelp: {
+            dynamicRegistration: false,
+            signatureInformation: { documentationFormat: ['plaintext'] },  # ['markdown', 'plaintext']
+            contextSupport: true
+          },
+          definition: { dynamicRegistration: false },
+          typeDefinition: { dynamicRegistration: false },
+          implementation: { dynamicRegistration: false },
+          references: { dynamicRegistration: false },
+          codeAction: { dynamicRegistration: false },
         },
       },
-      initializationOptions: {
-        experimentalFeatures: {
-          validateOnSave: v:false
-        },
-        # terraform only
-        terraform: {
-          languageServer: {
-            ignoreDirectoryNames: ['.git', '.terraform', 'node_modules']
-          }
-        },
-      },
+      initializationOptions: initOpts,
       trace: 'off',
     },
   })
@@ -370,6 +427,7 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
     return $"initialize error: {string(message.error.message)}"
   endif
 
+  # initialized
   ch_sendexpr(server.channel, {
     jsonrpc: '2.0',
     method: 'initialized',
@@ -441,7 +499,7 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
   # wait a small time
   if has_key(server, 'waitInit') && server.waitInit
     echo $"{server.name} waiting to initialize.."
-    sleep! 5
+    sleep! 2
   endif
 
   server.ready = true
@@ -452,10 +510,10 @@ enddef
 # completion
 export def Completion(): void
   var server = servers[ID(&filetype)]
-  if !server.ready || empty(server.uri)
-    EchoWarningMsg($"{server.name} is not initialized")
-    Start()
-    sleep! 500m
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
+    return
   endif
   RequestCompletion(server)
 enddef
@@ -469,9 +527,7 @@ def RequestCompletion(server: dict<any>)
     id: ID_REQUEST_TEXT_DOCUMENT_COMPLETION,
     method: 'textDocument/completion',
     params: {
-      textDocument: {
-        uri: server.uri
-      },
+      textDocument: { uri: server.uri },
       position: {
         line: pos[0],
         character: pos[1]
@@ -547,6 +603,11 @@ enddef
 # definition
 export def Definition(): void
   var server = servers[ID(&filetype)]
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
+    return
+  endif
   RequestDefinition(server)
 enddef
 
@@ -559,9 +620,7 @@ def RequestDefinition(server: dict<any>)
     id: ID_REQUEST_TEXT_DOCUMENT_DEFINITION,
     method: 'textDocument/definition',
     params: {
-      textDocument: {
-        uri: server.uri
-      },
+      textDocument: { uri: server.uri },
       position: {
         line: pos[0],
         character: pos[1]
@@ -583,15 +642,16 @@ def ResponseDefinition(server: dict<any>, message: any): string
     return $"{server.name} definition: (empty)"
   endif
   # TODO: use UTF-16
-  setqflist([], 'r')
+  var defs = []
   for [key, _] in items(items)
     var path: string
     path = substitute(items[key].uri, '^file://', "", "")
     path = substitute(path, '%20', ' ', 'g')
     var line = items[key].range.start.line + 1
     var col = items[key].range.start.character + 1
-    setqflist([{'filename': $'{path}', 'lnum': line, 'col': col}], 'a')
+    add(defs, {'filename': $'{path}', 'lnum': line, 'col': col})
   endfor
+  setqflist(defs, 'r')
   if len(getqflist()) >= 2
     copen
   else
@@ -610,6 +670,11 @@ enddef
 # references
 export def References(): void
   var server = servers[ID(&filetype)]
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
+    return
+  endif
   RequestReferences(server)
 enddef
 
@@ -622,16 +687,12 @@ def RequestReferences(server: dict<any>)
     id: ID_REQUEST_TEXT_DOCUMENT_REFERENCES,
     method: 'textDocument/references',
     params: {
-      textDocument: {
-        uri: server.uri
-      },
+      textDocument: { uri: server.uri },
       position: {
         line: pos[0],
         character: pos[1]
       },
-      context: {
-        includeDeclaration: true  # true all project references
-      }
+      context: { includeDeclaration: true }  # true all project references
     }
   })
 enddef
@@ -649,15 +710,16 @@ def ResponseReferences(server: dict<any>, message: any): string
     return $"{server.name} references: (empty)"
   endif
   # TODO: use UTF-16
-  setqflist([], 'r')
+  var refs = []
   for [key, _] in items(items)
     var path: string
     path = substitute(items[key].uri, '^file://', "", "")
     path = substitute(path, '%20', ' ', 'g')
     var line = items[key].range.start.line + 1
     var col = items[key].range.start.character + 1
-    setqflist([{'filename': $'{path}', 'lnum': line, 'col': col}], 'a')
+    add(refs, {'filename': $'{path}', 'lnum': line, 'col': col})
   endfor
+  setqflist(refs, 'r')
   if !empty(getqflist())
     copen
   endif
@@ -665,11 +727,16 @@ def ResponseReferences(server: dict<any>, message: any): string
 enddef
 
 # rename
-export def Rename()
+export def Rename(): void
   var server = servers[ID(&filetype)]
-  var err = RequestRename(server)
-  if !empty(err)
-    EchoErrorMsg(err)
+  var errSe = CheckServer(server)
+  if !empty(errSe)
+    EchoWarningMsg(errSe)
+    return
+  endif
+  var errRe = RequestRename(server)
+  if !empty(errRe)
+    EchoErrorMsg(errRe)
   endif
 enddef
 
@@ -690,9 +757,7 @@ def RequestRename(server: dict<any>): string
     id: ID_REQUEST_TEXT_DOCUMENT_RENAME,
     method: 'textDocument/rename',
     params: {
-      textDocument: {
-        uri: server.uri
-      },
+      textDocument: { uri: server.uri },
       position: {
         line: pos[0],
         character: pos[1]
@@ -701,6 +766,27 @@ def RequestRename(server: dict<any>): string
     }
   })
   return ""
+enddef
+
+# confirm changes (rename)
+def ConfirmChanges(items: list<dict<any>>): bool
+  if empty(items)
+    return false
+  endif
+  var changes = []
+  for [key, _] in items(items)
+    for edit in items[key].edits
+      var path = fnamemodify(substitute(items[key].textDocument.uri, '^file://', "", ""), ':p:~')
+      add(changes, {
+        'file': path,
+        'line': edit.range.start.line + 1,
+        'col': edit.range.start.character + 1
+      })
+    endfor
+  endfor
+  # TODO: changes
+  var res = input($"{changes}\nchanges: Are you sure to continue? (y,n) ", "n")
+  return res == 'y' || res == 'yes'
 enddef
 
 # response rename
@@ -725,6 +811,12 @@ def ResponseRename(server: dict<any>, message: any): string
     return $"{server.name} rename: (empty)"
   endif
 
+  # confirm
+  if g:lsp_rename_confirm && !ConfirmChanges(items)
+    return ""
+  endif
+
+  # TODO: recheck uri
   for [key, _] in items(items)
     for edit in reverse(items[key].edits)
       var startLine = edit.range.start.line + 1
@@ -748,6 +840,11 @@ enddef
 # hover
 export def Hover(): void
   var server = servers[ID(&filetype)]
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
+    return
+  endif
   RequestHover(server)
 enddef
 
@@ -760,9 +857,7 @@ def RequestHover(server: dict<any>)
     id: ID_REQUEST_TEXT_DOCUMENT_HOVER,
     method: 'textDocument/hover',
     params: {
-      textDocument: {
-        uri: server.uri
-      },
+      textDocument: { uri: server.uri },
       position: {
         line: pos[0],
         character: pos[1]
@@ -896,12 +991,12 @@ enddef
 # exit handler
 def ExitHandler(server: dict<any>, job: job, status: number)
   server.ready = false
-  server.active = false
+  server.running = false
   var inf = job_info(job)
   var sts = inf['status'] == 'dead' ? 'stopped' : inf['status']
-  echomsg $"{inf['cmd'][0]}: {sts}"
-  # check active
-  if ActiveServer(server.name)
-    EchoErrorMsg($"server: {server.name} still active")
+  echomsg $"{inf['cmd'][0]} {sts}"
+  # check running
+  if RunningServer(server.name)
+    EchoErrorMsg($"server: {server.name} still running")
   endif
 enddef
