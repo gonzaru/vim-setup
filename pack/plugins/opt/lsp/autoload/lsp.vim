@@ -17,6 +17,9 @@ const LANGUAGES = {
 
 # id
 def ID(lang: string): number
+  if !has_key(LANGUAGES, lang)
+    throw $"lsp: server language '{lang}' is not supported"
+  endif
   return LANGUAGES[lang]
 enddef
 
@@ -151,12 +154,14 @@ enddef
 export def Enable()
   g:lsp_enabled = true
   g:lsp_complementum = true  # complementum plugin
+  v:statusmsg = "lsp enabled"
 enddef
 
 # disable plugin
 export def Disable()
   g:lsp_enabled = false
   g:lsp_complementum = false  # complementum plugin
+  v:statusmsg = "lsp disabled"
 enddef
 
 # running server
@@ -359,11 +364,20 @@ def RequestInitialize(server: dict<any>)
   # initialization options
   var initOpts = {}
 
+  # gopls only
+  if server.name == "gopls"
+    initOpts = {
+      directoryFilters: [
+        '-**/.cache', '-**/.git', '-**/.idea', '-**/.venv', '-**/build', '-**/dist', '-**/node_modules'
+      ]
+    }
+  endif
+
   # terraform-ls only
   if server.name == "terraform-ls"
     initOpts = {
       experimentalFeatures: { validateOnSave: false },
-      indexing: { ignoreDirectoryNames: ['.git', '.terraform', 'node_modules'] }
+      indexing: { ignoreDirectoryNames: ['.cache', '.git', '.idea', '.venv', 'build', 'dist', 'node_modules'] }
     }
   endif
 
@@ -434,8 +448,8 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
     params: {}
   })
 
-  # go only
-  if server.language == 'go'
+  # gopls only
+  if server.name == 'gopls'
     ch_sendexpr(server.channel, {
       jsonrpc: '2.0',
       method: 'workspace/didChangeConfiguration',
@@ -916,6 +930,7 @@ def PopupHover(text: list<string>, kind: string)
     win_execute(id, 'setlocal filetype=markdown')
     win_execute(id, 'setlocal conceallevel=0')
   else
+    win_execute(id, 'setlocal filetype=text')
     win_execute(id, 'setlocal syntax=off')
   endif
 enddef

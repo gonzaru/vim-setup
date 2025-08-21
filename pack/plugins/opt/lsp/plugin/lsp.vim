@@ -61,9 +61,9 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPStopAll execute "normal \<Plug>(lsp-stop-all)"
   command! LSPRestart execute "normal \<Plug>(lsp-restart)"
   command! LSPInfo execute "normal \<Plug>(lsp-info)"
-  command! LSPEnable execute "normal \<Plug>(lsp-enable)"
+  command! LSPEnable execute "normal \<Plug>(lsp-enable)" | echo v:statusmsg
+  command! LSPDisable execute "normal \<Plug>(lsp-disable)" | echo v:statusmsg
   command! LSPDefinition execute "normal \<Plug>(lsp-definition)"
-  command! LSPDisable execute "normal \<Plug>(lsp-disable)"
   command! LSPHover execute "normal \<Plug>(lsp-hover)"
   command! LSPReferences execute "normal \<Plug>(lsp-references)"
   command! LSPRename execute "normal \<Plug>(lsp-rename)"

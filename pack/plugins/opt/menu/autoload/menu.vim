@@ -63,14 +63,16 @@ export def Misc(): void
       'Select:',
       '1. Enable arrow keys',
       '2. Disable arrow keys',
-      '3. Toggle cmd menu bar',
-      '4. Toggle gui menu bar'
+      '3. Add cmd/gui menu extra',
+      '4. Del cmd/gui menu extra',
+      '5. Toggle cmd menu bar',
+      '6. Toggle gui menu bar'
     ]
   )
   if empty(choice)
     return
   endif
-  if choice < 1 || choice > 4
+  if choice < 1 || choice > 6
     EchoErrorMsg($"Error: wrong option '{choice}'")
     return
   endif
@@ -84,26 +86,39 @@ export def Misc(): void
     else
       arrowkeys#Disable()
     endif
-  elseif choice == 3 || choice == 4
+  elseif choice == 3
+    AddMenuExtra()
+  elseif choice == 4
+    DelMenuExtra()
+  elseif choice == 5 || choice == 6
     if !get(g:, 'misc_enabled')
       EchoErrorMsg("Error: the plugin 'misc' is not enabled")
       return
     endif
-    if choice == 3
+    if choice == 5
       misc#CmdMenuBarToggle()
     else
       misc#GuiMenuBarToggle()
     endif
+    if g:menu_add_menu_extra
+      AddMenuExtra()
+    endif
   endif
 enddef
 
-# menu extra
-export def MenuExtra()
-  # remove menu extra
+# delete menu extra
+export def DelMenuExtra()
   try
     aunmenu &Extra
   catch
   endtry
+enddef
+
+# add menu extra
+export def AddMenuExtra()
+
+  # delete menu extra
+  DelMenuExtra()
 
   # menu extra
   anoremenu 1000.1000 &Extra.&Smile<Tab>:smile :smile<CR>
@@ -187,22 +202,29 @@ export def MenuExtra()
   anoremenu 1000.1000.1013.2 &Extra.&Plugins.&Habit.&Disable<Tab><Leader>hd <Plug>(habit-disable)
   anoremenu 1000.1000.1013.3 &Extra.&Plugins.&Habit.&Toggle<Tab><Leader>ht <Plug>(habit-toggle)
 
+  # lsp
+  anoremenu 1000.1000.1014.1 &Extra.&Plugins.&LSP.&Definition<Tab><Leader>gd <Plug>(lsp-definition)
+  anoremenu 1000.1000.1014.2 &Extra.&Plugins.&LSP.&Hover<Tab><Leader>gi <Plug>(lsp-hover)
+  anoremenu 1000.1000.1014.3 &Extra.&Plugins.&LSP.&References<Tab><Leader>gs <Plug>(lsp-references)
+  anoremenu 1000.1000.1014.4 &Extra.&Plugins.&LSP.&Rename<Tab><Leader>gs <Plug>(lsp-rename)
+
   # menu
-  anoremenu 1000.1000.1014.1 &Extra.&Plugins.&Menu.&LanguageSpell<Tab><Leader>ms <Plug>(menu-language-spell)
-  anoremenu 1000.1000.1014.2 &Extra.&Plugins.&Menu.&Misc<Tab><Leader>mm <Plug>(menu-misc)
-  anoremenu 1000.1000.1014.3 &Extra.&Plugins.&Menu.&MenuExtra<Tab><Leader>me <Plug>(menu-menu-extra)
+  anoremenu 1000.1000.1015.1 &Extra.&Plugins.&Menu.&LanguageSpell<Tab><Leader>ms <Plug>(menu-language-spell)
+  anoremenu 1000.1000.1015.2 &Extra.&Plugins.&Menu.&Misc<Tab><Leader>mm <Plug>(menu-misc)
+  anoremenu 1000.1000.1015.3 &Extra.&Plugins.&Menu.&AddMenuExtra<Tab><Leader>me <Plug>(menu-menu-add-extra)
+  anoremenu 1000.1000.1015.4 &Extra.&Plugins.&Menu.&DelMenuExtra<Tab><Leader>mE <Plug>(menu-menu-del-extra)
 
   # runprg
-  anoremenu 1000.1000.1015.1 &Extra.&Plugins.&Runprg.&Run<Tab><Leader>ru <Plug>(runprg-run)
-  anoremenu 1000.1000.1015.2 &Extra.&Plugins.&Runprg.&Window<Tab><Leader>rU <Plug>(runprg-window)
-  anoremenu 1000.1000.1015.3 &Extra.&Plugins.&Runprg.&Close<Tab><Leader>RU <Plug>(runprg-close)
+  anoremenu 1000.1000.1016.1 &Extra.&Plugins.&Runprg.&Run<Tab><Leader>ru <Plug>(runprg-run)
+  anoremenu 1000.1000.1016.2 &Extra.&Plugins.&Runprg.&Window<Tab><Leader>rU <Plug>(runprg-window)
+  anoremenu 1000.1000.1016.3 &Extra.&Plugins.&Runprg.&Close<Tab><Leader>RU <Plug>(runprg-close)
 
   # statusline
-  anoremenu 1000.1000.1016.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
+  anoremenu 1000.1000.1017.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
 
   # xkb
-  anoremenu 1000.1000.1017.1 &Extra.&Plugins.&Xkb.&XkbLayoutFirst <Plug>(xkb-layout-first)
-  anoremenu 1000.1000.1017.2 &Extra.&Plugins.&Xkb.&XkbLayoutNext <Plug>(xkb-layout-next)
-  anoremenu 1000.1000.1017.3 &Extra.&Plugins.&Xkb.&XkbToggleLayout<Tab><Leader>xt <Plug>(xkb-toggle-layout)
+  anoremenu 1000.1000.1018.1 &Extra.&Plugins.&Xkb.&XkbLayoutFirst <Plug>(xkb-layout-first)
+  anoremenu 1000.1000.1018.2 &Extra.&Plugins.&Xkb.&XkbLayoutNext <Plug>(xkb-layout-next)
+  anoremenu 1000.1000.1018.3 &Extra.&Plugins.&Xkb.&XkbToggleLayout<Tab><Leader>xt <Plug>(xkb-toggle-layout)
 
 enddef

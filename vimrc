@@ -171,7 +171,10 @@ endif
 
 # format plugin
 if g:format_enabled
-  g:format_python_command = ["black", "-S", "-l", "79"]  # 79 for pep8
+  g:format_python_command = ["black", "-q", "-S", "-l", "79", "-"]  # 79 for pep8
+  g:format_sh_on_write = false
+  g:format_python_on_write = false
+  g:format_go_on_write = true
 endif
 
 # git plugin
@@ -187,6 +190,11 @@ endif
 # lsp plugin
 if g:lsp_enabled
   g:lsp_complementum = false  # complementum plugin
+endif
+
+# menu plugin
+if g:menu_enabled
+  g:menu_add_menu_extra = true
 endif
 
 # se plugin (simple explorer)
