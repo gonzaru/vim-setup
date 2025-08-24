@@ -199,12 +199,11 @@ endif
 
 # se plugin (simple explorer)
 if g:se_enabled
-  g:se_autochdir = false
   g:se_followfile = false
   g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
   g:se_resizemaxcol = false
-  g:se_winsize = 20
+  g:se_winsize = 25
 endif
 
 # statusline plugin

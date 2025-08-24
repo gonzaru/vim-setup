@@ -13,9 +13,13 @@ endif
 g:autoloaded_se = true
 
 # script local variables
+var node = {
+  'prev': "",
+  'cur': "",
+  'next': "",
+  'repn': 1
+}
 const BUFFER_NAME = $"se_{strcharpart(sha256('se'), 0, 8)}"
-var PREV_CWD: string
-var PREV_CWDS: list<string>
 
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -87,7 +91,7 @@ export def Help()
     p        # preview the current file in a window
     P        # close the preview window currently open
     d        # change to home directory [~]
-    g        # change to prompt directory
+    a        # change to prompt directory
     y        # toggle to show only directories
     b        # change to parent directory [-]
     f        # change to previous directory
@@ -108,145 +112,61 @@ export def Help()
     z        # set the current directory as custom root directory
     Z        # unset the custom root directory
     .        # toggle the visualization of the hidden files
-    <ESC>    # close Se window
+    <ESC>    # close Se window [q]
     H        # shows Se help information [K]
   END
   echo join(lines, "\n")
 enddef
 
-# populates Se
-def Populate(cwddir: string)
-  var parent2cwd: string
-  var parentcwd: string
-  var hidden: list<string>
-  var nohidden: list<string>
-  var lsf: list<string>
-  var curwildignore = &l:wildignore
-  execute $"setlocal wildignore={g:se_fileignore}"
-  if g:se_hiddenshow
-    hidden = map(
-      sort(globpath(cwddir, ".*", 0, 1)),
-      "split(v:val, '/')[-1] .. FileIndicator(v:val) .. (g:se_permsshow ? ' ' .. FilePerms(v:val) : '')"
-    )[2 : ]
-  endif
-  nohidden = map(
-    sort(globpath(cwddir, "*", 0, 1)),
-    "split(v:val, '/')[-1] .. FileIndicator(v:val) .. (g:se_permsshow ? ' ' .. FilePerms(v:val) : '')"
-  )
-  execute $"setlocal wildignore={curwildignore}"
-  lsf = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
-  if len(lsf) > 0
-    appendbufline(BUFFER_NAME, 0, g:se_onlydirs ? filter(lsf, 'isdirectory(v:val)') : lsf)
-  else
-    EchoWarningMsg($"Warning: the directory '{fnamemodify(cwddir, ':t')}' is empty")
-    sleep! 1
-    redraw!
-  endif
-  try
-    parent2cwd = split(cwddir, "/")[-2]
-  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
-    parent2cwd = '/'
-  endtry
-  try
-    parentcwd = split(cwddir, "/")[-1]
-  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
-    parentcwd = '/'
-  endtry
-  appendbufline(BUFFER_NAME, 0, [$"../ [{parent2cwd}]"])
-  appendbufline(BUFFER_NAME, 1, [$"./ [{parentcwd}]"])
-  deletebufline(BUFFER_NAME, '$')
-  cursor(line('$') > 2 ? 3 : 1, 1)
-enddef
-
-# set custom root directory
-export def SetRootDir(s: string)
-  g:se_rootdir = s
-enddef
-
-# set prevcwd
-def SetPrevCwd(s: string)
-  if isdirectory(s)
-    PREV_CWD = s
-  endif
-enddef
-
-# get prevcwd
-def GetPrevCwd(): string
-  return PREV_CWD
-enddef
-
-# set prevcwds
-def SetPrevCwds(s: string): void
-  var cwd: string
-  if !isdirectory(s)
-    return
-  endif
-  if empty(PREV_CWDS)
-    add(PREV_CWDS, s)
-  else
-    cwd = getcwd()
-    if cwd != "/" && PREV_CWDS[-1] != cwd
-      add(PREV_CWDS, s)
-    endif
-    if len(PREV_CWDS) > g:se_prevdirhist
-      remove(PREV_CWDS, 0)
-    endif
-  endif
-enddef
-
-# get prevcwds
-export def GetPrevCwds(): list<string>
-  return PREV_CWDS
-enddef
-
-# shows Se
-def Show(filepath: string)
-  var prevcwd: string
-  var bid = GetSeBufId()
-  var cwddir = getcwd()
-  if bid < 1
-    prevcwd = !empty(filepath) ? fnamemodify(filepath, ":p:h") : cwddir
-    if g:se_position == "right"
-      # put into the last right window
-      botright vnew
-    else
-      # put into to the first left window
-      topleft vnew
-    endif
-    silent execute $"file {BUFFER_NAME}"
-    setlocal filetype=se
-    execute $"lcd {fnameescape(prevcwd)}"
-    Populate(prevcwd)
-    setlocal nomodifiable
-    Resize(g:se_resizemaxcol ? "maxcol" : "default")
-    SearchFile(filepath)
-  elseif bufnr() == bid
-    setlocal modifiable
-    silent deletebufline(BUFFER_NAME, 1, '$')
-    Populate(cwddir)
-    setlocal nomodifiable
-    if g:se_resizemaxcol
-      Resize("maxcol")
-    endif
-  endif
+# sets custom root directory
+export def SetRootDir(dir: string)
+  g:se_rootdir = dir
 enddef
 
 # searches Se file
 def SearchFile(file: string): void
-  var modfile: string
-  if empty(file)
+  if empty(file) || g:se_onlydirs
     return
   endif
-  modfile = fnamemodify(substitute(file, '\~$', "", ""), ":t")
-  silent! search('^' .. modfile .. '.\?\(*\|@\)\?$')
+  var tail = split(file, '/')[-1]
+  silent! search(tail .. '.\?\(*\|@\)\?$')
+enddef
+
+# closes Se
+export def Close()
+  var bid = GetSeBufId()
+  if bufwinid(bid) != -1
+    win_execute(bufwinid(bid), "close")
+  endif
+enddef
+
+# setup
+def Setup()
+  if g:se_position == "right"
+    # put into the last right window
+    botright vnew
+  else
+    # put into to the first left window
+    topleft vnew
+  endif
+  silent execute $"file {BUFFER_NAME}"
+  setlocal filetype=se
+  setlocal nomodifiable
 enddef
 
 # toggles Se
-export def Toggle(filepath: string): void
+export def Toggle(file: string): void
   var bufinfo: list<dict<any>>
   var bid = GetSeBufId()
   if bid < 1
-    Show(filepath)
+    Setup()
+    Show(file, "new")
+    SearchFile(file)
+    return
+  endif
+  if bufnr() == bid
+    close
+    win_gotoid(win_getid(winnr('#')))
     return
   endif
   bufinfo = getbufinfo(bid)
@@ -258,13 +178,8 @@ export def Toggle(filepath: string): void
       # put into the first left window
       execute $"vertical topleft sbuffer {bid}"
     endif
-    execute $"lcd {fnameescape(GetPrevCwd())}"
     Resize(g:se_resizemaxcol ? "maxcol" : "default")
-    if g:se_followfile
-      FollowFile(filepath)
-    endif
   elseif bufnr() != bid
-    SetPrevCwd(getcwd(bufwinid(bid)))
     if bufwinid(bid) != -1
       win_execute(bufwinid(bid), "close")
     elseif tabpagenr('$') >= 2
@@ -273,12 +188,80 @@ export def Toggle(filepath: string): void
         win_execute(window, "close")
       endfor
     endif
-  else
-    SetPrevCwd(getcwd())
-    close
-    # go to the previous window
-    win_gotoid(win_getid(winnr('#')))
   endif
+enddef
+
+# shows Se
+def Show(file: string, mode: string)
+  node.cur = substitute(fnamemodify(file, ':p:h:~'), "//", "/", "g")
+  if mode == "new"
+    node.repn = 1
+  endif
+  try
+    node.prev = fnamemodify('/' .. join(split(node.cur, '/')[0 : - 2], '/'), ':~')
+  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
+    node.prev = "/"
+  endtry
+  var hidden: list<string>
+  var nohidden: list<string>
+  var wildignore_orig = &l:wildignore
+  execute $"setlocal wildignore={g:se_fileignore}"
+  if g:se_hiddenshow
+    hidden = sort(globpath(node.cur, ".*", 0, 1))
+  endif
+  nohidden = sort(globpath(node.cur, "*", 0, 1))
+  execute $"setlocal wildignore={wildignore_orig}"
+  var files = g:se_hiddenfirst ? extend(hidden, nohidden) : extend(nohidden, hidden)
+  if g:se_onlydirs
+    files = filter(copy(files), (_, val) => isdirectory(val))
+  endif
+  if mode == "add"
+    node.repn = strlen(matchstr(getline('.'), '^\s*')) + 1
+  endif
+  var mfiles = mapnew(files, (_, val) =>
+    repeat(' ', node.repn + 1) .. fnamemodify(val, ':t') .. FileIndicator(val)
+    .. (g:se_permsshow ? ' ' .. FilePerms(val) : '')
+  )
+  setlocal modifiable
+  if mode == "new"
+    silent deletebufline(BUFFER_NAME, 1, '$')
+    appendbufline(BUFFER_NAME, 0, extend([fnamemodify(node.cur, ':~')], mfiles))
+    deletebufline(BUFFER_NAME, '$')
+  elseif mode == "add"
+    appendbufline(BUFFER_NAME, line('.'), mfiles)
+    # cursor(line('.') + 1, col('.'))
+  endif
+  setlocal nomodifiable
+  Resize(g:se_resizemaxcol ? "maxcol" : "default")
+  # cursor(2, 1)
+enddef
+
+# find the parent directories
+def FindParents(): string
+  var prevs = []
+  var cni = indent(line('.'))
+  for num in range(line('.') - 1, 1, -1)
+    if cni > indent(num)
+      cni = indent(num)
+      add(prevs, trim(getline(num)))
+    endif
+  endfor
+  return join(reverse(prevs), '/')
+enddef
+
+# find the number of child directories
+def FindNumChilds(): number
+  var num = 0
+  var cni = indent(line('.'))
+  for line in range(line('.') + 1, line('$'))
+    if indent(line) <= cni
+      break
+    endif
+    if indent(line) > cni
+      ++num
+    endif
+  endfor
+  return num
 enddef
 
 # toggles Se hidden files
@@ -290,24 +273,24 @@ export def ToggleHiddenFiles(filepath: string, mode: string)
   elseif mode == "show"
     g:se_hiddenshow = !g:se_hiddenshow
   endif
-  Refresh(expand('%:p'))
-  cursor(3, 1)
+  Refresh()
+  cursor(2, 1)
   SearchFile(selfile)
 enddef
 
 # toggles Se to show the file permissions
 export def TogglePermsShow()
   g:se_permsshow = !g:se_permsshow
-  Refresh(expand('%:p'))
+  Refresh()
 enddef
 
 # toggles Se to show only directories
 export def ToggleOnlyDirsShow()
   g:se_onlydirs = !g:se_onlydirs
-  Refresh(expand('%:p'))
+  Refresh()
 enddef
 
-# automatic follow file
+## automatic follow file
 export def AutoFollowFile(filepath: string): void
   var bufinfo: list<dict<any>>
   var selwinid: number
@@ -325,15 +308,17 @@ enddef
 export def FollowFile(filepath: string)
   var cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
   execute $"lcd {fnameescape(cwddir)}"
-  Show(filepath)
+  Show(filepath, "new")
   SearchFile(filepath)
 enddef
 
 # refresh Se
-export def Refresh(filepath: string)
-  var curline = substitute(getline('.'), '*$', "", "")
-  Show(filepath)
-  SearchFile(curline)
+export def Refresh()
+  var cur = getline(1)
+  var pos = getcurpos()
+  execute $"lcd {cur}"
+  Show(cur, "new")
+  setpos('.', pos)
 enddef
 
 # edit the current file
@@ -349,7 +334,7 @@ def Edit(file: string)
   else
     if g:se_position == "right"
       execute $"vnew {file}"
-    else
+   else
       execute $"rightbelow vnew {file}"
     endif
     bid = GetSeBufId()
@@ -375,7 +360,7 @@ def EditKeep(file: string)
     else
       execute $"rightbelow vnew {file}"
     endif
-    bid = GetSeBufId()
+   bid = GetSeBufId()
     win_gotoid(bufwinid(bid))
     Resize(g:se_resizemaxcol ? "maxcol" : "default")
   endif
@@ -456,7 +441,7 @@ def EditTab(file: string)
   endif
 enddef
 
-# remove the file indicators
+## remove the file indicators
 def RemoveFileIndicators(filepath: string): string
   return (
     match(filepath, '^\.\.\?/ \[.*\]$') != -1 && index([1, 2], getpos('.')[1]) >= 0
@@ -474,63 +459,67 @@ enddef
 export def OpenWith(filepath: string, default: bool): void
   var program: string
   var runprg: string
-  var selfile: string
   var withterm: string
+  var prev = FindParents()
+  var fsel = $"{prev}/{trim(filepath)}"
   if !default
-    program = input($"Open the file '{fnamemodify(filepath, ":.")}' with: ", "", "shellcmd")
+    program = input($"Open the file '{fnamemodify(fsel, ":.")}' with: ", "", "shellcmd")
     if empty(program)
       return
     endif
   endif
-  runprg = !empty(program) ? program : g:se_opentool
+ runprg = !empty(program) ? program : g:se_opentool
   if !executable(split(runprg)[0])
     EchoErrorMsg($"Error: the program '{runprg}' is missing")
     return
   endif
   redraw!
-  selfile = fnameescape(fnamemodify(RemoveFileIndicators(RemoveFilePerms(filepath)), ":."))
-  job_start($'/bin/sh -c "exec setsid {runprg} \"' .. selfile .. '\" >/dev/null 2>&1')
+  #var mfsel = fnameescape(RemoveFileIndicators(RemoveFilePerms(fsel)))
+  var mfsel = fnameescape(fnamemodify(fsel, ':p'))
+  job_start($'/bin/sh -c "exec setsid {runprg} \"' .. mfsel .. '\" >/dev/null 2>&1')
 enddef
 
 # checks the file mime type
 export def CheckMimeType(filepath: string)
- var xdgtype: string
- var xdgprg: string
- var mimetype: string
- var mimeprg: string
- var filetype: string
- var fileprg: string
- var output: list<string>
- var selfile = shellescape(RemoveFileIndicators(RemoveFilePerms(filepath)))
- if executable("xdg-mime")
-   xdgtype = trim(system($"xdg-mime query filetype {selfile}"))
-   xdgprg = trim(system($"xdg-mime query default {xdgtype}"))
-   add(output, $"xdg-mime: '{xdgtype}' ({xdgprg})")
- else
-   add(output, $"xdg-mime: command not found")
- endif
- if executable("mimetype")
-   mimetype = trim(system($"mimetype --brief {selfile}"))
-   mimeprg = trim(system($"xdg-mime query default {mimetype}"))
-   add(output, $"mimetype: '{mimetype}' ({mimeprg})")
- else
-  add(output, "mimetype: command not found")
- endif
- if executable("file")
-   filetype = trim(system($"file --brief --mime-type {selfile}"))
-   fileprg = trim(system($"xdg-mime query default {filetype}"))
-   add(output, $"file:     '{filetype}' ({fileprg})")
- else
-   add(output, "file: command not found")
- endif
- echo join(output, "\n")
+  var xdgtype: string
+  var xdgprg: string
+  var mimetype: string
+  var mimeprg: string
+  var filetype: string
+  var fileprg: string
+  var output: list<string>
+  var prev = FindParents()
+  var fsel = $"{prev}/{trim(filepath)}"
+  if executable("xdg-mime")
+    xdgtype = trim(system($"xdg-mime query filetype {fsel}"))
+    xdgprg = trim(system($"xdg-mime query default {xdgtype}"))
+    add(output, $"xdg-mime: '{xdgtype}' ({xdgprg})")
+  else
+    add(output, $"xdg-mime: command not found")
+  endif
+  if executable("mimetype")
+    mimetype = trim(system($"mimetype --brief {fsel}"))
+    mimeprg = trim(system($"xdg-mime query default {mimetype}"))
+    add(output, $"mimetype: '{mimetype}' ({mimeprg})")
+  else
+    add(output, "mimetype: command not found")
+  endif
+  if executable("file")
+    filetype = trim(system($"file --brief --mime-type {fsel}"))
+    fileprg = trim(system($"xdg-mime query default {filetype}"))
+    add(output, $"file: '{filetype}' ({fileprg})")
+  else
+    add(output, "file: command not found")
+  endif
+  echo join(output, "\n")
 enddef
 
 # sets the default app for the mime type
 export def SetMimeType(filepath: string): void
   var program: string
-  var selfile = shellescape(RemoveFileIndicators(RemoveFilePerms(filepath)))
-  var filemime = trim(system($"xdg-mime query filetype {selfile}"))
+  var prev = FindParents()
+  var fsel = $"{prev}/{trim(filepath)}"
+  var filemime = trim(system($"xdg-mime query filetype {fsel}"))
   var defprgmime = trim(system($"xdg-mime query default {filemime}"))
   program = input($"Set default mime type '{filemime}' ({defprgmime}): ")
   program = substitute(program, '\.desktop$', "", "")
@@ -541,38 +530,35 @@ export def SetMimeType(filepath: string): void
   system($"xdg-mime default {program}.desktop {filemime}")
   defprgmime = trim(system($"xdg-mime query default {filemime}"))
   if v:shell_error != 0
-    EchoErrorMsg($"Error: failed to set the default mime for '{filemime}'")
+   EchoErrorMsg($"Error: failed to set the default mime for '{filemime}'")
   else
     echom $"The default mime type for '{filemime}' is now ({defprgmime})"
   endif
 enddef
 
 # goes to directory
-def GoDir(dir: string, setcwd: bool): void
+export def GoDir(dir: string): void
   if !isdirectory(dir)
     EchoErrorMsg($"Error: the directory '{dir}' is not a directory")
     return
   endif
-  if setcwd
-    SetPrevCwds(getcwd())
-  endif
   execute $"lcd {fnameescape(dir)}"
-  Show(dir)
+  Show(dir, "new")
 enddef
 
 # goes to git root dir directory
 export def GoDirGit()
-   var groot = trim(system("git rev-parse --show-toplevel"))
-   if isdirectory(groot)
-     GoDir(groot, true)
-    else
-      EchoErrorMsg($"Error: does not have a git root directory")
-   endif
+  var groot = trim(system("git rev-parse --show-toplevel"))
+  if isdirectory(groot)
+    GoDir(groot)
+  else
+    EchoErrorMsg($"Error: does not have a git root directory")
+  endif
 enddef
 
 # goes to home directory
 export def GoDirHome()
-  GoDir(getenv('HOME'), true)
+  GoDir(getenv('HOME'))
 enddef
 
 # goes to custom root directory
@@ -585,77 +571,90 @@ export def GoDirRoot(): void
     EchoErrorMsg($"Error: 'g:se_rootdir' is empty or is not a directory")
     return
   endif
-  GoDir(g:se_rootdir, true)
+  GoDir(g:se_rootdir)
 enddef
 
 # goes to parent directory
-export def GoDirParent()
-  var dir = fnamemodify(getcwd(), ":t")
-  cursor(1, 1)
-  GoFile(getline('.'), "edit")
-  SearchFile(dir)
+export def GoDirParent(): void
+  if getcwd() == "/"
+    return
+  endif
+  node.next = getcwd()
+  execute $"lcd {getline(1)}"
+  lcd ..
+  node.cur = getcwd()
+  Show(node.cur, "new")
+  cursor(2, 1)
 enddef
 
 # goes to previous directory
 export def GoDirPrev(): void
-  if empty(PREV_CWDS)
+  if empty(node.next)
     return
   endif
-  GoDir(remove(PREV_CWDS, -1), false)
-  if !empty(PREV_CWDS)
-    SearchFile(PREV_CWDS[-1])
-  endif
+  GoDir(node.next)
 enddef
 
 # goes to directory via prompt
 export def GoDirPrompt()
   var dir = fnamemodify(input("Go to directory: ", "", "dir"), ":p:h")
   redraw!
-  GoDir(dir, true)
+  GoDir(dir)
 enddef
 
 # goes to file or directory
-export def GoFile(filepath: string, mode: string): void
-  var cwddir: string
-  var dochdir = true
-  var selfile: string
-  if bufnr() != GetSeBufId()
+export def GoFile(file: string, mode: string): void
+  var cline = line('.')
+  var prev = FindParents()
+  # TODO: check // or see simplify()
+  var fsel = substitute(prev .. "/" .. trim(file), "//", "/", "g")
+  var cur = substitute(fnamemodify(prev .. "/" .. trim(file), ':p'), "//", "/", "g")
+  echomsg cur
+  # TODO: show perms
+  if g:se_permsshow
+    EchoWarningMsg("currently disabled when 'g:se_permsshow' is true")
     return
   endif
-  if g:se_autochdir
-    cwddir = getcwd()
+  # first line
+  if cline == 1
+    # EchoWarningMsg("currently disabled for the first line")
+    return
   endif
-  selfile = RemoveFileIndicators(RemoveFilePerms(filepath))
-  if selfile == "../" && !empty(g:se_rootdir)
-    var kdir = fnamemodify(g:se_rootdir, ":p")
-    var pdir = fnamemodify("../", ":p")
-    if stridx(pdir, kdir) == -1
-      EchoWarningMsg($"g:se_rootdir: {fnamemodify(g:se_rootdir, ':p:~')}")
-      return
+  # has subdirectory
+  if HasChild(cline)
+    var num = FindNumChilds()
+    if num >= 1
+      setlocal modifiable
+      deletebufline(BUFFER_NAME, cline + 1, cline + num)
+      setlocal nomodifiable
     endif
+    return
   endif
-  if isdirectory(selfile)
-    GoDir(selfile, true)
-    if g:se_autochdir
-      cwddir = getcwd()
-    endif
-    dochdir = false
+  if isdirectory(cur)
+    node.cur = cur
+    execute $"lcd {node.cur}"
+    Show(node.cur, "add")
   elseif mode == "edit"
-    Edit(selfile)
+    Edit(fsel)
   elseif mode == "editk"
-    EditKeep(selfile)
+    EditKeep(fsel)
   elseif mode == "pedit"
-    EditPedit(selfile)
+    EditPedit(fsel)
   elseif mode == "split"
-    EditSplitH(selfile)
+    EditSplitH(fsel)
   elseif mode == "vsplit"
-    EditSplitV(selfile)
+    EditSplitV(fsel)
   elseif mode == "tabedit"
-    EditTab(selfile)
+    EditTab(fsel)
   endif
-  if dochdir && g:se_autochdir
-    execute $"lcd {cwddir}"
+enddef
+
+# has child (subdirectory)
+def HasChild(cline: number): bool
+  if cline != line('$') && indent(cline) < indent(cline + 1)
+    return true
   endif
+  return false
 enddef
 
 # resize Se window

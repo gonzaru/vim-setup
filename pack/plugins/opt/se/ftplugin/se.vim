@@ -28,6 +28,7 @@ setlocal nobuflisted
 setlocal buftype=nofile
 setlocal bufhidden=hide
 if get(g:, 'se_no_mappings') == 0
+  nnoremap <buffer> <nowait> q <Plug>(se-close)
   nnoremap <buffer> <nowait> <ESC> <Plug>(se-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(se-gofile-edit)
   nnoremap <buffer> <nowait> <Space> <Plug>(se-gofile-editk)
@@ -45,7 +46,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> b <Plug>(se-godir-parent)
   nnoremap <buffer> <nowait> ~ <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> d <Plug>(se-godir-home)
-  nnoremap <buffer> <nowait> g <Plug>(se-godir-prompt)
+  nnoremap <buffer> <nowait> a <Plug>(se-godir-prompt)
   nnoremap <buffer> <nowait> y <Plug>(se-toggle-onlydirs-show)
   nnoremap <buffer> <nowait> r <Plug>(se-refresh)
   nnoremap <buffer> <nowait> f <Plug>(se-godir-prev)

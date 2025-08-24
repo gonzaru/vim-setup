@@ -13,9 +13,6 @@ endif
 g:loaded_se = true
 
 # global variables
-if !exists('g:se_autochdir')
-  g:se_autochdir = false
-endif
 if !exists('g:se_fileignore')
   # do not list these patterns
   g:se_fileignore = "*.o,*.obj,*.pyc,*.swp"
@@ -41,9 +38,6 @@ endif
 if !exists('g:se_position')
   g:se_position = "left"
 endif
-if !exists('g:se_prevdirhist')
-  g:se_prevdirhist = 50
-endif
 if !exists('g:se_resizemaxcol')
   g:se_resizemaxcol = false
 endif
@@ -51,7 +45,7 @@ if !exists('g:se_rootdir')
   g:se_rootdir = ""
 endif
 if !exists('g:se_winsize')
-  g:se_winsize = 20
+  g:se_winsize = 25
 endif
 
 # autoload
@@ -70,7 +64,7 @@ if get(g:, 'se_followfile')
 endif
 
 # define mappings
-nnoremap <silent> <script> <Plug>(se-close) <Cmd>close<CR>
+nnoremap <silent> <script> <Plug>(se-close) <ScriptCmd>se.Close()<CR>
 nnoremap <silent> <script> <Plug>(se-help) <ScriptCmd>se.Help()<CR>
 nnoremap <silent> <script> <Plug>(se-toggle) <ScriptCmd>se.Toggle(expand('%:p'))<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-hidden-show) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "show")<CR>
@@ -97,7 +91,7 @@ nnoremap <silent> <script> <Plug>(se-unset-rootdir) <ScriptCmd>se.SetRootDir("")
 nnoremap <silent> <script> <Plug>(se-set-mime) <ScriptCmd>se.SetMimeType(getline('.'))<CR>
 nnoremap <silent> <script> <Plug>(se-open-with-default) <ScriptCmd>se.OpenWith(getline('.'), true)<CR>
 nnoremap <silent> <script> <Plug>(se-open-with-custom) <ScriptCmd>se.OpenWith(getline('.'), false)<CR>
-nnoremap <silent> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh(expand('%:p'))<CR>
+nnoremap <silent> <script> <Plug>(se-refresh) <ScriptCmd>se.Refresh()<CR>
 nnoremap <silent> <script> <Plug>(se-resize-left) <ScriptCmd>se.Resize("left")<CR>
 nnoremap <silent> <script> <Plug>(se-resize-right) <ScriptCmd>se.Resize("right")<CR>
 nnoremap <silent> <script> <Plug>(se-resize-restore) <ScriptCmd>se.Resize("restore")<CR>
@@ -117,15 +111,20 @@ if get(g:, 'se_no_commands') == 0
   command! -nargs=? -complete=dir_in_path Se {
     var arg = fnamemodify(expand('<args>'), ":p")
     if !empty(arg) && isdirectory(arg)
+      execute "normal \<Plug>(se-close)"
       execute "normal \<Plug>(se-toggle)"
       if &filetype == "se"
-        execute $"lcd {arg}"
-        execute "normal \<Plug>(se-refresh)"
+        se.GoDir(arg)
+        execute "normal \<Plug>(se-set-rootdir)"
       endif
     else
       execute "normal \<Plug>(se-toggle)"
     endif
   }
+  command! SeClose execute "normal \<Plug>(se-close)"
   command! SeHelp execute "normal \<Plug>(se-help)"
   command! SeToggle execute "normal \<Plug>(se-toggle)"
+  command! SeToggleFollowFile g:se_followfile = !g:se_followfile
+  command! SeToggleResizeMaxCol g:se_resizemaxcol = !g:se_resizemaxcol
+  command! SeTogglePosition g:se_position = g:se_position == "left" ? "right" : "left"
 endif
