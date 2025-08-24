@@ -115,6 +115,7 @@ if get(g:, 'se_no_commands') == 0
       execute "normal \<Plug>(se-toggle)"
       if &filetype == "se"
         se.GoDir(arg)
+        cursor(2, 1)
         execute "normal \<Plug>(se-set-rootdir)"
       endif
     else

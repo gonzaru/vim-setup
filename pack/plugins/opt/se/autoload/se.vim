@@ -161,6 +161,7 @@ export def Toggle(file: string): void
   if bid < 1
     Setup()
     Show(file, "new")
+    cursor(2, 1)
     SearchFile(file)
     return
   endif
@@ -441,13 +442,9 @@ def EditTab(file: string)
   endif
 enddef
 
-## remove the file indicators
+# remove the file indicators
 def RemoveFileIndicators(filepath: string): string
-  return (
-    match(filepath, '^\.\.\?/ \[.*\]$') != -1 && index([1, 2], getpos('.')[1]) >= 0
-    ? split(filepath, " ")[0]
-    : fnamemodify(substitute(filepath, '*\|@$', "", ""), ":p")
-  )
+  return substitute(filepath, '*\|@$', "", "")
 enddef
 
 # remove the file perms
@@ -461,7 +458,7 @@ export def OpenWith(filepath: string, default: bool): void
   var runprg: string
   var withterm: string
   var prev = FindParents()
-  var fsel = $"{prev}/{trim(filepath)}"
+  var fsel = RemoveFileIndicators($"{prev}/{trim(filepath)}")
   if !default
     program = input($"Open the file '{fnamemodify(fsel, ":.")}' with: ", "", "shellcmd")
     if empty(program)
@@ -489,7 +486,7 @@ export def CheckMimeType(filepath: string)
   var fileprg: string
   var output: list<string>
   var prev = FindParents()
-  var fsel = $"{prev}/{trim(filepath)}"
+  var fsel = RemoveFileIndicators($"{prev}/{trim(filepath)}")
   if executable("xdg-mime")
     xdgtype = trim(system($"xdg-mime query filetype {fsel}"))
     xdgprg = trim(system($"xdg-mime query default {xdgtype}"))
@@ -518,7 +515,7 @@ enddef
 export def SetMimeType(filepath: string): void
   var program: string
   var prev = FindParents()
-  var fsel = $"{prev}/{trim(filepath)}"
+  var fsel = RemoveFileIndicators($"{prev}/{trim(filepath)}")
   var filemime = trim(system($"xdg-mime query filetype {fsel}"))
   var defprgmime = trim(system($"xdg-mime query default {filemime}"))
   program = input($"Set default mime type '{filemime}' ({defprgmime}): ")
@@ -607,9 +604,7 @@ export def GoFile(file: string, mode: string): void
   var cline = line('.')
   var prev = FindParents()
   # TODO: check // or see simplify()
-  var fsel = substitute(prev .. "/" .. trim(file), "//", "/", "g")
-  var cur = substitute(fnamemodify(prev .. "/" .. trim(file), ':p'), "//", "/", "g")
-  echomsg cur
+  var fsel = fnamemodify(RemoveFileIndicators(substitute($"{prev}/{trim(file)}", "//", "/", "g")), ":p")
   # TODO: show perms
   if g:se_permsshow
     EchoWarningMsg("currently disabled when 'g:se_permsshow' is true")
@@ -630,8 +625,8 @@ export def GoFile(file: string, mode: string): void
     endif
     return
   endif
-  if isdirectory(cur)
-    node.cur = cur
+  if isdirectory(fsel)
+    node.cur = fsel
     execute $"lcd {node.cur}"
     Show(node.cur, "add")
   elseif mode == "edit"
