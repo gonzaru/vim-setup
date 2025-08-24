@@ -310,6 +310,7 @@ export def FollowFile(filepath: string)
   var cwddir = !empty(filepath) ? fnamemodify(filepath, ":p:h") : getcwd()
   execute $"lcd {fnameescape(cwddir)}"
   Show(filepath, "new")
+  cursor(2, 1)
   SearchFile(filepath)
 enddef
 
@@ -541,6 +542,7 @@ export def GoDir(dir: string): void
   endif
   execute $"lcd {fnameescape(dir)}"
   Show(dir, "new")
+  cursor(2, 1)
 enddef
 
 # goes to git root dir directory
