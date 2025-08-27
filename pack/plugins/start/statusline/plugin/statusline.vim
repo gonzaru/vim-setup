@@ -9,6 +9,7 @@ endif
 g:loaded_statusline = true
 
 # global variables
+g:statusline_isgitbranch = false
 if !exists('g:statusline_showgitbranch')
   g:statusline_showgitbranch = true
 endif
@@ -16,11 +17,24 @@ endif
 # autoload
 import autoload '../autoload/statusline.vim'
 
-augroup statusline_mystatusline
+# git status file with timer
+def GitStatusFile(file: string)
+  timer_start(15, (_) => {
+    if g:statusline_isgitbranch
+      statusline.GitStatusFile(file)
+    endif
+  })
+enddef
+augroup statusline_gitstatusline
   autocmd!
   autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,DirChanged,VimResume * {
     if g:statusline_enabled
-      statusline.MyStatusLineAsync(expand('<afile>:p'))
+      statusline.GitBranch(expand('<afile>:p'))
+    endif
+  }
+  autocmd BufEnter,BufWritePost * {
+    if g:statusline_enabled
+      GitStatusFile(expand('<afile>:p'))
     endif
   }
 augroup END
@@ -41,7 +55,8 @@ endif
 if get(g:, 'statusline_no_commands') == 0
   command! StatusLineGitEnable {
     g:statusline_showgitbranch = true
-    statusline.MyStatusLineAsync(expand('%:p'))
+    statusline.GitBranch(expand('%:p'))
+    statusline.GitFileStatus(expand('%:p'))
   }
   command! StatusLineGitDisable {
     statusline.SetStatus("")

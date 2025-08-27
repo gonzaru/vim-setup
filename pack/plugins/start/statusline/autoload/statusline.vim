@@ -9,7 +9,8 @@ endif
 g:autoloaded_statusline = true
 
 # job queue
-final JOB_QUEUE = []
+final JOB_QUEUE1 = []
+final JOB_QUEUE2 = []
 
 # script local variables
 g:statusline_full = ''
@@ -68,53 +69,101 @@ def ShortPath(path: string): string
   return pathnameshort
 enddef
 
-# my statusline async
-export def MyStatusLineAsync(file: string)
+# statusline git branch
+export def GitBranch(file: string)
+  var cwddir = fnamemodify(file, ':p:h')
   var newjob: job
-  if get(g:, 'statusline_showgitbranch') && empty(JOB_QUEUE)
+  if get(g:, 'statusline_showgitbranch') && empty(JOB_QUEUE1)
     newjob = job_start(
       ['git', '--no-pager', 'rev-parse', '--abbrev-ref', 'HEAD'],
       {
-        "out_cb": function(OutHandler),
-        "err_cb": function(ErrHandler),
-        "exit_cb": function(ExitHandler),
+        "out_cb": function(OutHandler1),
+        "err_cb": function(ErrHandler1),
+        "exit_cb": function(ExitHandler1),
         "out_io": "file",
         "out_name": STATUSLINE_FILES['git'],
         "out_msg": 0,
         "out_modifiable": 0,
-        "err_io": "out"
+        "err_io": "out",
+        "cwd": cwddir
       }
     )
-    add(JOB_QUEUE, job_info(newjob)['process'])
+    add(JOB_QUEUE1, job_info(newjob)['process'])
   endif
 enddef
 
-# out handler
-def OutHandler(channel: channel, message: string)
+# out handler1
+def OutHandler1(channel: channel, message: string)
 enddef
 
-# err handler
-def ErrHandler(channel: channel, message: string)
+# err handler1
+def ErrHandler1(channel: channel, message: string)
 enddef
 
-# exit handler for when the job ends
-def ExitHandler(job: job, status: number)
-  var idx: number
+# exit handler1 for when the job ends
+def ExitHandler1(job: job, status: number)
   var gitbranch: string
-  if filereadable(STATUSLINE_FILES['git'])
-    if getfsize(STATUSLINE_FILES['git']) > 0 && job_info(job)["exitval"] == 0
-      gitbranch = readfile(STATUSLINE_FILES['git'])[0]
-      SetStatus(" {" .. gitbranch .. "}:" .. ShortPath(getcwd()) .. '$')
-    else
-      SetStatus(substitute(GetStatus(), '^ {\w\+}:.*\$$', "", ""))
-    endif
-    # redraw statusline
-    # &l:statusline = &l:statusline
-    redrawstatus
-    delete(STATUSLINE_FILES['git'])
+  g:statusline_isgitbranch = false
+  if filereadable(STATUSLINE_FILES['git']) && getfsize(STATUSLINE_FILES['git']) > 0
+  && job_info(job)["exitval"] == 0
+    g:statusline_isgitbranch = true
+    gitbranch = readfile(STATUSLINE_FILES['git'])[0]
+    SetStatus(" {" .. gitbranch .. "}:" .. ShortPath(getcwd()) .. '$')
+  else
+    #SetStatus(substitute(GetStatus(), '^ {\w\+}:.*\$$', "", ""))
+    SetStatus("")
   endif
-  idx = index(JOB_QUEUE, job_info(job)["process"])
+  # redraw statusline
+  # &l:statusline = &l:statusline
+  redrawstatus
+  delete(STATUSLINE_FILES['git'])
+  var idx = index(JOB_QUEUE1, job_info(job)["process"])
   if idx >= 0
-    remove(JOB_QUEUE, idx)
+    remove(JOB_QUEUE1, idx)
+  endif
+enddef
+
+# statusline git status file
+export def GitStatusFile(file: string)
+  var cwddir = fnamemodify(file, ':p:h')
+  var newjob: job
+  if get(g:, 'statusline_showgitbranch') && empty(JOB_QUEUE2)
+    newjob = job_start(
+      ['git', 'diff', '--quiet', file],
+      {
+        "out_cb": function(OutHandler2),
+        "err_cb": function(ErrHandler2),
+        "exit_cb": function(ExitHandler2),
+        "out_io": "null",
+        "out_msg": 0,
+        "out_modifiable": 0,
+        "err_io": "null",
+        "cwd": cwddir
+      }
+    )
+    add(JOB_QUEUE2, job_info(newjob)['process'])
+  endif
+enddef
+
+# out handler2
+def OutHandler2(channel: channel, message: string)
+enddef
+
+# err handler2
+def ErrHandler2(channel: channel, message: string)
+enddef
+
+# exit handler2 for when the job ends
+def ExitHandler2(job: job, status: number)
+  # 1 (modified)
+  if job_info(job)["exitval"] == 1
+    SetStatus($" [M]" .. substitute(GetStatus(), '^ \[M]', "", ""))
+  else
+    SetStatus(substitute(GetStatus(), '^ \[M]', "", ""))
+  endif
+  redrawstatus
+  var idx = index(JOB_QUEUE2, job_info(job)["process"])
+  if idx >= 0
+    remove(JOB_QUEUE2, idx)
   endif
 enddef
