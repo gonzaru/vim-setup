@@ -23,6 +23,7 @@ const ID_REQUEST_TEXT_DOCUMENT_REFERENCES = 4
 const ID_REQUEST_TEXT_DOCUMENT_RENAME = 5
 const ID_REQUEST_TEXT_DOCUMENT_HOVER = 6
 const ID_REQUEST_TEXT_DOCUMENT_SYMBOL = 7
+const ID_REQUEST_TEXT_DOCUMENT_SIGNATURE = 8
 const ID_REQUEST_SHUTDOWN = 99
 
 # completion kinds
@@ -942,23 +943,31 @@ def ResponseHover(server: dict<any>, message: any): string
       return ''
     endif
   endif
-  var value = NormalizeLines(message.result.contents.value)
-  var kind = message.result.contents.kind
-  var lines = split(value, "\n", 1)
-  # kind: markdown, plaintext, etc.
-  if kind == 'markdown'
-    lines = filter(lines, (_, s) => s !~ '^\s*$')
-    lines = filter(lines, (_, s) => s !~ '^\s*```')
-    # lines = filter(lines, (_, s) => s !~ '^\s*[-*_]\{3,}\s*$')
+  var items: dict<any>
+  if has_key(message, 'result')
+    items = message.result
   endif
-  PopupHover(lines, kind)
+  if empty(items)
+    return $"{server.name} signature: (empty)"
+  endif
+  var contents = []
+  add(contents, {
+    'text': split(NormalizeLines(items.contents.value), "\n", 1),
+    'kind': items.contents.kind
+  })
+  # if contents[0].kind == 'markdown'
+  #   contents = filter(contents, (_, s) => s !~ '^\s*$')
+  #   contents = filter(contents, (_, s) => s !~ '^\s*```')
+  #   # contents = filter(contents, (_, s) => s !~ '^\s*[-*_]\{3,}\s*$'))
+  # endif
+  PopupHover(contents)
   return ''
 enddef
 
 # popup hover
-def PopupHover(text: list<string>, kind: string)
+def PopupHover(contents: list<dict<any>>)
   var id = popup_create(
-    text, {
+    contents[0].text, {
       title: '',
       post: 'topleft',
       line: 'cursor+1',
@@ -970,7 +979,7 @@ def PopupHover(text: list<string>, kind: string)
       wrap: false
     }
   )
-  if kind == 'markdown'
+  if contents[0].kind == 'markdown'
     win_execute(id, 'setlocal syntax=OFF')
     win_execute(id, 'setlocal filetype=markdown')
     win_execute(id, 'setlocal conceallevel=0')
@@ -1071,6 +1080,93 @@ def DocumentSymbolPick(items: list<dict<any>>, id: number, key: string): bool
   return true
 enddef
 
+# signature
+export def Signature(): void
+  var server = servers[ID(&filetype)]
+  var err = CheckServer(server)
+  if !empty(err)
+    EchoWarningMsg(err)
+    return
+  endif
+  RequestSignature(server)
+enddef
+
+# request signature
+def RequestSignature(server: dict<any>)
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  ch_sendexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_SIGNATURE,
+    method: 'textDocument/signatureHelp',
+    params: {
+      textDocument: { uri: server.uri },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      }
+    }
+  })
+enddef
+
+# response signature
+def ResponseSignature(server: dict<any>, message: any): string
+  if has_key(message, 'error') && has_key(message.error, 'message')
+    return $"document symbol error: {string(message.error.message)}"
+  endif
+  if !has_key(message, 'result')
+    return $"{server.name} signature: (empty)"
+  endif
+  if has_key(message, 'result')
+    if message.result == null
+      EchoWarningMsg($"{server.name} signature: no data available (null)")
+      return ''
+    endif
+  endif
+  var items: dict<any>
+  if has_key(message, 'result')
+    items = message.result
+  endif
+  if empty(items)
+    return $"{server.name} signature: (empty)"
+  endif
+  var signs = []
+  for sign in items.signatures
+    add(signs, {
+      'label': sign.label,
+      'parameters': sign.parameters,
+      'kind': sign.documentation.kind
+    })
+  endfor
+  PopupSignature(signs)
+  return ''
+enddef
+
+# popup signature
+def PopupSignature(signs: list<dict<any>>)
+  var id = popup_create(
+    signs[0].label, {
+      title: '',
+      post: 'topleft',
+      line: 'cursor+1',
+      col: 1,
+      moved: 'any',
+      border: [],
+      close: 'click',
+      mapping: false,
+      wrap: false
+    }
+  )
+  if signs[0].kind == 'markdown'
+    win_execute(id, 'setlocal syntax=OFF')
+    win_execute(id, 'setlocal filetype=markdown')
+    win_execute(id, 'setlocal conceallevel=0')
+  else
+    win_execute(id, 'setlocal filetype=text')
+    win_execute(id, 'setlocal syntax=OFF')
+  endif
+enddef
+
 # out handler
 def OutHandler(server: dict<any>, channel: channel, message: any)
   if type(message) != v:t_dict
@@ -1134,6 +1230,15 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
   # id=7 response of request text document symbol
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_SYMBOL
     var err = ResponseDocumentSymbol(server, message)
+    if !empty(err)
+      EchoErrorMsg(err)
+    endif
+    return
+  endif
+
+  # id=8 response of request text document signature
+  if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_SIGNATURE
+    var err = ResponseSignature(server, message)
     if !empty(err)
       EchoErrorMsg(err)
     endif

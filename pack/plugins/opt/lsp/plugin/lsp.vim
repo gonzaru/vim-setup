@@ -41,6 +41,7 @@ nnoremap <silent> <script> <Plug>(lsp-document-symbol) <ScriptCmd>lsp.DocumentSy
 nnoremap <silent> <script> <Plug>(lsp-hover) <ScriptCmd>lsp.Hover()<CR>
 nnoremap <silent> <script> <Plug>(lsp-references) <ScriptCmd>lsp.References()<CR>
 nnoremap <silent> <script> <Plug>(lsp-rename) <ScriptCmd>lsp.Rename()<CR>
+nnoremap <silent> <script> <Plug>(lsp-signature) <ScriptCmd>lsp.Signature()<CR>
 nnoremap <silent> <script> <Plug>(lsp-running) <ScriptCmd>lsp.Running()<CR>
 nnoremap <silent> <script> <Plug>(lsp-ready) <ScriptCmd>lsp.Ready()<CR>
 
@@ -51,8 +52,10 @@ if get(g:, 'lsp_no_mappings') == 0
     nnoremap <leader><C-]> <Plug>(lsp-definition)
     nnoremap <leader>gi <Plug>(lsp-hover)
     nnoremap <leader>gs <Plug>(lsp-references)
-    nnoremap <leader>gS <Plug>(lsp-document-symbol)
+    nnoremap <leader>gS <Plug>(lsp-signature)
+    nnoremap <leader>GS <Plug>(lsp-document-symbol)
     nnoremap <leader>gr <Plug>(lsp-rename)
+
   endif
 endif
 
@@ -70,6 +73,7 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPHover execute "normal \<Plug>(lsp-hover)"
   command! LSPReferences execute "normal \<Plug>(lsp-references)"
   command! LSPRename execute "normal \<Plug>(lsp-rename)"
+  command! LSPSignature execute "normal \<Plug>(lsp-signature)"
   command! LSPRunning execute "normal \<Plug>(lsp-running)"
   command! LSPReady execute "normal \<Plug>(lsp-ready)"
   command! LSPUp {
