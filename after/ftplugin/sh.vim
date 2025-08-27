@@ -18,7 +18,7 @@ if getline(1) =~ "bash"
 else
   g:is_posix = true
 endif
-setlocal syntax=on
+setlocal syntax=ON
 #^ setlocal formatoptions-=t formatoptions+=croql
 setlocal formatoptions-=cro  # don't auto comment new lines
 # setlocal signcolumn=auto

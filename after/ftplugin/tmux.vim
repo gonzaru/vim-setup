@@ -12,4 +12,4 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # tmux
-setlocal syntax=on
+setlocal syntax=ON

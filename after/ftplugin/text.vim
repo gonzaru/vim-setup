@@ -12,7 +12,7 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # text
-setlocal syntax=off
+setlocal syntax=OFF
 setlocal ignorecase
 setlocal infercase
 setlocal wrap

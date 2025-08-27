@@ -11,7 +11,7 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # Vim
-setlocal syntax=on
+setlocal syntax=ON
 #^ setlocal fo-=t fo+=croql
 setlocal formatoptions-=cro  # don't auto comment new lines
 # setlocal number

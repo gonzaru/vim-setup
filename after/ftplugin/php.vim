@@ -12,7 +12,7 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # PHP
-setlocal syntax=on
+setlocal syntax=ON
 # setlocal signcolumn=auto
 # setlocal number
 # setlocal cursorline

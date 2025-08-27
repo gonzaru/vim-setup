@@ -11,7 +11,7 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # YAML
-setlocal syntax=on
+setlocal syntax=ON
 #^ setlocal formatoptions-=t
 # setlocal signcolumn=auto
 # setlocal number

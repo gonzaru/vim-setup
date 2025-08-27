@@ -12,5 +12,5 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # conf
-setlocal syntax=off
+setlocal syntax=OFF
 setlocal nowrap

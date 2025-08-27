@@ -12,7 +12,7 @@ b:did_ftplugin_after = true
 #^ already done previously
 
 # C++
-setlocal syntax=on
+setlocal syntax=ON
 #^ setlocal formatoptions-=t
 # setlocal number
 # setlocal cursorline
