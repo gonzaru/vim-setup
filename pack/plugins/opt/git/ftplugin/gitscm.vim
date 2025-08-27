@@ -9,6 +9,7 @@ endif
 b:did_ftplugin_git = true
 
 # Git
+setlocal syntax=ON
 setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->fnamemodify(':~')\ :\ 'none'}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
 setlocal winfixheight
 setlocal winfixwidth
@@ -24,7 +25,6 @@ setlocal noswapfile
 setlocal nobuflisted
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
-setlocal syntax=on
 if get(g:, 'git_no_mappings') == 0
   nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action))
   nnoremap <buffer> <nowait> <silent> gA <Plug>(git-add-file)
