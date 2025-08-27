@@ -13,12 +13,18 @@ endif
 g:loaded_se = true
 
 # global variables
+if !exists('g:se_colors')
+  g:se_colors = false
+endif
 if !exists('g:se_fileignore')
   # do not list these patterns
   g:se_fileignore = "*.o,*.obj,*.pyc,*.swp"
 endif
 if !exists('g:se_followfile')
   g:se_followfile = false
+endif
+if !exists('g:se_dirsfirst')
+  g:se_dirsfirst = false
 endif
 if !exists('g:se_hiddenfirst')
   g:se_hiddenfirst = false
@@ -28,6 +34,9 @@ if !exists('g:se_hiddenshow')
 endif
 if !exists('g:se_onlydirs')
   g:se_onlydirs = false
+endif
+if !exists('g:se_onlyfiles')
+  g:se_onlyfiles = false
 endif
 if !exists('g:se_opentool')
   g:se_opentool = "xdg-open"
@@ -62,6 +71,16 @@ if get(g:, 'se_followfile')
     }
   augroup END
 endif
+#if get(g:, 'se_colors')
+#  augroup se_colors
+#    autocmd!
+#    autocmd BufWinEnter * {
+#      if g:se_colors
+#        se.SetColors()
+#      endif
+#    }
+#  augroup END
+#endif
 
 # define mappings
 nnoremap <silent> <script> <Plug>(se-close) <ScriptCmd>se.Close()<CR>
@@ -69,13 +88,15 @@ nnoremap <silent> <script> <Plug>(se-help) <ScriptCmd>se.Help()<CR>
 nnoremap <silent> <script> <Plug>(se-toggle) <ScriptCmd>se.Toggle(expand('%:p'))<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-hidden-show) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "show")<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-hidden-position) <ScriptCmd>se.ToggleHiddenFiles(getline('.'), "position")<CR>
-nnoremap <silent> <script> <Plug>(se-toggle-perms-show) <ScriptCmd>se.TogglePermsShow()<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-perms-show) <ScriptCmd>se.TogglePerms<CR>
 nnoremap <silent> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
 nnoremap <silent> <script> <Plug>(se-godir-git) <ScriptCmd>se.GoDirGit()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDirHome()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-root) <ScriptCmd>se.GoDirRoot()<CR>
-nnoremap <silent> <script> <Plug>(se-toggle-onlydirs-show) <ScriptCmd>se.ToggleOnlyDirsShow()<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-dirsfirst-show) <ScriptCmd>se.ToggleDirsFirst<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-onlydirs-show) <ScriptCmd>se.ToggleOnlyDirs<CR>
+nnoremap <silent> <script> <Plug>(se-toggle-onlyfiles-show) <ScriptCmd>se.ToggleOnlyFiles<CR>
 nnoremap <silent> <script> <Plug>(se-godir-parent) <ScriptCmd>se.GoDirParent()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-prev) <ScriptCmd>se.GoDirPrev()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-prompt) <ScriptCmd>se.GoDirPrompt()<CR>
@@ -124,6 +145,7 @@ if get(g:, 'se_no_commands') == 0
   command! SeClose execute "normal \<Plug>(se-close)"
   command! SeHelp execute "normal \<Plug>(se-help)"
   command! SeToggle execute "normal \<Plug>(se-toggle)"
+  command! SeToggleColors g:se_colors = !g:se_colors
   command! SeToggleFollowFile g:se_followfile = !g:se_followfile
   command! SeToggleResizeMaxCol g:se_resizemaxcol = !g:se_resizemaxcol
   command! SeTogglePosition g:se_position = g:se_position == "left" ? "right" : "left"

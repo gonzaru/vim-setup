@@ -9,6 +9,7 @@ endif
 b:did_ftplugin_se = true
 
 # Se
+setlocal syntax=ON
 setlocal statusline=%y:%<%{getcwd()->fnamemodify(':~')}%=b%n,w%{win_getid()}
 setlocal winfixheight
 setlocal winfixwidth
@@ -47,7 +48,9 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> ~ <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> d <Plug>(se-godir-home)
   nnoremap <buffer> <nowait> a <Plug>(se-godir-prompt)
+  nnoremap <buffer> <nowait> i <Plug>(se-toggle-dirsfirst-show)
   nnoremap <buffer> <nowait> y <Plug>(se-toggle-onlydirs-show)
+  nnoremap <buffer> <nowait> Y <Plug>(se-toggle-onlyfiles-show)
   nnoremap <buffer> <nowait> r <Plug>(se-refresh)
   nnoremap <buffer> <nowait> f <Plug>(se-godir-prev)
   nnoremap <buffer> <nowait> F <Plug>(se-followfile)
