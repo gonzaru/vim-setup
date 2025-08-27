@@ -199,6 +199,8 @@ endif
 
 # se plugin (simple explorer)
 if g:se_enabled
+  g:se_colors = true
+  g:se_dirsfirst = true
   g:se_followfile = false
   g:se_hiddenfirst = false
   g:se_position = "left"  # left, right
@@ -995,6 +997,10 @@ command! -nargs=+ -complete=file Grepi {
   cwindow
   redraw!
 }
+command! -nargs=+ -complete=file -bar Grepg searcher#Search(<q-args>, systemlist('git rev-parse --show-toplevel')[0], 'gitprg', 'quickfix')
+command! -nargs=+ -complete=file -bar Grepig searcher#Search(<q-args>, '-i', systemlist('git rev-parse --show-toplevel')[0], 'gitprg', 'quickfix')
+command! -nargs=+ -complete=file -bar Grepr searcher#Search(<q-args>, systemlist('git rev-parse --show-toplevel')[0], 'grepprg', 'quickfix')
+command! -nargs=+ -complete=file -bar Grepir searcher#Search('-i', <q-args>, systemlist('git rev-parse --show-toplevel')[0], 'grepprg', 'quickfix')
 # vimgrep + quickfix
 command! -nargs=+ -complete=file Vimgrep execute "silent vimgrep! <args>" | cwindow | redraw!
 nnoremap <leader>/ mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
@@ -1002,11 +1008,13 @@ nnoremap <leader>/ mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':
 # find using searcher plugin
 if g:searcher_enabled
   command! -nargs=+ -complete=file -bar Find searcher#Search(<q-args>, '-p', getcwd(), 'findprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar Findr searcher#Search(<q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findi searcher#Search('-i', <q-args>, '-p', getcwd(), 'findprg', 'quickfix')
+  command! -nargs=+ -complete=file -bar Findir searcher#Search('-i', <q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
 endif
 def FindPrg(file: string, _): list<string>
   var exclude = fnamemodify(getcwd(), ":p") =~ '/\.vim/' ? "--exclude undodir --exclude backups" : ""
-  var cmd = $"fd --type f --follow --smart-case --color=never --unrestricted --exclude .git {exclude}"
+  var cmd = $"fd --type f --follow --color=never --unrestricted --exclude .git {exclude}"
   var files = systemlist(cmd)
   return filter(files, $"v:val =~? '{file}'")
 enddef
