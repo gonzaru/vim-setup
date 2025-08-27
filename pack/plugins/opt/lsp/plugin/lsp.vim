@@ -37,6 +37,7 @@ nnoremap <silent> <script> <Plug>(lsp-info) <ScriptCmd>lsp.Info()<CR>
 nnoremap <silent> <script> <Plug>(lsp-enable) <ScriptCmd>lsp.Enable()<CR>
 nnoremap <silent> <script> <Plug>(lsp-disable) <ScriptCmd>lsp.Disable()<CR>
 nnoremap <silent> <script> <Plug>(lsp-definition) <ScriptCmd>lsp.Definition()<CR>
+nnoremap <silent> <script> <Plug>(lsp-document-symbol) <ScriptCmd>lsp.DocumentSymbol()<CR>
 nnoremap <silent> <script> <Plug>(lsp-hover) <ScriptCmd>lsp.Hover()<CR>
 nnoremap <silent> <script> <Plug>(lsp-references) <ScriptCmd>lsp.References()<CR>
 nnoremap <silent> <script> <Plug>(lsp-rename) <ScriptCmd>lsp.Rename()<CR>
@@ -50,6 +51,7 @@ if get(g:, 'lsp_no_mappings') == 0
     nnoremap <leader><C-]> <Plug>(lsp-definition)
     nnoremap <leader>gi <Plug>(lsp-hover)
     nnoremap <leader>gs <Plug>(lsp-references)
+    nnoremap <leader>gS <Plug>(lsp-document-symbol)
     nnoremap <leader>gr <Plug>(lsp-rename)
   endif
 endif
@@ -64,6 +66,7 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPEnable execute "normal \<Plug>(lsp-enable)" | echo v:statusmsg
   command! LSPDisable execute "normal \<Plug>(lsp-disable)" | echo v:statusmsg
   command! LSPDefinition execute "normal \<Plug>(lsp-definition)"
+  command! LSPDocumentSymbol execute "normal \<Plug>(lsp-document-symbol)"
   command! LSPHover execute "normal \<Plug>(lsp-hover)"
   command! LSPReferences execute "normal \<Plug>(lsp-references)"
   command! LSPRename execute "normal \<Plug>(lsp-rename)"
