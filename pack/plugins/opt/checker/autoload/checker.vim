@@ -343,6 +343,7 @@ enddef
 # lang check (async)
 export def CheckAsync(lang: string, tool: string, exttool: string, file: string): void
   var cmd: list<string>
+  var cwddir  = fnamemodify(file, ':p:h')
   var newjob: job
   var syntaxfile = FILES[lang][exttool]["syntaxfile"]
   if lang == "sh"
@@ -368,7 +369,8 @@ export def CheckAsync(lang: string, tool: string, exttool: string, file: string)
         "out_name": syntaxfile,
         "out_msg": 0,
         "out_modifiable": 0,
-        "err_io": "out"
+        "err_io": "out",
+        "cwd": cwddir
       }
     )
     add(JOB_QUEUE[lang][exttool], job_info(newjob)['process'])
