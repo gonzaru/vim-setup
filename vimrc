@@ -441,6 +441,7 @@ endif
 # mouse support
 if has('mouse')
   set mouse=a
+  set mousemodel=extend
 endif
 
 # utf-8 support
