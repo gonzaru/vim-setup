@@ -14,6 +14,8 @@ setlocal statusline=%y:%<%{getcwd()->fnamemodify(':~')}%=b%n,w%{win_getid()}
 setlocal winfixheight
 setlocal winfixwidth
 setlocal winfixbuf
+setlocal mousemodel=popup_setpos  # <RightMouse>, <2-RightMouse>
+setlocal mousetime=500
 setlocal noconfirm
 setlocal nonumber
 setlocal norelativenumber
@@ -32,6 +34,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> q <Plug>(se-close)
   nnoremap <buffer> <nowait> <ESC> <Plug>(se-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(se-gofile-edit)
+  nnoremap <buffer> <2-LeftMouse> <Plug>(se-gofile-edit)  # <LeftRelease> (one click)
   nnoremap <buffer> <nowait> <Space> <Plug>(se-gofile-editk)
   nnoremap <buffer> <nowait> e <Plug>(se-gofile-edit)
   nnoremap <buffer> <nowait> E <Plug>(se-gofile-edit)<Plug>(se-toggle)
@@ -71,4 +74,19 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> W <Plug>(se-godir-root)
   nnoremap <buffer> <nowait> z <Plug>(se-set-rootdir)
   nnoremap <buffer> <nowait> Z <Plug>(se-unset-rootdir)
+  # searcher plugin
+  def SearcherFindOrGrep()
+    var res = input('find (f) or grep (g) (f,g): ', '')
+    if res == 'f' || res == 'find'
+      feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<S-Left>\<Right>")
+    elseif res == 'g' || res == 'grep'
+      feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<Right>")
+    else
+      redraw!
+    endif
+  enddef
+  nnoremap <buffer> <nowait> <C-f> <ScriptCmd>feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><S-Left><Right>")<CR>
+  nnoremap <buffer> <nowait> <C-g> <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><Right>")<CR>
+  #nnoremap <buffer> <2-rightmouse> <scriptcmd>feedkeys(":searcherfind '-i', '', '-p', '" .. fnamemodify(trim(se#removefileindicators(se#removedirsep(getline(line('.'))))), ':p:~') .. "'<s-left><s-left><s-left><right>")<cr>
+  nnoremap <buffer> <2-RightMouse> <ScriptCmd>SearcherFindOrGrep()<CR>
 endif

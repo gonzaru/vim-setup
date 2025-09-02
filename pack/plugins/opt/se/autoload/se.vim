@@ -96,43 +96,46 @@ enddef
 # help information
 export def Help()
   var lines =<< trim END
-    e        # edit the current file [<CR>]
-    E        # edit the current file and toggle Se
-    <SPACE>  # edit the current file and stay in Se
-    s        # edit the current file in split mode
-    S        # edit the current file in split mode and toggle Se
-    v        # edit the current file in a vertical split mode
-    V        # edit the current file in a vertical split mode and toggle Se
-    t        # edit the current file in a tab
-    T        # edit the current file in a tab and toggle Se
-    p        # preview the current file in a window
-    P        # close the preview window currently open
-    d        # change to home directory [~]
-    a        # change to prompt directory
-    i        # toggle to show directories first
-    y        # toggle to show only directories
-    Y        # toggle to show only files
-    b        # change to parent directory [-]
-    f        # change to previous directory
-    F        # follow the current file
-    r        # refresh the current directory
-    h        # resize Se window to the left
-    l        # resize Se window to the right
-    =        # resize Se window to default size
-    +        # resize Se window to maximum column size
-    o        # toggle the position of the hidden files
-    u        # toggle to show the file permissions
-    m        # check the default app for mime type
-    M        # set default app for mime type
-    c        # open the file with a custom program
-    C        # open the file with the default program
-    w        # change to git root directory
-    W        # change to custom root directory (g:se_rootdir)
-    z        # set the current directory as custom root directory
-    Z        # unset the custom root directory
-    .        # toggle the visualization of the hidden files
-    <ESC>    # close Se window [q]
-    H        # shows Se help information [K]
+    e               # edit the current file [<CR>,<2-LeftMouse>]
+    E               # edit the current file and toggle Se
+    <SPACE>         # edit the current file and stay in Se
+    s               # edit the current file in split mode
+    S               # edit the current file in split mode and toggle Se
+    v               # edit the current file in a vertical split mode
+    V               # edit the current file in a vertical split mode and toggle Se
+    t               # edit the current file in a tab
+    T               # edit the current file in a tab and toggle Se
+    p               # preview the current file in a window
+    P               # close the preview window currently open
+    d               # change to home directory [~]
+    a               # change to prompt directory
+    i               # toggle to show directories first
+    y               # toggle to show only directories
+    Y               # toggle to show only files
+    b               # change to parent directory [-]
+    f               # change to previous directory
+    F               # follow the current file
+    r               # refresh the current directory
+    h               # resize Se window to the left
+    l               # resize Se window to the right
+    =               # resize Se window to default size
+    +               # resize Se window to maximum column size
+    o               # toggle the position of the hidden files
+    u               # toggle to show the file permissions
+    m               # check the default app for mime type
+    M               # set default app for mime type
+    c               # open the file with a custom program
+    C               # open the file with the default program
+    w               # change to git root directory
+    W               # change to custom root directory (g:se_rootdir)
+    z               # set the current directory as custom root directory
+    Z               # unset the custom root directory
+    .               # toggle the visualization of the hidden files
+    <C-f>           # search files in the selected directory
+    <C-g>           # grep files in the selected directory
+    <2-RightMouse>  # find or grep files in the selected directory
+    <ESC>           # close Se window [q]
+    H               # shows Se help information [K]
   END
   echo join(lines, "\n")
 enddef
@@ -519,7 +522,7 @@ def EditTab(file: string)
 enddef
 
 # remove the file indicators
-def RemoveFileIndicators(file: string): string
+export def RemoveFileIndicators(file: string): string
   return trim(substitute(file, '*\|@$', "", ""), "/", 2)
 enddef
 
@@ -529,7 +532,7 @@ def RemoveFilePerms(file: string): string
 enddef
 
 # remove the directory separation
-def RemoveDirSep(file: string): string
+export def RemoveDirSep(file: string): string
   return substitute(file, node.dirsep, "", "")
 enddef
 
