@@ -1134,7 +1134,7 @@ def ResponseSignature(server: dict<any>, message: any): string
   for sign in items.signatures
     add(signs, {
       'label': sign.label,
-      'parameters': sign.parameters,
+      'parameters': has_key(sign, 'parameters') ? sign.parameters : [],
       'kind': sign.documentation.kind
     })
   endfor
