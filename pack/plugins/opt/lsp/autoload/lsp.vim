@@ -973,7 +973,7 @@ def PopupHover(contents: list<dict<any>>)
       line: 'cursor+1',
       col: 1,
       moved: 'any',
-      border: [],
+      border: [1, 1, 1, 1],
       close: 'click',
       mapping: false,
       wrap: false
@@ -1057,7 +1057,7 @@ def PopupDocumentSymbol(items: list<dict<any>>)
       line: 'cursor+1',
       col: 1,
       moved: [0, 0, 0],
-      border: [],
+      border: [1, 1, 1, 1],
       close: 'click',
       mapping: false,
       wrap: false,
@@ -1151,7 +1151,7 @@ def PopupSignature(signs: list<dict<any>>)
       line: 'cursor+1',
       col: 1,
       moved: 'any',
-      border: [],
+      border: [1, 1, 1, 1],
       close: 'click',
       mapping: false,
       wrap: false
