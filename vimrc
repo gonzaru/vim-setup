@@ -208,6 +208,11 @@ if g:se_enabled
   g:se_winsize = 25
 endif
 
+# searcher plugin
+if g:searcher_enabled
+  g:searcher_popup_fuzzy = true
+endif
+
 # statusline plugin
 if g:statusline_enabled
   g:statusline_showgitbranch = true

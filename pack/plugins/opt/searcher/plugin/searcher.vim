@@ -47,6 +47,23 @@ if !exists('g:searcher_gitprg_insensitive')
   g:searcher_gitprg_insensitive = ['--ignore-case']
 endif
 
+# popup
+if !exists('g:searcher_popup_cmd')
+  g:searcher_popup_cmd = g:searcher_findprg_command
+endif
+if !exists('g:searcher_popup_mode')
+  g:searcher_popup_mode = 'edit'
+endif
+if !exists('g:searcher_popup_kind')
+  g:searcher_popup_kind = 'find'
+endif
+if !exists('g:searcher_popup_fuzzy')
+  g:searcher_popup_fuzzy = false
+endif
+if !exists('g:searcher_popup_fuzzy_limit')
+  g:searcher_popup_fuzzy_limit = 200
+endif
+
 # autoload
 import autoload '../autoload/searcher.vim'
 
@@ -81,6 +98,7 @@ nnoremap <silent> <script> <plug>(searcher-git-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'quickfix')<CR>
 nnoremap <silent> <script> <plug>(searcher-lgit-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'locationlist')<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-find) <ScriptCmd>searcher.Popup("find")<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -117,11 +135,11 @@ if get(g:, 'searcher_no_mappings') == 0
   #if empty(mapcheck("<leader>SG", "n"))
   #  nnoremap <leader>SG <Plug>(searcher-lgrep-word)
   #endif
-  if empty(mapcheck("<leader>sp", "n"))
-    nnoremap <leader>sp <Plug>(searcher-git)
+  if empty(mapcheck("<leader>sk", "n"))
+    nnoremap <leader>sk <Plug>(searcher-git)
   endif
-  if empty(mapcheck("<leader>sP", "n"))
-    nnoremap <leader>sP <Plug>(searcher-git-root)
+  if empty(mapcheck("<leader>sK", "n"))
+    nnoremap <leader>sK <Plug>(searcher-git-root)
   endif
   #if empty(mapcheck("<leader>Sp", "n"))
   #  nnoremap <leader>Sp <Plug>(searcher-lgit)
@@ -132,6 +150,9 @@ if get(g:, 'searcher_no_mappings') == 0
   #if empty(mapcheck("<leader>SP", "n"))
   #  nnoremap <leader>SP <Plug>(searcher-lgit-word)
   #endif
+  if empty(mapcheck("<leader>sp", "n"))
+    nnoremap <leader>sp <Plug>(searcher-popup-find)
+  endif
 endif
 
 # set commands
@@ -148,4 +169,5 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=+ -complete=file -bar SearcherLGit searcher.Search(<args>, 'gitprg', 'locationlist')
   command! -nargs=0 -bar SearcherGitWord execute "normal \<Plug>(searcher-git-word)"
   command! -nargs=0 -bar SearcherLGitWord execute "normal \<Plug>(searcher-lgit-word)"
+  command! -nargs=0 SearcherPopupFind execute "normal \<Plug>(searcher-popup-find)"
 endif

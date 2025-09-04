@@ -73,3 +73,160 @@ def Run(cmd: string, mode: string)
     setlocal number
   endif
 enddef
+
+# global variables for popup
+var pop = {
+  all: [],
+  shown: [],
+  query: '',
+  cwd: '',
+  cmd: join(g:searcher_popup_cmd),
+  mode: g:searcher_popup_mode,
+  kind: g:searcher_popup_kind
+}
+
+# popup
+export def Popup(kind: string): void
+  # TODO: add grep kind
+  if kind != 'find'  # && kind != 'grep'
+    return
+  endif
+  pop.kind = kind
+  var ocwd = getcwd()
+  pop.cwd = get(systemlist("git rev-parse --show-toplevel"), 0, ocwd)
+  execute $'lcd {pop.cwd}'
+  var files = systemlist(pop.cmd)
+  execute $'lcd {ocwd}'
+  if pop.kind == 'find' && empty(files)
+    return
+  endif
+  pop.all = copy(files)
+  pop.shown = copy(files)
+  pop.query = ''
+  var id = popup_menu(
+    files, {
+      title: PopupTitle(),
+      pos: 'topleft',
+      line: 'cursor+1',
+      col: 1,
+      minwidth: 40,
+      maxheight: 12,
+      border: [1, 1, 1, 1],
+      close: 'click',
+      mapping: false,
+      wrap: false,
+      cursorline: true,
+      filter: function(CompletionFilter),
+      callback: function(CompletionPick)
+  })
+enddef
+
+# popup title
+def PopupTitle(): string
+  var counter = $'[{len(pop.shown)}/{len(pop.all)}]'
+  var fchars = g:searcher_popup_fuzzy ? '≈' : '-'
+  var title = $' > {pop.query} {counter} {fchars} '
+  return title
+enddef
+
+# completion filter
+def CompletionFilter(id: number, key: string): bool
+  # <Esc>
+  if key == "\<Esc>"
+    popup_close(id, -1)
+    return true
+  endif
+
+  # <C-n> => <Down>
+  if key == "\<C-n>"
+    return popup_filter_menu(id, "\<Down>")
+  endif
+
+  # <C-p> => <Up>
+  if key == "\<C-p>"
+    return popup_filter_menu(id, "\<Up>")
+  endif
+
+  # delete a char
+  if key == "\<BackSpace>" || key == "\<BS>" || key == "\<C-h>"
+    if strchars(pop.query) > 0
+      pop.query = strcharpart(pop.query, 0, strchars(pop.query) - 1)
+      ApplyFilter(id)
+    endif
+    return true
+  endif
+
+  # delete all chars
+  if key == "\<C-u>"
+    pop.query = ''
+    ApplyFilter(id)
+    return true
+  endif
+
+  # toggle fuzzy
+  if key == "\<C-f>"
+    g:searcher_popup_fuzzy = !g:searcher_popup_fuzzy
+    ApplyFilter(id)
+    return true
+  endif
+
+  # split
+  if key == "\<C-s>"
+    pop.mode = 'split'
+    return popup_filter_menu(id, "\<CR>")
+  endif
+
+  # vsplit
+  if key == "\<C-v>"
+    pop.mode = 'vsplit'
+    return popup_filter_menu(id, "\<CR>")
+  endif
+
+  # pedit
+  if key == "\<C-o>"
+    pop.mode = 'pedit'
+    return popup_filter_menu(id, "\<CR>")
+  endif
+
+  # tabedit
+  if key == "\<C-t>"
+    pop.mode = 'tabedit'
+    return popup_filter_menu(id, "\<CR>")
+  endif
+
+  # not <CR>
+  if strlen(key) == 1 && key != "\<CR>"
+    pop.query ..= key
+    ApplyFilter(id)
+    return true
+  endif
+
+  return popup_filter_menu(id, key)
+enddef
+
+# apply filter
+def ApplyFilter(id: number)
+  var query = pop.query
+  if empty(query)
+    pop.shown = copy(pop.all)
+  elseif g:searcher_popup_fuzzy
+    pop.shown = matchfuzzy(pop.all, pop.query, { limit: g:searcher_popup_fuzzy_limit })
+  else
+    var q = tolower(query)
+    pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
+  endif
+  popup_settext(id, pop.shown)
+  popup_setoptions(id, { title: PopupTitle() })
+enddef
+
+# completion pick
+def CompletionPick(id: number, res: number)
+  if res <= 0 || res > len(pop.shown)
+    return
+  endif
+  var picked = pop.cwd .. '/' .. pop.shown[res - 1]
+  if filereadable(picked)
+    execute $"{pop.mode} {fnameescape(picked)}"
+  endif
+  popup_close(id)
+enddef
