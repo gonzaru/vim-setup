@@ -16,7 +16,7 @@ g:autoloaded_se = true
 var node = {
   'prev': "",
   'cur': "",
-  'next': "",
+  'next': [],
   'dirsep': '▸',
   # TODO: sub ▾
   'repn': 0
@@ -98,7 +98,8 @@ export def Help()
   var lines =<< trim END
     e               # edit the current file [<CR>,<2-LeftMouse>]
     E               # edit the current file and toggle Se
-    <SPACE>         # edit the current file and stay in Se
+    <Space>         # 1) file: edit the current file and stay in Se
+                    # 2) dir: change the current directory as base
     s               # edit the current file in split mode
     S               # edit the current file in split mode and toggle Se
     v               # edit the current file in a vertical split mode
@@ -112,7 +113,7 @@ export def Help()
     i               # toggle to show directories first
     y               # toggle to show only directories
     Y               # toggle to show only files
-    b               # change to parent directory [-]
+    b               # change to parent directory [-,<BackSpace>]
     f               # change to previous directory
     F               # follow the current file
     r               # refresh the current directory
@@ -634,6 +635,26 @@ export def GoDirHome()
   GoDir(getenv('HOME'))
 enddef
 
+# goes to base directory or edit the current file and stay in Se
+export def GoDirBaseOrEditKeep(file: string): void
+  # first line
+  if line('.') == 1
+    # EchoWarningMsg("currently disabled for the first line")
+    return
+  endif
+  var prev = FindParents()
+  var fsel = fnamemodify(
+    RemoveFileIndicators(
+      $"{prev}{trim(RemoveDirSep(file))}"
+    ), ":p"
+  )
+  if isdirectory(fsel)
+    GoDir(fsel)
+  else
+    EditKeep(fsel)
+  endif
+enddef
+
 # goes to custom root directory
 export def GoDirRoot(): void
   # fallback to git root
@@ -652,7 +673,7 @@ export def GoDirParent(): void
   if getcwd() == "/"
     return
   endif
-  node.next = getcwd()
+  add(node.next, getcwd())
   execute $"lcd {getline(1)}"
   lcd ..
   node.cur = getcwd()
@@ -665,7 +686,7 @@ export def GoDirPrev(): void
   if empty(node.next)
     return
   endif
-  GoDir(node.next)
+  GoDir(remove(node.next, -1))
 enddef
 
 # goes to directory via prompt

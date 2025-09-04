@@ -102,6 +102,7 @@ nnoremap <silent> <script> <Plug>(se-godir-prev) <ScriptCmd>se.GoDirPrev()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-prompt) <ScriptCmd>se.GoDirPrompt()<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-edit) <ScriptCmd>se.GoFile(getline('.'), "edit")<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-editk) <ScriptCmd>se.GoFile(getline('.'), "editk")<CR>
+nnoremap <silent> <script> <Plug>(se-gofile-editkorbase) <ScriptCmd>se.GoDirBaseOrEditKeep(getline('.'))<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-pedit) <ScriptCmd>se.GoFile(getline('.'), "pedit")<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-split) <ScriptCmd>se.GoFile(getline('.'), "split")<CR>
 nnoremap <silent> <script> <Plug>(se-gofile-tabedit) <ScriptCmd>se.GoFile(getline('.'), "tabedit")<CR>
