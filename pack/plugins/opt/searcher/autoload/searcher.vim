@@ -94,15 +94,20 @@ var pop = {
 
 # popup
 export def Popup(kind: string): void
-  if kind != 'find' && kind != 'grep'
+  if index(['find', 'grep', 'recent'], kind) == -1
     return
   endif
   pop.kind = kind
   pop.cwd = DefaultCwd()
-  var files = (pop.kind == 'find')
-    ? systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
-    : ['']
-  if pop.kind == 'find' && empty(files)
+  var files: list<string>
+  if pop.kind == 'find'
+    files = systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
+  elseif pop.kind == 'recent'
+    files = v:oldfiles
+  elseif pop.kind == 'grep'
+    files = ['']
+  endif
+  if pop.kind != 'grep' && empty(files)
     return
   endif
   pop.all = copy(files)
@@ -115,8 +120,8 @@ export def Popup(kind: string): void
       pos: 'topleft',
       line: 'cursor+1',
       col: 1,
-      minwidth: 40,
-      maxheight: 12,
+      minwidth: &columns / 2,
+      maxheight: &lines / 2,
       border: [1, 1, 1, 1],
       close: 'click',
       mapping: false,
@@ -132,10 +137,10 @@ enddef
 # popup title
 def PopupTitle(): string
   var cwd = fnamemodify(pop.cwd, ':~')
-  var counter = (pop.kind == 'find')
+  var counter = (pop.kind != 'grep')
     ? $'[{len(pop.shown)}/{len(pop.all)}]'
     : $'[{len(pop.shown)}]'
-  var fchars = (pop.kind == 'find' && g:searcher_popup_fuzzy)
+  var fchars = (pop.kind != 'grep' && g:searcher_popup_fuzzy)
     ? '+fuzzy'
     : '-fuzzy'
   var title = $' {pop.kind}: {cwd} {counter} {fchars} '
@@ -182,7 +187,7 @@ def CompletionFilter(id: number, key: string): bool
   endif
 
   # toggle fuzzy (only find)
-  if pop.kind == 'find' && key == "\<C-f>"
+  if pop.kind != 'grep' && key == "\<C-f>"
     g:searcher_popup_fuzzy = !g:searcher_popup_fuzzy
     ApplyFilter(id)
     return true
@@ -225,7 +230,13 @@ enddef
 # apply filter
 def ApplyFilter(id: number)
   var query = pop.query
-  if pop.kind == "find"
+  if pop.kind == 'grep'
+    if strlen(query) >= g:searcher_popup_grep_minchars  # min n+ chars
+      pop.shown = systemlist($'cd {shellescape(pop.cwd)} && {pop.grep_cmd} {shellescape(query)}')
+    else
+      pop.shown = ['']
+    endif
+  else
     if empty(query)
       pop.shown = copy(pop.all)
     elseif g:searcher_popup_fuzzy
@@ -233,13 +244,6 @@ def ApplyFilter(id: number)
     else
       var q = tolower(query)
       pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
-    endif
-  endif
-  if pop.kind == "grep"
-    if strlen(query) >= g:searcher_popup_grep_minchars  # min n+ chars
-      pop.shown = systemlist($'cd {shellescape(pop.cwd)} && {pop.grep_cmd} {shellescape(query)}')
-    else
-      pop.shown = ['']
     endif
   endif
   var prompt = '> ' .. pop.query
@@ -257,8 +261,9 @@ def CompletionPick(id: number, res: number): void
   endif
   if pop.kind == 'find'
     picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
-  endif
-  if pop.kind == 'grep'
+  elseif pop.kind == 'recent'
+    picked = fnamemodify(pop.shown[res - 2], ':p')
+  elseif pop.kind == 'grep'
     parts = split(pop.shown[res - 2], ':')
     if empty(parts)
       return
@@ -268,6 +273,7 @@ def CompletionPick(id: number, res: number): void
   if filereadable(picked)
     execute $"{pop.mode} {fnameescape(picked)}"
   endif
+  # upate cursor
   if pop.kind == 'grep'
     cursor(str2nr(parts[1]), str2nr(parts[2]))
   endif

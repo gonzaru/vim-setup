@@ -99,6 +99,7 @@ nnoremap <silent> <script> <plug>(searcher-lgit-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'locationlist')<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-find) <ScriptCmd>searcher.Popup("find")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-grep) <ScriptCmd>searcher.Popup("grep")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-recent) <ScriptCmd>searcher.Popup("recent")<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -156,6 +157,9 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>sP", "n"))
     nnoremap <leader>sP <Plug>(searcher-popup-grep)
   endif
+  if empty(mapcheck("<leader>so", "n"))
+    nnoremap <leader>so <Plug>(searcher-popup-recent)
+  endif
 endif
 
 # set commands
@@ -174,4 +178,5 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 -bar SearcherLGitWord execute "normal \<Plug>(searcher-lgit-word)"
   command! -nargs=0 SearcherPopupFind execute "normal \<Plug>(searcher-popup-find)"
   command! -nargs=0 SearcherPopupGrep execute "normal \<Plug>(searcher-popup-grep)"
+  command! -nargs=0 SearcherPopupRecent execute "normal \<Plug>(searcher-popup-recent)"
 endif
