@@ -94,17 +94,18 @@ export def Popup(kind: string): void
   pop.kind = kind
   var ocwd = getcwd()
   pop.cwd = get(systemlist("git rev-parse --show-toplevel"), 0, ocwd)
-  execute $'lcd {pop.cwd}'
+  execute $'lcd {fnameescape(pop.cwd)}'
   var files = systemlist(pop.cmd)
-  execute $'lcd {ocwd}'
+  execute $'lcd {fnameescape(ocwd)}'
   if pop.kind == 'find' && empty(files)
     return
   endif
   pop.all = copy(files)
   pop.shown = copy(files)
   pop.query = ''
+  var prompt = '> '
   var id = popup_menu(
-    files, {
+    [prompt] + files, {
       title: PopupTitle(),
       pos: 'topleft',
       line: 'cursor+1',
@@ -119,13 +120,16 @@ export def Popup(kind: string): void
       filter: function(CompletionFilter),
       callback: function(CompletionPick)
   })
+  # select next line (prompt)
+  popup_filter_menu(id, "\<Down>")
 enddef
 
 # popup title
 def PopupTitle(): string
+  var cwd = fnamemodify(getcwd(), ':~')
   var counter = $'[{len(pop.shown)}/{len(pop.all)}]'
-  var fchars = g:searcher_popup_fuzzy ? '≈' : '-'
-  var title = $' > {pop.query} {counter} {fchars} '
+  var fchars = g:searcher_popup_fuzzy ? '+fuzzy' : '-fuzzy'
+  var title = $' {pop.kind}: {cwd} {counter} {fchars} '
   return title
 enddef
 
@@ -215,16 +219,18 @@ def ApplyFilter(id: number)
     var q = tolower(query)
     pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
   endif
-  popup_settext(id, pop.shown)
+  var prompt = '> ' .. pop.query
+  popup_settext(id, [prompt] + pop.shown)
   popup_setoptions(id, { title: PopupTitle() })
 enddef
 
 # completion pick
 def CompletionPick(id: number, res: number)
-  if res <= 0 || res > len(pop.shown)
+  # 1 prompt line, +1 also for pop.shown
+  if res <= 1 || res > len(pop.shown) + 1
     return
   endif
-  var picked = pop.cwd .. '/' .. pop.shown[res - 1]
+  var picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
   if filereadable(picked)
     execute $"{pop.mode} {fnameescape(picked)}"
   endif
