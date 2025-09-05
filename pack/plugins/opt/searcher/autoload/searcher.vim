@@ -11,13 +11,13 @@ g:autoloaded_searcher = true
 # searcher commands
 const COMMANDS = {
   'findprg': {
-    'command': join(g:searcher_findprg_command)
+    'cmd': join(g:searcher_findprg_cmd)
   },
   'grepprg': {
-    'command': join(g:searcher_grepprg_command)
+    'cmd': join(g:searcher_grepprg_cmd)
   },
   'gitprg': {
-    'command': join(g:searcher_gitprg_command)
+    'cmd': join(g:searcher_gitprg_cmd)
   }
 }
 
@@ -28,7 +28,7 @@ export def Search(...args: list<string>): void
   var kind = args[-2]
   var mode = args[-1]
   var nargs = args
-  var prg = COMMANDS[kind]['command']
+  var prg = COMMANDS[kind]['cmd']
   var str: string
   if index(nargs, '') >= 0
     throw $"Error: the args '{args}' have empty values"
@@ -86,23 +86,22 @@ var pop = {
   shown: [],
   query: '',
   cwd: '',
-  cmd: join(g:searcher_popup_cmd),
+  find_cmd: join(g:searcher_findprg_cmd),
+  grep_cmd: join(g:searcher_grepprg_cmd),
   mode: g:searcher_popup_mode,
   kind: g:searcher_popup_kind
 }
 
 # popup
 export def Popup(kind: string): void
-  # TODO: add grep kind
-  if kind != 'find'  # && kind != 'grep'
+  if kind != 'find' && kind != 'grep'
     return
   endif
   pop.kind = kind
-  var ocwd = getcwd()
   pop.cwd = DefaultCwd()
-  execute $'lcd {fnameescape(pop.cwd)}'
-  var files = systemlist(pop.cmd)
-  execute $'lcd {fnameescape(ocwd)}'
+  var files = (pop.kind == 'find')
+    ? systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
+    : ['']
   if pop.kind == 'find' && empty(files)
     return
   endif
@@ -132,9 +131,13 @@ enddef
 
 # popup title
 def PopupTitle(): string
-  var cwd = fnamemodify(getcwd(), ':~')
-  var counter = $'[{len(pop.shown)}/{len(pop.all)}]'
-  var fchars = g:searcher_popup_fuzzy ? '+fuzzy' : '-fuzzy'
+  var cwd = fnamemodify(pop.cwd, ':~')
+  var counter = (pop.kind == 'find')
+    ? $'[{len(pop.shown)}/{len(pop.all)}]'
+    : $'[{len(pop.shown)}]'
+  var fchars = (pop.kind == 'find' && g:searcher_popup_fuzzy)
+    ? '+fuzzy'
+    : '-fuzzy'
   var title = $' {pop.kind}: {cwd} {counter} {fchars} '
   return title
 enddef
@@ -173,8 +176,8 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
-  # toggle fuzzy
-  if key == "\<C-f>"
+  # toggle fuzzy (only find)
+  if pop.kind == 'find' && key == "\<C-f>"
     g:searcher_popup_fuzzy = !g:searcher_popup_fuzzy
     ApplyFilter(id)
     return true
@@ -217,13 +220,22 @@ enddef
 # apply filter
 def ApplyFilter(id: number)
   var query = pop.query
-  if empty(query)
-    pop.shown = copy(pop.all)
-  elseif g:searcher_popup_fuzzy
-    pop.shown = matchfuzzy(pop.all, pop.query, { limit: g:searcher_popup_fuzzy_limit })
-  else
-    var q = tolower(query)
-    pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
+  if pop.kind == "find"
+    if empty(query)
+      pop.shown = copy(pop.all)
+    elseif g:searcher_popup_fuzzy
+      pop.shown = matchfuzzy(pop.all, pop.query, { limit: g:searcher_popup_fuzzy_limit })
+    else
+      var q = tolower(query)
+      pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
+    endif
+  endif
+  if pop.kind == "grep"
+    if strlen(query) >= 3  # min 3+ chars
+      pop.shown = systemlist($'cd {shellescape(pop.cwd)} && {pop.grep_cmd} {shellescape(query)}')
+    else
+      pop.shown = ['']
+    endif
   endif
   var prompt = '> ' .. pop.query
   popup_settext(id, [prompt] + pop.shown)
@@ -231,14 +243,28 @@ def ApplyFilter(id: number)
 enddef
 
 # completion pick
-def CompletionPick(id: number, res: number)
+def CompletionPick(id: number, res: number): void
+  var picked: string
+  var parts: list<string>
   # 1 prompt line, +1 also for pop.shown
   if res <= 1 || res > len(pop.shown) + 1
     return
   endif
-  var picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
+  if pop.kind == 'find'
+    picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
+  endif
+  if pop.kind == 'grep'
+    parts = split(pop.shown[res - 2], ':')
+    if empty(parts)
+      return
+    endif
+    picked = $'{pop.cwd}/{parts[0]}'
+  endif
   if filereadable(picked)
     execute $"{pop.mode} {fnameescape(picked)}"
+  endif
+  if pop.kind == 'grep'
+    cursor(str2nr(parts[1]), str2nr(parts[2]))
   endif
   popup_close(id)
 enddef

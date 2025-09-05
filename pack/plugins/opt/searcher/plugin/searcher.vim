@@ -9,8 +9,8 @@ endif
 g:loaded_searcher = true
 
 # global variables
-if !exists('g:searcher_findprg_command')
-  g:searcher_findprg_command = [
+if !exists('g:searcher_findprg_cmd')
+  g:searcher_findprg_cmd = [
     'fd', '--type', 'f', '--follow', '--color=never', '--unrestricted', '--exclude', '.git'
   ]
 endif
@@ -23,9 +23,9 @@ endif
 if !exists('g:searcher_findprg_directory')
   g:searcher_findprg_directory = ['--absolute-path', '--base-directory']
 endif
-if !exists('g:searcher_grepprg_command')
+if !exists('g:searcher_grepprg_cmd')
   # --vimgrep
-  g:searcher_grepprg_command = [
+  g:searcher_grepprg_cmd = [
     'rg', '--with-filename', '--line-number', '--column', '--no-heading', '--color=never', '-uu', '--glob', '!.git/'
   ]
 endif
@@ -35,8 +35,8 @@ endif
 if !exists('g:searcher_grepprg_insensitive')
   g:searcher_grepprg_insensitive = ['--ignore-case']
 endif
-if !exists('g:searcher_gitprg_command')
-  g:searcher_gitprg_command = [
+if !exists('g:searcher_gitprg_cmd')
+  g:searcher_gitprg_cmd = [
     'git', 'grep', '--line-number', '--column', '--color=never'
   ]
 endif
@@ -46,11 +46,7 @@ endif
 if !exists('g:searcher_gitprg_insensitive')
   g:searcher_gitprg_insensitive = ['--ignore-case']
 endif
-
 # popup
-if !exists('g:searcher_popup_cmd')
-  g:searcher_popup_cmd = g:searcher_findprg_command
-endif
 if !exists('g:searcher_popup_mode')
   g:searcher_popup_mode = 'edit'
 endif
@@ -99,6 +95,7 @@ nnoremap <silent> <script> <plug>(searcher-git-word)
 nnoremap <silent> <script> <plug>(searcher-lgit-word)
   \ <ScriptCmd>searcher.Search(expand('<cword>'), getcwd(), 'gitprg', 'locationlist')<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-find) <ScriptCmd>searcher.Popup("find")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-grep) <ScriptCmd>searcher.Popup("grep")<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -153,6 +150,9 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>sp", "n"))
     nnoremap <leader>sp <Plug>(searcher-popup-find)
   endif
+  if empty(mapcheck("<leader>sP", "n"))
+    nnoremap <leader>sP <Plug>(searcher-popup-grep)
+  endif
 endif
 
 # set commands
@@ -170,4 +170,5 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 -bar SearcherGitWord execute "normal \<Plug>(searcher-git-word)"
   command! -nargs=0 -bar SearcherLGitWord execute "normal \<Plug>(searcher-lgit-word)"
   command! -nargs=0 SearcherPopupFind execute "normal \<Plug>(searcher-popup-find)"
+  command! -nargs=0 SearcherPopupGrep execute "normal \<Plug>(searcher-popup-grep)"
 endif
