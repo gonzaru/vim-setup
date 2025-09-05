@@ -53,6 +53,9 @@ endif
 if !exists('g:searcher_popup_kind')
   g:searcher_popup_kind = 'find'
 endif
+if !exists('g:searcher_popup_grep_minchars')
+  g:searcher_popup_grep_minchars = 3  # >= 1
+endif
 if !exists('g:searcher_popup_fuzzy')
   g:searcher_popup_fuzzy = false
 endif

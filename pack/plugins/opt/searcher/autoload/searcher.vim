@@ -150,6 +150,11 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
+  # <Tab> => <CR>
+  if key == "\<Tab>"
+    return popup_filter_menu(id, "\<CR>")
+  endif
+
   # <C-n> => <Down>
   if key == "\<C-n>"
     return popup_filter_menu(id, "\<Down>")
@@ -231,7 +236,7 @@ def ApplyFilter(id: number)
     endif
   endif
   if pop.kind == "grep"
-    if strlen(query) >= 3  # min 3+ chars
+    if strlen(query) >= g:searcher_popup_grep_minchars  # min n+ chars
       pop.shown = systemlist($'cd {shellescape(pop.cwd)} && {pop.grep_cmd} {shellescape(query)}')
     else
       pop.shown = ['']
