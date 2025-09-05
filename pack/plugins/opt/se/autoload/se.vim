@@ -481,9 +481,9 @@ def EditSplitH(file: string)
     win_gotoid(wnr)
   else
     if g:se_position == "right"
-      execute $"vsplit {file}"
+      execute $"split {file}"
     else
-      execute $"rightbelow vsplit {file}"
+      execute $"rightbelow split {file}"
     endif
     bid = GetSeBufId()
     win_execute(bufwinid(bid), "Resize(g:se_resizemaxcol ? 'maxcol' : 'default')")
