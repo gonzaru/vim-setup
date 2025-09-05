@@ -74,6 +74,12 @@ def Run(cmd: string, mode: string)
   endif
 enddef
 
+# get the default search directory
+def DefaultCwd(): string
+  var groot = systemlist("git rev-parse --show-toplevel")[0]
+  return isdirectory(groot) ? groot : getcwd()
+enddef
+
 # global variables for popup
 var pop = {
   all: [],
@@ -93,7 +99,7 @@ export def Popup(kind: string): void
   endif
   pop.kind = kind
   var ocwd = getcwd()
-  pop.cwd = get(systemlist("git rev-parse --show-toplevel"), 0, ocwd)
+  pop.cwd = DefaultCwd()
   execute $'lcd {fnameescape(pop.cwd)}'
   var files = systemlist(pop.cmd)
   execute $'lcd {fnameescape(ocwd)}'
