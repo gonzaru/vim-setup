@@ -210,7 +210,7 @@ endif
 
 # searcher plugin
 if g:searcher_enabled
-  g:searcher_popup_fuzzy = true
+  g:searcher_popup_fuzzy = false
 endif
 
 # statusline plugin
