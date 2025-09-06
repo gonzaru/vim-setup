@@ -154,7 +154,9 @@ export def Popup(kind: string): void
       callback: function(CompletionPick)
   })
   # select next line (prompt)
-  popup_filter_menu(id, "\<Down>")
+  if line('.', id) == 1
+    popup_filter_menu(id, "\<Down>")
+  endif
 enddef
 
 # popup title
@@ -165,7 +167,8 @@ def PopupTitle(): string
     var n = len(pop.shown)
     counter = $'[{n == 1 && empty(pop.shown[0]) ? 0 : n}]'
   else
-    counter = $'[{len(pop.shown)}/{len(pop.all)}]'
+    var n = len(pop.shown)
+    counter = $'[{n == 1 && empty(pop.shown[0]) ? 0 : n}/{len(pop.all)}]'
   endif
   var fchars = (pop.kind != 'grep' && g:searcher_popup_fuzzy)
     ? '+fuzzy'
@@ -271,6 +274,9 @@ def ApplyFilter(id: number)
     else
       var q = tolower(query)
       pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
+    endif
+    if empty(pop.shown)
+      pop.shown = ['']
     endif
   endif
   var prompt = '> ' .. pop.query
