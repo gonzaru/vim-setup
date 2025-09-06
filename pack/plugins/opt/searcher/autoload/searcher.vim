@@ -21,6 +21,15 @@ const COMMANDS = {
   }
 }
 
+# prints the warning message and saves the message in the message-history
+def EchoWarningMsg(msg: string)
+  if !empty(msg)
+    echohl WarningMsg
+    echom msg
+    echohl None
+  endif
+enddef
+
 # find files, grep and git grep searching
 export def Search(...args: list<string>): void
   var cmd: string
@@ -74,6 +83,17 @@ def Run(cmd: string, mode: string)
   endif
 enddef
 
+# get listed buffers
+def GetBuffers(): list<string>
+  var buffs: list<string>
+  for b in getbufinfo({'buflisted': 1})
+    if !empty(b.name)
+      add(buffs, fnamemodify(b.name, ':p:~'))
+    endif
+  endfor
+  return buffs
+enddef
+
 # get the default search directory
 def DefaultCwd(): string
   var groot = systemlist("git rev-parse --show-toplevel")[0]
@@ -94,7 +114,7 @@ var pop = {
 
 # popup
 export def Popup(kind: string): void
-  if index(['find', 'grep', 'recent'], kind) == -1
+  if index(['find', 'grep', 'recent', 'buffers'], kind) == -1
     return
   endif
   pop.kind = kind
@@ -104,10 +124,13 @@ export def Popup(kind: string): void
     files = systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
   elseif pop.kind == 'recent'
     files = v:oldfiles
+  elseif pop.kind == 'buffers'
+    files = GetBuffers()
   elseif pop.kind == 'grep'
     files = ['']
   endif
   if pop.kind != 'grep' && empty(files)
+    EchoWarningMsg($"Warning: '{pop.kind}' files are empty")
     return
   endif
   pop.all = copy(files)
@@ -136,10 +159,14 @@ enddef
 
 # popup title
 def PopupTitle(): string
+  var counter: string
   var cwd = fnamemodify(pop.cwd, ':~')
-  var counter = (pop.kind != 'grep')
-    ? $'[{len(pop.shown)}/{len(pop.all)}]'
-    : $'[{len(pop.shown)}]'
+  if pop.kind == 'grep'
+    var n = len(pop.shown)
+    counter = $'[{n == 1 && empty(pop.shown[0]) ? 0 : n}]'
+  else
+    counter = $'[{len(pop.shown)}/{len(pop.all)}]'
+  endif
   var fchars = (pop.kind != 'grep' && g:searcher_popup_fuzzy)
     ? '+fuzzy'
     : '-fuzzy'
@@ -261,7 +288,7 @@ def CompletionPick(id: number, res: number): void
   endif
   if pop.kind == 'find'
     picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
-  elseif pop.kind == 'recent'
+  elseif pop.kind == 'recent' || pop.kind == 'buffers'
     picked = fnamemodify(pop.shown[res - 2], ':p')
   elseif pop.kind == 'grep'
     parts = split(pop.shown[res - 2], ':')

@@ -100,6 +100,7 @@ nnoremap <silent> <script> <plug>(searcher-lgit-word)
 nnoremap <silent> <script> <plug>(searcher-popup-find) <ScriptCmd>searcher.Popup("find")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-grep) <ScriptCmd>searcher.Popup("grep")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-recent) <ScriptCmd>searcher.Popup("recent")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-buffers) <ScriptCmd>searcher.Popup("buffers")<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -151,14 +152,17 @@ if get(g:, 'searcher_no_mappings') == 0
   #if empty(mapcheck("<leader>SP", "n"))
   #  nnoremap <leader>SP <Plug>(searcher-lgit-word)
   #endif
-  if empty(mapcheck("<leader>sp", "n"))
-    nnoremap <leader>sp <Plug>(searcher-popup-find)
+  if empty(mapcheck("<leader>ff", "n"))
+    nnoremap <leader>ff <Plug>(searcher-popup-find)
   endif
-  if empty(mapcheck("<leader>sP", "n"))
-    nnoremap <leader>sP <Plug>(searcher-popup-grep)
+  if empty(mapcheck("<leader>fg", "n"))
+    nnoremap <leader>fg <Plug>(searcher-popup-grep)
   endif
-  if empty(mapcheck("<leader>so", "n"))
-    nnoremap <leader>so <Plug>(searcher-popup-recent)
+  if empty(mapcheck("<leader>fo", "n"))
+    nnoremap <leader>fo <Plug>(searcher-popup-recent)
+  endif
+  if empty(mapcheck("<leader>fb", "n"))
+    nnoremap <leader>fb <Plug>(searcher-popup-buffers)
   endif
 endif
 
@@ -179,4 +183,5 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 SearcherPopupFind execute "normal \<Plug>(searcher-popup-find)"
   command! -nargs=0 SearcherPopupGrep execute "normal \<Plug>(searcher-popup-grep)"
   command! -nargs=0 SearcherPopupRecent execute "normal \<Plug>(searcher-popup-recent)"
+  command! -nargs=0 SearcherPopupBuffers execute "normal \<Plug>(searcher-popup-buffers)"
 endif
