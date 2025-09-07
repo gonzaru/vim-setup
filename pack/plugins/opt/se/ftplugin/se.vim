@@ -76,19 +76,69 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> W <Plug>(se-godir-root)
   nnoremap <buffer> <nowait> z <Plug>(se-set-rootdir)
   nnoremap <buffer> <nowait> Z <Plug>(se-unset-rootdir)
-  # searcher plugin
+
+  # searcher plugin (popup)
+  def Searcher(kind: string): void
+    var bpname: string
+    var newwid: number
+    var sewid = win_getid()
+    var cwd = trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.')))))
+    if !isdirectory(cwd)
+      return
+    endif
+    if winnr('$') >= 2
+      var wnr = (g:se_position == "right") ? winnr('h') : winnr('l')
+      bpname = bufname(winbufnr(wnr))
+      win_gotoid(win_getid(wnr))
+    else
+      if get(g:, 'se_position') == 'right'
+        vnew
+      else
+        rightbelow vnew
+      endif
+      newwid = win_getid()
+      win_execute(sewid, 'se#Resize(g:se_resizemaxcol ? "maxcol" : "default")')
+    endif
+    searcher#Popup(kind, cwd)
+    timer_start(0, (_) => {
+      var pid = get(popup_list(), 0, 0)
+      if pid <= 0
+        return
+      endif
+      timer_start(100, (tid: number) => {
+        # popup still exist
+        if index(popup_list(), pid) != -1
+          return
+        endif
+        if empty(bufname()) && win_getid() == newwid
+          close
+          win_gotoid(sewid)
+        elseif bufname() == bpname
+          win_gotoid(sewid)
+        endif
+        timer_stop(tid)
+      }, { repeat: -1 })
+    })
+  enddef
+
+  # searcher plugin (find or grep)
   def SearcherFindOrGrep()
     var res = input('find (f) or grep (g) (f,g): ', '')
     if res == 'f' || res == 'find'
-      feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<S-Left>\<Right>")
+      #feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<S-Left>\<Right>")
+      Searcher('find')
     elseif res == 'g' || res == 'grep'
-      feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<Right>")
+      #feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'\<S-Left>\<S-Left>\<Right>")
+      Searcher('grep')
     else
       redraw!
     endif
   enddef
-  nnoremap <buffer> <nowait> <C-f> <ScriptCmd>feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><S-Left><Right>")<CR>
-  nnoremap <buffer> <nowait> <C-g> <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><Right>")<CR>
+
+  #nnoremap <buffer> <nowait> <C-f> <ScriptCmd>feedkeys(":SearcherFind '-i', '', '-p', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><S-Left><Right>")<CR>
+  nnoremap <buffer> <nowait> <C-f> <ScriptCmd>Searcher('find')<CR>
+  #nnoremap <buffer> <nowait> <C-g> <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><Right>")<CR>
+  nnoremap <buffer> <nowait> <C-g> <ScriptCmd>Searcher('grep')<CR>
   #nnoremap <buffer> <2-rightmouse> <scriptcmd>feedkeys(":searcherfind '-i', '', '-p', '" .. fnamemodify(trim(se#removefileindicators(se#removedirsep(getline(line('.'))))), ':p:~') .. "'<s-left><s-left><s-left><right>")<cr>
   nnoremap <buffer> <2-RightMouse> <ScriptCmd>SearcherFindOrGrep()<CR>
 endif

@@ -113,12 +113,12 @@ var pop = {
 }
 
 # popup
-export def Popup(kind: string): void
+export def Popup(kind: string, cwd: string = ''): void
   if index(['find', 'grep', 'recent', 'buffers'], kind) == -1
     return
   endif
   pop.kind = kind
-  pop.cwd = DefaultCwd()
+  pop.cwd = !empty(cwd) ? cwd : DefaultCwd()
   var files: list<string>
   if pop.kind == 'find'
     files = systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
@@ -143,8 +143,8 @@ export def Popup(kind: string): void
       pos: 'topleft',
       line: 'cursor+1',
       col: 1,
-      minwidth: &columns / 2,
-      maxheight: &lines / 2,
+      minwidth: 40,
+      maxheight: 12,
       border: [1, 1, 1, 1],
       close: 'click',
       mapping: false,
@@ -275,9 +275,10 @@ def ApplyFilter(id: number)
       var q = tolower(query)
       pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
     endif
-    if empty(pop.shown)
-      pop.shown = ['']
-    endif
+  endif
+  # empty line after prompt
+  if empty(pop.shown)
+    pop.shown = ['']
   endif
   var prompt = '> ' .. pop.query
   popup_settext(id, [prompt] + pop.shown)
