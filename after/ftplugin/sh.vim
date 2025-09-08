@@ -37,6 +37,7 @@ setlocal makeprg=sh\ -n\ %
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 endif
+# setlocal colorcolumn=120
 # matchadd('ColorColumn', '\%120v', 10)
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})

@@ -27,6 +27,7 @@ setlocal expandtab
 setlocal iskeyword=@,48-57,_,192-255,$,%,@-@,:,#  # see 'complete'
 #^ setlocal keywordprg=perldoc\ -f
 setlocal makeprg=perl\ -c\ %
+# setlocal colorcolumn=120
 # matchadd('ColorColumn', '\%120v', 10)
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})

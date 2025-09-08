@@ -31,6 +31,7 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 setlocal makeprg=pep8\ %
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)
 setlocal formatprg=black\ -S\ -l\ 79\ -q\ 2>/dev/null\ --stdin-filename\ %\ -
+# setlocal colorcolumn=79
 # matchadd('ColorColumn', '\%79v', 10)
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%79v', 'priority': 10})

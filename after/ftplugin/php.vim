@@ -26,6 +26,7 @@ setlocal expandtab
 setlocal makeprg=php\ -lq\ %
 #^ setlocal omnifunc=phpcomplete#CompletePHP
 setlocal suffixesadd+=.tpl.php
+# setlocal colorcolumn=120
 # matchadd('ColorColumn', '\%120v', 10)
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})
