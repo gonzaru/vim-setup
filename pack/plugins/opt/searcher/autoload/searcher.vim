@@ -148,6 +148,7 @@ export def Popup(kind: string, cwd: string = ''): void
       minheight: 12,
       maxheight: 12,
       border: [1, 1, 1, 1],
+      borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
       scrollbar: true,
       close: 'click',
       mapping: false,
