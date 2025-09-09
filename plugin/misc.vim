@@ -32,7 +32,7 @@ enddef
 augroup misc_golasteditcursor
   autocmd!
   autocmd BufReadPost * {
-    if g:misc_enabled
+    if g:misc_enabled && &buftype == ''
       GoLastEditCursorPos()
     endif
   }
@@ -41,7 +41,7 @@ augroup END
 augroup misc_checktrailingspaces
   autocmd!
   autocmd BufWritePost * {
-    if g:misc_enabled && index(['help', 'git', 'gitscm', 'qf'], &filetype) == -1 && &buftype != 'terminal'
+    if g:misc_enabled && &buftype == '' && index(['git', 'gitscm'], &filetype) == -1
       misc.CheckTrailingSpaces()
     endif
   }

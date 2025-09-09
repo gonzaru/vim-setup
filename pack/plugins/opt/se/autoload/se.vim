@@ -392,7 +392,7 @@ enddef
 # refresh Se
 export def Refresh()
   var cur = getline(1)
-  var pos = getcurpos()
+  var pos = getpos('.')
   execute $"lcd {cur}"
   LS(cur, "new")
   setpos('.', pos)

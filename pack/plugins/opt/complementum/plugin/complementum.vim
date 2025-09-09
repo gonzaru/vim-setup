@@ -82,7 +82,7 @@ import autoload '../autoload/complementum.vim'
 augroup complementum_insert
   autocmd!
   autocmd InsertCharPre * {
-    if g:complementum_enabled
+    if g:complementum_enabled && &buftype == ''
       if !pumvisible() && state('m') == ''
         complementum.Complete(&filetype, v:char)
       endif

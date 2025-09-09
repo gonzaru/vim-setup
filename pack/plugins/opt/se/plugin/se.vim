@@ -65,7 +65,7 @@ if get(g:, 'se_followfile')
   augroup se_followfile
     autocmd!
     autocmd BufWinEnter * {
-      if g:se_enabled && g:se_followfile && &filetype != "se"
+      if g:se_enabled && g:se_followfile && &filetype != "se" && &buftype == ''
         se.AutoFollowFile(expand('<afile>:p'))
       endif
     }
