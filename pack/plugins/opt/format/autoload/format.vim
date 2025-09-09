@@ -48,14 +48,14 @@ def Format(lang: string, file: string): void
   else
     cmd = COMMANDS[lang]["command"]
   endif
-  var pos = getcurpos()
-  try
-    silent! execute $":%!{cmd}"
-    catch /.*/  # any error
-      throw $"failed to ejecute {cmd}"
-    finally
-      setpos('.', pos)
-  endtry
+  var pos = getpos('.')
+  var before = getline(1, '$')
+  var after = systemlist(cmd, before)
+  if !v:shell_error && after != before
+    silent keepjumps deletebufline('%', 1, '$')
+    setline(1, after)
+    setpos('.', pos)
+  endif
 enddef
 
 # format by language
