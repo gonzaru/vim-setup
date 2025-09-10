@@ -9,16 +9,7 @@ endif
 g:autoloaded_checker = true
 
 # allowed file types
-const CHECKER_ALLOWED_TYPES = ["sh", "python", "go"]
-
-# script local callback vars (ExitHandlerCheck)
-final CALLBACK_VARS = {
-  'lang': "",
-  'tool': "",
-  'extool': "",
-  'file': "",
-  'syntaxfile': ""
-}
+const CHECKER_ALLOWED_TYPES = ['sh', 'python', 'go']
 
 # signs titles
 const SIGNS_TITLES = {
@@ -53,23 +44,21 @@ const SIGNS_ERRORS = {
 }
 
 # create signs
-if has('signs')
-  # SH
-  execute "sign define " .. SIGNS_ERRORS['sh']['sh']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorSH') ? 'SyntaxErrorSH' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['sh']['shellcheck']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorSHELLCHECK') ? 'SyntaxErrorSHELLCHECK' : 'WarningMsg')
-  # Python
-  execute "sign define " .. SIGNS_ERRORS['python']['python']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorPYTHON') ? 'SyntaxErrorPYTHON' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['python']['pep8']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorPEP8') ? 'SyntaxErrorPEP8' : 'WarningMsg')
-  # Go
-  execute "sign define " .. SIGNS_ERRORS['go']['go']
-    .. " text=✘ texthl=" .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
-  execute "sign define " .. SIGNS_ERRORS['go']['govet']
-    .. " text=↳ texthl=" .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
-endif
+# SH
+execute 'sign define ' .. SIGNS_ERRORS['sh']['sh']
+  .. ' text=✘ texthl=' .. (hlexists('SyntaxErrorSH') ? 'SyntaxErrorSH' : 'ErrorMsg')
+execute 'sign define ' .. SIGNS_ERRORS['sh']['shellcheck']
+  .. ' text=↳ texthl=' .. (hlexists('SyntaxErrorSHELLCHECK') ? 'SyntaxErrorSHELLCHECK' : 'WarningMsg')
+# Python
+execute 'sign define ' .. SIGNS_ERRORS['python']['python']
+  .. ' text=✘ texthl=' .. (hlexists('SyntaxErrorPYTHON') ? 'SyntaxErrorPYTHON' : 'ErrorMsg')
+execute 'sign define ' .. SIGNS_ERRORS['python']['pep8']
+  .. ' text=↳ texthl=' .. (hlexists('SyntaxErrorPEP8') ? 'SyntaxErrorPEP8' : 'WarningMsg')
+# Go
+execute 'sign define ' .. SIGNS_ERRORS['go']['go']
+  .. ' text=✘ texthl=' .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
+execute 'sign define ' .. SIGNS_ERRORS['go']['govet']
+  .. ' text=↳ texthl=' .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
 
 # checker errors
 final ERRORS = {
@@ -111,39 +100,33 @@ const REGEX_STATUSLINE_SIGN = {
 const REGEX_STATUSLINE_SIGNS = '^\[..=\d*\]\[..=\d*N\?E\?\] '
 
 # user tmp directory
-const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == "/" ? $TMPDIR : substitute($TMPDIR, "/$", "", "")) : "/tmp"
+const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == '/' ? $TMPDIR : substitute($TMPDIR, '/$', '', '')) : '/tmp'
 
 # checker files
-const pid = getpid()
-const FILES = {
+const PID = getpid()
+const CHECKER_FILES = {
   'sh': {
     'sh': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_sh_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_sh_sh_syntax-{PID}.log'
     },
     'shellcheck': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_sh_shellcheck_syntax-{PID}.log'
     }
   },
   'python': {
     'python': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_python_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_python_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_python_python_syntax-{PID}.log'
     },
     'pep8': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_python_pep8_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_python_pep8_syntax-{PID}.log'
     }
   },
   'go': {
     'go': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_go_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_go_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_go_go_syntax-{PID}.log'
     },
     'govet': {
-      'buffer': $"{TMPDIR}/{$USER}-vim-checker_go_govet_buffer-{pid}.log",
-      'syntaxfile': $"{TMPDIR}/{$USER}-vim-checker_go_govet_syntax-{pid}.log"
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_go_govet_syntax-{PID}.log'
     }
   }
 }
@@ -191,7 +174,7 @@ export def Disable()
       endfor
     endfor
   endfor
-  bufdo &statusline = substitute(&statusline, REGEX_STATUSLINE_SIGNS, "", "")
+  bufdo &statusline = substitute(&statusline, REGEX_STATUSLINE_SIGNS, '', '')
 enddef
 
 # checker toggle
@@ -201,364 +184,357 @@ export def Toggle()
   else
     Enable()
   endif
-  v:statusmsg = $"checker={g:checker_enabled}"
+  v:statusmsg = $'checker={g:checker_enabled}'
 enddef
 
 # do checker
-export def DoChecker(lang: string, tool: string, exttool: string, file: string, mode: string): void
+export def DoChecker(lang: string, tool: string, extTool: string, file: string, mode: string): void
   if !g:checker_enabled || index(CHECKER_ALLOWED_TYPES, lang) == -1
-    || BufferIsEmpty() || !empty(JOB_QUEUE[lang][exttool]) || (mode == 'read' && !filereadable(file))
+    || BufferIsEmpty() || !empty(JOB_QUEUE[lang][extTool]) || (mode == 'read' && !filereadable(file))
     return
   endif
-  Check(lang, tool, exttool, file, mode)
+  const tools = {
+    'tool': tool,
+    'exttool': extTool
+  }
+  Check(lang, file, tools)
   if ERRORS[lang][lang]
-    EchoErrorMsg("Error: (Check) the previous function contains errors")
-    EchoErrorMsg("Error: (CheckAsync) has detected an error")
+    EchoErrorMsg('Error: (Check) the previous function contains errors')
+    EchoErrorMsg('Error: (CheckAsync) has detected an error')
   else
-    CheckAsync(lang, tool, exttool, file)
+    CheckAsync(lang, file, tools)
   endif
 enddef
 
-# remove signs
-# sign_unplace() does not support 'name' : 'error_name'
-# deprecated: now sign_unplace() has support to unplace by name
-# def RemoveSignsName(buf: number, name: string)
-#   var signs = sign_getplaced(buf)[0].signs
-#   if empty(signs)
-#     return
-#   endif
-#   for sign in signs
-#     if sign.name == name
-#       sign_unplace('', {'buffer': buf, 'id': sign.id})
-#     endif
-#   endfor
-# enddef
-
-# lang check
-export def Check(lang: string, tool: string, exttool: string, curbuf: string, mode: string): void
-  var errout: string
-  var prevstatusline: string
-  [ERRORS[lang][tool], errout] = SetLangSign(lang, tool, exttool, curbuf, mode)
-  if !empty(errout)
-    prevstatusline = substitute(&statusline, REGEX_STATUSLINE_SIGN[lang], "", "")
-    &l:statusline = ""
-      .. $"[{SIGNS_TITLES[lang][tool]}={ERRORS[lang][tool]}]"
-      .. $"[{SIGNS_TITLES[lang][exttool]}=N] {prevstatusline}"
-    throw $"Error: ({mode}) {errout}"
-  #elseif mode == "write"
-    # for autocmd BufWriteCmd (see v:event)
-    # noautocmd write
+# language check (no async)
+export def Check(lang: string, file: string, tools: dict<string>)
+  var errOut: string
+  [ERRORS[lang][tools.tool], errOut] = SetLangSign(lang, tools, file)
+  if !empty(errOut)
+    var prevStatus = substitute(&statusline, REGEX_STATUSLINE_SIGN[lang], '', '')
+    &l:statusline = ''
+      .. $'[{SIGNS_TITLES[lang][tools.tool]}={ERRORS[lang][tools.tool]}]'
+      .. $'[{SIGNS_TITLES[lang][tools.exttool]}=N] {prevStatus}'
+    throw $'Error: {errOut}'
   endif
 enddef
 
-# set lang sign (lang tool)
-def SetLangSign(lang: string, tool: string, exttool: string, curbuf: string, mode: string): list<any>
-  var errline: number
-  var nerrors: number
-  var errout: string
-  var theshell: string
-  var buffile = FILES[lang][tool]["buffer"]
-  var syntaxfile = FILES[lang][tool]["syntaxfile"]
-  var signerror1 = SIGNS_ERRORS[lang][tool]
-  var signerror2 = SIGNS_ERRORS[lang][exttool]
-  sign_unplace('', {'buffer': curbuf, 'name': signerror1})
-  sign_unplace('', {'buffer': curbuf, 'name': signerror2})
-  nerrors = 0
-  if mode == "read"
-    buffile = curbuf
-  elseif mode == "write"
-    silent execute $"noautocmd write! {buffile}"
+# language check (async)
+export def CheckAsync(lang: string, file: string, tools: dict<string>): void
+  var cmd: list<string>
+  var cwddir  = fnamemodify(file, ':p:h')
+  var synFile = CHECKER_FILES[lang][tools.exttool]['syntaxfile']
+  if lang == 'sh'
+    cmd = ['shellcheck', '--color=never', '-']
+  elseif lang == 'python'
+    # pep8 has been renamed to pycodestyle
+    cmd = executable('pycodestyle') ? ['pycodestyle', '-'] : ['pep8', '-']
+  elseif lang == 'go'
+    # no stdin
+    cmd = ['go', 'vet', '.']
   endif
-  if lang == "sh"
-    theshell = getline(1) =~ "bash" ? "bash" : "sh"
-    if theshell == "sh"
-      system($"sh -n {buffile} > {syntaxfile} 2>&1")
-    elseif theshell == "bash"
-      system($"bash --norc -n {buffile} > {syntaxfile} 2>&1")
+  if &filetype == lang && !BufferIsEmpty() && empty(JOB_QUEUE[lang][tools.exttool])
+    var cbvars = {
+      'lang': lang,
+      'tool': tools.tool,
+      'exttool': tools.exttool,
+      'file': file,
+      'syntaxfile': synFile
+    }
+    var opts = {
+      'out_cb': function(OutHandler),
+      'err_cb': function(ErrHandler),
+      'exit_cb': function(ExitHandler, [cbvars]),
+      'out_io': 'file',
+      'out_name': synFile,
+      'out_msg': 0,
+      'out_modifiable': 0,
+      'err_io': 'out',
+      'cwd': cwddir
+    }
+    # stdin (sh, python)
+    if index(['sh', 'python'], lang) != -1
+      opts.in_io = 'buffer'
+      opts.in_buf = bufnr(file)
     endif
-  elseif lang == "python"
-    system("python3 -c \"import ast; ast.parse(open('" .. buffile .. "').read())\" > " .. syntaxfile .. " 2>&1")
-  elseif lang == "go"
-    # send to stderr, goftm puts all output file in stdout
-    system($"gofmt -e {buffile} 2> {syntaxfile}")
+    var newjob = job_start(cmd, opts)
+    add(JOB_QUEUE[lang][tools.exttool], job_info(newjob)['process'])
+  endif
+enddef
+
+# set language sign (lang tool)
+def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
+  var signErrTool = SIGNS_ERRORS[lang][tools.tool]
+  var signErrExtTool = SIGNS_ERRORS[lang][tools.exttool]
+  var synFile = CHECKER_FILES[lang][tools.tool]["syntaxfile"]
+  sign_unplace('', {'buffer': file, 'name': signErrTool})
+  sign_unplace('', {'buffer': file, 'name': signErrExtTool})
+  var numErrs = 0
+  var cmd: string
+  if lang == 'sh'
+    var theShell = getline(1) =~ 'bash' ? 'bash' : 'sh'
+    if theShell == 'sh'
+      cmd = $'sh -n 2>&1'
+    elseif theShell == 'bash'
+      cmd = 'bash --noprofile --norc -n 2>&1'
+    endif
+  elseif lang == 'python'
+    cmd = $'python3 -c {shellescape('import ast,sys; ast.parse(sys.stdin.read(), filename="<buffer>")')} 2>&1'
+  elseif lang == 'go'
+    cmd = 'gofmt -e 2>&1'
+  endif
+  var errOut: string
+  var bufFile = join(getline(1, '$'), "\n") .. (&l:eol ? "\n" : '')
+  var cmdOut = system(cmd, bufFile)
+  if !empty(cmdOut)
+    writefile(split(cmdOut, "\n"), synFile)
   endif
   if v:shell_error != 0
-    nerrors = 1
-    errout = join(readfile(syntaxfile))
-    if lang == "sh"
-      errline = str2nr(split(split(errout, ":")[1], " ")[-1])
-      if errline > line('$')
-        errline = line('$')
+    numErrs = 1
+    errOut = cmdOut
+    var errLine: number
+    if lang == 'sh'
+      errLine = str2nr(split(split(errOut, ':')[1])[-1])
+      if errLine > line('$')
+        errLine = line('$')
       endif
-    elseif lang == "python"
-      errline = str2nr(trim(split(errout, " ")[-1], ')', 2))
-    elseif lang == "go"
-      errline = str2nr(split(errout, ":")[1])
+    elseif lang == 'python'
+      errLine = str2nr(trim(split(errOut)[-1], ')', 2))
+    elseif lang == 'go'
+      errLine = str2nr(split(errOut, ':')[1])
     endif
-    if !empty(errline)
-      sign_place(errline, '', signerror1, curbuf, {'lnum': errline})
-      cursor(errline, 1)
+    if !empty(errLine)
+      sign_place(errLine, '', signErrTool, file, {'lnum': errLine})
+      cursor(errLine, 1)
     endif
   endif
-  if filereadable(syntaxfile) && !getfsize(syntaxfile)
-    delete(syntaxfile)
+  if filereadable(synFile) && (!getfsize(synFile) || !numErrs)
+    delete(synFile)
   endif
-  if mode == "write" && filereadable(buffile)
-    delete(buffile)
-  endif
-  return [nerrors, errout]
+  return [numErrs, errOut]
 enddef
 
 # set tool signs (async tool)
-def SetToolSigns(lang: string, exttool: string, curbuf: string): list<any>
-  var nerrors: number
-  var lerrors: list<string>
-  var errline: number
-  var errout: string
-  var syntaxfile = FILES[lang][exttool]["syntaxfile"]
-  var signerror = SIGNS_ERRORS[lang][exttool]
-  sign_unplace('', {'buffer': curbuf, 'name': signerror})
-  nerrors = 0
-  for line in readfile(syntaxfile)
-    if lang == "sh" && exttool == "shellcheck" && line =~ "^In "
-      errline = str2nr(split(split(line, " ")[3], ":")[0])
-      add(lerrors, line)
-      ++nerrors
-    elseif lang == "python" && exttool == "pep8" && line =~ $"^{curbuf}:"
-      errline = str2nr(split(line, ":")[1])
-      add(lerrors, line)
-      ++nerrors
-    elseif lang == "go" && exttool == "govet" && line !~ "^#"
-      errline = str2nr(split(line, ":")[1])
-      add(lerrors, line)
-      ++nerrors
+def SetToolSigns(lang: string, extTool: string, file: string): list<any>
+  var lineErrs: list<string>
+  var errLine: number
+  var synFile = CHECKER_FILES[lang][extTool]['syntaxfile']
+  var signErr = SIGNS_ERRORS[lang][extTool]
+  sign_unplace('', {'buffer': file, 'name': signErr})
+  var numErrs = 0
+  for line in readfile(synFile)
+    if lang == 'sh'
+      if extTool == 'shellcheck' && line =~ '^In '
+        errLine = str2nr(trim(split(line)[-1], ':', 2))
+        add(lineErrs, line)
+        ++numErrs
+      endif
+    elseif lang == 'python'
+      if extTool == 'pep8' && line =~ $'^stdin:'
+        errLine = str2nr(split(line, ':')[1])
+        add(lineErrs, line)
+        ++numErrs
+      endif
+    elseif lang == 'go'
+      if extTool == 'govet' && line =~ $'^./{fnamemodify(file, ':t')}:'
+        errLine = str2nr(split(line, ':')[1])
+        add(lineErrs, line)
+        ++numErrs
+      endif
     endif
-    if !empty(errline) && type(errline) == v:t_number
-      sign_place(errline, '', signerror, curbuf, {'lnum': errline})
+    if !empty(errLine) && type(errLine) == v:t_number
+      sign_place(errLine, '', signErr, file, {'lnum': errLine})
     endif
   endfor
-  return [nerrors, lerrors]
-enddef
-
-# lang check (async)
-export def CheckAsync(lang: string, tool: string, exttool: string, file: string): void
-  var cmd: list<string>
-  var cwddir  = fnamemodify(file, ':p:h')
-  var newjob: job
-  var syntaxfile = FILES[lang][exttool]["syntaxfile"]
-  if lang == "sh"
-    cmd = ['shellcheck', '--color=never', file]
-  elseif lang == "python"
-    cmd = ['pep8', file]
-  elseif lang == "go"
-    cmd = ['go', 'vet', file]
-  endif
-  if &filetype == lang && !BufferIsEmpty() && empty(JOB_QUEUE[lang][exttool])
-    CALLBACK_VARS['lang'] = lang
-    CALLBACK_VARS['tool'] = tool
-    CALLBACK_VARS['exttool'] = exttool
-    CALLBACK_VARS['file'] = file
-    CALLBACK_VARS['syntaxfile'] = syntaxfile
-    newjob = job_start(
-      cmd,
-      {
-        "out_cb": function(OutHandlerCheck),
-        "err_cb": function(ErrHandlerCheck),
-        "exit_cb": function(ExitHandlerCheck),
-        "out_io": "file",
-        "out_name": syntaxfile,
-        "out_msg": 0,
-        "out_modifiable": 0,
-        "err_io": "out",
-        "cwd": cwddir
-      }
-    )
-    add(JOB_QUEUE[lang][exttool], job_info(newjob)['process'])
-  endif
+  return [numErrs, lineErrs]
 enddef
 
 # out handler
-def OutHandlerCheck(channel: channel, message: string)
+def OutHandler(channel: channel, message: string)
 enddef
 
-# err handler
-def ErrHandlerCheck(channel: channel, message: string)
+# error handler
+def ErrHandler(channel: channel, message: string)
 enddef
 
 # exit handler
-def ExitHandlerCheck(job: job, status: number)
-  var idx: number
-  var errout: list<string>
-  var errexit = false
-  var prevstatusline: string
-  var lang = CALLBACK_VARS['lang']
-  var tool = CALLBACK_VARS['tool']
-  var exttool = CALLBACK_VARS['exttool']
-  var file = CALLBACK_VARS['file']
-  var syntaxfile = CALLBACK_VARS['syntaxfile']
-  var filewinid = bufwinid(file)
-  var selwinid = win_getid()
+def ExitHandler(vars: dict<string>, job: job, status: number)
+  var errOut: list<string>
+  var errExit = false
+  var fileWinID = bufwinid(vars.file)
+  var selWinID = win_getid()
   # TODO: without win_gotoid()
-  if selwinid != filewinid
-    win_gotoid(filewinid)
+  if selWinID != fileWinID
+    win_gotoid(fileWinID)
   endif
-  [ERRORS[lang][exttool], errout] = SetToolSigns(lang, exttool, file)
+  [ERRORS[vars.lang][vars.exttool], errOut] = SetToolSigns(vars.lang, vars.exttool, vars.file)
   # job command with unexpected error
-  if !ERRORS[lang][exttool] && job_info(job)["exitval"] != 0
-    errexit = true
+  if !ERRORS[vars.lang][vars.exttool] && job_info(job)['exitval'] != 0
+    # govet also detects errors in other files (go vet '.')
+    if vars.exttool == 'govet'
+      var errMsg = filereadable(vars.syntaxfile) ? join(readfile(vars.syntaxfile), "\n") : ''
+      if errMsg =~ '\v^(go:|vet:|panic:)'
+        errExit = true
+      endif
+    else
+      errExit = true
+    endif
   endif
-  prevstatusline = substitute(&statusline, REGEX_STATUSLINE_SIGN[lang], "", "")
-  &l:statusline = ""
-    .. $"[{SIGNS_TITLES[lang][tool]}={ERRORS[lang][tool]}]"
-    .. $"[{SIGNS_TITLES[lang][exttool]}=" .. (errexit ? "E" : ERRORS[lang][exttool]) .. "] " .. prevstatusline
-  idx = index(JOB_QUEUE[lang][exttool], job_info(job)["process"])
+  var prevStatus = substitute(&statusline, REGEX_STATUSLINE_SIGN[vars.lang], '', '')
+  &l:statusline = ''
+    .. $'[{SIGNS_TITLES[vars.lang][vars.tool]}={ERRORS[vars.lang][vars.tool]}]'
+    .. $'[{SIGNS_TITLES[vars.lang][vars.exttool]}=' .. (errExit ? 'E' : ERRORS[vars.lang][vars.exttool]) .. '] ' .. prevStatus
+  var idx = index(JOB_QUEUE[vars.lang][vars.exttool], job_info(job)['process'])
   if idx >= 0
-    remove(JOB_QUEUE[lang][exttool], idx)
+    remove(JOB_QUEUE[vars.lang][vars.exttool], idx)
   endif
-  if filereadable(syntaxfile) && !getfsize(syntaxfile)
-    delete(syntaxfile)
+  if filereadable(vars.syntaxfile) && (!getfsize(vars.syntaxfile) || !ERRORS[vars.lang][vars.exttool])
+    delete(vars.syntaxfile)
   endif
-  if selwinid != filewinid
-    win_gotoid(selwinid)
+  if selWinID != fileWinID
+    win_gotoid(selWinID)
   endif
 enddef
 
 # shows the signs debug information
-export def SignsDebug(lang: string, tool: string, exttool: string, mode: string): void
-  var errout: string
-  var curbuf = winbufnr(winnr())
-  var curline = line('.')
-  var curcycleline = 0
-  var nextcycleline = 0
-  var prevcycleline = 0
-  var signidline: number
-  var signameline: string
-  var signs: list<dict<any>>
-  var cycleline: number
+export def SignsDebug(lang: string, tool: string, extTool: string, kind: string): void
+  var curBuf = winbufnr(winnr())
+  var curLine = line('.')
+  var cycle: number
+  var curCycle: number
+  var nextCycle: number
+  var prevCycle: number
+  var signID: number
+  var signName: string
   if index(CHECKER_ALLOWED_TYPES, lang) == -1
     EchoErrorMsg($"Error: debug information for the filetype '{lang}' is not supported")
     return
   endif
-  signs = sign_getplaced(curbuf)[0].signs
+  var signs = sign_getplaced(curBuf)[0].signs
   if empty(signs)
-    EchoWarningMsg("Warning: signs were not found in the current buffer")
+    EchoWarningMsg('Warning: signs were not found in the current buffer')
     return
   endif
   for sign in signs
-    cycleline = sign.lnum
-    signameline = sign.name
-    if mode == 'cur'
-      curcycleline = curline
+    cycle = sign.lnum
+    signName = sign.name
+    if kind == 'cur'
+      curCycle = curLine
       break
-    elseif mode == 'next' && curline < cycleline
-      nextcycleline = cycleline
+    elseif kind == 'next' && curLine < cycle
+      nextCycle = cycle
       break
-    elseif mode == 'prev' && curline > cycleline
-      prevcycleline = cycleline
+    elseif kind == 'prev' && curLine > cycle
+      prevCycle = cycle
     endif
   endfor
-  if curcycleline > 0
-    signidline = curcycleline
-  elseif nextcycleline > 0
-    signidline = nextcycleline
-  elseif prevcycleline > 0
-    signidline = prevcycleline
+  if curCycle > 0
+    signID = curCycle
+  elseif nextCycle > 0
+    signID = nextCycle
+  elseif prevCycle > 0
+    signID = prevCycle
   elseif !empty(signs)
-    signidline = signs[0]['id']
+    signID = signs[0]['id']
   else
-    EchoWarningMsg("Warning: sign id line was not found")
+    EchoWarningMsg('Warning: sign id line was not found')
     return
   endif
   try
-    sign_jump(signidline, '', curbuf)
-    errout = ShowDebugInfo(lang, tool, exttool, signameline)
-    if !empty(errout)
-      EchoErrorMsg(errout)
+    sign_jump(signID, '', curBuf)
+    var errOut = ShowDebugInfo(lang, tool, extTool, signName)
+    if !empty(errOut)
+      EchoErrorMsg(errOut)
     endif
   catch
-    EchoWarningMsg($"Warning: sign id was not found in the line '{signidline}'")
+    EchoWarningMsg($"Warning: sign id was not found in the line '{signID}'")
   endtry
 enddef
 
 # shows the debug information
-def ShowDebugInfo(lang: string, tool: string, exttool: string, sign: string): string
-  var error: string
+def ShowDebugInfo(lang: string, tool: string, extTool: string, sign: string): string
+  var errMsg: string
   if sign == SIGNS_ERRORS[lang][tool]
-    ShowErrorPopup(lang, tool)
-  elseif sign == SIGNS_ERRORS[lang][exttool]
-    ShowErrorPopup(lang, exttool)
+    ShowError(lang, tool)
+  elseif sign == SIGNS_ERRORS[lang][extTool]
+    ShowError(lang, extTool)
   else
-    error = $"Error: unknown sign {sign}"
+    errMsg = $'Error: unknown sign {sign}'
   endif
-  return error
+  return errMsg
 enddef
 
-# shows the error popup
-def ShowErrorPopup(lang: string, tool: string)
-  var errmsg: string
-  errmsg = GetErrorLine(lang, tool)
-  if !empty(errmsg)
-    echo $"{tool}: {errmsg}"
+# shows the error via echo or popup
+def ShowError(lang: string, tool: string)
+  var errMsg: string
+  errMsg = GetErrorLine(lang, tool)
+  var text = $'[{SIGNS_TITLES[lang][tool]}]: {errMsg}'
+  if !empty(errMsg)
     if g:checker_showpopup
       popup_create(
-        $"{tool}: {errmsg}",
-        {
-          pos: 'topleft',
-          line: 'cursor-3',
-          col: winwidth(0) / 4,
-          moved: 'any',
-          border: [],
-          close: 'click'
-        }
-      )
+        text, {
+        pos: 'topleft',
+        line: 'cursor+1',
+        # col: winwidth(0) / 4,
+        col: 'cursor+9',
+        moved: 'any',
+        border: [1, 1, 1, 1],
+        padding: [0, 1, 0, 1],
+        # borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+        close: 'click'
+      })
+    else
+      echo text
     endif
   else
-    EchoWarningMsg("Warning: error popup was not found")
+    EchoWarningMsg('Warning: error was not found')
   endif
 enddef
 
 # gets the current error line
 def GetErrorLine(lang: string, tool: string): string
-  var errmsg: string
+  var errMsg: string
   var idx: number
-  var curline = line('.')
-  var errout = readfile(FILES[lang][tool]["syntaxfile"])
-  if lang == "sh"
-    if tool == "sh"
-      idx = match(errout, "^.*: " .. curline .. ": ")
+  var curLine = line('.')
+  var errOut = readfile(CHECKER_FILES[lang][tool]['syntaxfile'])
+  if lang == 'sh'
+    if tool == 'sh'
+      # sh sometimes uses line + 1, bash only line
+      idx = match(errOut, $'^[^:]*:[^:]* \({curLine}\|{curLine + 1}\): ')
       if idx >= 0
-        errmsg = "line " .. trim(join(split(errout[idx], ":")[1 : ], ":"))
+        errMsg = errOut[idx]
       endif
-    elseif tool == "shellcheck"
-      idx = match(errout, "^In .* line " .. curline .. ":$")
+    elseif tool == 'shellcheck'
+      idx = match(errOut, $'^In .* line {curLine}:$')
       if idx >= 0
-        errmsg = "line " .. split(errout[idx], " ")[-1] .. " " .. substitute(errout[idx + 2], '^.*\^-- ', "", "")
-      endif
-    endif
-  elseif lang == "python"
-    if tool == "python"
-      idx = match(errout, '^  File .*, line ' .. curline .. '$')
-      if idx >= 0
-        errmsg = "line " .. split(trim(errout[idx]), " ")[-1] .. ": " .. trim(join(errout[idx + 3 : ]))
-      endif
-    elseif tool == "pep8"
-      idx = match(errout, '^.*:' .. curline .. ":.*: E")
-      if idx >= 0
-        errmsg = "line " .. split(errout[idx], ":")[1] .. ": " .. trim(join(split(errout[idx], ":")[3 : ]))
+        errMsg = $'{errOut[idx]} {errOut[idx + 1]} {errOut[idx + 2]}'
       endif
     endif
-  elseif lang == "go"
-    if tool == "go"
-      idx = match(errout, '^.*:' .. curline .. ":.*: ")
+  elseif lang == 'python'
+    if tool == 'python'
+      idx = match(errOut, $'^  File .*, line {curLine}$')
       if idx >= 0
-        errmsg = "line " .. split(errout[idx], ":")[1] .. ": " .. trim(join(split(errout[idx], ":")[3 : ]))
+        errMsg = errOut[len(errOut) - 1]
       endif
-    elseif tool == "govet"
-      idx = match(errout, '.*:' .. curline .. ":.*: ")
+    elseif tool == 'pep8'
+      idx = match(errOut, $'^[^:]*:{curLine}:[^:]*: E')
       if idx >= 0
-        errmsg = "line " .. split(errout[idx], ":")[1]  .. ": " .. trim(join(split(errout[idx], ":")[3 : ]))
+        errMsg = errOut[idx]
+      endif
+    endif
+  elseif lang == 'go'
+    if tool == 'go'
+      idx = match(errOut, $'^[^:]*:{curLine}:[^:]*: ')
+      if idx >= 0
+        errMsg = errOut[idx]
+      endif
+    elseif tool == 'govet'
+      var file = fnamemodify(bufname('%'), ':t')
+      idx = match(errOut, $'^./{file}:{curLine}:[^:]*: ')
+      if idx >= 0
+        errMsg = errOut[idx]
       endif
     endif
   endif
-  return errmsg
+  return errMsg
 enddef

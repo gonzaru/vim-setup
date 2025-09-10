@@ -16,7 +16,8 @@ const TOOL = {
   },
   'python': {
     'default': 'python',
-    'exttool': 'pep8'
+    'exttool': 'pep8',
+    'exttoolalt': 'pycodestyle'
   },
   'go': {
     'default': 'go',
@@ -44,7 +45,7 @@ if (executable("sh") || executable("bash")) && executable(TOOL['sh']['exttool'])
     autocmd FileType sh {
       autocmd BufWrite <buffer>
       \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, $'format_sh_on_write') |
+      \ if get(g:, 'format_enabled') && get(g:, 'format_sh_on_write') |
       \   format#Language("sh", expand("%:p")) |
       \ endif
     }
@@ -52,7 +53,7 @@ if (executable("sh") || executable("bash")) && executable(TOOL['sh']['exttool'])
 endif
 
 # Python
-if executable("python3") && executable(TOOL['python']['exttool'])
+if executable("python3") && (executable(TOOL['python']['exttool']) || executable(TOOL['python']['exttoolalt']))
   augroup checker_python
     autocmd!
     # autocmd DiffUpdated FileType python b:checker_enabled = false
@@ -63,7 +64,7 @@ if executable("python3") && executable(TOOL['python']['exttool'])
     autocmd FileType python {
       autocmd BufWrite <buffer>
       \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, $'format_python_on_write') |
+      \ if get(g:, 'format_enabled') && get(g:, 'format_python_on_write') |
       \   format#Language("python", expand("%:p")) |
       \ endif
     }
@@ -82,7 +83,7 @@ if executable("go") && executable("gofmt")
     autocmd FileType go {
       autocmd BufWrite <buffer>
       \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, $'format_go_on_write') |
+      \ if get(g:, 'format_enabled') && get(g:, 'format_go_on_write') |
       \   format#Language("go", expand("%:p")) |
       \ endif
     }
