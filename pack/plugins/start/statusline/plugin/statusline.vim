@@ -27,14 +27,25 @@ def GitStatusFile(file: string)
 enddef
 augroup statusline_gitstatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,DirChanged,VimResume * {
-    if g:statusline_enabled
-      statusline.GitBranch(expand('<afile>:p'))
+  autocmd BufNewFile,BufEnter,CmdwinLeave,ShellCmdPost,VimResume * {
+    var fpath = expand('%:p')
+    if g:statusline_enabled && &buftype == '' && !empty(fpath)
+      statusline.GitBranch(fpath)
+    else
+      statusline.SetStatus("")
+    endif
+  }
+  autocmd BufEnter,DirChanged * {
+    if g:statusline_enabled && &buftype == '' && empty(bufname())
+      statusline.GitBranch(getcwd())
+    else
+      statusline.SetStatus("")
     endif
   }
   autocmd BufEnter,BufWritePost * {
-    if g:statusline_enabled
-      GitStatusFile(expand('<afile>:p'))
+    var file = expand('<afile>:p')
+    if g:statusline_enabled && &buftype == '' && !empty(file)
+      GitStatusFile(file)
     endif
   }
 augroup END

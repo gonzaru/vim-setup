@@ -70,7 +70,10 @@ def ShortPath(path: string): string
 enddef
 
 # statusline git branch
-export def GitBranch(file: string)
+export def GitBranch(file: string): void
+  if empty(file)
+    return
+  endif
   var cwddir = fnamemodify(file, ':p:h')
   var newjob: job
   if get(g:, 'statusline_showgitbranch') && empty(JOB_QUEUE1)

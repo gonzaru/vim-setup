@@ -503,9 +503,9 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled") && get(g:, "misc_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{statusline#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r%=%{fnamemodify(v:this_session,':t:r')}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{statusline#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
 else
-  set statusline=%<%F\ %h%m%r%=%{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%m%r%=%{fnamemodify(v:this_session,':t:r')}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
 
 # vertical seperator for vertical split windows
@@ -562,10 +562,10 @@ if has('mksession')
   set sessionoptions-=localoptions
   set sessionoptions-=folds
   set sessionoptions-=terminal
-  set sessionoptions-=curdir
   set sessionoptions-=blank
-  set sessionoptions+=sesdir
-  set sessionoptions+=resize,winpos
+  set sessionoptions-=sesdir
+  set sessionoptions+=curdir
+  set sessionoptions+=resize,winsize,winpos
   def CompleteSessionLoad(arglead: string, _, _): list<string>
     var sessions = map(sort(globpath(sessiondir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
     return filter(sessions, $"v:val =~ '^{arglead}'")
@@ -577,24 +577,32 @@ if has('mksession')
   command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionDelete {
     var bfile = $"{sessiondir}/{<f-args>}"
     var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
-    if filereadable(dfile)
-      if delete(dfile) == 0
-        echomsg $"session '{expand('<args>')}' removed"
+    var res = input("Are you sure to delete it? (yes, no): ")
+    redraw!
+    if res == "y" || res == "yes"
+      if filereadable(dfile)
+        if delete(dfile) == 0
+          echomsg $"session '{expand('<args>')}' was removed"
+        else
+          echoerr $"failed to delete session '{expand('<args>')}'"
+        endif
       else
-        echoerr $"failed to delete session '{expand('<args>')}'"
+        echoerr $"session '{expand('<args>')}' is not readable"
       endif
-    else
-      echoerr $"session '{expand('<args>')}' is not readable"
     endif
   }
-  command! -nargs=1 SessionWrite {
+  command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionWrite {
     var bfile = $"{sessiondir}/{<f-args>}"
     var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
-    execute $"mksession! {dfile}"
-    if filereadable(dfile)
-      echomsg $"session '{expand('<args>')}' created"
-    else
-      echoerr $"session '{expand('<args>')}' is not readable"
+    var res = input("Are you sure to write it? (yes, no): ")
+    redraw!
+    if res == "y" || res == "yes"
+      execute $"mksession! {dfile}"
+      if filereadable(dfile)
+        echomsg $"session '{expand('<args>')}' was written"
+      else
+        echoerr $"session '{expand('<args>')}' is not readable"
+      endif
     endif
   }
 endif
@@ -1135,6 +1143,10 @@ augroup event_vim
   # save the session and the view
   autocmd VimLeavePre * ++once {
     if isdirectory(sessiondir)
+      var session = fnamemodify(v:this_session, ':t:r')
+      if !empty(session) && session != "last"
+        execute $"mksession! {sessiondir}/{session}.vim"
+      endif
       execute $"mksession! {sessiondir}/last.vim"
     endif
     if isdirectory(&viewdir)
