@@ -9,7 +9,7 @@ endif
 g:autoloaded_format = true
 
 # allowed file types
-const ALLOWED_TYPES = ["sh", "python", "go"]
+const ALLOWED_TYPES = ['sh', 'python', 'go']
 
 # format commands
 const COMMANDS = {
@@ -42,15 +42,16 @@ def Format(lang: string, file: string): void
   var outmsg: list<string>
   var cmd: string
   var theshell: string
-  if lang == "sh"
-    theshell = getline(1) =~ "bash" ? "bash" : "sh"
-    cmd = COMMANDS[theshell]["command"]
+  if lang == 'sh'
+    theshell = getline(1) =~ 'bash' ? 'bash' : 'sh'
+    cmd = COMMANDS[theshell]['command']
   else
-    cmd = COMMANDS[lang]["command"]
+    cmd = COMMANDS[lang]['command']
   endif
   var pos = getpos('.')
   var before = getline(1, '$')
-  var after = systemlist(cmd, before)
+  var stdin = join(before, "\n") .. (&l:eol ? "\n" : '')
+  var after = systemlist(cmd, stdin)
   if !v:shell_error && after != before
     silent keepjumps deletebufline('%', 1, '$')
     setline(1, after)
@@ -65,7 +66,7 @@ export def Language(lang: string, file: string): void
     EchoErrorMsg($"Error: formatting lang '{lang}' is not supported")
     return
   endif
-  cmd = COMMANDS[lang]["command"]->split()[0]
+  cmd = COMMANDS[lang]['command']->split()[0]
   if !executable(cmd)
     EchoErrorMsg($"Error: the command '{cmd}' was not found")
     return
