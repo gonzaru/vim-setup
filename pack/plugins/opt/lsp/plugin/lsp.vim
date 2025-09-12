@@ -28,6 +28,20 @@ endif
 # autoload
 import autoload '../autoload/lsp.vim'
 
+# autocmd
+augroup lsp_start
+  autocmd!
+  autocmd FileType go,python,terraform ++once {
+    if g:lsp_enabled
+      execute "normal \<Plug>(lsp-start)"
+      # complementum plugin
+      if get(g:, 'complementum_enabled')
+        g:lsp_complementum = true
+      endif
+    endif
+  }
+augroup END
+
 # define mappings
 nnoremap <silent> <script> <Plug>(lsp-start) <ScriptCmd>lsp.Start()<CR>
 nnoremap <silent> <script> <Plug>(lsp-stop) <ScriptCmd>lsp.Stop()<CR>
@@ -55,7 +69,6 @@ if get(g:, 'lsp_no_mappings') == 0
     nnoremap <leader>gS <Plug>(lsp-signature)
     nnoremap <leader>GS <Plug>(lsp-document-symbol)
     nnoremap <leader>gr <Plug>(lsp-rename)
-
   endif
 endif
 
@@ -79,13 +92,25 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPUp {
     execute "normal \<Plug>(lsp-start)"
     execute "normal \<Plug>(lsp-enable)"
+    # complementum plugin
+    if get(g:, 'complementum_enabled')
+      g:lsp_complementum = true
+    endif
   }
   command! LSPDown {
     execute "normal \<Plug>(lsp-stop)"
     execute "normal \<Plug>(lsp-disable)"
+    # complementum plugin
+    if get(g:, 'complementum_enabled')
+      g:lsp_complementum = false
+    endif
   }
   command! LSPDownAll {
     execute "normal \<Plug>(lsp-stop-all)"
     execute "normal \<Plug>(lsp-disable)"
+    # complementum plugin
+    if get(g:, 'complementum_enabled')
+      g:lsp_complementum = false
+    endif
   }
 endif

@@ -204,14 +204,12 @@ enddef
 # enable plugin
 export def Enable()
   g:lsp_enabled = true
-  g:lsp_complementum = true  # complementum plugin
   v:statusmsg = 'lsp enabled'
 enddef
 
 # disable plugin
 export def Disable()
   g:lsp_enabled = false
-  g:lsp_complementum = false  # complementum plugin
   v:statusmsg = 'lsp disabled'
 enddef
 
@@ -635,12 +633,11 @@ def ResponseCompletion(server: dict<any>, message: any): string
     endif
   endif
 
-  ShowCompletion(server, items)
-  return ''
+  return ShowCompletion(server, items)
 enddef
 
 # show completion
-def ShowCompletion(server: dict<any>, items: list<dict<any>>)
+def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
   var label: string
   var detail: string
   var kind: number
@@ -648,7 +645,7 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>)
   for it in items
     label  = get(it, 'label', '')
     detail = get(it, 'detail', '')
-    kind = get(it, 'kind', '')
+    kind = get(it, 'kind', -1)
     # TODO, terraform-ls ?
     # returns var.item instead of just item
     if server.name == 'terraform-ls'
@@ -662,7 +659,58 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>)
       'menu': printf('%s', detail)
     })
   endfor
-  complete(col('.'), compl)
+  if empty(compl)
+    return $"{server.name} show completion: (empty)"
+  endif
+  # complete(col('.'), compl)
+  b:_items_compl = compl
+  const completefunc_orig = &l:completefunc
+  &l:completefunc = 'CompleteFunc'
+  feedkeys("\<C-x>\<C-u>", 'n')
+
+  # restore after completion
+  timer_start(50, (tid: number) => {
+    if !pumvisible()
+      if &l:completefunc == 'CompleteFunc'
+        &l:completefunc = completefunc_orig
+        unlet! b:_items_compl
+      endif
+      timer_stop(tid)
+    endif
+  }, { repeat: -1 })
+  return ''
+
+  # without mapping <BS> before '.' (trigger), see CompleteKey (complementum plugin)
+  # timer_start(50, (tid: number) => {
+  #   if pumvisible()
+  #     return
+  #   endif
+  #   # avoid ic,ix,.. etc
+  #   if mode(1)[0] != 'i'
+  #     if &l:completefunc == 'CompleteFunc'
+  #       &l:completefunc = completefunc_orig
+  #       unlet! b:_items_compl
+  #     endif
+  #     timer_stop(tid)
+  #     return
+  #   endif
+  #   # insert mode + previous char is '.'
+  #   if mode(1)[0] == 'i' && col('.') > 1 && matchstr(getline('.')[ : col('.') - 2], '.$') == '.'
+  #     &l:completefunc = 'CompleteFunc'
+  #     feedkeys("\<C-x>\<C-u>", 'n')
+  #     return
+  #   endif
+  # }, { repeat: -1 })
+  # return ''
+
+enddef
+
+# complete func
+def CompleteFunc(findstart: number, base: string): any
+  if findstart
+    return col('.')
+  endif
+  return exists('b:_items_compl') ? b:_items_compl : []
 enddef
 
 # definition

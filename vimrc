@@ -638,7 +638,7 @@ set dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noinsert  # noselect,fuzzy
 if has('popupwin')
   # set completeopt+=popup        # show extra information in a popup window
-  set completeopt+=popuphidden    # like popup option but hidden by default
+  # set completeopt+=popuphidden  # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
   if exists('+completepopup')
     set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
@@ -716,6 +716,8 @@ g:maplocalleader = "\<C-_>"
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
 # inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
+# completion for lsp with <BS>, see CompleteKey (complementum plugin)
+inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : '<BS>'
 def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)

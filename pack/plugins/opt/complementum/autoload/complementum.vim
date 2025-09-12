@@ -81,7 +81,20 @@ export def CompleteKey(key: string)
       feedkeys(g:complementum_keystroke_tab, "n")
     endif
   elseif key == "backspace"
-    feedkeys(g:complementum_keystroke_backspace, "n")
+    # char to be deleted
+    var dchar = (col('.') > 1) ? matchstr(getline('.')[ : col('.') - 2], '.$') : ''
+    feedkeys(g:complementum_keystroke_backspace, 'n')
+    timer_start(50, (_) => {
+      var coln = col('.')
+      if coln <= 1 || dchar =~ '\s' || pumvisible() || mode(1)[0] != 'i'
+        return
+      endif
+      # previous char is '.' (trigger)
+      var pchar = matchstr(getline('.')[ : coln - 2], '.$')
+      if IsTriggerableOmni(&filetype, pchar)
+        CompleteOmni(&filetype)
+      endif
+    })
   elseif key == "space"
     feedkeys(g:complementum_keystroke_space, "n")
   elseif key == "enter"
@@ -156,7 +169,7 @@ export def Complete(lang: string, ichar: string): void
   elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing
   elseif IsTriggerableDefault()
-    feedkeys(g:complementum_keystroke_default, "i")
+    feedkeys(g:complementum_keystroke_default, "n")
   endif
 enddef
 
@@ -177,13 +190,13 @@ def CompleteOmni(lang: string): void
       lsp#Completion()
     })
   elseif get(g:, 'loaded_lsp') && index(g:complementum_lspfuncs[lang], &omnifunc) >= 0
-    feedkeys(g:complementum_keystroke_omni, "i")
+    feedkeys(g:complementum_keystroke_omni, "n")
   elseif index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
-    feedkeys(g:complementum_keystroke_omni, "i")
+    feedkeys(g:complementum_keystroke_omni, "n")
   elseif &dictionary =~ g:complementum_regex_dict
       var iskeyword_orig = &l:iskeyword
       setlocal iskeyword+=.
-      feedkeys(g:complementum_keystroke_dict, "i")
+      feedkeys(g:complementum_keystroke_dict, "n")
       timer_start(0, (_) => {
         # restore iskeyword
         execute $"setlocal iskeyword={iskeyword_orig}"
@@ -191,11 +204,11 @@ def CompleteOmni(lang: string): void
       # fallback to function completion
       # timer_start(15, (_) => {
       #   if !pumvisible()
-      #    feedkeys(g:complementum_keystroke_func, 'i')
+      #    feedkeys(g:complementum_keystroke_func, "n")
       #   endif
       # })
   else
     # fallback to default
-    feedkeys(g:complementum_keystroke_default, "i")
+    feedkeys(g:complementum_keystroke_default, "n")
   endif
 enddef
