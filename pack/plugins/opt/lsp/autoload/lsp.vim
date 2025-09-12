@@ -18,12 +18,13 @@ const LANGUAGES = {
 # id request
 const ID_REQUEST_INITIALIZE = 1
 const ID_REQUEST_TEXT_DOCUMENT_COMPLETION = 2
-const ID_REQUEST_TEXT_DOCUMENT_DEFINITION = 3
-const ID_REQUEST_TEXT_DOCUMENT_REFERENCES = 4
-const ID_REQUEST_TEXT_DOCUMENT_RENAME = 5
-const ID_REQUEST_TEXT_DOCUMENT_HOVER = 6
-const ID_REQUEST_TEXT_DOCUMENT_SYMBOL = 7
-const ID_REQUEST_TEXT_DOCUMENT_SIGNATURE = 8
+const ID_REQUEST_TEXT_DOCUMENT_COMPLETION_NO_ASYNC = 3
+const ID_REQUEST_TEXT_DOCUMENT_DEFINITION = 4
+const ID_REQUEST_TEXT_DOCUMENT_REFERENCES = 5
+const ID_REQUEST_TEXT_DOCUMENT_RENAME = 6
+const ID_REQUEST_TEXT_DOCUMENT_HOVER = 7
+const ID_REQUEST_TEXT_DOCUMENT_SYMBOL = 8
+const ID_REQUEST_TEXT_DOCUMENT_SIGNATURE = 9
 const ID_REQUEST_SHUTDOWN = 99
 
 # completion kinds
@@ -603,6 +604,30 @@ def RequestCompletion(server: dict<any>)
   })
 enddef
 
+# request completion (no async)
+def RequestCompletionNoAsync(server: dict<any>): dict<any>
+  RequestDidChange(server)
+  var pos = GetCurPos()
+  var timeout = 1000  # ms (1 second)
+  var out = ch_evalexpr(server.channel, {
+    jsonrpc: '2.0',
+    id: ID_REQUEST_TEXT_DOCUMENT_COMPLETION_NO_ASYNC,
+    method: 'textDocument/completion',
+    params: {
+      textDocument: { uri: server.uri },
+      position: {
+        line: pos[0],
+        character: pos[1]
+      },
+      context: {
+        triggerKind: 2,  # 2 = TriggerCharacter ".'
+        triggerCharacter: '.'
+      },
+    }
+  }, { 'timeout': timeout })
+  return !empty(out) ? out : {}
+enddef
+
 # response completion
 def ResponseCompletion(server: dict<any>, message: any): string
   if has_key(message, 'error') && has_key(message.error, 'message')
@@ -622,26 +647,34 @@ def ResponseCompletion(server: dict<any>, message: any): string
     return $"{server.name} completion: (empty)"
   endif
 
+  # filter
+  items = FilterCompletions(server, items)
+
+  return ShowCompletions(server, items)
+enddef
+
+# filter completions
+def FilterCompletions(server: dict<any>, items: list<dict<any>>): list<any>
+  var fitems = items
   # python only
   if server.language == 'python'
     if !g:lsp_python_auto_imports
-      items = filter(items, (_, v) => !has_key(v, 'additionalTextEdits'))
+      fitems = filter(items, (_, v) => !has_key(v, 'additionalTextEdits'))
     endif
     if g:lsp_python_sort_dunders
       var Key = (d: dict<any>) => get(d, 'sortText', get(d, 'label', ''))
-      items = sort(items, (a, b) => Key(a) < Key(b) ? -1 : Key(a) > Key(b) ? 1 : 0)
+      fitems = sort(items, (a, b) => Key(a) < Key(b) ? -1 : Key(a) > Key(b) ? 1 : 0)
     endif
   endif
-
-  return ShowCompletion(server, items)
+  return fitems
 enddef
 
-# show completion
-def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
+# format completions
+def FormatCompletions(server: dict<any>, items: list<dict<any>>): list<any>
   var label: string
   var detail: string
   var kind: number
-  var compl = []
+  var fitems = []
   for it in items
     label  = get(it, 'label', '')
     detail = get(it, 'detail', '')
@@ -651,27 +684,34 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
     if server.name == 'terraform-ls'
       label = join(split(label, '\.')[1 :], '.')
     endif
-    add(compl, {
+    add(fitems, {
       'word': label,
       'abbr': label,
       'kind': COMPLETION_KINDS[kind]['short'],
       'info': detail,
-      'menu': printf('%s', detail)
+      'menu': printf('%s', detail),
+      'user_data': string(it)
     })
   endfor
+  return fitems
+enddef
+
+# show completions
+def ShowCompletions(server: dict<any>, items: list<dict<any>>): string
+  var compl = FormatCompletions(server, items)
   if empty(compl)
     return $"{server.name} show completion: (empty)"
   endif
   # complete(col('.'), compl)
   b:_items_compl = compl
   const completefunc_orig = &l:completefunc
-  &l:completefunc = 'CompleteFunc'
+  &l:completefunc = 'lsp#CompleteFunc'
   feedkeys("\<C-x>\<C-u>", 'n')
 
   # restore after completion
   timer_start(50, (tid: number) => {
     if !pumvisible()
-      if &l:completefunc == 'CompleteFunc'
+      if &l:completefunc == 'lsp#CompleteFunc'
         &l:completefunc = completefunc_orig
         unlet! b:_items_compl
       endif
@@ -687,7 +727,7 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
   #   endif
   #   # avoid ic,ix,.. etc
   #   if mode(1)[0] != 'i'
-  #     if &l:completefunc == 'CompleteFunc'
+  #     if &l:completefunc == 'lsp#CompleteFunc'
   #       &l:completefunc = completefunc_orig
   #       unlet! b:_items_compl
   #     endif
@@ -696,7 +736,7 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
   #   endif
   #   # insert mode + previous char is '.'
   #   if mode(1)[0] == 'i' && col('.') > 1 && matchstr(getline('.')[ : col('.') - 2], '.$') == '.'
-  #     &l:completefunc = 'CompleteFunc'
+  #     &l:completefunc = 'lsp#CompleteFunc'
   #     feedkeys("\<C-x>\<C-u>", 'n')
   #     return
   #   endif
@@ -706,7 +746,7 @@ def ShowCompletion(server: dict<any>, items: list<dict<any>>): string
 enddef
 
 # complete func
-def CompleteFunc(findstart: number, base: string): any
+export def CompleteFunc(findstart: number, base: string): any
   if findstart
     return col('.')
   endif
@@ -722,6 +762,40 @@ export def Definition(): void
     return
   endif
   RequestDefinition(server)
+enddef
+
+# omni func
+export def OmniFunc(findstart: number, base: string): any
+  if findstart
+    var coln = col('.')
+    var pre = matchstr(getline('.')[ : coln - 2], '\k*$')
+    return coln - strchars(pre)
+  endif
+
+  var server = servers[ID(&filetype)]
+  var message = RequestCompletionNoAsync(server)
+
+  var items = []
+  if has_key(message, 'result')
+    if has_key(message.result, 'items')
+      items = message.result.items
+    elseif type(message.result) == v:t_list
+      items = message.result
+    endif
+  endif
+
+  if empty(items)
+    return []
+  endif
+
+  # filter
+  items = FilterCompletions(server, items)
+
+  # format
+  var compl = FormatCompletions(server, items)
+
+  return !empty(compl) ? compl : []
+
 enddef
 
 # request definition

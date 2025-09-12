@@ -32,10 +32,10 @@ if !exists('g:complementum_omnifuncs')
 endif
 if !exists('g:complementum_lspfuncs')
   g:complementum_lspfuncs = {
-    'python': ["g:LspOmniFunc"],
-    'go': ["g:LspOmniFunc"],
-    'c': ["g:LspOmniFunc"],
-    'terraform': ["g:LspOmniFunc"],
+    'python': ['lsp#OmniFunc', 'g:LspOmniFunc'],
+    'go': ['lsp#OmniFunc', 'g:LspOmniFunc'],
+    'c': ['g:LspOmniFunc'],
+    'terraform': ['lsp#OmniFunc', 'g:LspOmniFunc'],
   }
 endif
 if !exists('g:complementum_regex_dict')
@@ -122,7 +122,7 @@ nnoremap <silent> <script> <Plug>(complementum-toggle-default-omni-keystroke)
   \ <ScriptCmd>complementum.ToggleDefaultKeystroke("omni")<CR>
 # inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype, v:char)<CR>
 # inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
-inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
+# inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
 # inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
 # inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 

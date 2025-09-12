@@ -27,6 +27,9 @@ setlocal shiftround
 #^ setlocal expandtab
 setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 #^ setlocal omnifunc=python3complete#Complete
+if get(g:, "lsp_enabled")
+  setlocal omnifunc=lsp#OmniFunc
+endif
 #^ setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
 # see :help gq (gqip, gggqG, ...). Also :help 'equalprg' (gg=G, ...)

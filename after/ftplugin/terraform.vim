@@ -13,3 +13,6 @@ b:did_ftplugin_after = true
 
 # terraform
 setlocal syntax=ON
+if get(g:, "lsp_enabled")
+  setlocal omnifunc=lsp#OmniFunc
+endif
