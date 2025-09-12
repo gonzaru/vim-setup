@@ -189,7 +189,7 @@ endif
 
 # lsp plugin
 if g:lsp_enabled
-  g:lsp_complementum = false  # complementum plugin
+  g:lsp_complementum = true  # complementum plugin
 endif
 
 # menu plugin
@@ -717,7 +717,7 @@ g:maplocalleader = "\<C-_>"
 # inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
 # inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
 # completion for lsp with <BS>, see CompleteKey (complementum plugin)
-inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : '<BS>'
+# inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : '<BS>'
 def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)

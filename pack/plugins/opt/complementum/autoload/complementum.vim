@@ -81,20 +81,22 @@ export def CompleteKey(key: string)
       feedkeys(g:complementum_keystroke_tab, "n")
     endif
   elseif key == "backspace"
-    # char to be deleted
-    var dchar = (col('.') > 1) ? matchstr(getline('.')[ : col('.') - 2], '.$') : ''
     feedkeys(g:complementum_keystroke_backspace, 'n')
-    timer_start(50, (_) => {
-      var coln = col('.')
-      if coln <= 1 || dchar =~ '\s' || pumvisible() || mode(1)[0] != 'i'
-        return
-      endif
-      # previous char is '.' (trigger)
-      var pchar = matchstr(getline('.')[ : coln - 2], '.$')
-      if IsTriggerableOmni(&filetype, pchar)
-        CompleteOmni(&filetype)
-      endif
-    })
+    # used for CompleteOmni, see CompleteFunc (lsp plugin)
+    # char to be deleted
+    # var dchar = (col('.') > 1) ? matchstr(getline('.')[ : col('.') - 2], '.$') : ''
+    # feedkeys(g:complementum_keystroke_backspace, 'n')
+    # timer_start(50, (_) => {
+    #   var coln = col('.')
+    #   if coln <= 1 || dchar =~ '\s' || pumvisible() || mode(1)[0] != 'i'
+    #     return
+    #   endif
+    #   # previous char is '.' (trigger)
+    #   var pchar = matchstr(getline('.')[ : coln - 2], '.$')
+    #   if IsTriggerableOmni(&filetype, pchar)
+    #     CompleteOmni(&filetype)
+    #   endif
+    # })
   elseif key == "space"
     feedkeys(g:complementum_keystroke_space, "n")
   elseif key == "enter"
@@ -183,13 +185,18 @@ def CompleteOmni(lang: string): void
   # omnni
   # dictionary
   # default
-  if get(g:, 'lsp_enabled') && get(g:, 'lsp_complementum')
-  && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
-    # TODO: omnifunc function
-    timer_start(0, (_) => {
-      lsp#Completion()
-    })
-  elseif get(g:, 'loaded_lsp') && index(g:complementum_lspfuncs[lang], &omnifunc) >= 0
+  #  if get(g:, 'lsp_enabled') && get(g:, 'lsp_complementum')
+  #  && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
+  #    timer_start(0, (_) => {
+  #      lsp#Completion()
+  #    })
+  #    return
+  # endif
+  if get(g:, 'loaded_lsp') && index(g:complementum_lspfuncs[lang], &omnifunc) >= 0
+    # lsp plugin
+    if &l:omnifunc == 'lsp#OmniFunc' && (!get(g:, 'lsp_enabled') || !get(g:, 'lsp_complementum'))
+      return
+    endif
     feedkeys(g:complementum_keystroke_omni, "n")
   elseif index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "n")

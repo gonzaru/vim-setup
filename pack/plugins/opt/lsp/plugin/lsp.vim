@@ -34,10 +34,6 @@ augroup lsp_start
   autocmd FileType go,python,terraform ++once {
     if g:lsp_enabled
       execute "normal \<Plug>(lsp-start)"
-      # complementum plugin
-      if get(g:, 'complementum_enabled')
-        g:lsp_complementum = true
-      endif
     endif
   }
 augroup END
@@ -92,25 +88,18 @@ if get(g:, 'lsp_no_commands') == 0
   command! LSPUp {
     execute "normal \<Plug>(lsp-start)"
     execute "normal \<Plug>(lsp-enable)"
-    # complementum plugin
-    if get(g:, 'complementum_enabled')
-      g:lsp_complementum = true
-    endif
   }
   command! LSPDown {
     execute "normal \<Plug>(lsp-stop)"
     execute "normal \<Plug>(lsp-disable)"
-    # complementum plugin
-    if get(g:, 'complementum_enabled')
-      g:lsp_complementum = false
-    endif
   }
   command! LSPDownAll {
     execute "normal \<Plug>(lsp-stop-all)"
     execute "normal \<Plug>(lsp-disable)"
-    # complementum plugin
-    if get(g:, 'complementum_enabled')
-      g:lsp_complementum = false
-    endif
+  }
+  # complementum plugin
+  command! LSPComplementumToggle {
+    g:lsp_complementum = !g:lsp_complementum
+    echo $'g:lsp_complementum = {g:lsp_complementum}'
   }
 endif

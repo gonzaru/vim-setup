@@ -43,6 +43,9 @@ if get(g:, "complementum_enabled")
     setlocal tags+=$HOME/.vim/tags/go/go-stdlib.tags
   endif
 endif
+if get(g:, "lsp_enabled")
+  setlocal omnifunc=lsp#OmniFunc
+endif
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 endif
