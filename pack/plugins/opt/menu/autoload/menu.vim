@@ -135,7 +135,7 @@ export def AddMenuExtra()
   anoremenu 1000.1000.1002.3 &Extra.&Plugins.&AutoCloseChars.&ParenLeft<Tab>( <Plug>(autoclosechars-parenleft)
   anoremenu 1000.1000.1002.4 &Extra.&Plugins.&AutoCloseChars.&BraceLeft<Tab>{ <Plug>(autoclosechars-braceleft)
 
-  # autoendstrucs
+  # autoendstructs
   anoremenu 1000.1000.1003.1 &Extra.&Plugins.&AutoEndStructs.&Toggle<Tab><leader>tge <Plug>(autoendstructs-toggle)
 
   # bufferonly
@@ -169,6 +169,8 @@ export def AddMenuExtra()
 
   # cycleBuffers
   anoremenu 1000.1000.1008.1 &Extra.&Plugins.&CycleBuffers.&Cycle<Tab><leader><Space> <Plug>(cyclebuffers-cycle)
+  anoremenu 1000.1000.1008.2 &Extra.&Plugins.&CycleBuffers.&OldFiles <Plug>(cyclebuffers-oldfiles)
+  anoremenu 1000.1000.1008.3 &Extra.&Plugins.&CycleBuffers.&Help <Plug>(cyclebuffers-help)
 
   # documentare
   anoremenu 1000.1000.1009.1 &Extra.&Plugins.&Documentare.&Doc<Tab><Leader>K <Plug>(documentare-doc)
@@ -183,19 +185,31 @@ export def AddMenuExtra()
   anoremenu 1000.1000.1011.1 &Extra.&Plugins.&Format.&Language<Tab><Leader>fm <Plug>(format-language)
 
   # git
-  anoremenu 1000.1000.1012.1 &Extra.&Plugins.&Git.&Branch<Tab><Leader>vb <Plug>(git-branch)
-  anoremenu 1000.1000.1012.2 &Extra.&Plugins.&Git.&BranchAll<Tab><Leader>vB <Plug>(git-branch-all)
-  anoremenu 1000.1000.1012.3 &Extra.&Plugins.&Git.&BranchRemotes<Tab><Leader>VB <Plug>(git-branch-remotes)
-  anoremenu 1000.1000.1012.4 &Extra.&Plugins.&Git.&Close<Tab><Leader>vc <Plug>(git-close)
-  anoremenu 1000.1000.1012.5 &Extra.&Plugins.&Git.&Diff<Tab><Leader>vd <Plug>(git-diff)
-  anoremenu 1000.1000.1012.6 &Extra.&Plugins.&Git.&StashList<Tab><Leader>vh <Plug>(git-stash-list)
-  anoremenu 1000.1000.1012.7 &Extra.&Plugins.&Git.&Log<Tab><Leader>vl <Plug>(git-log)
-  anoremenu 1000.1000.1012.8 &Extra.&Plugins.&Git.&LogOnline<Tab><Leader>vL <Plug>(git-log-online)
-  anoremenu 1000.1000.1012.9 &Extra.&Plugins.&Git.&Pull<Tab><Leader>vp <Plug>(git-pull)
-  anoremenu 1000.1000.1012.10 &Extra.&Plugins.&Git.&Status<Tab><Leader>vs <Plug>(git-status)
-  anoremenu 1000.1000.1012.11 &Extra.&Plugins.&Git.&Show<Tab><Leader>vS <Plug>(git-show)
-  anoremenu 1000.1000.1012.12 &Extra.&Plugins.&Git.&TagList<Tab><Leader>vt <Plug>(git-tag-list)
-  anoremenu 1000.1000.1012.13 &Extra.&Plugins.&Git.&TagListRemote<Tab><Leader>vT <Plug>(git-tag-list-remote)
+  anoremenu 1000.1000.1012.1  &Extra.&Plugins.&Git.&AddFile <Plug>(git-add-file)
+  anoremenu 1000.1000.1012.2  &Extra.&Plugins.&Git.&Blame <Plug>(git-blame)
+  anoremenu 1000.1000.1012.3  &Extra.&Plugins.&Git.&BlameShort <Plug>(git-blame-short)
+  anoremenu 1000.1000.1012.4  &Extra.&Plugins.&Git.&Branch<Tab><Leader>vb <Plug>(git-branch)
+  anoremenu 1000.1000.1012.5  &Extra.&Plugins.&Git.&BranchAll<Tab><Leader>vB <Plug>(git-branch-all)
+  anoremenu 1000.1000.1012.6  &Extra.&Plugins.&Git.&BranchRemotes<Tab><Leader>VB <Plug>(git-branch-remotes)
+  anoremenu 1000.1000.1012.7  &Extra.&Plugins.&Git.&CheckOutFile <Plug>(git-checkout-file)
+  anoremenu 1000.1000.1012.8  &Extra.&Plugins.&Git.&Close<Tab><Leader>vc <Plug>(git-close)
+  anoremenu 1000.1000.1012.9  &Extra.&Plugins.&Git.&Diff<Tab><Leader>vd <Plug>(git-diff)
+  anoremenu 1000.1000.1012.10 &Extra.&Plugins.&Git.&DiffFile <Plug>(Outgit-diff-file)
+  anoremenu 1000.1000.1012.11 &Extra.&Plugins.&Git.&DoAction <Plug>(git-do-action)
+  anoremenu 1000.1000.1012.12 &Extra.&Plugins.&Git.&Help <Plug>(git-help)
+  anoremenu 1000.1000.1012.13 &Extra.&Plugins.&Git.&StashList<Tab><Leader>vh <Plug>(git-stash-list)
+  anoremenu 1000.1000.1012.14 &Extra.&Plugins.&Git.&Log<Tab><Leader>vl <Plug>(git-log)
+  anoremenu 1000.1000.1012.15 &Extra.&Plugins.&Git.&LogFile <Plug>(git-log-file)
+  anoremenu 1000.1000.1012.16 &Extra.&Plugins.&Git.&LogOneFile <Plug>(git-log-one-file)
+  anoremenu 1000.1000.1012.17 &Extra.&Plugins.&Git.&LogOneLine<Tab><Leader>vL <Plug>(git-log-oneline)
+  anoremenu 1000.1000.1012.18 &Extra.&Plugins.&Git.&Pull<Tab><Leader>vp <Plug>(git-pull)
+  anoremenu 1000.1000.1012.19 &Extra.&Plugins.&Git.&RestoreStagedFile <Plug>(git-restore-staged-file)
+  anoremenu 1000.1000.1012.20 &Extra.&Plugins.&Git.&Status<Tab><Leader>vs <Plug>(git-status)
+  anoremenu 1000.1000.1012.21 &Extra.&Plugins.&Git.&StatusFile <Plug>(git-status-file)
+  anoremenu 1000.1000.1012.22 &Extra.&Plugins.&Git.&Show<Tab><Leader>vS <Plug>(git-show)
+  anoremenu 1000.1000.1012.23 &Extra.&Plugins.&Git.&ShowFile <Plug>(git-show-file)
+  anoremenu 1000.1000.1012.24 &Extra.&Plugins.&Git.&TagList<Tab><Leader>vt <Plug>(git-tag-list)
+  anoremenu 1000.1000.1012.25 &Extra.&Plugins.&Git.&TagListRemote<Tab><Leader>vT <Plug>(git-tag-list-remote)
 
   # habit
   anoremenu 1000.1000.1013.1 &Extra.&Plugins.&Habit.&Enable<Tab><Leader>he <Plug>(habit-enable)
@@ -203,10 +217,21 @@ export def AddMenuExtra()
   anoremenu 1000.1000.1013.3 &Extra.&Plugins.&Habit.&Toggle<Tab><Leader>ht <Plug>(habit-toggle)
 
   # lsp
-  anoremenu 1000.1000.1014.1 &Extra.&Plugins.&LSP.&Definition<Tab><Leader>gd <Plug>(lsp-definition)
-  anoremenu 1000.1000.1014.2 &Extra.&Plugins.&LSP.&Hover<Tab><Leader>gi <Plug>(lsp-hover)
-  anoremenu 1000.1000.1014.3 &Extra.&Plugins.&LSP.&References<Tab><Leader>gs <Plug>(lsp-references)
-  anoremenu 1000.1000.1014.4 &Extra.&Plugins.&LSP.&Rename<Tab><Leader>gs <Plug>(lsp-rename)
+  anoremenu 1000.1000.1014.1  &Extra.&Plugins.&LSP.&Definition<Tab><Leader>gd\ \|\ <C-]> <Plug>(lsp-definition)
+  anoremenu 1000.1000.1014.2  &Extra.&Plugins.&LSP.&DocumentSymbol<Tab><Leader>GS <Plug>(lsp-document-symbol)
+  anoremenu 1000.1000.1014.3  &Extra.&Plugins.&LSP.&Hover<Tab><Leader>gi <Plug>(lsp-hover)
+  anoremenu 1000.1000.1014.4  &Extra.&Plugins.&LSP.&References<Tab><Leader>gs <Plug>(lsp-references)
+  anoremenu 1000.1000.1014.5  &Extra.&Plugins.&LSP.&Rename<Tab><Leader>gs <Plug>(lsp-rename)
+  anoremenu 1000.1000.1014.6  &Extra.&Plugins.&LSP.&Signature<Tab><Leader>gS <Plug>(lsp-signature)
+  anoremenu 1000.1000.1014.7  &Extra.&Plugins.&LSP.&Start <Plug>(lsp-start)
+  anoremenu 1000.1000.1014.8  &Extra.&Plugins.&LSP.&Stop <Plug>(lsp-stop)
+  anoremenu 1000.1000.1014.9  &Extra.&Plugins.&LSP.&StopAll <Plug>(lsp-stop-all)
+  anoremenu 1000.1000.1014.10 &Extra.&Plugins.&LSP.&Restart <Plug>(lsp-restart)
+  anoremenu 1000.1000.1014.11 &Extra.&Plugins.&LSP.&Enable <Plug>(lsp-enable)
+  anoremenu 1000.1000.1014.12 &Extra.&Plugins.&LSP.&Disable <Plug>(lsp-disable)
+  anoremenu 1000.1000.1014.13 &Extra.&Plugins.&LSP.&Info <Plug>(lsp-info)
+  anoremenu 1000.1000.1014.14 &Extra.&Plugins.&LSP.&Ready <Plug>(lsp-ready)
+  anoremenu 1000.1000.1014.15 &Extra.&Plugins.&LSP.&Running <Plug>(lsp-running)
 
   # menu
   anoremenu 1000.1000.1015.1 &Extra.&Plugins.&Menu.&LanguageSpell<Tab><Leader>ms <Plug>(menu-language-spell)
@@ -219,12 +244,46 @@ export def AddMenuExtra()
   anoremenu 1000.1000.1016.2 &Extra.&Plugins.&Runprg.&Window<Tab><Leader>rU <Plug>(runprg-window)
   anoremenu 1000.1000.1016.3 &Extra.&Plugins.&Runprg.&Close<Tab><Leader>RU <Plug>(runprg-close)
 
+  # scratch
+  anoremenu 1000.1000.1017.1  &Extra.&Plugins.&Scratch.&Buffer<Tab><Leader>sb\ \|\ s<BS> <Plug>(scratch-buffer)
+  anoremenu 1000.1000.1017.2  &Extra.&Plugins.&Scratch.&Terminal<Tab><Leader>sz\ \|\ s<CR> <Plug>(scratch-terminal)
+
+  # se
+  anoremenu 1000.1000.1018.1  &Extra.&Plugins.&Se.&Togle<Tab><Leader>se <Plug>(se-toggle)
+  anoremenu 1000.1000.1018.2  &Extra.&Plugins.&Se.&Help <Plug>(se-help)
+  anoremenu 1000.1000.1018.3  &Extra.&Plugins.&Se.&Close <Plug>(se-close)
+
+  # searcher
+  anoremenu 1000.1000.1019.1  &Extra.&Plugins.&Searcher.&Find<Tab><Leader>sf <Plug>(searcher-find)
+  anoremenu 1000.1000.1019.2  &Extra.&Plugins.&Searcher.&FindRoot<Tab><Leader>sF <Plug>(searcher-find-root)
+  anoremenu 1000.1000.1019.3  &Extra.&Plugins.&Searcher.&FindLFind <Plug>(searcher-lfind)
+  anoremenu 1000.1000.1019.4  &Extra.&Plugins.&Searcher.&FindWord <Plug>(searcher-find-word)
+  anoremenu 1000.1000.1019.5  &Extra.&Plugins.&Searcher.&LFindWord <Plug>(searcher-lfind-word)
+  anoremenu 1000.1000.1019.6  &Extra.&Plugins.&Searcher.&Grep<Tab><Leader>sg <Plug>(searcher-grep)
+  anoremenu 1000.1000.1019.7  &Extra.&Plugins.&Searcher.&GrepRoot<Tab><Leader>sG <Plug>(searcher-grep-root)
+  anoremenu 1000.1000.1019.8  &Extra.&Plugins.&Searcher.&LGrep <Plug>(searcher-lgrep)
+  anoremenu 1000.1000.1019.9  &Extra.&Plugins.&Searcher.&GrepWord<Tab><Leader>sw <Plug>(searcher-grep-word)
+  anoremenu 1000.1000.1019.10 &Extra.&Plugins.&Searcher.&GrepWordRoot<Tab><Leader>sW <Plug>(searcher-grep-word-root)
+  anoremenu 1000.1000.1019.11 &Extra.&Plugins.&Searcher.&LGrepWord <Plug>(searcher-lgrep-word)
+  anoremenu 1000.1000.1019.12 &Extra.&Plugins.&Searcher.&Git<Tab><Leader>sk <Plug>(searcher-git)
+  anoremenu 1000.1000.1019.13 &Extra.&Plugins.&Searcher.&GitRoot<Tab><Leader>sK <Plug>(searcher-git-root)
+  anoremenu 1000.1000.1019.14 &Extra.&Plugins.&Searcher.&GitWord <Plug>(searcher-git-word)
+  anoremenu 1000.1000.1019.15 &Extra.&Plugins.&Searcher.&LGitWord <Plug>(searcher-lgit-word)
+  anoremenu 1000.1000.1019.16 &Extra.&Plugins.&Searcher.&PopupFind<Tab><Leader>ff <Plug>(searcher-popup-find)
+  anoremenu 1000.1000.1019.17 &Extra.&Plugins.&Searcher.&PopupGrep<Tab><Leader>fg <Plug>(searcher-popup-grep)
+  anoremenu 1000.1000.1019.18 &Extra.&Plugins.&Searcher.&PopupRecent<Tab><Leader>fo <Plug>(searcher-popup-recent)
+  anoremenu 1000.1000.1019.19 &Extra.&Plugins.&Searcher.&PopupBuffers<Tab>Leader>fb <Plug>(searcher-popup-buffers)
+
   # statusline
-  anoremenu 1000.1000.1017.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
+  anoremenu 1000.1000.1020.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
+  anoremenu 1000.1000.1020.2 &Extra.&Plugins.&StatusLine.&GitEnable <Plug>(statusline-git-enable)
+  anoremenu 1000.1000.1020.3 &Extra.&Plugins.&StatusLine.&GitDisable <Plug>(statusline-git-disable)
+
+  # tabline
 
   # xkb
-  anoremenu 1000.1000.1018.1 &Extra.&Plugins.&Xkb.&XkbLayoutFirst <Plug>(xkb-layout-first)
-  anoremenu 1000.1000.1018.2 &Extra.&Plugins.&Xkb.&XkbLayoutNext <Plug>(xkb-layout-next)
-  anoremenu 1000.1000.1018.3 &Extra.&Plugins.&Xkb.&XkbToggleLayout<Tab><Leader>xt <Plug>(xkb-toggle-layout)
+  anoremenu 1000.1000.1021.1 &Extra.&Plugins.&Xkb.&XkbLayoutFirst <Plug>(xkb-layout-first)
+  anoremenu 1000.1000.1021.2 &Extra.&Plugins.&Xkb.&XkbLayoutNext <Plug>(xkb-layout-next)
+  anoremenu 1000.1000.1021.3 &Extra.&Plugins.&Xkb.&XkbToggleLayout<Tab><Leader>xt <Plug>(xkb-toggle-layout)
 
 enddef
