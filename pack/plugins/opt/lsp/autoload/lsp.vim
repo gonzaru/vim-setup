@@ -768,8 +768,8 @@ enddef
 export def OmniFunc(findstart: number, base: string): any
   if findstart
     var coln = col('.')
-    var pre = matchstr(getline('.')[ : coln - 2], '\k*$')
-    return coln - strchars(pre)
+    var prev = matchstr(getline('.')[ : coln - 2], '\k*$')
+    return coln - strchars(prev)
   endif
 
   var server = servers[ID(&filetype)]
