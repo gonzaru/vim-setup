@@ -768,12 +768,25 @@ enddef
 export def OmniFunc(findstart: number, base: string): any
   if findstart
     var coln = col('.')
-    var prev = matchstr(getline('.')[ : coln - 2], '\k*$')
-    return coln - strchars(prev)
+    if coln <= 1
+      return 0
+    endif
+    var prev = matchstr(getline('.')[ 0 : coln - 2], '\k*$')
+    return coln - strlen(prev) - 1
   endif
 
   var server = servers[ID(&filetype)]
+
+  var err = CheckServer(server)
+  if !empty(err)
+    return []
+  endif
+
   var message = RequestCompletionNoAsync(server)
+
+  if has_key(message, 'error')
+    return []
+  endif
 
   var items = []
   if has_key(message, 'result')
@@ -786,6 +799,11 @@ export def OmniFunc(findstart: number, base: string): any
 
   if empty(items)
     return []
+  endif
+
+  # only with prefix (base)
+  if !empty(base)
+    items = filter(items, (_, it) => stridx(it.label, base) == 0)
   endif
 
   # filter
