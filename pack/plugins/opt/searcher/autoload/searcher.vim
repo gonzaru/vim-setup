@@ -108,8 +108,8 @@ var pop = {
   cwd: '',
   find_cmd: join(g:searcher_findprg_cmd),
   grep_cmd: join(g:searcher_grepprg_cmd),
-  mode: g:searcher_popup_mode,
-  kind: g:searcher_popup_kind
+  mode: '',
+  kind: ''
 }
 
 # popup
@@ -117,6 +117,7 @@ export def Popup(kind: string, cwd: string = ''): void
   if index(['find', 'grep', 'recent', 'buffers'], kind) == -1
     return
   endif
+  pop.mode = g:searcher_popup_mode
   pop.kind = kind
   pop.cwd = !empty(cwd) ? cwd : DefaultCwd()
   var files: list<string>
