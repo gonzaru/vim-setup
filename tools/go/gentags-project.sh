@@ -3,6 +3,29 @@
 set -eu
 
 out="${1:-tags}"  # ./tags
+lockfile="/tmp/vim-go-gentags-project.lock"
+
+# exit if already running
+os="$(uname -s)"
+case "$os" in
+  Linux)
+    exec 9>"$lockfile"
+    if ! flock -n 9; then
+      echo "tags generation already running, exiting" >&2
+      exit 1
+    fi
+    ;;
+  Darwin|*BSD)
+    if ! lockf -t 0 "$lockfile" true 2>/dev/null; then
+      echo "tags generation already running, exiting" >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "unsupported system: $os" >&2
+    exit 1
+    ;;
+esac
 
 # git
 if [ -d .git ] || git rev-parse --show-toplevel >/dev/null 2>&1; then
