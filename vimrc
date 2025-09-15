@@ -215,7 +215,8 @@ endif
 
 # statusline plugin
 if g:statusline_enabled
-  g:statusline_showgitbranch = true
+  g:statusline_gitbranch = true
+  g:statusline_gitstatusfile = true
 endif
 
 # xkb plugin
