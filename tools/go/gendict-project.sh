@@ -2,7 +2,7 @@
 
 set -eu
 
-lockfile="/tmp/vim-go-gendict-project.lock"
+lockfile="/tmp/${USER}-vim-go-gendict-project.lock"
 
 # exit if already running
 os="$(uname -s)"

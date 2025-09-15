@@ -3,7 +3,7 @@
 set -eu
 
 out="${1:-tags}"  # ./tags
-lockfile="/tmp/vim-go-gentags-project.lock"
+lockfile="/tmp/${USER}-vim-go-gentags-project.lock"
 
 # exit if already running
 os="$(uname -s)"
