@@ -12,11 +12,16 @@ g:autoloaded_statusline = true
 final JOB_QUEUE = []
 
 # script local variables
-var _gitOutput = []
 g:statusline_full = ''
 
 # user tmp directory
-# const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == '/' ? $TMPDIR : substitute($TMPDIR, '/$', '', '')) : '/tmp'
+const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == '/' ? $TMPDIR : substitute($TMPDIR, '/$', '', '')) : '/tmp'
+
+# statusline files
+const PID = getpid()
+const STATUSLINE_FILES = {
+  'git': $"{TMPDIR}/{$USER}-vim-statusline_git-{PID}.log"
+}
 
 # get statusline
 export def GetStatus(): string
@@ -73,17 +78,17 @@ export def GitBranch(file: string): void
   if empty(file)
     return
   endif
-  var cwd = fnamemodify(file, ':p:h')
   var newJob: job
   if get(g:, 'statusline_gitbranch') && empty(JOB_QUEUE)
-    _gitOutput = []
     # var cmd = ['git', '--no-pager', 'rev-parse', '--abbrev-ref', 'HEAD']
-    var cmd = ['git', 'status', '--short', '--branch', file]
+    var cwd = fnamemodify(file, ':p:h')
+    var cmd = ['git', 'status', '--short', '--branch', '--porcelain', file]
     newJob = job_start(cmd, {
       'out_cb': function(OutHandler),
       'err_cb': function(ErrHandler),
       'exit_cb': function(ExitHandler),
-      'out_io': 'pipe',
+      'out_io': 'file',
+      'out_name': STATUSLINE_FILES['git'],
       'out_msg': 0,
       'out_modifiable': 0,
       'err_io': 'out',
@@ -95,10 +100,6 @@ enddef
 
 # out handler
 def OutHandler(channel: channel, message: string)
-  # output is by parts (lines)
-  if !empty(message)
-    add(_gitOutput, message)
-  endif
 enddef
 
 # err handler
@@ -107,27 +108,26 @@ enddef
 
 # exit handler for when the job ends
 def ExitHandler(job: job, status: number)
-  g:statusline_isgitbranch = false
-  if !empty(_gitOutput) && job_info(job)['exitval'] == 0
-    g:statusline_isgitbranch = true
-    # SetStatus(' {' .. gitBranch .. '}:' .. ShortPath(getcwd()) .. '$')
-    var outMsg: string
-    var gitBranch = split(_gitOutput[0])[1]
-    outMsg = gitBranch
-    if get(g:, 'statusline_gitstatusfile') && len(_gitOutput) >= 2
-      var gitStat = join(split(_gitOutput[1], ' ', 1)[0 : -2])
+  if filereadable(STATUSLINE_FILES['git']) && getfsize(STATUSLINE_FILES['git']) > 0
+  && job_info(job)["exitval"] == 0
+    var line: string
+    var gitOutput = readfile(STATUSLINE_FILES['git'])
+    var gitBranch = substitute(gitOutput[0], '^##\s*\([^. ]\+\)\(\.\.\+.*\)\?', '\1', '')
+    line = gitBranch
+    if get(g:, 'statusline_gitstatusfile') && len(gitOutput) >= 2
+      var gitStat = join(split(gitOutput[1], ' ', 1)[0 : -2])
       if !empty(gitStat)
-        outMsg = $'[{gitStat}] {gitBranch}'
+        line = $'[{gitStat}] {gitBranch}'
       endif
     endif
-    SetStatus($' {outMsg}')
+    SetStatus($' {line}')
   else
-    #SetStatus(substitute(GetStatus(), '^ {\w\+}:.*\$$', '', ''))
     SetStatus('')
   endif
   # redraw statusline
   # &l:statusline = &l:statusline
   redrawstatus
+  delete(STATUSLINE_FILES['git'])
   var idx = index(JOB_QUEUE, job_info(job)['process'])
   if idx >= 0
     remove(JOB_QUEUE, idx)

@@ -9,7 +9,6 @@ endif
 g:loaded_statusline = true
 
 # global variables
-g:statusline_isgitbranch = false
 if !exists('g:statusline_gitbranch')
   g:statusline_gitbranch = true
 endif
