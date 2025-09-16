@@ -62,6 +62,12 @@ endif
 if !exists('g:searcher_popup_fuzzy_limit')
   g:searcher_popup_fuzzy_limit = 200
 endif
+if !exists('g:searcher_popup_history_ex_limit')
+  g:searcher_popup_history_ex_limit = 200
+endif
+if !exists('g:searcher_popup_history_search_limit')
+  g:searcher_popup_history_search_limit = 200
+endif
 
 # autoload
 import autoload '../autoload/searcher.vim'
@@ -101,6 +107,13 @@ nnoremap <silent> <script> <plug>(searcher-popup-find) <ScriptCmd>searcher.Popup
 nnoremap <silent> <script> <plug>(searcher-popup-grep) <ScriptCmd>searcher.Popup("grep")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-recent) <ScriptCmd>searcher.Popup("recent")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-buffers) <ScriptCmd>searcher.Popup("buffers")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-sessions) <ScriptCmd>searcher.Popup("sessions")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-changes) <ScriptCmd>searcher.Popup("changes")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-jumps) <ScriptCmd>searcher.Popup("jumps")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-quickfix) <ScriptCmd>searcher.Popup("quickfix")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-marks) <ScriptCmd>searcher.Popup("marks")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-history-ex) <ScriptCmd>searcher.Popup("history-ex")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-history-search) <ScriptCmd>searcher.Popup("history-search")<CR>
 
 # set mappings
 if get(g:, 'searcher_no_mappings') == 0
@@ -164,6 +177,27 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>fb", "n"))
     nnoremap <leader>fb <Plug>(searcher-popup-buffers)
   endif
+  if empty(mapcheck("<leader>fs", "n"))
+    nnoremap <leader>fs <Plug>(searcher-popup-sessions)
+  endif
+  if empty(mapcheck("<leader>fc", "n"))
+    nnoremap <leader>fc <Plug>(searcher-popup-changes)
+  endif
+  if empty(mapcheck("<leader>fj", "n"))
+    nnoremap <leader>fj <Plug>(searcher-popup-jumps)
+  endif
+  if empty(mapcheck("<leader>fq", "n"))
+    nnoremap <leader>fq <Plug>(searcher-popup-quickfix)
+  endif
+  if empty(mapcheck("<leader>f'", "n"))
+    nnoremap <leader>f' <Plug>(searcher-popup-marks)
+  endif
+  if empty(mapcheck("<leader>f:", "n"))
+    nnoremap <leader>f: <Plug>(searcher-popup-history-ex)
+  endif
+  if empty(mapcheck("<leader>f/", "n"))
+    nnoremap <leader>f/ <Plug>(searcher-popup-history-search)
+  endif
 endif
 
 # set commands
@@ -184,4 +218,11 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 SearcherPopupGrep execute "normal \<Plug>(searcher-popup-grep)"
   command! -nargs=0 SearcherPopupRecent execute "normal \<Plug>(searcher-popup-recent)"
   command! -nargs=0 SearcherPopupBuffers execute "normal \<Plug>(searcher-popup-buffers)"
+  command! -nargs=0 SearcherPopupSessions execute "normal \<Plug>(searcher-popup-sessions)"
+  command! -nargs=0 SearcherPopupChanges execute "normal \<Plug>(searcher-popup-changes)"
+  command! -nargs=0 SearcherPopupJumps execute "normal \<Plug>(searcher-popup-jumps)"
+  command! -nargs=0 SearcherPopupQuickfix execute "normal \<Plug>(searcher-popup-quickfix)"
+  command! -nargs=0 SearcherPopupMarks execute "normal \<Plug>(searcher-popup-marks)"
+  command! -nargs=0 SearcherPopupHistoryEx execute "normal \<Plug>(searcher-popup-history-ex)"
+  command! -nargs=0 SearcherPopupHistorySearch execute "normal \<Plug>(searcher-popup-history-search)"
 endif

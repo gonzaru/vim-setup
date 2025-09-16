@@ -94,6 +94,55 @@ def GetBuffers(): list<string>
   return buffs
 enddef
 
+# get changes
+def GetChanges(): list<string>
+  var [changes, idx] = getchangelist(bufnr('%'))
+  return map(reverse(changes), (_, val) => $'{val.lnum}:{val.col + 1} {getline(val.lnum)}')
+enddef
+
+# get files
+def GetFiles(): list<string>
+  return systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
+enddef
+
+# get history
+def GetHistory(type: string): list<string>
+  var files = []
+  if type == 'ex'
+    files = map(range(-1, -g:searcher_popup_history_ex_limit, -1), (_, val) => histget(':', val))
+  elseif type == 'search'
+    files = map(range(-1, -g:searcher_popup_history_search_limit, -1), (_, val) => histget('/', val))
+  endif
+  return files
+enddef
+
+# get jumps
+def GetJumps(): list<string>
+  var [jumps, idx] = getjumplist()
+  return map(reverse(jumps), (_, val) => {
+    return $'{fnamemodify(bufname(val.bufnr), ':p:~')}:{val.lnum}:{val.col + 1} {bufloaded(val.bufnr) ? getline(val.lnum) : ''}'
+  })
+enddef
+
+# get marks
+def GetMarks(): list<string>
+  var localMarks = map(getmarklist(bufnr('%')), (_, val) => $'L {val.mark} {val.pos[1] + 1}')
+  var globalMarks = map(getmarklist(), (_, val) => $'G {val.mark} {val.file}:{val.pos[1] + 1}')
+  return extend(localMarks, globalMarks)
+enddef
+
+# get quickfix
+def GetQuickfix(): list<string>
+  return map(getqflist(), (_, val) => $'{fnamemodify(bufname(val.bufnr), ':p:~')}:{val.lnum}:{val.col + 1}')
+enddef
+
+# get sessions
+def GetSessions(): list<string>
+  var sessiondir = $"{$HOME}/.vim/sessions"
+  var sessions = sort(globpath(sessiondir, "*", 0, 1))
+  return mapnew(sessions, (_, val) => fnamemodify(val, ':p:~'))
+enddef
+
 # get the default search directory
 def DefaultCwd(): string
   var groot = systemlist("git rev-parse --show-toplevel")[0]
@@ -114,7 +163,11 @@ var pop = {
 
 # popup
 export def Popup(kind: string, cwd: string = ''): void
-  if index(['find', 'grep', 'recent', 'buffers'], kind) == -1
+  var kinds = [
+    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes',
+    'jumps', 'marks', 'quickfix', 'history-ex', 'history-search'
+  ]
+  if index(kinds, kind) == -1
     return
   endif
   pop.mode = g:searcher_popup_mode
@@ -122,11 +175,26 @@ export def Popup(kind: string, cwd: string = ''): void
   pop.cwd = !empty(cwd) ? cwd : DefaultCwd()
   var files: list<string>
   if pop.kind == 'find'
-    files = systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
+    files = GetFiles()
   elseif pop.kind == 'recent'
     files = v:oldfiles
   elseif pop.kind == 'buffers'
     files = GetBuffers()
+  elseif pop.kind == 'sessions'
+    pop.mode = 'source'
+    files = GetSessions()
+  elseif pop.kind == 'changes'
+    files = GetChanges()
+  elseif pop.kind == 'jumps'
+    files = GetJumps()
+  elseif pop.kind == 'marks'
+    files = GetMarks()
+  elseif pop.kind == 'quickfix'
+    files = GetQuickfix()
+  elseif pop.kind == 'history-ex'
+    files = GetHistory('ex')
+  elseif pop.kind == 'history-search'
+    files = GetHistory('search')
   elseif pop.kind == 'grep'
     files = ['']
   endif
@@ -296,14 +364,26 @@ enddef
 def CompletionPick(id: number, res: number): void
   var picked: string
   var parts: list<string>
+
   # 1 prompt line, +1 also for pop.shown
   if res <= 1 || res > len(pop.shown) + 1
     return
   endif
+
+  # picked
   if pop.kind == 'find'
     picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
-  elseif pop.kind == 'recent' || pop.kind == 'buffers'
+  elseif index(['recent', 'buffers', 'sessions'], pop.kind) >= 0
     picked = fnamemodify(pop.shown[res - 2], ':p')
+  elseif index(['changes', 'jumps'], pop.kind) >= 0
+    picked = pop.shown[res - 2]
+  elseif pop.kind == 'quickfix'
+    picked = fnamemodify(split(pop.shown[res - 2], ':')[0], ':p')
+    parts = split(pop.shown[res - 2], ':')
+  elseif pop.kind == 'marks'
+    picked = split(pop.shown[res - 2])[1]
+  elseif pop.kind == 'history-ex' || pop.kind == 'history-search'
+    picked = pop.shown[res - 2]
   elseif pop.kind == 'grep'
     parts = split(pop.shown[res - 2], ':')
     if empty(parts)
@@ -311,12 +391,27 @@ def CompletionPick(id: number, res: number): void
     endif
     picked = $'{pop.cwd}/{parts[0]}'
   endif
-  if filereadable(picked)
+
+  # action
+  if index(['find', 'grep', 'recent', 'buffers', 'sessions', 'quickfix'], pop.kind) >= 0 && filereadable(picked)
     execute $"{pop.mode} {fnameescape(picked)}"
+    # upate cursor
+    if pop.kind == 'grep' || pop.kind == 'quickfix'
+      cursor(str2nr(parts[1]), str2nr(parts[2]))
+    endif
+  elseif pop.kind == 'changes'
+    cursor(str2nr(split(picked, ':')[0]), str2nr(split(picked, ':')[1]))
+  elseif pop.kind == 'jumps'
+    execute $"{pop.mode} {fnamemodify(split(picked, ':')[0], ':p')}"
+    cursor(str2nr(split(picked, ':')[1]), str2nr(split(picked, ':')[2]))
+  elseif pop.kind == 'marks'
+    feedkeys($"{picked}\<CR>", 'n')
+  elseif pop.kind == 'history-ex'
+    execute picked
+  elseif pop.kind == 'history-search'
+    feedkeys($"/{picked}\<CR>", 'n')
   endif
-  # upate cursor
-  if pop.kind == 'grep'
-    cursor(str2nr(parts[1]), str2nr(parts[2]))
-  endif
+
+  # close
   popup_close(id)
 enddef

@@ -273,6 +273,13 @@ export def AddMenuExtra()
   anoremenu 1000.1000.1019.17 &Extra.&Plugins.&Searcher.&PopupGrep<Tab><Leader>fg <Plug>(searcher-popup-grep)
   anoremenu 1000.1000.1019.18 &Extra.&Plugins.&Searcher.&PopupRecent<Tab><Leader>fo <Plug>(searcher-popup-recent)
   anoremenu 1000.1000.1019.19 &Extra.&Plugins.&Searcher.&PopupBuffers<Tab>Leader>fb <Plug>(searcher-popup-buffers)
+  anoremenu 1000.1000.1019.20 &Extra.&Plugins.&Searcher.&PopupSessions<Tab>Leader>fs <Plug>(searcher-popup-sessions)
+  anoremenu 1000.1000.1019.21 &Extra.&Plugins.&Searcher.&PopupChanges<Tab>Leader>fc <Plug>(searcher-popup-changes)
+  anoremenu 1000.1000.1019.22 &Extra.&Plugins.&Searcher.&PopupJumps<Tab>Leader>fj <Plug>(searcher-popup-jumps)
+  anoremenu 1000.1000.1019.23 &Extra.&Plugins.&Searcher.&PopupQuickfix<Tab>Leader>fq <Plug>(searcher-popup-quickfix)
+  anoremenu 1000.1000.1019.24 &Extra.&Plugins.&Searcher.&PopupMarks<Tab>Leader>f' <Plug>(searcher-popup-marks)
+  anoremenu 1000.1000.1019.25 &Extra.&Plugins.&Searcher.&PopupHistoryEx<Tab>Leader>f: <Plug>(searcher-popup-history-ex)
+  anoremenu 1000.1000.1019.26 &Extra.&Plugins.&Searcher.&PopupHistorySearch<Tab>Leader>f/ <Plug>(searcher-popup-history-search)
 
   # statusline
   anoremenu 1000.1000.1020.1 &Extra.&Plugins.&StatusLine.&GitToggle<Tab><Leader>tgg <Plug>(statusline-git-toggle)
