@@ -578,31 +578,33 @@ if has('mksession')
   command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionDelete {
     var bfile = $"{sessiondir}/{<f-args>}"
     var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
-    var res = input("Are you sure to delete it? (yes, no): ")
+    var sname = expand('<args>')
+    var res = input($"Are you sure to delete '{sname}'? (yes, no): ")
     redraw!
     if res == "y" || res == "yes"
       if filereadable(dfile)
         if delete(dfile) == 0
-          echomsg $"session '{expand('<args>')}' was removed"
+          echomsg $"session '{sname}' was removed"
         else
-          echoerr $"failed to delete session '{expand('<args>')}'"
+          echoerr $"failed to delete session '{sname}'"
         endif
       else
-        echoerr $"session '{expand('<args>')}' is not readable"
+        echoerr $"session '{sname}' is not readable"
       endif
     endif
   }
   command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionWrite {
     var bfile = $"{sessiondir}/{<f-args>}"
     var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
-    var res = input("Are you sure to write it? (yes, no): ")
+    var sname = expand('<args>')
+    var res = input($"Are you sure to write session '{sname}'? (yes, no): ")
     redraw!
     if res == "y" || res == "yes"
       execute $"mksession! {dfile}"
       if filereadable(dfile)
-        echomsg $"session '{expand('<args>')}' was written"
+        echomsg $"session '{sname}' was written"
       else
-        echoerr $"session '{expand('<args>')}' is not readable"
+        echoerr $"session '{sname}' is not readable"
       endif
     endif
   }
@@ -742,9 +744,12 @@ else
 endif
 
 # save
-nnoremap <leader><C-w> :update<CR>
-inoremap <leader><C-w> <Cmd>update<CR>
+nnoremap <leader><C-u> :update<CR>
+inoremap <leader><C-u> <Cmd>update<CR>
 nnoremap <leader><C-b> :Backup<CR>
+nnoremap <leader><C-w> <ScriptCmd>empty(v:this_session)
+  \ ? ''
+  \ : execute($"SessionWrite {fnamemodify(v:this_session, ':t:r')}")<CR>
 command! Please {
   var msg = "Are you sure to write it using sudo? (yes, no): "
   if input(msg) == "yes"
