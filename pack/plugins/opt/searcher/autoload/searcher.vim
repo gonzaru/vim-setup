@@ -131,6 +131,12 @@ def GetMarks(): list<string>
   return extend(localMarks, globalMarks)
 enddef
 
+# def mappings
+def GetMappings(abbr: bool = false): list<string>
+  const sep = nr2char(0x1f)
+  return map(maplist(abbr), (_, val)  => $'{val.mode} {val.lhs} {val.rhs} {sep} {val.lhsraw}')
+enddef
+
 # get quickfix
 def GetQuickfix(): list<string>
   return map(getqflist(), (_, val) => $'{fnamemodify(bufname(val.bufnr), ':p:~')}:{val.lnum}:{val.col + 1}')
@@ -182,7 +188,7 @@ var pop = {
 # popup
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
-    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps', 'marks',
+    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps', 'marks', 'mappings',
     'quickfix', 'commands', 'completions', 'themes', 'history-ex', 'history-search'
   ]
   if index(kinds, kind) == -1 && kind !~ 'completion-'
@@ -207,6 +213,8 @@ export def Popup(kind: string, cwd: string = ''): void
     files = GetJumps()
   elseif pop.kind == 'marks'
     files = GetMarks()
+  elseif pop.kind == 'mappings'
+    files = GetMappings()
   elseif pop.kind == 'quickfix'
     files = GetQuickfix()
   elseif pop.kind == 'commands'
@@ -409,6 +417,10 @@ def CompletionPick(id: number, res: number): void
     parts = split(pop.shown[res - 2], ':')
   elseif pop.kind == 'marks'
     picked = split(pop.shown[res - 2])[1]
+  elseif pop.kind == 'mappings'
+    const sep = nr2char(0x1f)  # see GetMappings()
+    picked = trim(split(pop.shown[res - 2], sep, 1)[-1], ' ', 1)
+    parts = split(pop.shown[res - 2])
   elseif pop.kind == 'history-ex' || pop.kind == 'history-search'
     picked = pop.shown[res - 2]
   elseif pop.kind == 'grep'
@@ -435,6 +447,11 @@ def CompletionPick(id: number, res: number): void
     cursor(str2nr(split(picked, ':')[1]), str2nr(split(picked, ':')[2]))
   elseif pop.kind == 'marks'
     feedkeys($"{picked}\<CR>", 'n')
+  elseif pop.kind == 'mappings'
+    # parts[0] (mode = n,i,v,x,c,t,...)
+    timer_start(0, (_) => {
+      feedkeys(picked, 'm')
+    })
   elseif pop.kind == 'commands'
     feedkeys($":{picked}", 'n')
   elseif pop.kind == 'completions'

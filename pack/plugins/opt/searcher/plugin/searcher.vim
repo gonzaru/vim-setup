@@ -112,6 +112,7 @@ nnoremap <silent> <script> <plug>(searcher-popup-changes) <ScriptCmd>searcher.Po
 nnoremap <silent> <script> <plug>(searcher-popup-jumps) <ScriptCmd>searcher.Popup("jumps")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-quickfix) <ScriptCmd>searcher.Popup("quickfix")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-marks) <ScriptCmd>searcher.Popup("marks")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-mappings) <ScriptCmd>searcher.Popup("mappings")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-commands) <ScriptCmd>searcher.Popup("commands")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-completions) <ScriptCmd>searcher.Popup("completions")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-themes) <ScriptCmd>searcher.Popup("themes")<CR>
@@ -204,6 +205,9 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>f'", "n"))
     nnoremap <leader>f' <Plug>(searcher-popup-marks)
   endif
+  if empty(mapcheck("<leader>f_", "n"))
+    nnoremap <leader>f_ <Plug>(searcher-popup-mappings)
+  endif
   if empty(mapcheck("<leader>f:", "n"))
     nnoremap <leader>f: <Plug>(searcher-popup-history-ex)
   endif
@@ -235,6 +239,7 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 SearcherPopupJumps execute "normal \<Plug>(searcher-popup-jumps)"
   command! -nargs=0 SearcherPopupQuickfix execute "normal \<Plug>(searcher-popup-quickfix)"
   command! -nargs=0 SearcherPopupMarks execute "normal \<Plug>(searcher-popup-marks)"
+  command! -nargs=0 SearcherPopupMappings execute "normal \<Plug>(searcher-popup-mappings)"
   command! -nargs=0 SearcherPopupCommands execute "normal \<Plug>(searcher-popup-commands)"
   command! -nargs=0 SearcherPopupCompletions execute "normal \<Plug>(searcher-popup-completions)"
   command! -nargs=0 SearcherPopupThemes execute "normal \<Plug>(searcher-popup-themes)"
