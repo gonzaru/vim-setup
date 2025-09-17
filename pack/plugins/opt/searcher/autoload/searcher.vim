@@ -143,6 +143,16 @@ def GetSessions(): list<string>
   return mapnew(sessions, (_, val) => fnamemodify(val, ':p:~'))
 enddef
 
+# get commands
+def GetCommands(): list<string>
+  return getcompletion('', 'command')
+enddef
+
+# get themes
+def GetThemes(): list<string>
+  return getcompletion('', 'color')
+enddef
+
 # get the default search directory
 def DefaultCwd(): string
   var groot = systemlist("git rev-parse --show-toplevel")[0]
@@ -164,8 +174,8 @@ var pop = {
 # popup
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
-    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes',
-    'jumps', 'marks', 'quickfix', 'history-ex', 'history-search'
+    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps',
+    'marks', 'quickfix', 'commands', 'themes', 'history-ex', 'history-search'
   ]
   if index(kinds, kind) == -1
     return
@@ -191,6 +201,11 @@ export def Popup(kind: string, cwd: string = ''): void
     files = GetMarks()
   elseif pop.kind == 'quickfix'
     files = GetQuickfix()
+  elseif pop.kind == 'commands'
+    files = GetCommands()
+  elseif pop.kind == 'themes'
+    pop.mode = 'colorscheme'
+    files = GetThemes()
   elseif pop.kind == 'history-ex'
     files = GetHistory('ex')
   elseif pop.kind == 'history-search'
@@ -375,7 +390,7 @@ def CompletionPick(id: number, res: number): void
     picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
   elseif index(['recent', 'buffers', 'sessions'], pop.kind) >= 0
     picked = fnamemodify(pop.shown[res - 2], ':p')
-  elseif index(['changes', 'jumps'], pop.kind) >= 0
+  elseif index(['changes', 'jumps', 'themes', 'commands'], pop.kind) >= 0
     picked = pop.shown[res - 2]
   elseif pop.kind == 'quickfix'
     picked = fnamemodify(split(pop.shown[res - 2], ':')[0], ':p')
@@ -399,6 +414,8 @@ def CompletionPick(id: number, res: number): void
     if pop.kind == 'grep' || pop.kind == 'quickfix'
       cursor(str2nr(parts[1]), str2nr(parts[2]))
     endif
+  elseif pop.kind == 'themes'
+    execute $"{pop.mode} {picked}"
   elseif pop.kind == 'changes'
     cursor(str2nr(split(picked, ':')[0]), str2nr(split(picked, ':')[1]))
   elseif pop.kind == 'jumps'
@@ -406,6 +423,8 @@ def CompletionPick(id: number, res: number): void
     cursor(str2nr(split(picked, ':')[1]), str2nr(split(picked, ':')[2]))
   elseif pop.kind == 'marks'
     feedkeys($"{picked}\<CR>", 'n')
+  elseif pop.kind == 'commands'
+    feedkeys($":{picked}", 'n')
   elseif pop.kind == 'history-ex'
     execute picked
   elseif pop.kind == 'history-search'
