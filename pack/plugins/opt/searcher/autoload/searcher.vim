@@ -143,14 +143,22 @@ def GetSessions(): list<string>
   return mapnew(sessions, (_, val) => fnamemodify(val, ':p:~'))
 enddef
 
-# get commands
-def GetCommands(): list<string>
-  return getcompletion('', 'command')
+# get completions
+def GetCompletions(): list<string>
+  return [
+    'arglist', 'augroup', 'buffer', 'behave', 'breakpoint', 'color', 'command', 'cmdline', 'compiler',
+    'cscope', 'custom', 'customlist', 'diff_buffer', 'dir', 'dir_in_path', 'environment', 'event',
+    'expression', 'file', 'file_in_path', 'filetype', 'filetypecmd', 'function', 'help', 'highlight',
+    'history', 'keymap', 'locale', 'mapclear', 'mapping', 'menu', 'messages', 'option',
+    'packadd', 'retab', 'runtime', 'scriptnames', 'shellcmd', 'shellcmdline', 'sign', 'syntax',
+    'syntime', 'tag', 'tag_listfiles', 'user', 'var'
+  ]
 enddef
 
-# get themes
-def GetThemes(): list<string>
-  return getcompletion('', 'color')
+# get completion
+def GetCompletion(type: string, pat: string = ''): list<string>
+  # pat = '' (default, all matches)
+  return getcompletion(pat, type)
 enddef
 
 # get the default search directory
@@ -174,10 +182,10 @@ var pop = {
 # popup
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
-    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps',
-    'marks', 'quickfix', 'commands', 'themes', 'history-ex', 'history-search'
+    'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps', 'marks',
+    'quickfix', 'commands', 'completions', 'themes', 'history-ex', 'history-search'
   ]
-  if index(kinds, kind) == -1
+  if index(kinds, kind) == -1 && kind !~ 'completion-'
     return
   endif
   pop.mode = g:searcher_popup_mode
@@ -202,10 +210,14 @@ export def Popup(kind: string, cwd: string = ''): void
   elseif pop.kind == 'quickfix'
     files = GetQuickfix()
   elseif pop.kind == 'commands'
-    files = GetCommands()
+    files = GetCompletion('command')
+  elseif pop.kind == 'completions'
+    files = GetCompletions()
+  elseif pop.kind =~ 'completion-'
+    files = GetCompletion(substitute(pop.kind, '^completion-', '', ''))
   elseif pop.kind == 'themes'
     pop.mode = 'colorscheme'
-    files = GetThemes()
+    files = GetCompletion('color')
   elseif pop.kind == 'history-ex'
     files = GetHistory('ex')
   elseif pop.kind == 'history-search'
@@ -390,7 +402,7 @@ def CompletionPick(id: number, res: number): void
     picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
   elseif index(['recent', 'buffers', 'sessions'], pop.kind) >= 0
     picked = fnamemodify(pop.shown[res - 2], ':p')
-  elseif index(['changes', 'jumps', 'themes', 'commands'], pop.kind) >= 0
+  elseif index(['changes', 'jumps', 'themes', 'commands', 'completions'], pop.kind) >= 0 || pop.kind =~ 'completion-'
     picked = pop.shown[res - 2]
   elseif pop.kind == 'quickfix'
     picked = fnamemodify(split(pop.shown[res - 2], ':')[0], ':p')
@@ -425,8 +437,17 @@ def CompletionPick(id: number, res: number): void
     feedkeys($"{picked}\<CR>", 'n')
   elseif pop.kind == 'commands'
     feedkeys($":{picked}", 'n')
+  elseif pop.kind == 'completions'
+    timer_start(0, (_) => {
+      Popup($'completion-{picked}')
+    })
+  elseif pop.kind =~ 'completion-'
+    # TODO
+    # echomsg picked
   elseif pop.kind == 'history-ex'
-    execute picked
+    timer_start(0, (_) => {
+      execute picked
+    })
   elseif pop.kind == 'history-search'
     feedkeys($"/{picked}\<CR>", 'n')
   endif
