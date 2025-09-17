@@ -131,7 +131,7 @@ def GetMarks(): list<string>
   return extend(localMarks, globalMarks)
 enddef
 
-# def mappings
+# get mappings
 def GetMappings(abbr: bool = false): list<string>
   const sep = nr2char(0x1f)
   return map(maplist(abbr), (_, val)  => $'{val.mode} {val.lhs} {val.rhs} {sep} {val.lhsraw}')
