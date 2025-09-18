@@ -21,6 +21,27 @@ const COMMANDS = {
   }
 }
 
+# global variables for popups
+
+# prompt popup
+var popPrompt = {
+  id: -1,
+  prompt: '>',
+  query: '',
+}
+
+# data popup
+var popData = {
+  id: -1,
+  all: [],
+  shown: [],
+  cwd: '',
+  find_cmd: join(g:searcher_findprg_cmd),
+  grep_cmd: join(g:searcher_grepprg_cmd),
+  mode: '',
+  kind: ''
+}
+
 # prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
@@ -102,7 +123,7 @@ enddef
 
 # get files
 def GetFiles(): list<string>
-  return systemlist($'cd {shellescape(pop.cwd)} && {pop.find_cmd}')
+  return systemlist($'cd {shellescape(popData.cwd)} && {popData.find_cmd}')
 enddef
 
 # get history
@@ -173,18 +194,6 @@ def DefaultCwd(): string
   return isdirectory(groot) ? groot : getcwd()
 enddef
 
-# global variables for popup
-var pop = {
-  all: [],
-  shown: [],
-  query: '',
-  cwd: '',
-  find_cmd: join(g:searcher_findprg_cmd),
-  grep_cmd: join(g:searcher_grepprg_cmd),
-  mode: '',
-  kind: ''
-}
-
 # popup
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
@@ -194,66 +203,66 @@ export def Popup(kind: string, cwd: string = ''): void
   if index(kinds, kind) == -1 && kind !~ 'completion-'
     return
   endif
-  pop.mode = g:searcher_popup_mode
-  pop.kind = kind
-  pop.cwd = !empty(cwd) ? cwd : DefaultCwd()
+  popData.mode = g:searcher_popup_mode
+  popData.kind = kind
+  popData.cwd = !empty(cwd) ? cwd : DefaultCwd()
   var files: list<string>
-  if pop.kind == 'find'
+  if popData.kind == 'find'
     files = GetFiles()
-  elseif pop.kind == 'recent'
+  elseif popData.kind == 'recent'
     files = v:oldfiles
-  elseif pop.kind == 'buffers'
+  elseif popData.kind == 'buffers'
     files = GetBuffers()
-  elseif pop.kind == 'sessions'
-    pop.mode = 'source'
+  elseif popData.kind == 'sessions'
+    popData.mode = 'source'
     files = GetSessions()
-  elseif pop.kind == 'changes'
+  elseif popData.kind == 'changes'
     files = GetChanges()
-  elseif pop.kind == 'jumps'
+  elseif popData.kind == 'jumps'
     files = GetJumps()
-  elseif pop.kind == 'marks'
+  elseif popData.kind == 'marks'
     files = GetMarks()
-  elseif pop.kind == 'mappings'
+  elseif popData.kind == 'mappings'
     files = GetMappings()
-  elseif pop.kind == 'quickfix'
+  elseif popData.kind == 'quickfix'
     files = GetQuickfix()
-  elseif pop.kind == 'commands'
+  elseif popData.kind == 'commands'
     files = GetCompletion('command')
-  elseif pop.kind == 'completions'
+  elseif popData.kind == 'completions'
     files = GetCompletions()
-  elseif pop.kind =~ 'completion-'
-    files = GetCompletion(substitute(pop.kind, '^completion-', '', ''))
-  elseif pop.kind == 'themes'
-    pop.mode = 'colorscheme'
+  elseif popData.kind =~ 'completion-'
+    files = GetCompletion(substitute(popData.kind, '^completion-', '', ''))
+  elseif popData.kind == 'themes'
+    popData.mode = 'colorscheme'
     files = GetCompletion('color')
-  elseif pop.kind == 'history-ex'
+  elseif popData.kind == 'history-ex'
     files = GetHistory('ex')
-  elseif pop.kind == 'history-search'
+  elseif popData.kind == 'history-search'
     files = GetHistory('search')
-  elseif pop.kind == 'grep'
+  elseif popData.kind == 'grep'
     files = ['']
   endif
-  if pop.kind != 'grep' && empty(files)
-    EchoWarningMsg($"Warning: '{pop.kind}' files are empty")
+  if popData.kind != 'grep' && empty(files)
+    EchoWarningMsg($"Warning: '{popData.kind}' files are empty")
     return
   endif
-  pop.all = copy(files)
-  pop.shown = copy(files)
-  pop.query = ''
-  var prompt = '> '
-  var id = popup_menu(
-    [prompt] + files, {
-      title: PopupTitle(),
+  popData.all = copy(files)
+  popData.shown = copy(files)
+  popPrompt.query = ''
+  popData.id = popup_menu(
+      files, {
+      title: '',
       pos: 'center',
       fixed: true,
       posinvert: false,
-      minwidth: 60,
-      maxwidth: 60,
-      minheight: 12,
-      maxheight: 12,
+      minwidth: &columns / 2,
+      maxwidth: &columns / 2,
+      minheight: &lines / 2,
+      maxheight: &lines / 2,
       border: [1, 1, 1, 1],
+      padding: [0, 2, 0, 2],
       borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
-      scrollbar: true,
+      scrollbar: false,
       close: 'click',
       mapping: false,
       wrap: false,
@@ -263,34 +272,56 @@ export def Popup(kind: string, cwd: string = ''): void
       filter: function(CompletionFilter),
       callback: function(CompletionPick)
   })
-  # select next line (prompt)
-  if line('.', id) == 1
-    popup_filter_menu(id, "\<Down>")
-  endif
+  var popDataPos  = popup_getpos(popData.id)
+  popPrompt.id = popup_create([popPrompt.prompt], {
+    title: PopupTitle(),
+    line: popDataPos.line - 3,
+    col: popDataPos.col,
+    fixed: true,
+    minwidth: (&columns / 2) + 4,
+    maxwidth: (&columns / 2) + 4,
+    minheight: 1,
+    maxheight: 1,
+    border: [1, 1, 1, 1],
+    borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+    scrollbar: false,
+    wrap: false,
+  })
 enddef
 
 # popup title
 def PopupTitle(): string
   var counter: string
-  var cwd = fnamemodify(pop.cwd, ':~')
-  if pop.kind == 'grep'
-    var n = len(pop.shown)
-    counter = $'[{n == 1 && empty(pop.shown[0]) ? 0 : n}]'
+  var cwd = fnamemodify(popData.cwd, ':~')
+  var shown = len(popData.shown)
+  if popData.kind == 'grep'
+    var maxData = 8  # padding
+    if shown == 1 && empty(popData.shown[0])
+      counter = $'{repeat(' ', maxData - 1)}0'
+    else
+      counter = $'{repeat(' ', maxData - len(shown))}{shown}'
+    endif
   else
-    var n = len(pop.shown)
-    counter = $'[{n == 1 && empty(pop.shown[0]) ? 0 : n}/{len(pop.all)}]'
+    var maxData = strlen(len(popData.all))
+    if shown == 1 && empty(popData.shown[0])
+      counter = $'{repeat(' ', maxData - 1)}0/{len(popData.all)}'
+    else
+      counter = $'{repeat(' ', maxData - len(shown))}{shown}/{len(popData.all)}'
+    endif
   endif
-  var fchars = (pop.kind != 'grep' && g:searcher_popup_fuzzy)
-    ? '+fuzzy'
-    : '-fuzzy'
-  var title = $' {pop.kind}: {cwd} {counter} {fchars} '
-  return title
+  # var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy)
+  #   ? '+fuzzy'
+  #   : '-fuzzy'
+  # var title = $' {popData.kind}: {cwd} {counter} {fchars} '
+  var title = $' {popData.kind}: {cwd} {counter} '
+  return repeat('─', (&columns / 2) - len(title) + 4) .. title  # + 4 (see popPrompt maxwidth)
 enddef
 
 # completion filter
 def CompletionFilter(id: number, key: string): bool
   # <Esc>
   if key == "\<Esc>"
+    popup_close(popPrompt.id, -1)
     popup_close(id, -1)
     return true
   endif
@@ -301,19 +332,19 @@ def CompletionFilter(id: number, key: string): bool
   endif
 
   # <C-n> => <Down>
-  if key == "\<C-n>"
+  if key == "\<C-n>" || key == "\<Down>"
     return popup_filter_menu(id, "\<Down>")
   endif
 
   # <C-p> => <Up>
-  if key == "\<C-p>"
+  if key == "\<C-p>" || key == "\<Up>"
     return popup_filter_menu(id, "\<Up>")
   endif
 
   # delete a char
   if key == "\<BackSpace>" || key == "\<BS>" || key == "\<C-h>"
-    if strchars(pop.query) > 0
-      pop.query = strcharpart(pop.query, 0, strchars(pop.query) - 1)
+    if strchars(popPrompt.query) > 0
+      popPrompt.query = strcharpart(popPrompt.query, 0, strchars(popPrompt.query) - 1)
       ApplyFilter(id)
     endif
     return true
@@ -321,13 +352,13 @@ def CompletionFilter(id: number, key: string): bool
 
   # delete all chars
   if key == "\<C-u>"
-    pop.query = ''
+    popPrompt.query = ''
     ApplyFilter(id)
     return true
   endif
 
   # toggle fuzzy (only find)
-  if pop.kind != 'grep' && key == "\<C-f>"
+  if popData.kind != 'grep' && key == "\<C-f>"
     g:searcher_popup_fuzzy = !g:searcher_popup_fuzzy
     ApplyFilter(id)
     return true
@@ -335,31 +366,31 @@ def CompletionFilter(id: number, key: string): bool
 
   # split
   if key == "\<C-s>"
-    pop.mode = 'split'
+    popData.mode = 'split'
     return popup_filter_menu(id, "\<CR>")
   endif
 
   # vsplit
   if key == "\<C-v>"
-    pop.mode = 'vsplit'
+    popData.mode = 'vsplit'
     return popup_filter_menu(id, "\<CR>")
   endif
 
   # pedit
   if key == "\<C-o>"
-    pop.mode = 'pedit'
+    popData.mode = 'pedit'
     return popup_filter_menu(id, "\<CR>")
   endif
 
   # tabedit
   if key == "\<C-t>"
-    pop.mode = 'tabedit'
+    popData.mode = 'tabedit'
     return popup_filter_menu(id, "\<CR>")
   endif
 
   # not <CR>
   if strlen(key) == 1 && key != "\<CR>"
-    pop.query ..= key
+    popPrompt.query ..= key
     ApplyFilter(id)
     return true
   endif
@@ -369,30 +400,30 @@ enddef
 
 # apply filter
 def ApplyFilter(id: number)
-  var query = pop.query
-  if pop.kind == 'grep'
-    if strlen(query) >= g:searcher_popup_grep_minchars  # min n+ chars
-      pop.shown = systemlist($'cd {shellescape(pop.cwd)} && {pop.grep_cmd} {shellescape(query)}')
+  if popData.kind == 'grep'
+    if strlen(popPrompt.query) >= g:searcher_popup_grep_minchars  # min n+ chars
+      popData.shown = systemlist($'cd {shellescape(popData.cwd)} && {popData.grep_cmd} {shellescape(popPrompt.query)}')
     else
-      pop.shown = ['']
+      popData.shown = ['']
     endif
   else
-    if empty(query)
-      pop.shown = copy(pop.all)
+    if empty(popPrompt.query)
+      popData.shown = copy(popData.all)
     elseif g:searcher_popup_fuzzy
-      pop.shown = matchfuzzy(pop.all, pop.query, { limit: g:searcher_popup_fuzzy_limit })
+      popData.shown = matchfuzzy(popData.all, popPrompt.query, { limit: g:searcher_popup_fuzzy_limit })
     else
-      var q = tolower(query)
-      pop.shown = filter(copy(pop.all), (_, v) => stridx(tolower(v), q) >= 0)
+      var q = tolower(popPrompt.query)
+      popData.shown = filter(copy(popData.all), (_, v) => stridx(tolower(v), q) >= 0)
     endif
   endif
   # empty line after prompt
-  if empty(pop.shown)
-    pop.shown = ['']
+  if empty(popData.shown)
+    popData.shown = ['']
   endif
-  var prompt = '> ' .. pop.query
-  popup_settext(id, [prompt] + pop.shown)
-  popup_setoptions(id, { title: PopupTitle() })
+  popup_setoptions(popPrompt.id, { title: PopupTitle() })
+  popup_settext(popPrompt.id, [popPrompt.prompt .. ' ' .. popPrompt.query])
+  popup_setoptions(id, { firstline: 1, cursorline: 1 })  # reset scroll
+  popup_settext(id, popData.shown)
 enddef
 
 # completion pick
@@ -400,75 +431,76 @@ def CompletionPick(id: number, res: number): void
   var picked: string
   var parts: list<string>
 
-  # 1 prompt line, +1 also for pop.shown
-  if res <= 1 || res > len(pop.shown) + 1
+  # do nothing
+  if res <= 0 || res > len(popData.shown)
     return
   endif
 
   # picked
-  if pop.kind == 'find'
-    picked = $'{pop.cwd}/{pop.shown[res - 2]}'  # -2 instead of -1 (prompt)
-  elseif index(['recent', 'buffers', 'sessions'], pop.kind) >= 0
-    picked = fnamemodify(pop.shown[res - 2], ':p')
-  elseif index(['changes', 'jumps', 'themes', 'commands', 'completions'], pop.kind) >= 0 || pop.kind =~ 'completion-'
-    picked = pop.shown[res - 2]
-  elseif pop.kind == 'quickfix'
-    picked = fnamemodify(split(pop.shown[res - 2], ':')[0], ':p')
-    parts = split(pop.shown[res - 2], ':')
-  elseif pop.kind == 'marks'
-    picked = split(pop.shown[res - 2])[1]
-  elseif pop.kind == 'mappings'
+  if popData.kind == 'find'
+    picked = $'{popData.cwd}/{popData.shown[res - 1]}'  # -2 instead of -1 (prompt)
+  elseif index(['recent', 'buffers', 'sessions'], popData.kind) >= 0
+    picked = fnamemodify(popData.shown[res - 1], ':p')
+  elseif index(['changes', 'jumps', 'themes', 'commands', 'completions'], popData.kind) >= 0 || popData.kind =~ 'completion-'
+    picked = popData.shown[res - 1]
+  elseif popData.kind == 'quickfix'
+    picked = fnamemodify(split(popData.shown[res - 1], ':')[0], ':p')
+    parts = split(popData.shown[res - 1], ':')
+  elseif popData.kind == 'marks'
+    picked = split(popData.shown[res - 1])[1]
+  elseif popData.kind == 'mappings'
     const sep = nr2char(0x1f)  # see GetMappings()
-    picked = trim(split(pop.shown[res - 2], sep, 1)[-1], ' ', 1)
-    parts = split(pop.shown[res - 2])
-  elseif pop.kind == 'history-ex' || pop.kind == 'history-search'
-    picked = pop.shown[res - 2]
-  elseif pop.kind == 'grep'
-    parts = split(pop.shown[res - 2], ':')
+    picked = trim(split(popData.shown[res - 1], sep, 1)[-1], ' ', 1)
+    parts = split(popData.shown[res - 1])
+  elseif popData.kind == 'history-ex' || popData.kind == 'history-search'
+    picked = popData.shown[res - 1]
+  elseif popData.kind == 'grep'
+    parts = split(popData.shown[res - 1], ':')
     if empty(parts)
       return
     endif
-    picked = $'{pop.cwd}/{parts[0]}'
+    picked = $'{popData.cwd}/{parts[0]}'
   endif
 
   # action
-  if index(['find', 'grep', 'recent', 'buffers', 'sessions', 'quickfix'], pop.kind) >= 0 && filereadable(picked)
-    execute $"{pop.mode} {fnameescape(picked)}"
+  if index(['find', 'grep', 'recent', 'buffers', 'sessions', 'quickfix'], popData.kind) >= 0 && filereadable(picked)
+    execute $"{popData.mode} {fnameescape(picked)}"
     # upate cursor
-    if pop.kind == 'grep' || pop.kind == 'quickfix'
+    if popData.kind == 'grep' || popData.kind == 'quickfix'
       cursor(str2nr(parts[1]), str2nr(parts[2]))
     endif
-  elseif pop.kind == 'themes'
-    execute $"{pop.mode} {picked}"
-  elseif pop.kind == 'changes'
+  elseif popData.kind == 'themes'
+    execute $"{popData.mode} {picked}"
+  elseif popData.kind == 'changes'
     cursor(str2nr(split(picked, ':')[0]), str2nr(split(picked, ':')[1]))
-  elseif pop.kind == 'jumps'
-    execute $"{pop.mode} {fnamemodify(split(picked, ':')[0], ':p')}"
+  elseif popData.kind == 'jumps'
+    execute $"{popData.mode} {fnamemodify(split(picked, ':')[0], ':p')}"
     cursor(str2nr(split(picked, ':')[1]), str2nr(split(picked, ':')[2]))
-  elseif pop.kind == 'marks'
+  elseif popData.kind == 'marks'
     feedkeys($"{picked}\<CR>", 'n')
-  elseif pop.kind == 'mappings'
+  elseif popData.kind == 'mappings'
     # parts[0] (mode = n,i,v,x,c,t,...)
     timer_start(0, (_) => {
       feedkeys(picked, 'm')
     })
-  elseif pop.kind == 'commands'
+  elseif popData.kind == 'commands'
     feedkeys($":{picked}", 'n')
-  elseif pop.kind == 'completions'
+  elseif popData.kind == 'completions'
     timer_start(0, (_) => {
       Popup($'completion-{picked}')
     })
-  elseif pop.kind =~ 'completion-'
+  elseif popData.kind =~ 'completion-'
     # TODO
     # echomsg picked
-  elseif pop.kind == 'history-ex'
+  elseif popData.kind == 'history-ex'
     timer_start(0, (_) => {
       execute picked
     })
-  elseif pop.kind == 'history-search'
+  elseif popData.kind == 'history-search'
     feedkeys($"/{picked}\<CR>", 'n')
   endif
 
   # close
+  popup_close(popPrompt.id)
   popup_close(id)
 enddef
