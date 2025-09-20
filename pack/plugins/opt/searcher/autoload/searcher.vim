@@ -26,8 +26,9 @@ const COMMANDS = {
 # prompt popup
 var popPrompt = {
   id: -1,
-  prompt: '>',
+  prompt: '',
   query: '',
+  shape: '█'  # '▮', '┃'
 }
 
 # data popup
@@ -36,8 +37,8 @@ var popData = {
   all: [],
   shown: [],
   cwd: '',
-  find_cmd: join(g:searcher_findprg_cmd),
-  grep_cmd: join(g:searcher_grepprg_cmd),
+  findCmd: join(g:searcher_findprg_cmd),
+  grepCmd: join(g:searcher_grepprg_cmd),
   mode: '',
   kind: ''
 }
@@ -46,6 +47,7 @@ var popData = {
 var posData = {
   cursor: [0, 0, 0, 0, 0],
   bufnr: -1,
+  winid: -1
 }
 
 # prints the warning message and saves the message in the message-history
@@ -129,7 +131,7 @@ enddef
 
 # get files
 def GetFiles(): list<string>
-  return systemlist($'cd {shellescape(popData.cwd)} && {popData.find_cmd}')
+  return systemlist($'cd {shellescape(popData.cwd)} && {popData.findCmd}')
 enddef
 
 # get history
@@ -161,7 +163,9 @@ enddef
 # get mappings
 def GetMappings(abbr: bool = false): list<string>
   const sep = nr2char(0x1f)
-  return map(maplist(abbr), (_, val)  => $'{val.mode} {val.lhs} {val.rhs} {sep} {val.lhsraw}')
+  return map(maplist(abbr), (_, val) => {
+    return $'{val.mode} {substitute(val.lhs, keytrans(g:mapleader), '<Leader>', 'g')} {val.rhs} {sep} {val.lhsraw}'
+  })
 enddef
 
 # get quickfix
@@ -204,11 +208,12 @@ enddef
 def UpdatePos()
   posData.cursor = getcurpos()
   posData.bufnr = bufnr('%')
+  posData.winid = win_getid()
 enddef
 
 # restore pos
 def RestorePos()
-  if bufnr('%') == posData.bufnr
+  if bufnr('%') == posData.bufnr && getcurpos() != posData.cursor
     setpos('.', posData.cursor)
   endif
 enddef
@@ -219,12 +224,16 @@ export def Popup(kind: string, cwd: string = ''): void
     'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps', 'marks', 'mappings',
     'quickfix', 'commands', 'completions', 'themes', 'history-ex', 'history-search'
   ]
+
   if index(kinds, kind) == -1 && kind !~ 'completion-'
     return
   endif
+
   popData.mode = g:searcher_popup_mode
   popData.kind = kind
   popData.cwd = !empty(cwd) ? cwd : DefaultCwd()
+  popPrompt.query = ''
+
   var files: list<string>
   if popData.kind == 'find'
     files = GetFiles()
@@ -265,9 +274,9 @@ export def Popup(kind: string, cwd: string = ''): void
     EchoWarningMsg($"Warning: '{popData.kind}' files are empty")
     return
   endif
+
   popData.all = copy(files)
   popData.shown = copy(files)
-  popPrompt.query = ''
   popData.id = popup_menu(
       files, {
       title: '',
@@ -278,9 +287,11 @@ export def Popup(kind: string, cwd: string = ''): void
       maxwidth: &columns / 2,
       minheight: &lines / 2,
       maxheight: &lines / 2,
-      border: [1, 1, 1, 1],
-      padding: [0, 0, 0, 2],
-      borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+      border: [0, 1, 1, 1],
+      padding: [0, 0, 0, 0],
+      # borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+      borderchars: [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+      zindex: 20,
       scrollbar: false,
       close: 'click',
       mapping: false,
@@ -291,27 +302,39 @@ export def Popup(kind: string, cwd: string = ''): void
       filter: function(CompletionFilter),
       callback: function(CompletionPick)
   })
+
   # popPrompt is on top off popData
   var popDataPos  = popup_getpos(popData.id)
-  popPrompt.id = popup_create([popPrompt.prompt], {
+  popPrompt.id = popup_create([popPrompt.prompt .. popPrompt.shape], {
     title: PopupTitle(),
     line: popDataPos.line - 3,
     col: popDataPos.col,
     fixed: true,
-    minwidth: (&columns / 2) + 2,
-    maxwidth: (&columns / 2) + 2,
+    minwidth: (&columns / 2),
+    maxwidth: (&columns / 2),
     minheight: 1,
     maxheight: 1,
     border: [1, 1, 1, 1],
+    padding: [0, 0, 0, 0],
     borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+    zindex: 40,
     scrollbar: false,
     cursorline: false,
     wrap: false,
   })
+
+  # cursor & prompt colors
+  highlight! SearcherPopupCursor guifg=#606060 guibg=NONE ctermfg=59 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+  if !empty(popPrompt.prompt)
+    highlight! SearcherPopupPrompt guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+    win_execute(popPrompt.id, "matchadd('SearcherPopupPrompt', '^' .. popPrompt.prompt .. '\\ze')")
+  endif
+  # win_execute(popPrompt.id, 'setlocal wincolor=WildMenu')
+  win_execute(popPrompt.id, "matchadd('SearcherPopupCursor', popPrompt.shape .. '$')")
+
   # TODO?
   # win_execute(popData.id, 'setlocal colorcolumn=1')
   UpdatePos()
-  UpdatePromptCursor()
 enddef
 
 # popup title
@@ -339,24 +362,7 @@ def PopupTitle(): string
   #   : '-fuzzy'
   # var title = $' {popData.kind}: {cwd} {counter} {fchars} '
   var title = $' {popData.kind}: {cwd} {counter} '
-  return repeat('─', (&columns / 2) - strchars(title) + 2) .. title  # + 2 (see popPrompt maxwidth)
-enddef
-
-# update prompt cursor
-def UpdatePromptCursor()
-  var save = &l:virtualedit
-  setlocal virtualedit=all
-  var popDataPrompt  = popup_getpos(popPrompt.id)
-  var [winRow, _] = win_screenpos(0)
-  var info = getwininfo(win_getid())[0]
-  # info.textoff (gutter)
-  var pline = line('w0') + (popDataPrompt.line - winRow) + 1
-  var pcol = (popDataPrompt.col - info.textoff) + strdisplaywidth(popPrompt.query) + 3
-  cursor(pline, pcol)
-  # restore
-  timer_start(0, (_) => {
-    &l:virtualedit = save
-  })
+  return repeat('─', (&columns / 2) - strchars(title) + 0) .. title  # + 0 (see popPrompt maxwidth)
 enddef
 
 # completion filter
@@ -365,7 +371,6 @@ def CompletionFilter(id: number, key: string): bool
   if key == "\<Esc>"
     popup_close(popPrompt.id, -1)
     popup_close(id, -1)
-    RestorePos()
     return true
   endif
 
@@ -389,7 +394,6 @@ def CompletionFilter(id: number, key: string): bool
     if strchars(popPrompt.query) > 0
       popPrompt.query = strcharpart(popPrompt.query, 0, strchars(popPrompt.query) - 1)
       ApplyFilter(id)
-      UpdatePromptCursor()
     endif
     return true
   endif
@@ -398,7 +402,6 @@ def CompletionFilter(id: number, key: string): bool
   if key == "\<C-u>"
     popPrompt.query = ''
     ApplyFilter(id)
-    UpdatePromptCursor()
     return true
   endif
 
@@ -437,7 +440,6 @@ def CompletionFilter(id: number, key: string): bool
   if strlen(key) == 1 && key != "\<CR>"
     popPrompt.query ..= key
     ApplyFilter(id)
-    UpdatePromptCursor()
     return true
   endif
 
@@ -448,7 +450,7 @@ enddef
 def ApplyFilter(id: number)
   if popData.kind == 'grep'
     if strchars(popPrompt.query) >= g:searcher_popup_grep_minchars  # min N+ chars
-      popData.shown = systemlist($'cd {shellescape(popData.cwd)} && {popData.grep_cmd} {shellescape(popPrompt.query)}')
+      popData.shown = systemlist($'cd {shellescape(popData.cwd)} && {popData.grepCmd} {shellescape(popPrompt.query)}')
     else
       popData.shown = ['']
     endif
@@ -467,7 +469,7 @@ def ApplyFilter(id: number)
     popData.shown = ['']
   endif
   popup_setoptions(popPrompt.id, { title: PopupTitle() })
-  popup_settext(popPrompt.id, [popPrompt.prompt .. ' ' .. popPrompt.query])
+  popup_settext(popPrompt.id, [popPrompt.prompt .. popPrompt.query .. popPrompt.shape])
   popup_setoptions(id, { firstline: 1, cursorline: 1 })  # reset scroll
   popup_settext(id, popData.shown)
 enddef
