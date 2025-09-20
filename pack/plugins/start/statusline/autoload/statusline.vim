@@ -51,7 +51,7 @@ export def GetImOptions(kind: string, fsl: bool): string
 enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
-def ShortPath(path: string): string
+export def ShortPath(path: string): string
   var pathName = fnamemodify(path, ':~')
   var pathNameList = split(pathName, '/')
   var pathNameTail = fnamemodify(pathName, ':t')
