@@ -70,8 +70,7 @@ highlight! StatusLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NO
 execute $"highlight! StatusLineNC guifg=white guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg=white ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 # vertical split color
-highlight! VertSplit guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-
+execute $"highlight! VertSplit guifg=white guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg=white ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 # execute $"highlight! Cursor guifg=white guibg={colors.normal.guifg} gui=NONE cterm=NONE term=NONE"
 # execute $"highlight! Cursor guifg=white guibg={isdark ? '#606060' : '#8888cc'} gui=NONE cterm=NONE term=NONE"
@@ -80,7 +79,7 @@ highlight! Cursor guifg=white guibg=#606060 gui=NONE cterm=NONE term=NONE
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={isdark ? '#d7d787' : '#d7d7af'} ctermfg=NONE ctermbg={isdark ? 186 : 187} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! CursorLineNR guifg=#d70000 guibg={isdark ? '#d7d787' : '#d7d7af'} ctermfg=160 ctermbg={isdark ? 186 : 187} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLineNR guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -102,11 +101,11 @@ execute $"highlight! Search guifg=black guibg={isdark ? '#ffff87' : '#ffffaf'} c
 highlight! link CurSearch Search
 highlight! link IncSearch Search
 
-execute $"highlight! LineNr guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! LineNr guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link LineNrAbove LineNr
 highlight! link LineNrBelow LineNr
 
-execute $"highlight! SpecialKey guifg=#d70000 guibg={isdark ? '#d7d787' : '#d7d7af'} ctermfg=160 ctermbg={isdark ? 186 : 187} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! SpecialKey guifg=#d70000 guibg=NONE ctermfg=160 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 # diff (diffthis)
 highlight! DiffText guifg=black guibg=#afafff ctermfg=black ctermbg=147 gui=NONE cterm=NONE term=NONE
@@ -125,9 +124,10 @@ highlight! link diffOldFile Normal
 highlight! link diffRemoved Normal
 highlight! link diffSubname Normal
 
-highlight! Conceal guifg=black guibg=#ffff00 ctermfg=black ctermbg=226 gui=NONE cterm=NONE term=NONE
+highlight! Conceal guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
-execute $"highlight! NonText guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+# TODO ~ (new buffer)
+execute $"highlight! NonText guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link EndOfBuffer NonText
 
 # tabs
@@ -148,10 +148,10 @@ execute $"highlight! MoreMsg guifg=black guibg={colors.normal.guibg} ctermfg=bla
 execute $"highlight! Title guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # complete popup menu
-highlight! Pmenu guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-execute $"highlight! PmenuSel guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PmenuMatch guifg={isdark ? '#ffff87' : '#ffffaf'} guibg=black ctermfg={isdark ? 228 : 229} ctermbg=black gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PmenuMatchSel guifg=#d70000 guibg={isdark ? '#ffff87' : '#ffffaf'} ctermfg=160 ctermbg={isdark ? 228 : 229} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Pmenu guifg=NONE guibg={isdark ? '#ffff87' : '#ffffaf'} ctermfg=NONE ctermbg={isdark ? 228 : 229} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuSel guifg=NONE guibg=#d7ffff ctermfg=NONE ctermbg=195 gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuMatch guifg=#d70000 guibg={isdark ? '#ffff87' : '#ffffaf'} ctermfg=160 ctermbg={isdark ? 228 : 229} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuMatchSel guifg=#d70000 guibg=#d7ffff ctermfg=160 ctermbg=195 gui=NONE cterm=NONE term=NONE"
 highlight! link PmenuKind Pmenu
 highlight! link PmenuKindSel PmenuSel
 execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NONE ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
@@ -161,7 +161,10 @@ highlight! link PmenuExtraSel PmenuSel
 highlight! link PopupSelected PmenuSel
 
 # :help ins-completion
-# highlight! link ComplMatchIns Normal
+highlight! clear ComplMatchIns
+
+# :help  'cmdheight'
+highlight! clear MesgArea
 
 # :help completepopup
 highlight! InfoPopup guifg=black guibg=lightgray ctermfg=black ctermbg=lightgray gui=NONE cterm=NONE term=NONE
@@ -185,7 +188,8 @@ highlight! link Exception Normal
 highlight! link Float Normal
 highlight! link Function Normal
 highlight! link Identifier Normal
-highlight! link Ignore Normal
+# highlight! link Ignore Normal
+highlight! clear Ignore
 highlight! link Include Normal
 highlight! link Keyword Normal
 highlight! link Label Normal

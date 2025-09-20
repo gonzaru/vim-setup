@@ -67,8 +67,8 @@ highlight! Visual guifg=NONE guibg=#214283 ctermfg=NONE ctermbg=25 gui=NONE cter
 execute $"highlight! WildMenu guifg={colors.normal.guifg} guibg=#113a5c ctermfg={colors.normal.ctermfg} ctermbg=25 gui=NONE cterm=NONE term=NONE"
 
 # split windows
-execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 # vertical split
 execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
@@ -77,7 +77,7 @@ execute $"highlight! Cursor guifg={cursor2 ? "white" : "black"} guibg={cursor2 ?
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={isdark ? '#262626' : '#333333'} ctermfg=NONE ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! CursorLineNR guifg=#999999 guibg={isdark ? '#262626' : '#333333'} ctermfg=102 ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLineNR guifg=#999999 guibg=NONE ctermfg=102 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -100,13 +100,13 @@ highlight! Search guifg=NONE guibg=#31583c ctermfg=NONE ctermbg=22 gui=NONE cter
 highlight! link CurSearch Search
 highlight! link IncSearch Search
 
-execute $"highlight! LineNr guifg=#606366 guibg={colors.normal.guibg} ctermfg=59 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! LineNr guifg=#606366 guibg=NONE ctermfg=59 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link LineNrAbove LineNr
 highlight! link LineNrBelow LineNr
 
 # TODO
 # execute $"highlight! SpecialKey guifg=pink guibg={COLORS['normal']['guibg'} ctermfg=175 ctermbg={COLORS['normal']['ctermbg'} gui=NONE cterm=NONE term=NONE"
-execute "highlight! SpecialKey guifg=pink guibg=black ctermfg=175 ctermbg=black gui=NONE cterm=NONE term=NONE"
+execute "highlight! SpecialKey guifg=pink guibg=NONE ctermfg=175 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 # TODO
 # diff (diffthis)
@@ -127,16 +127,16 @@ highlight! link diffRemoved DiffDelete
 highlight! link diffSubname Normal
 
 # TODO
-execute $"highlight! Conceal guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 # TODO ~ (new buffer)
-execute $"highlight! NonText guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! NonText guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link EndOfBuffer NonText
 
 # tabs
-execute $"highlight! TabLine guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! TabLineSel guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! TabLineFill guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! TabLine guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! TabLineSel guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! TabLineFill guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 
 # TODO
 execute $"highlight! Folded guifg=#999999 guibg={colors.normal.guibg} ctermfg=102 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
@@ -152,8 +152,8 @@ execute $"highlight! MoreMsg guifg={colors.normal.guifg} guibg={colors.normal.gu
 execute $"highlight! Title guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # complete popup menu
-execute $"highlight! Pmenu guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PmenuSel guifg={colors.normal.guifg} guibg=#113a5c ctermfg={colors.normal.ctermfg} ctermbg=25 gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Pmenu guifg=NONE guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=NONE ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! PmenuSel guifg=NONE guibg=#113a5c ctermfg=NONE ctermbg=25 gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuMatch guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={pmenumatch2 ? 215 : 255} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuMatchSel guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg=#113a5c ctermfg={pmenumatch2 ? 215 : 255} ctermbg=25 gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuKind guifg=#cc7832 guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=172 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
@@ -165,7 +165,10 @@ execute $"highlight! PmenuExtraSel guifg=#949494 guibg=#113a5c ctermfg=246 cterm
 highlight! link PopupSelected PmenuSel
 
 # :help ins-completion
-# highlight! link ComplMatchIns Normal
+highlight! clear ComplMatchIns
+
+# :help  'cmdheight'
+highlight! clear MesgArea
 
 # :help completepopup
 execute $"highlight! InfoPopup guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
@@ -189,7 +192,8 @@ execute $"highlight! Exception guifg=#cc7832 guibg={colors.normal.guibg} ctermfg
 execute $"highlight! Float guifg=#6897bb guibg={colors.normal.guibg} ctermfg=67 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! Function guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! Identifier guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Ignore guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+# execute $"highlight! Ignore guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! clear Ignore
 execute $"highlight! Include guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! Keyword guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! Label guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
