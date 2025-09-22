@@ -8,6 +8,9 @@ if get(g:, 'autoloaded_searcher') || !get(g:, 'searcher_enabled')
 endif
 g:autoloaded_searcher = true
 
+# job queue
+final JOB_QUEUE = []
+
 # searcher commands
 const COMMANDS = {
   'findprg': {
@@ -28,14 +31,29 @@ var popPrompt = {
   id: -1,
   prompt: '',
   query: '',
-  shape: '█'  # '▮', '┃'
+  message: '',
+  shape: '█',  # '▮', '┃',
+  ready: false,
+  timer: -1
 }
 
 # data popup
 var popData = {
   id: -1,
-  all: [],
+  all: {
+    raw: [],
+    lower: [],
+    idx: []
+  },
   shown: [],
+  prev: {
+    query: '',
+    idx: []
+  },
+  cache: {
+    idx: {},
+    key: {}
+  },
   cwd: '',
   findCmd: join(g:searcher_findprg_cmd),
   grepCmd: join(g:searcher_grepprg_cmd),
@@ -132,6 +150,77 @@ enddef
 # get files
 def GetFiles(): list<string>
   return systemlist($'cd {shellescape(popData.cwd)} && {popData.findCmd}')
+enddef
+
+# get command async
+def GetCommandAsync(cmd: string): void
+  if !empty(JOB_QUEUE)
+    return
+  endif
+  # win_execute(popPrompt.id, 'setlocal wincolor=Search')
+  var newJob: job
+  newJob = job_start(cmd, {
+    'out_cb': function(OutHandler),
+    'close_cb': function(CloseHandler),
+    'exit_cb': function(ExitHandler),
+    'out_io': 'pipe',
+    'out_mode': 'nl',
+    'out_msg': 0,
+    'out_modifiable': 0,
+    'err_io': 'out',
+    'cwd': popData.cwd
+  })
+  if job_status(newJob) == 'run'
+    popPrompt.ready = false
+    timer_start(50, (tid: number) => {
+      if popPrompt.id > 0 && !popPrompt.ready
+        var msg = ' waiting for results... '
+        popup_setoptions(popPrompt.id, { title: msg })
+      endif
+    })
+    add(JOB_QUEUE, job_info(newJob)['process'])
+  endif
+enddef
+
+# out handler
+def OutHandler(channel: channel, message: string)
+  if !empty(message)
+    add(popData.all.raw, trim(message, "\r", 2))
+  endif
+enddef
+
+# close handler
+def CloseHandler(channel: channel): void
+  if empty(popData.all.raw)
+    popup_close(popPrompt.id, -1)
+    popup_close(popData.id, -1)
+    EchoWarningMsg($"Warning: '{popData.kind}' data is empty")
+    return
+  endif
+  popData.all.lower = mapnew(popData.all.raw, (_, v) => tolower(v))
+  popData.all.idx = range(len(popData.all.lower))
+  popData.prev.idx = copy(popData.all.idx)
+  popData.prev.query = ''
+  popData.cache.idx = {}
+  popData.cache.key = {}
+  popData.cache.idx[0] = copy(popData.all.idx)
+  popData.cache.key[0] = ''
+  popData.shown = copy(popData.all.raw)
+  popPrompt.message = ''
+  popup_setoptions(popPrompt.id, { title: PopupTitle() })
+  popup_settext(popPrompt.id, [popPrompt.prompt .. popPrompt.query .. popPrompt.shape])
+  popup_settext(popData.id, popData.shown)
+  # unlock
+  # win_execute(popPrompt.id, 'setlocal wincolor=Pmenu')
+  popPrompt.ready = true
+enddef
+
+# exit handler for when the job ends
+def ExitHandler(job: job, status: number)
+  var idx = index(JOB_QUEUE, job_info(job)['process'])
+  if idx >= 0
+    remove(JOB_QUEUE, idx)
+  endif
 enddef
 
 # get history
@@ -232,11 +321,24 @@ export def Popup(kind: string, cwd: string = ''): void
   popData.mode = g:searcher_popup_mode
   popData.kind = kind
   popData.cwd = !empty(cwd) ? cwd : DefaultCwd()
+  popData.all.raw = []
+  popData.all.lower = []
+  popData.all.idx = {}
+  popData.shown = []
   popPrompt.query = ''
+  popPrompt.ready = false
 
-  var files: list<string>
+  var files: list<string> = []
   if popData.kind == 'find'
-    files = GetFiles()
+    if g:searcher_popup_find_async
+      PopupCreate('')
+      GetCommandAsync(popData.findCmd)
+      return
+    else
+      files = GetFiles()
+    endif
+  elseif popData.kind == 'grep'
+    files = ['']
   elseif popData.kind == 'recent'
     files = v:oldfiles
   elseif popData.kind == 'buffers'
@@ -267,18 +369,40 @@ export def Popup(kind: string, cwd: string = ''): void
     files = GetHistory('ex')
   elseif popData.kind == 'history-search'
     files = GetHistory('search')
-  elseif popData.kind == 'grep'
-    files = ['']
   endif
-  if popData.kind != 'grep' && empty(files)
-    EchoWarningMsg($"Warning: '{popData.kind}' files are empty")
+
+  if (popData.kind != 'grep' || (popData.kind == 'find' && !g:searcher_popup_find_async)) && empty(files)
+    EchoWarningMsg($"Warning: '{popData.kind}' data is empty")
     return
   endif
 
-  popData.all = copy(files)
+  # popup data
+  popData.all.raw = copy(files)
+  popData.all.lower = mapnew(files, (_, v) => tolower(v))
+  popData.all.idx = range(len(popData.all.lower))
+  popData.prev.idx = copy(popData.all.idx)
+  popData.prev.query = ''
+  popData.cache.idx = {}
+  popData.cache.key = {}
+  popData.cache.idx[0] = copy(popData.all.idx)
+  popData.cache.key[0] = ''
   popData.shown = copy(files)
+
+  # create
+  PopupCreate()
+
+  # TODO?
+  # win_execute(popData.id, 'setlocal colorcolumn=1')
+  # UpdatePos()
+
+  # unlock
+  popPrompt.ready = true
+enddef
+
+# popup create
+def PopupCreate(titlePrompt: any = v:none)
   popData.id = popup_menu(
-      files, {
+      popData.shown, {
       title: '',
       pos: 'center',
       fixed: true,
@@ -305,8 +429,8 @@ export def Popup(kind: string, cwd: string = ''): void
 
   # popPrompt is on top off popData
   var popDataPos  = popup_getpos(popData.id)
-  popPrompt.id = popup_create([popPrompt.prompt .. popPrompt.shape], {
-    title: PopupTitle(),
+  popPrompt.id = popup_create([popPrompt.prompt .. popPrompt.query .. popPrompt.shape], {
+    title: (type(titlePrompt) == v:t_string) ? titlePrompt : PopupTitle(),
     line: popDataPos.line - 3,
     col: popDataPos.col,
     fixed: true,
@@ -331,13 +455,8 @@ export def Popup(kind: string, cwd: string = ''): void
   endif
   # win_execute(popPrompt.id, 'setlocal wincolor=WildMenu')
   win_execute(popPrompt.id, "matchadd('SearcherPopupCursor', popPrompt.shape .. '$')")
-
-  # TODO?
-  # win_execute(popData.id, 'setlocal colorcolumn=1')
-  UpdatePos()
 enddef
 
-# popup title
 def PopupTitle(): string
   var counter: string
   var cwd = fnamemodify(popData.cwd, ':~')
@@ -350,23 +469,30 @@ def PopupTitle(): string
       counter = $'{repeat(' ', maxData - len(shown))}{shown}'
     endif
   else
-    var maxData = strlen(len(popData.all))
+    var maxData = strlen(len(popData.all.raw))
     if shown == 1 && empty(popData.shown[0])
-      counter = $'{repeat(' ', maxData - 1)}0/{len(popData.all)}'
+      counter = $'{repeat(' ', maxData - 1)}0/{len(popData.all.raw)}'
     else
-      counter = $'{repeat(' ', maxData - len(shown))}{shown}/{len(popData.all)}'
+      counter = $'{repeat(' ', maxData - len(shown))}{shown}/{len(popData.all.raw)}'
     endif
   endif
   # var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy)
   #   ? '+fuzzy'
   #   : '-fuzzy'
   # var title = $' {popData.kind}: {cwd} {counter} {fchars} '
-  var title = $' {popData.kind}: {cwd} {counter} '
+  var title = $' {popPrompt.message}{popData.kind}: {cwd} {counter} '
   return repeat('─', (&columns / 2) - strchars(title) + 0) .. title  # + 0 (see popPrompt maxwidth)
 enddef
 
 # completion filter
 def CompletionFilter(id: number, key: string): bool
+
+  # do nothing
+  if !popPrompt.ready
+    # EchoWarningMsg($'Warning: popup prompt is not ready')
+    return true
+  endif
+
   # <Esc>
   if key == "\<Esc>"
     popup_close(popPrompt.id, -1)
@@ -394,6 +520,7 @@ def CompletionFilter(id: number, key: string): bool
     if strchars(popPrompt.query) > 0
       popPrompt.query = strcharpart(popPrompt.query, 0, strchars(popPrompt.query) - 1)
       ApplyFilter(id)
+      # ScheduleFilter(id)
     endif
     return true
   endif
@@ -440,38 +567,97 @@ def CompletionFilter(id: number, key: string): bool
   if strlen(key) == 1 && key != "\<CR>"
     popPrompt.query ..= key
     ApplyFilter(id)
+    # ScheduleFilter(id)
     return true
   endif
 
   return popup_filter_menu(id, key)
 enddef
 
+# schedule filter (debounce)
+def ScheduleFilter(id: number)
+  if popPrompt.timer != -1
+    timer_stop(popPrompt.timer)
+    popPrompt.timer = -1
+  endif
+  popPrompt.timer = timer_start(0, (_) => {
+    popPrompt.timer = -1
+    ApplyFilter(id)
+  })
+enddef
+
 # apply filter
 def ApplyFilter(id: number)
+  # var t = reltime()
+
+  # grep
   if popData.kind == 'grep'
+    popData.shown = ['']
     if strchars(popPrompt.query) >= g:searcher_popup_grep_minchars  # min N+ chars
       popData.shown = systemlist($'cd {shellescape(popData.cwd)} && {popData.grepCmd} {shellescape(popPrompt.query)}')
-    else
-      popData.shown = ['']
-    endif
-  else
-    if empty(popPrompt.query)
-      popData.shown = copy(popData.all)
-    elseif g:searcher_popup_fuzzy
-      popData.shown = matchfuzzy(popData.all, popPrompt.query, { limit: g:searcher_popup_fuzzy_limit })
-    else
-      var q = tolower(popPrompt.query)
-      popData.shown = filter(copy(popData.all), (_, v) => stridx(tolower(v), q) >= 0)
     endif
   endif
+
+  # any (except grep)
+  if popData.kind != 'grep'
+    if empty(popPrompt.query)
+      popData.shown = copy(popData.all.raw)
+      popData.prev.query = ''
+      popData.prev.idx = copy(popData.all.idx)
+      popData.cache.idx = {}
+      popData.cache.key = {}
+      popData.cache.idx[0] = copy(popData.all.idx)
+      popData.cache.key[0] = ''
+    elseif g:searcher_popup_fuzzy
+      popData.shown = matchfuzzy(popData.all.raw, popPrompt.query, { limit: g:searcher_popup_fuzzy_limit, smartcase: true })
+    else
+      var query = tolower(popPrompt.query)
+      var queryLen = strchars(query)
+
+      # popData.shown = filter(copy(popData.all.raw), (_, v) => stridx(tolower(v), query) >= 0)
+
+      var pool: list<number>
+      if has_key(popData.cache.idx, queryLen) && has_key(popData.cache.key, queryLen) && popData.cache.key[queryLen] == query
+          pool = popData.cache.idx[queryLen]
+      elseif queryLen > strchars(popData.prev.query) && stridx(query, popData.prev.query) == 0
+        pool = popData.prev.idx
+      else
+        pool = popData.all.idx
+      endif
+
+      var out: list<string> = []
+      var nextPool: list<number> = []
+      for i in pool
+        if stridx(popData.all.lower[i], query) >= 0
+          add(out, popData.all.raw[i])
+          add(nextPool, i)
+          # TODO (see nextPool)
+          # if len(out) == g:searcher_popup_find_limit
+          #   break
+          # endif
+        endif
+      endfor
+
+      popData.shown = out
+      popData.prev.query = query
+      popData.prev.idx = nextPool
+      popData.cache.idx[queryLen] = nextPool
+      popData.cache.key[queryLen] = query
+
+    endif
+  endif
+
   # empty line after prompt
   if empty(popData.shown)
     popData.shown = ['']
   endif
+
   popup_setoptions(popPrompt.id, { title: PopupTitle() })
   popup_settext(popPrompt.id, [popPrompt.prompt .. popPrompt.query .. popPrompt.shape])
   popup_setoptions(id, { firstline: 1, cursorline: 1 })  # reset scroll
   popup_settext(id, popData.shown)
+
+  # echomsg printf('filter: %.1f ms', 1000 * reltimefloat(reltime(t)))
 enddef
 
 # completion pick
@@ -551,5 +737,5 @@ def CompletionPick(id: number, res: number): void
   # close
   popup_close(popPrompt.id)
   popup_close(id)
-  RestorePos()
+  # RestorePos()
 enddef

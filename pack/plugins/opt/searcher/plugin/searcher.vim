@@ -11,7 +11,12 @@ g:loaded_searcher = true
 # global variables
 if !exists('g:searcher_findprg_cmd')
   g:searcher_findprg_cmd = [
-    'fd', '--type', 'f', '--follow', '--color=never', '--unrestricted', '--exclude', '.git'
+    'fd', '--type', 'f', '--follow', '--color=never', '--unrestricted',
+    '--exclude', '.git',
+    '--exclude', '.cache',
+    '--exclude', '.idea',
+    '--exclude', '.venv',
+    '--exclude', 'node_modules',
   ]
 endif
 if !exists('g:searcher_findprg_sensitive')
@@ -56,11 +61,17 @@ endif
 if !exists('g:searcher_popup_grep_minchars')
   g:searcher_popup_grep_minchars = 3  # >= 1
 endif
+if !exists('g:searcher_popup_find_async')
+  g:searcher_popup_find_async = true
+endif
 if !exists('g:searcher_popup_fuzzy')
   g:searcher_popup_fuzzy = false
 endif
 if !exists('g:searcher_popup_fuzzy_limit')
   g:searcher_popup_fuzzy_limit = 200
+endif
+if !exists('g:searcher_popup_find_limit')
+  g:searcher_popup_find_limit = 25
 endif
 if !exists('g:searcher_popup_history_ex_limit')
   g:searcher_popup_history_ex_limit = 200
