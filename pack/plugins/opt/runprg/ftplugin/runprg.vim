@@ -26,3 +26,6 @@ setlocal nobuflisted
 setlocal nomodifiable
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
+
+# undo
+b:undo_ftplugin = 'setlocal statusline< winfixbuf< signcolumn< number< relativenumber< cursorline< cursorcolumn< wrap< spell< list< winfixheight< winfixwidth< swapfile< buflisted< modifiable< buftype< bufhidden<'

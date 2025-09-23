@@ -14,9 +14,12 @@ setlocal statusline=%y:%<%{getcwd()->fnamemodify(':~')}%=b%n,w%{win_getid()}
 setlocal winfixheight
 setlocal winfixwidth
 setlocal winfixbuf
-setlocal mousemodel=popup_setpos  # <RightMouse>, <2-RightMouse>
-setlocal mousetime=500
-setlocal noconfirm
+# TODO:
+### global ###
+# setlocal mousemodel=popup_setpos  # <RightMouse>, <2-RightMouse>
+# setlocal mousetime=500
+# setlocal noconfirm
+###  end   ###
 setlocal nonumber
 setlocal norelativenumber
 setlocal signcolumn=no
@@ -141,5 +144,55 @@ if get(g:, 'se_no_mappings') == 0
   #nnoremap <buffer> <nowait> <C-g> <ScriptCmd>feedkeys(":SearcherGrep '-i', '', '" .. fnamemodify(trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.'))))), ':p:~') .. "'<S-Left><S-Left><Right>")<CR>
   nnoremap <buffer> <nowait> <C-g> <ScriptCmd>Searcher('grep')<CR>
   #nnoremap <buffer> <2-rightmouse> <scriptcmd>feedkeys(":searcherfind '-i', '', '-p', '" .. fnamemodify(trim(se#removefileindicators(se#removedirsep(getline(line('.'))))), ':p:~') .. "'<s-left><s-left><s-left><right>")<cr>
-  nnoremap <buffer> <2-RightMouse> <ScriptCmd>SearcherFindOrGrep()<CR>
+  nnoremap <buffer> <RightMouse> <ScriptCmd>SearcherFindOrGrep()<CR>
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal syntax< statusline< winfixheight< winfixwidth< winfixbuf< number< relativenumber< signcolumn< cursorline< cursorcolumn< wrap< spell< list< splitright< swapfile< buflisted< buftype< bufhidden<'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> q'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Esc>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <2-LeftMouse>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Space>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> e'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> E'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> p'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> P'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> s'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> S'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> v'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> V'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> t'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> T'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> -'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <BackSpace>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> b'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> ~'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> d'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> a'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> i'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> y'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> Y'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> r'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> f'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> F'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> h'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> l'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> ='
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> +'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> c'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> C'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> o'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> u'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> m'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> M'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> .'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> K'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> w'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> W'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> z'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> Z'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <C-f>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <C-g>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <RightMouse>'

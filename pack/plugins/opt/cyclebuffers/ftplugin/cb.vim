@@ -37,3 +37,18 @@ if get(g:, 'cyclebuffers_no_mappings') == 0
   nnoremap <buffer> <nowait> H <Plug>(cyclebuffers-help)
   nnoremap <buffer> <nowait> K <Plug>(cyclebuffers-help)
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal statusline< winfixbuf< signcolumn< number< cursorline< cursorcolumn< wrap< spell< list< swapfile< buflisted< modifiable< buftype< bufhidden<'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Esc>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> d'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> D'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> w'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> W'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> e'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> s'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> v'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> t'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> K'

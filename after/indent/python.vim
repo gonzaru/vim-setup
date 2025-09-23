@@ -3,10 +3,10 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if get(b:, "did_indent_after")
-  finish
-endif
-b:did_indent_after = true
+# if get(b:, "did_indent_after")
+#   finish
+# endif
+# b:did_indent_after = true
 
 # see $VIMRUNTIME/indent/python.vim
 #^ already done previously
@@ -15,3 +15,6 @@ b:did_indent_after = true
 #^ setlocal nolisp
 #^ setlocal autoindent
 setlocal smartindent
+
+# undo
+b:undo_indent = 'setlocal smartindent<'

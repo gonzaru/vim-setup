@@ -2,10 +2,10 @@ vim9script noclear
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
 
-if get(b:, "did_ftplugin_after")
-  finish
-endif
-b:did_ftplugin_after = true
+# if get(b:, "did_ftplugin_after")
+#   finish
+# endif
+# b:did_ftplugin_after = true
 
 # see $VIMRUNTIME/ftplugin/vim.vim
 #^ already done previously
@@ -30,3 +30,7 @@ setlocal tags=$HOME/.vim/tags
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal syntax< formatoptions< nowrap< showbreak< tabstop< softtabstop< shiftwidth< shiftround< expandtab< matchpairs< textwidth< tags<'
+b:undo_ftplugin ..= ' | silent! iunmap <buffer> <CR>'

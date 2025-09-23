@@ -14,7 +14,8 @@ setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->f
 setlocal winfixheight
 setlocal winfixwidth
 setlocal winfixbuf
-setlocal noconfirm
+# TODO, global
+# setlocal noconfirm
 setlocal number
 setlocal cursorline
 setlocal nocursorcolumn
@@ -26,7 +27,7 @@ setlocal nobuflisted
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
 if get(g:, 'git_no_mappings') == 0
-  nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action))
+  nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action)
   nnoremap <buffer> <nowait> <silent> gA <Plug>(git-add-file)
   nnoremap <buffer> <nowait> <silent> gb <Plug>(git-blame)
   nnoremap <buffer> <nowait> <silent> gB <Plug>(git-blame-short)
@@ -40,3 +41,19 @@ if get(g:, 'git_no_mappings') == 0
   nnoremap <buffer> <nowait> <silent> gs <Plug>(git-status-file)
   nnoremap <buffer> <nowait> <silent> gS <Plug>(git-show-file)
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal syntax< statusline< winfixheight< winfixwidth< winfixbuf< number< cursorline< cursorcolumn< wrap< spell< list< swapfile< buflisted< buftype< bufhidden<'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gA'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gb'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gB'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gC'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gd'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gh'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gl'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gL'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gR'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gs'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> gS'

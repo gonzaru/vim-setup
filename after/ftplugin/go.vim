@@ -3,10 +3,10 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if get(b:, "did_ftplugin_after")
-  finish
-endif
-b:did_ftplugin_after = true
+# if get(b:, "did_ftplugin_after")
+#   finish
+# endif
+# b:did_ftplugin_after = true
 
 # see $VIMRUNTIME/ftplugin/go.vim
 #^ already done previously
@@ -54,3 +54,7 @@ endif
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal syntax< nowrap< tabstop< softtabstop< shiftwidth< shiftround< expandtab< keywordprg< makeprg< formatprg< dictionary< tags< omnifunc< showbreak<'
+b:undo_ftplugin ..= ' | silent! iunmap <buffer> <CR>'

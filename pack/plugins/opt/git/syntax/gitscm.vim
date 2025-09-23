@@ -3,11 +3,12 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if !empty(get(b:, "current_syntax"))
+if exists('b:current_syntax')
   finish
 endif
 
 # git syntax
-setlocal syntax=git
+# setlocal syntax=git
+runtime! syntax/git.vim
 
-b:current_syntax = "git"
+b:current_syntax = "gitscm"

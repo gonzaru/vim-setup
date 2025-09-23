@@ -134,7 +134,7 @@ export def Help()
     .               # toggle the visualization of the hidden files
     <C-f>           # search files in the selected directory
     <C-g>           # grep files in the selected directory
-    <2-RightMouse>  # find or grep files in the selected directory
+    <RightMouse>    # find or grep files in the selected directory
     <ESC>           # close Se window [q]
     H               # shows Se help information [K]
   END

@@ -3,10 +3,10 @@ vim9script noclear
 # Distributed under the terms of the GNU General Public License v3
 
 # do not read the file if it is already loaded
-if get(b:, "did_ftplugin_after")
-  finish
-endif
-b:did_ftplugin_after = true
+# if get(b:, "did_ftplugin_after")
+#   finish
+# endif
+# b:did_ftplugin_after = true
 
 # see $VIMRUNTIME/ftplugin/sh.vim
 #^ already done previously
@@ -14,9 +14,9 @@ b:did_ftplugin_after = true
 # SH
 # :help ft-posix-syntax
 if getline(1) =~ "bash"
-  g:is_bash = true
+  b:is_bash = true
 else
-  g:is_posix = true
+  b:is_posix = true
 endif
 setlocal syntax=ON
 #^ setlocal formatoptions-=t formatoptions+=croql
@@ -42,3 +42,8 @@ endif
 if g:misc_enabled
   misc#MatchAdd({'group': 'ColorColumn', 'pattern': '\%120v', 'priority': 10})
 endif
+
+# undo
+b:undo_ftplugin = 'setlocal syntax< formatoptions< nowrap< showbreak< tabstop< softtabstop< shiftwidth< shiftround< expandtab< makeprg< formatprg<'
+b:undo_ftplugin ..= ' | silent! iunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! unlet b:is_bash | silent! unlet b:is_posix'
