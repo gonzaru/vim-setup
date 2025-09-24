@@ -655,17 +655,21 @@ enddef
 
 # filter completions
 def FilterCompletions(server: dict<any>, items: list<dict<any>>): list<any>
-  var fitems = items
+  var fitems = copy(items)
+
   # python only
   if server.language == 'python'
     if !g:lsp_python_auto_imports
-      fitems = filter(items, (_, v) => !has_key(v, 'additionalTextEdits'))
-    endif
-    if g:lsp_python_sort_dunders
-      var Key = (d: dict<any>) => get(d, 'sortText', get(d, 'label', ''))
-      fitems = sort(items, (a, b) => Key(a) < Key(b) ? -1 : Key(a) > Key(b) ? 1 : 0)
+      fitems = filter(fitems, (_, v) => !has_key(v, 'additionalTextEdits'))
     endif
   endif
+
+  # sort by sortText
+  if g:lsp_sort_by_sorttext
+    var Key = (d: dict<any>) => get(d, 'sortText', get(d, 'label', ''))
+    sort(fitems, (a, b) => Key(a) < Key(b) ? -1 : Key(a) > Key(b) ? 1 : 0)
+  endif
+
   return fitems
 enddef
 
@@ -803,7 +807,10 @@ export def OmniFunc(findstart: number, base: string): any
 
   # only with prefix (base)
   if !empty(base)
-    items = filter(items, (_, it) => stridx(it.label, base) == 0)
+    # items = filter(items, (_, it) => stridx(it.label, base) == 0)
+    # ignore case
+    var baseLower = tolower(base)
+    items = filter(items, (_, it) => stridx(tolower(it.label), baseLower) == 0)
   endif
 
   # filter

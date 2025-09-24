@@ -13,8 +13,8 @@ g:lsp_allowed_types = ["go", "python", "terraform"]
 if !exists('g:lsp_python_auto_imports')
   g:lsp_python_auto_imports = false
 endif
-if !exists('g:lsp_python_sort_dunders')
-  g:lsp_python_sort_dunders = true
+if !exists('g:lsp_sort_by_sorttext')
+  g:lsp_sort_by_sorttext = true
 endif
 if !exists('g:lsp_rename_confirm')
   g:lsp_rename_confirm = true
