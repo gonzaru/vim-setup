@@ -10,8 +10,8 @@ vim9script noclear
 # fmt.Printf("Hello world!") (matches fmt)
 if hlexists('goCustomFunctionName1')
   syntax clear goCustomFunctionName1
-  syntax match goCustomFunctionName1 '\w\+\ze\.'
 endif
+syntax match goCustomFunctionName1 '\w\+\ze\.'
 
 # TODO:
 # // Add description (Add needs to be bold)
@@ -19,4 +19,4 @@ endif
 
 # TODO: sf/sf.go line 77 (int, error) color on int"
 
-b:current_syntax_after = "go"
+# b:current_syntax_after = "go"
