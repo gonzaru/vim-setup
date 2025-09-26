@@ -94,6 +94,7 @@ g:runprg_enabled = true           # run programs
 g:scratch_enabled = true          # scratch stuff
 g:se_enabled = true               # se plugin (simple explorer)
 g:searcher_enabled = true         # search files and find matches
+g:session_enabled = true          # session
 g:statusline_enabled = true       # statusline
 g:tabline_enabled = true          # tab page
 g:utils_enabled = true            # utils for misc plugin and generic use
@@ -121,6 +122,7 @@ const plugins = [
   'scratch',
   'se',
   'searcher',
+  'session',
   'tabline',
   'xkb'
 ]
@@ -242,7 +244,7 @@ set noerrorbells            # turn off error bells (do not bell on errors)
 set belloff=all             # turn off error bells (do not bell on all events)
 set novisualbell            # turn off visual bell (no sound, no visuals)
 set title                   # update title window (dwm top bar)
-set titlestring=%F          # when non-empty, sets the title of the window. it uses statusline syntax (default empty)
+set titlestring=%F          # when non-empty, sets the title of the window. it uses statusline syntax (default: empty)
 set titleold=               # do not show default title "thanks for flying vim" if set notitle
 set noicon                  # the icon text of the window will not be set to the value of iconstring
 set noallowrevins           # allow ctrl-_ in insert and command-line mode (default is off)
@@ -267,7 +269,7 @@ set commentstring=          # empty template for a comment (default /* %s */)
 set scrolloff=0             # minimal number of screen lines to keep above/below the cursor (0, defaults.vim 5, 999 center)
 set sidescroll=0            # minimal number of columns to scroll horizontally (default 0)
 set sidescrolloff=0         # minimal number of screen columns to keep to the left and to the right of the cursor
-# set smoothscroll          # scrolling using screen lines
+set smoothscroll            # scrolling using screen lines
 set nostartofline           # some jump commands move the cursor to the first non-blank like <C-^> previous buffer
 set nojoinspaces            # disable adding to spaces after '.' when joining a file, adding one instead of two
 set nofixeol                # do not add an EOL at the end of file if missing, keep original file as is (default on)
@@ -293,6 +295,7 @@ set hlsearch                # to highlight all search matches
 nohlsearch                  # but stop highlighting initially
 set incsearch               # jumps to search word when typing on serch /foo (default no)
 set nospell                 # disable spell checking
+# set spelllang=en,ru       # a comma-separated list of word list name (default "en"), see autoload/misc.vim -> SetImOptions()
 set spelloptions+=camel     # camel CaseWord is considered a separate word
 set spellsuggest=best,15    # method and the maximum number of suggestions (default best)
 set noshowmatch             # disable matching parenthesis
@@ -304,6 +307,7 @@ set foldopen-=block         # don't open folds when jumping with "(", "{", "[[",
 set foldlevelstart=99       # all folds open (default -1)
 set cursorline              # mark with another color the current cursor line
 set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
+set virtualedit=block       # allow virtual editing in visual block mode <C-v> (default: empty)
 set path=.,,,**             # set path for finding files with :find (default .,/usr/include,,)
 set noemoji                 # don't consider unicode emoji characters to be full width
 set updatetime=300          # used for the |CursorHold| autocommand event
@@ -405,14 +409,18 @@ if has('gui_running')
     endif
   endif
   execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
-  g:guifont_orig = &guifont
+  var keep_guioptions = exists('g:guioptions_save') && &guioptions =~ "m"  # menu bar is present
+  g:guifont_save = &guifont
+  g:guioptions_save = &guioptions
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
-  set guioptions=acdgkM                                # do not load menus for gui (default aegimrLtT)
+  if !keep_guioptions
+    set guioptions=acdgkM                              # do not load menus for gui (default: aegimrLtT)
+  endif
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
   set mouseshape-=v:rightup-arrow                      # by default uses a left arrow that confuses
   set mouseshape+=v:beam                               # change it by beam shape (as in other apps)
   set nomousefocus                                     # mouse pointer is active automatically on the focused window
-  set mousehide                                        # hide the mouse pointer while typing (default on)
+  set mousehide                                        # hide the mouse pointer while typing (default: on)
   set winaltkeys=no                                    # disable the access to menu gui entries by using the ALT key
 endif
 
@@ -420,7 +428,7 @@ endif
 # if *syntax on*, set it *after* filetype plugin on
 # :help syn-manual
 # enable syntax rules for specific files (setlocal syntax=ON/OFF)
-# maximum column for syntax items (default 3000)
+# maximum column for syntax items (default: 3000)
 if has("syntax")
   syntax manual
   # debug :syntime on, :syntime report
@@ -469,8 +477,8 @@ endif
 if has('keymap') && has("langmap") && exists("+langremap")
   set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
   # set keymap=russian-jcuken   # XFree86 'ru' keymap compatible (see inoremap <C-^>)
-  set iminsert=0                # 0 lmap is off and IM is off (default 0)
-  set imsearch=-1               # 0 lmap is off and IM is off (default -1)
+  set iminsert=0                # 0 lmap is off and IM is off (default: 0)
+  set imsearch=-1               # 0 lmap is off and IM is off (default: -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
   # TODO <leader><C-^>
   inoremap <C-^> <Cmd>if empty(&keymap) <bar> set keymap=russian-jcuken <bar> endif<CR><C-^><ScriptCmd>misc#SetImOptions()<CR>
@@ -478,10 +486,10 @@ endif
 
 # wildmenu
 if has("wildmenu")
-  set wildchar=<Tab>              # character to type to start wildcard expansion (default <Tab>)
+  set wildchar=<Tab>              # character to type to start wildcard expansion (default: <Tab>)
   set wildcharm=<C-z>             # like 'wildchar' but it works in macros and mappings (<C-z> becomes <Tab>)
   set wildmenu                    # enchange command line completion
-  set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default full)
+  set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default: full)
   set wildignorecase              # case is ignored when completing files and directories (see fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
   # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
@@ -496,7 +504,7 @@ if has('balloon_eval') || has('balloon_eval_term')
 endif
 
 # statusline
-set showtabline=1  # to show tab only if there are at least two tabs (2 to show tab always) (default 1)
+set showtabline=1  # to show tab only if there are at least two tabs (2 to show tab always) (default: 1)
 # custom tabline (see :help setting-tabline)
 if get(g:, "tabline_enabled")
   set tabline=%!tabline#MyTabLine()
@@ -504,9 +512,9 @@ endif
 # custom statusline
 if get(g:, "statusline_enabled")
   # %{statusline#GetStatus()} vs %{statusline#statusline_full} vs g:statusline_full
-  set statusline=%<%F\ %h%q%w%m%r\ %{statusline#ShortPath(fnamemodify(getcwd(),':~'))}%=%{fnamemodify(v:this_session,':t:r')}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{statusline#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%q%w%m%r\ %{statusline#ShortPath(fnamemodify(getcwd(),':~'))}%=%{!empty(v:this_session)?'*'..fnamemodify(v:this_session,':t:r'):''}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]%{get(g:,'statusline_full','')}%{statusline#GetImOptions("lang",1)}\ %-15.(%l,%c%V%)\ %P
 else
-  set statusline=%<%F\ %h%m%r\ %{fnamemodify(getcwd(),':~')}%=%{fnamemodify(v:this_session,':t:r')}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
+  set statusline=%<%F\ %h%m%r\ %{fnamemodify(getcwd(),':~')}%=%{!empty(v:this_session)?'*'..fnamemodify(v:this_session,':t:r'):''}\ %{&filetype}\ %{&fileencoding}[%{&fileformat}]\ %-14.(%l,%c%V%)\ %P
 endif
 
 # vertical seperator for vertical split windows
@@ -520,7 +528,7 @@ set backspace=indent,eol,start
 # wrapping
 set nowrap               # disable wrap (enabled by default)
 set nolinebreak          # don't wrap long lines using at character in 'breakat'
-set showbreak=           # string to put at the start of wrapped lines. :set sbr=>\ contains one space! (default empty)
+set showbreak=           # string to put at the start of wrapped lines. :set sbr=>\ contains one space! (default: empty)
 set breakindent          # wrapped lines will follow indentation
 set breakindentopt+=sbr  # display the 'showbreak' value before the indentation
 
@@ -543,14 +551,14 @@ set grepformat=%f:%l:%c:%m
 set backup
 set writebackup
 set backupcopy=yes
-set backupext=~                   # (default is "~")
+set backupext=~                   # (default: "~")
 set backupdir=$HOME/.vim/backups
 set directory=$HOME/.vim/tmp//    # // use absolute path
 
 # :help undo-persistence
 if has('persistent_undo')
   set undofile                    # automatically save your undo history when you write a file
-  set undolevels=1000             # (default is 1000)
+  set undolevels=1000             # (default: 1000)
   set undodir=$HOME/.vim/undodir  # directory to store undo files
 endif
 
@@ -576,9 +584,9 @@ set viewoptions-=curdir
 
 # buffers
 set hidden    # buffer becomes hidden when it is abandoned
-set report=0  # show always the number of lines changed (default 2)
+set report=0  # show always the number of lines changed (default: 2)
 set confirm   # use dialog confirmation before exiting if files have not been saved
-set more      # when on, listings pause when the whole screen is filled (default on)
+set more      # when on, listings pause when the whole screen is filled (default: on)
 
 # indent
 set autoindent      # copy indent from current line when starting a new line
@@ -587,7 +595,9 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # set smartindent   # clever autoindenting, works for C-like programs (see cinwords)
 
 # :help ins-completion
-# set iskeyword+=-  # keywords (default "@,48-57,_,192-255")
+# set autocomplete                  # shows a completion menu as you type
+# set completefuzzycollect=keyword  # (default: empty)
+# set iskeyword+=-                  # keywords (default: "@,48-57,_,192-255")
 # <C-x><C-o>
 set omnifunc=syntaxcomplete#Complete
 # <C-x><C-u>
@@ -611,9 +621,9 @@ endif
 # k: dictionary files with dictionary option
 # t: tags
 # set complete=.,w,b,u,k,t
-set complete=.,w,b,u  # (default .,w,b,u,k,t)
-set pumheight=20      # maximum number of items to show in the popup menu (default 0)
-set pumwidth=15       # minimum width to use for the popup menu (default 15)
+set complete=.,w,b,u  # (default: .,w,b,u,k,t)
+set pumheight=20      # maximum number of items to show in the popup menu (default: 0)
+set pumwidth=15       # minimum width to use for the popup menu (default: 15)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -683,7 +693,11 @@ def MapInsertTab(mode: string): string
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
   elseif pumvisible()
-    keystroke = complete_info().selected != -1 ? "\<C-y>" : "\<C-e>"
+    if &autocomplete
+      keystroke = complete_info().selected == -1 ? "\<C-n>\<C-y>" : "\<C-y>"
+    else
+      keystroke = complete_info().selected != -1 ? "\<C-y>" : "\<C-e>"
+    endif
   endif
   return keystroke
 enddef
@@ -719,51 +733,7 @@ command! Please {
 }
 
 # sessions
-def CompleteSessionLoad(arglead: string, _, _): list<string>
-  var sessions = map(sort(globpath(sessiondir, "*", 0, 1)), "fnamemodify(v:val, ':t')")
-  return filter(sessions, $"v:val =~ '^{arglead}'")
-enddef
-command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionLoad {
-  execute $"source {sessiondir}/{<f-args>}"
-  silent echomsg $"session {fnamemodify(v:this_session, ":p:~")} loaded"
-}
-command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionDelete {
-  var bfile = $"{sessiondir}/{<f-args>}"
-  var dfile = '<args>' =~ '\.vim$' ?  $"{bfile}" : $"{bfile}.vim"
-  var sname = expand('<args>')
-  var res = input($"Are you sure to delete '{sname}'? (yes, no): ")
-  redraw!
-  if res == "y" || res == "yes"
-    if filereadable(dfile)
-      if delete(dfile) == 0
-        echomsg $"session '{sname}' was removed"
-      else
-        echoerr $"failed to delete session '{sname}'"
-      endif
-    else
-      echoerr $"session '{sname}' is not readable"
-    endif
-  endif
-}
-def SessionWrite(file: string): void
-  if empty(file)
-    return
-  endif
-  var sname = fnamemodify(file, ':t:r')
-  var dfile = $"{sessiondir}/{sname}.vim"
-  var res = input($"Are you sure to write session '{sname}'? (yes, no): ")
-  redraw!
-  if res == "yes" || res == "y"
-    execute $"mksession! {dfile}"
-    if filereadable(dfile)
-      echomsg $"session '{sname}' was written"
-    else
-      echoerr $"session '{sname}' is not readable"
-    endif
-  endif
-enddef
-command! -nargs=1 -complete=customlist,CompleteSessionLoad SessionWrite SessionWrite(<f-args>)
-nnoremap <leader><C-w> <ScriptCmd>SessionWrite(v:this_session)<CR>
+# see session plugin
 
 # search & replace
 nnoremap <leader>% :%s/\<<C-r>=expand("<cword>")<CR>\>//g<Left><Left>
@@ -919,9 +889,9 @@ nnoremap <leader>, :tabprevious<CR>
 nnoremap <leader>. :tabnext<CR>
 
 # buffers
-nnoremap <leader>n :bnext<CR>
+# nnoremap <leader>n :bnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
-nnoremap <leader>p :bprev<CR>
+# nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
 nnoremap <nowait><leader><leader> :b #<CR>
 nnoremap <leader><C-g> 2<C-g>
@@ -1014,10 +984,10 @@ command! SwapWindow execute "normal! \<C-w>x"
 # grep using grepprg + quickfix
 command! -nargs=+ -complete=file Grep execute "silent grep! <args>" | cwindow | redraw!
 command! -nargs=+ -complete=file Grepi {
-  var grepprg_orig = &grepprg
+  var grepprg_save = &grepprg
   execute $"set grepprg={substitute(fnameescape(&grepprg), 'smart-case\|case-sensitive', 'ignore-case', '')}"
   execute "silent grep! <args>"
-  execute $"set grepprg={fnameescape(grepprg_orig)}"
+  execute $"set grepprg={fnameescape(grepprg_save)}"
   cwindow
   redraw!
 }
