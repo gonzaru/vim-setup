@@ -59,11 +59,23 @@ nnoremap <silent> <script> <Plug>(lsp-ready) <ScriptCmd>lsp.Ready()<CR>
 if get(g:, 'lsp_no_mappings') == 0
   if empty(mapcheck("<leader>gd", "n"))
     nnoremap <leader>gd <Plug>(lsp-definition)
+  endif
+  if empty(mapcheck("<leader><C-]>", "n"))
     nnoremap <leader><C-]> <Plug>(lsp-definition)
+  endif
+  if empty(mapcheck("<leader>gi", "n"))
     nnoremap <leader>gi <Plug>(lsp-hover)
+  endif
+  if empty(mapcheck("<leader>gs", "n"))
     nnoremap <leader>gs <Plug>(lsp-references)
+  endif
+  if empty(mapcheck("<leader>gS", "n"))
     nnoremap <leader>gS <Plug>(lsp-signature)
+  endif
+  if empty(mapcheck("<leader>GS", "n"))
     nnoremap <leader>GS <Plug>(lsp-document-symbol)
+  endif
+  if empty(mapcheck("<leader>gr", "n"))
     nnoremap <leader>gr <Plug>(lsp-rename)
   endif
 endif
