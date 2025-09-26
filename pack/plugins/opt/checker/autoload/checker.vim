@@ -258,7 +258,9 @@ export def CheckAsync(lang: string, file: string, tools: dict<string>): void
       opts.in_buf = bufnr(file)
     endif
     var newjob = job_start(cmd, opts)
-    add(JOB_QUEUE[lang][tools.exttool], job_info(newjob)['process'])
+    if job_status(newjob) == 'run'
+      add(JOB_QUEUE[lang][tools.exttool], job_info(newjob)['process'])
+    endif
   endif
 enddef
 

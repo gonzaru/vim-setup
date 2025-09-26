@@ -94,7 +94,9 @@ export def GitBranch(file: string): void
       'err_io': 'out',
       'cwd': cwd
     })
-    add(JOB_QUEUE, job_info(newJob)['process'])
+    if job_status(newJob) == 'run'
+      add(JOB_QUEUE, job_info(newJob)['process'])
+    endif
   endif
 enddef
 
