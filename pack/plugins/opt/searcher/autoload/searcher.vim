@@ -476,11 +476,8 @@ def PopupTitle(): string
       counter = $'{repeat(' ', maxData - len(shown))}{shown}/{len(popData.all.raw)}'
     endif
   endif
-  # var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy)
-  #   ? '+fuzzy'
-  #   : '-fuzzy'
-  # var title = $' {popData.kind}: {cwd} {counter} {fchars} '
-  var title = $' {popPrompt.message}{popData.kind}: {cwd} {counter} '
+  var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy) ? '+fuzzy ' : ''
+  var title = $' {popPrompt.message}{popData.kind}: {cwd} {fchars}{counter} '
   return repeat('─', (&columns / 2) - strchars(title) + 0) .. title  # + 0 (see popPrompt maxwidth)
 enddef
 
