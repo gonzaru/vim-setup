@@ -129,7 +129,7 @@ highlight! Conceal guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE ct
 # TODO ~ (new buffer)
 execute $"highlight! NonText guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link EndOfBuffer NonText
-highlight! link PreInsert NonText
+execute $"highlight! PreInsert guifg={isdark ? '#585858' : '#626262'} guibg=NONE ctermfg={isdark ? 240 : 241} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 # tabs
 highlight! TabLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
