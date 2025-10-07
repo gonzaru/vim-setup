@@ -18,6 +18,12 @@ endif
 if !exists('g:session_file_extension')
   g:session_file_extension = 'vim'
 endif
+if !exists('g:session_save_colorscheme')
+  g:session_save_colorscheme = false
+endif
+if !exists('g:session_save_menubar')
+  g:session_save_menubar = false
+endif
 
 # autoload
 import autoload '../autoload/session.vim'

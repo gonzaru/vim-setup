@@ -103,7 +103,7 @@ enddef
 export def Load(dir: string, file: string)
   Close(true)
   execute $'source {dir}/{file}'
-  echomsg $"session {fnamemodify(v:this_session, ':t:r')} loaded"
+  echomsg $"session '{fnamemodify(v:this_session, ':t:r')}' was loaded"
   if exists(':ReloadVimrc') == 2
     silent! ReloadVimrc
   endif
@@ -129,6 +129,7 @@ export def Write(dir: string, file: string, force: bool = false): void
     execute $'mksession! {dstFile}'
     if filereadable(dstFile)
       echomsg $"session '{name}' was written"
+      SaveOptions(dstFile)
     else
       echoerr $"session '{name}' is not readable"
     endif
@@ -154,5 +155,45 @@ export def Rename(dir: string): void
   endif
   if !filereadable($'{dir}/{src}') && filereadable($'{dir}/{dst}')
     echomsg $"session '{fnamemodify(src, ':t:r')}' was renamed to '{fnamemodify(dst, ':t:r')}'"
+  endif
+enddef
+
+# save options
+def SaveOptions(file: string): void
+  if !filereadable(file) || &sessionoptions =~ 'options'  # options/localoptions
+    return
+  endif
+  var body = readfile(file)
+  if empty(body)
+    return
+  endif
+  var save = true
+  # gui menu
+  if g:session_save_menubar
+    if has('gui_running')
+      if exists('g:did_install_default_menus') && &guioptions =~ 'm'
+        body = readfile(file)
+        insert(body, $'setlocal guioptions={&guioptions}', -3)
+        insert(body, 'unlet! g:did_install_default_menus', -3)
+        insert(body, 'unlet! g:did_install_syntax_menu', -3)
+        insert(body, 'source $VIMRUNTIME/menu.vim', -3)
+        save = true
+      endif
+    endif
+  endif
+  # colorscheme
+  if g:session_save_colorscheme
+    if g:colors_name == 'darkula' && exists(':Darkula') == 2
+      insert(body, 'Darkula', -3)
+    elseif g:colors_name == 'plan9' && exists(':Plan9') == 2
+      insert(body, 'Plan9', -3)
+    else
+      insert(body, $'set background={&background}', -3)
+      insert(body, $'colorscheme {g:colors_name}', -3)
+    endif
+    save = true
+  endif
+  if save
+    writefile(body, file)
   endif
 enddef
