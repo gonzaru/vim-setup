@@ -45,6 +45,11 @@ if get(g:, "complementum_enabled")
 endif
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
+  # setlocal complete^=o^10
+  if &autocomplete
+    # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
+    inoremap <buffer> <nowait> <silent> <expr> . (getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+  endif
 endif
 if get(g:, "autoendstructs_enabled")
   inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
@@ -56,5 +61,5 @@ if g:misc_enabled
 endif
 
 # undo
-b:undo_ftplugin = 'setlocal syntax< nowrap< tabstop< softtabstop< shiftwidth< shiftround< expandtab< keywordprg< makeprg< formatprg< dictionary< tags< omnifunc< showbreak<'
+b:undo_ftplugin = 'setlocal syntax< nowrap< tabstop< softtabstop< shiftwidth< shiftround< expandtab< keywordprg< makeprg< formatprg< dictionary< tags< omnifunc< complete< showbreak<'
 b:undo_ftplugin ..= ' | silent! iunmap <buffer> <CR>'

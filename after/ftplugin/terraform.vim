@@ -15,7 +15,12 @@ vim9script noclear
 setlocal syntax=ON
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
+  # setlocal complete^=o^10
+  if &autocomplete
+    # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
+    inoremap <buffer> <nowait> <silent> <expr> . (getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+  endif
 endif
 
 # undo
-b:undo_ftplugin = 'setlocal syntax< omnifunc<'
+b:undo_ftplugin = 'setlocal syntax< omnifunc< complete<'

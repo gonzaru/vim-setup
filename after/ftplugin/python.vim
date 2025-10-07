@@ -29,6 +29,11 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 #^ setlocal omnifunc=python3complete#Complete
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
+  # setlocal complete^=o^10
+  if &autocomplete
+    # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
+    inoremap <buffer> <nowait> <silent> <expr> . (getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+  endif
 endif
 #^ setlocal keywordprg=python3\ -m\ pydoc
 setlocal makeprg=pep8\ %
@@ -41,4 +46,4 @@ if g:misc_enabled
 endif
 
 # undo
-b:undo_ftplugin = 'setlocal syntax< nowrap< showbreak< shiftround< cinwords< omnifunc< makeprg< formatprg<'
+b:undo_ftplugin = 'setlocal syntax< nowrap< showbreak< shiftround< cinwords< omnifunc< complete< makeprg< formatprg<'
