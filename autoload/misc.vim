@@ -114,7 +114,7 @@ export def FontSize(opt: string): void
   var num: number
   var spl: list<string>
   if opt == "reset"
-    &guifont = g:guifont_orig
+    &guifont = g:guifont_save
     return
   endif
   # TODO
@@ -361,15 +361,15 @@ enddef
 
 # sh
 export def SH(): void
-  var guioptions_orig: string
+  var guioptions_save: string
   if !has('gui_running')
     utils.EchoWarningMsg("Warning: only use this function with the gui")
     return
   endif
-  guioptions_orig = &l:guioptions
+  guioptions_save = &l:guioptions
   setlocal guioptions+=!
   sh
-  execute $"setlocal guioptions={guioptions_orig}"
+  execute $"setlocal guioptions={guioptions_save}"
 enddef
 
 # delete a register
