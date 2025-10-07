@@ -70,7 +70,7 @@ export def ToggleDefaultKeystroke(option: string)
 enddef
 
 # complete the key
-export def CompleteKey(key: string)
+export def CompleteKey(key: string): void
   if g:complementum_debuginfo
     defer DebugInfo()
   endif
@@ -81,7 +81,43 @@ export def CompleteKey(key: string)
       feedkeys(g:complementum_keystroke_tab, "n")
     endif
   elseif key == "backspace"
-    feedkeys(g:complementum_keystroke_backspace, 'n')
+    # feedkeys(g:complementum_keystroke_backspace, 'n')
+
+    # skip
+    if &autocomplete
+      feedkeys(g:complementum_keystroke_backspace, 'n')
+      return
+    endif
+
+    var cline = getline('.')
+    var ccol = col('.')
+    var prev = (ccol > 1) ? matchstr(cline[ : ccol - 2], '.$') : ''
+    var prev2 = (ccol > 1) ? matchstr(cline[ : ccol - 3], '.$') : ''
+
+    var omni = false
+    if !pumvisible()
+      var num = ccol
+      while num >= 1
+        var char = matchstr(cline[ : num - 3], '.$')
+        if char =~ '\s'
+          break
+        endif
+        if IsTriggerableOmni(&filetype, char)
+          omni = true
+          break
+        endif
+        --num
+      endwhile
+    endif
+
+    if !pumvisible() && omni && prev =~ '\s'
+      feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
+    elseif !pumvisible() && prev =~ '\s' && prev2 =~ '^\w$'
+      feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_default, 'n')
+    else
+      feedkeys(g:complementum_keystroke_backspace, 'n')
+    endif
+
     # used for CompleteOmni, see CompleteFunc (lsp plugin)
     # char to be deleted
     # var dchar = (col('.') > 1) ? matchstr(getline('.')[ : col('.') - 2], '.$') : ''
@@ -110,52 +146,40 @@ export def CompleteKey(key: string)
 enddef
 
 # checks if the keystroke is triggerable (default)
-def IsTriggerableDefault(): bool
-  var num: number
-  var char: string
-  var cline: string
-  var ccol: number
-  if g:complementum_minchars < 1
+def IsTriggerableDefault(ichar: string): bool
+  const minchars = g:complementum_minchars
+  if minchars < 1
     return false
   endif
-  cline = getline('.')
-  ccol = col('.')
+  # non-word
+  if minchars == 1 && ichar !~ '^\W$'
+    return true
+  endif
+  var cline = getline('.')
+  var ccol = col('.')
   # start of line
-  if (ccol - g:complementum_minchars) == 0
-    if g:complementum_minchars == 1 || len(trim(cline)) == g:complementum_minchars - 1 && cline[0] =~ '^\w$'
+  if (ccol - minchars) == 0
+    if minchars == 1 || len(trim(cline)) == minchars - 1 && cline[0] =~ '^\w$'
       return true
     endif
   endif
-  num = 0
-  while num <= g:complementum_minchars
-    char = cline[ccol - 2 - num]
-    if char =~ '^\W$' # non-word character
+  var num = 0
+  while num <= minchars
+    var char = cline[ccol - 2 - num]
+    if char =~ '^\W$'
       break
     endif
     ++num
   endwhile
-  return num == g:complementum_minchars - 1
+  return num == minchars - 1
 enddef
 
 # checks if the keystroke is triggerable (omni)
 def IsTriggerableOmni(lang: string, ichar: string): bool
-  if !has_key(g:complementum_omnichars, lang)
+  if !has_key(g:complementum_omnichars, lang) || g:complementum_minchars < 1
     return false
   endif
-  var cline = getline('.')
-  var ccol = col('.')
-  var omni = false
-  if index(g:complementum_omnichars[lang], ichar) >= 0
-    omni = true
-  elseif g:complementum_minchars == 1 && index(g:complementum_omnichars[lang], cline[ccol - 2]) >= 0
-    omni = true
-  elseif g:complementum_minchars < 1 || cline[ccol - 2] !~ '^\w$' || ichar =~ '^\W$'
-    omni = false
-  elseif cline[ccol - 2 - g:complementum_minchars] =~ '^\w$'
-    && index(g:complementum_omnichars[lang], cline[ccol - 1 - g:complementum_minchars]) >= 0
-    omni = true
-  endif
-  return omni
+  return index(g:complementum_omnichars[lang], ichar) >= 0
 enddef
 
 # complete (default)
@@ -170,7 +194,7 @@ export def Complete(lang: string, ichar: string): void
     CompleteOmni(lang)
   elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing
-  elseif IsTriggerableDefault()
+  elseif IsTriggerableDefault(ichar)
     feedkeys(g:complementum_keystroke_default, "n")
   endif
 enddef
@@ -217,5 +241,20 @@ def CompleteOmni(lang: string): void
   else
     # fallback to default
     feedkeys(g:complementum_keystroke_default, "n")
+  endif
+enddef
+
+# complete command-line
+export def CmdLineChanged(): void
+  var info = cmdcomplete_info()
+  var cmd = getcmdline()
+  if empty(info) || getcmdcompltype() != 'file'
+    return
+  endif
+  if info.selected != -1
+    if getcmdcomplpat() =~ '\/\/$'
+      # foo// -> foo/<complete>
+      setcmdline(substitute(cmd, '\/\/$', '/', ''))
+    endif
   endif
 enddef
