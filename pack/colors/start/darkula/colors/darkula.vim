@@ -71,7 +71,7 @@ execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg={isdark ? '#44
 execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 # vertical split
-execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 execute $"highlight! Cursor guifg={cursor2 ? "white" : "black"} guibg={cursor2 ? "#606060" : colors.normal.guifg} gui=NONE cterm=NONE term=NONE"
 # language keymap cursor (i_CTRL-^)
