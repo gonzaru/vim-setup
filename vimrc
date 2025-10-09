@@ -506,7 +506,7 @@ if has("wildmenu")
   set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default: full)
   set wildignorecase              # case is ignored when completing files and directories (see fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
-  # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
+  set wildoptions+=fuzzy          # (fuzzy) fuzzy matching
   set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
 endif
 
@@ -614,7 +614,9 @@ setglobal preserveindent  # when changing the indent of the current line, preser
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 set completeopt=menuone,noselect,fuzzy                # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
-set completefuzzycollect=keyword                      # (default: empty)
+if exists('&completefuzzycollect')
+  set completefuzzycollect=keyword                    # (default: empty)
+endif
 if has('popupwin')
   # set completeopt+=popup      # show extra information in a popup window
   set completeopt+=popuphidden  # like popup option but hidden by default
@@ -629,10 +631,11 @@ endif
 # u: unloaded buffers
 # k: dictionary files with dictionary option
 # t: tags
-# setglobal complete=.,w,b  # (default: .,w,b,u,k,t)
-setglobal complete=.^10,w^5,b^5
-set pumheight=12      # maximum number of items to show in the popup menu (default: 0)
-set pumwidth=15       # minimum width to use for the popup menu (default: 15)
+# set complete=.,w,b  # (default: .,w,b,u,k,t)
+set complete=.^10,w^5,b^5
+set pumborder=    # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
+set pumheight=12  # maximum number of items to show in the popup menu (default: 0)
+set pumwidth=15   # minimum width to use for the popup menu (default: 15)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)

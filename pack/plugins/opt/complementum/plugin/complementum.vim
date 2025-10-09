@@ -122,7 +122,7 @@ augroup complementum_cmdline
       g:complementum_wildmode_save = &wildmode
       g:complementum_wildoptions_save = &wildoptions
       set wildmode=noselect:lastused,full
-      set wildoptions=pum  # fuzzy
+      set wildoptions=pum,fuzzy
     endif
   }
   # [:/\?]
