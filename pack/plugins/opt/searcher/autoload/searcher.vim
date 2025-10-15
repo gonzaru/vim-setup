@@ -522,6 +522,21 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
+  # delete a word (bash-like C-w)
+  if key == "\<C-w>"
+    if strchars(popPrompt.query) > 0
+      if empty(trim(popPrompt.query))
+        popPrompt.query = ''
+      elseif popPrompt.query =~ '\S$'
+        popPrompt.query = substitute(popPrompt.query, '\S\+$', '', '')
+      else
+        popPrompt.query = substitute(popPrompt.query, '\S\+\s*$', '', '')
+      endif
+      ApplyFilter(id)
+    endif
+    return true
+  endif
+
   # delete all chars
   if key == "\<C-u>"
     popPrompt.query = ''
