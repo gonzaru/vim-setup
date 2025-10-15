@@ -266,23 +266,23 @@ set noshowcmd               # don't show command on the last line of screen (ex:
 set esckeys                 # allow usage of cursor keys within insert mode
 set lazyredraw              # on: redraw only when needed, nice for editing macros
 set linespace=0             # number of pixel lines inserted between characters (default is 0)
-set autoread                # automatically read the file if it has been modified externally
+setglobal autoread          # automatically read the file if it has been modified externally
 # set autowrite             # write automatically the contents of the file if it has been modified (:make, <C-]> etc.)
 # set autochdir             # change the current working directory when opening a file
 set noruler                 # don't show line and column number (see statusline)
 set magic                   # use extended regexp in search patterns
 set modelines=0             # do not use modelines
-setglobal nomodeline        # avoid modeline vulnerability
+set nomodeline              # avoid modeline vulnerability
 set equalalways             # windows are automatically made the same size after splitting or closing a window
 set helpheight=0            # zero disables this (default 20)
-setglobal formatoptions-=cro  # remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
-setglobal formatoptions+=j    # delete comment character when joining commented lines (:help fo-table) (default is tcq)
+set formatoptions-=cro      # remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
+set formatoptions+=j        # delete comment character when joining commented lines (:help fo-table) (default is tcq)
 set nrformats-=octal        # do not recognize octal numbers for Ctrl-A and Ctrl-X
-setglobal commentstring=    # empty template for a comment (default /* %s */)
+set commentstring=          # empty template for a comment (default /* %s */)
 setglobal scrolloff=0       # minimal number of screen lines to keep above/below the cursor (0, defaults.vim 5, 999 center)
-setglobal sidescroll=0      # minimal number of columns to scroll horizontally (default 0)
+set sidescroll=0            # minimal number of columns to scroll horizontally (default 0)
 setglobal sidescrolloff=0   # minimal number of screen columns to keep to the left and to the right of the cursor
-# setglobal smoothscroll    # scrolling using screen lines
+# set smoothscroll          # scrolling using screen lines
 set nostartofline           # some jump commands move the cursor to the first non-blank like <C-^> previous buffer
 set nojoinspaces            # disable adding to spaces after '.' when joining a file, adding one instead of two
 set nofixeol                # do not add an EOL at the end of file if missing, keep original file as is (default on)
@@ -293,34 +293,34 @@ set keymodel=startsel       # using a shifted special key starts (<S-Left,Right,
 set keymodel+=stopsel       # using non shifted stops (visual or select mode)
 set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 # set cpoptions+=n          # the column used for 'number' and 'relativenumber' will be used for text of wrapped lines
-setglobal nonumber          # print the line number in front of each line
-setglobal relativenumber    # show the line number relative to the line
+set nonumber                # print the line number in front of each line
+set relativenumber          # show the line number relative to the line
 # set numberwidth=4         # minimal number of columns to use for the line number (default 4)
 set laststatus=2            # to display the status line always
 set display=lastline        # the last line in a window will be displayed if possible
 set ignorecase              # case-insensitive search (also affects if == 'var', use if == 'var')
 set smartcase               # except if start with capital letter
-set tagcase=followscs       # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
-setglobal noinfercase       # when ignorecase is on and doing completion, the typed text is adjusted accordingly
+setglobal tagcase=followscs # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
+set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
 set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
 # set jumpoptions=stack     # make the jumplist behave like the tagstack
 set hlsearch                # to highlight all search matches
 nohlsearch                  # but stop highlighting initially
 set incsearch               # jumps to search word when typing on serch /foo (default no)
-setglobal nospell           # disable spell checking
+set nospell                 # disable spell checking
 # set spelllang=en,ru       # a comma-separated list of word list name (default "en"), see autoload/misc.vim -> SetImOptions()
-setglobal spelloptions+=camel  # camel CaseWord is considered a separate word
+set spelloptions+=camel     # camel CaseWord is considered a separate word
 set spellsuggest=best,15    # method and the maximum number of suggestions (default best)
 set noshowmatch             # disable matching parenthesis
 set matchtime=1             # seconds to show matching parenthesis
-setglobal matchpairs=(:),{:},[:]  # characters that form pairs (default "(:),{:},[:]")
-setglobal nofoldenable      # when off, all folds are open
-setglobal foldmethod=manual # disable automatic folding
+set matchpairs=(:),{:},[:]  # characters that form pairs (default "(:),{:},[:]")
+set nofoldenable            # when off, all folds are open
+set foldmethod=manual       # disable automatic folding
 set foldopen-=block         # don't open folds when jumping with "(", "{", "[[", "[{", etc.
 set foldlevelstart=99       # all folds open (default -1)
-setglobal cursorline        # mark with another color the current cursor line
+set cursorline              # mark with another color the current cursor line
 set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
-set virtualedit=block       # allow virtual editing in visual block mode <C-v> (default: empty)
+setglobal virtualedit=block # allow virtual editing in visual block mode <C-v> (default: empty)
 setglobal path=.,,,**       # set path for finding files with :find (default .,/usr/include,,)
 set noemoji                 # don't consider unicode emoji characters to be full width
 set updatetime=300          # used for the |CursorHold| autocommand event
@@ -329,7 +329,7 @@ set t_ut=                   # disable background color erase (BCE)
 
 # tags
 # echo tagfiles()
-set tags=./tags;,tags,./TAGS;,TAGS
+setglobal tags=./tags;,tags,./TAGS;,TAGS
 set tagrelative
 
 # vim
@@ -447,7 +447,7 @@ if has("syntax")
   # debug :syntime on, :syntime report
   # .vim/after/syntax
   # syntax sync fromstart
-  setglobal synmaxcol=256
+  set synmaxcol=256
 endif
 
 # see :filetype
@@ -482,7 +482,7 @@ if has("multi_byte")
 endif
 
 # show special characters (listchars must be after enconding configuration)
-setglobal nolist
+set nolist
 if &encoding == "utf-8"
   setglobal listchars=tab:»·,trail:¨,multispace:---+,precedes:<,extends:>
 endif
@@ -491,8 +491,8 @@ endif
 if has('keymap') && has("langmap") && exists("+langremap")
   set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
   # set keymap=russian-jcuken   # XFree86 'ru' keymap compatible (see inoremap <C-^>)
-  setglobal iminsert=0          # 0 lmap is off and IM is off (default: 0)
-  setglobal imsearch=-1         # 0 lmap is off and IM is off (default: -1)
+  set iminsert=0                # 0 lmap is off and IM is off (default: 0)
+  set imsearch=-1               # 0 lmap is off and IM is off (default: -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
   # TODO <leader><C-^>
   inoremap <C-^> <Cmd>if empty(&keymap) <bar> set keymap=russian-jcuken <bar> endif<CR><C-^><ScriptCmd>misc#SetImOptions()<CR>
@@ -540,31 +540,31 @@ setglobal fillchars=vert:\ ,fold:-,eob:\  # \ contains one space!
 set backspace=indent,eol,start
 
 # wrapping
-setglobal nowrap               # disable wrap (enabled by default)
-setglobal nolinebreak          # don't wrap long lines using at character in 'breakat'
-setglobal showbreak=           # string to put at the start of wrapped lines. :set sbr=>\ contains one space! (default: empty)
-setglobal breakindent          # wrapped lines will follow indentation
-setglobal breakindentopt+=sbr  # display the 'showbreak' value before the indentation
+set nowrap               # disable wrap (enabled by default)
+set nolinebreak          # don't wrap long lines using at character in 'breakat'
+setglobal showbreak=     # string to put at the start of wrapped lines. :set sbr=>\ contains one space! (default: empty)
+set breakindent          # wrapped lines will follow indentation
+set breakindentopt+=sbr  # display the 'showbreak' value before the indentation
 
 # tabs/spaces (see :retab)
-setglobal tabstop=2      # number of spaces a <tab> in the text stands for
-setglobal softtabstop=2  # if non-zero, number of spaces to insert for a <tab>
-setglobal shiftwidth=2   # number of spaces used for each step of (auto)indent
-setglobal shiftround     # round to shiftwidth for "<<" and ">>"
-setglobal expandtab      # expand <tab> to spaces in insert mode
-setglobal smarttab       # inserts blanks according to shiftwidth
+set tabstop=2      # number of spaces a <tab> in the text stands for
+set softtabstop=2  # if non-zero, number of spaces to insert for a <tab>
+set shiftwidth=2   # number of spaces used for each step of (auto)indent
+set shiftround     # round to shiftwidth for "<<" and ">>"
+set expandtab      # expand <tab> to spaces in insert mode
+set smarttab       # inserts blanks according to shiftwidth
 
 # search files
 # [l]grep[add][!]: grep -n $* /dev/null  (default)
 # %f:%l:%m,%f:%l%m,%f  %l%m (default)
 # --vimgrep
-set grepprg=rg\ --with-filename\ --line-number\ --column\ --no-heading\ --smart-case\ --color=never\ -uu\ --glob\ '!.git/'
-set grepformat=%f:%l:%c:%m
+setglobal grepprg=rg\ --with-filename\ --line-number\ --column\ --no-heading\ --smart-case\ --color=never\ -uu\ --glob\ '!.git/'
+setglobal grepformat=%f:%l:%c:%m
 
 # backup files
 set backup
 set writebackup
-set backupcopy=yes
+setglobal backupcopy=yes
 set backupext=~                   # (default: "~")
 set backupdir=$HOME/.vim/backups
 set directory=$HOME/.vim/tmp//    # // use absolute path
@@ -598,28 +598,28 @@ set confirm   # use dialog confirmation before exiting if files have not been sa
 set more      # when on, listings pause when the whole screen is filled (default: on)
 
 # indent
-setglobal autoindent      # copy indent from current line when starting a new line
-setglobal copyindent      # copy the structure of the existing lines indent when autoindenting a new line
-setglobal preserveindent  # when changing the indent of the current line, preserve it if possible
-# setglobal smartindent   # clever autoindenting, works for C-like programs (see cinwords)
+set autoindent      # copy indent from current line when starting a new line
+set copyindent      # copy the structure of the existing lines indent when autoindenting a new line
+set preserveindent  # when changing the indent of the current line, preserve it if possible
+# set smartindent   # clever autoindenting, works for C-like programs (see cinwords)
 
 # :help ins-completion
-# setglobal autocomplete          # shows a completion menu as you type:
-# set iskeyword+=-                # keywords (default: "@,48-57,_,192-255")
+# setglobal autocomplete  # shows a completion menu as you type:
+# set iskeyword+=-        # keywords (default: "@,48-57,_,192-255")
 # <C-x><C-o>
-# setglobal omnifunc=syntaxcomplete#Complete
+# set omnifunc=syntaxcomplete#Complete
 # <C-x><C-u>
-# setglobal completefunc=syntaxcomplete#Complete
+# set completefunc=syntaxcomplete#Complete
 
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-set completeopt=menuone,noselect,fuzzy                # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
+setglobal completeopt=menuone,noselect,fuzzy          # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 if exists('&completefuzzycollect')
   set completefuzzycollect=keyword                    # (default: empty)
 endif
 if has('popupwin')
-  # set completeopt+=popup      # show extra information in a popup window
-  set completeopt+=popuphidden  # like popup option but hidden by default
+  # setglobal completeopt+=popup      # show extra information in a popup window
+  setglobal completeopt+=popuphidden  # like popup option but hidden by default
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
   if exists('+completepopup')
     set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
@@ -655,7 +655,7 @@ endif
 # signs
 if has("signs")
   # draw only the sign column if contains signs
-  setglobal signcolumn=number
+  set signcolumn=number
 endif
 
 #-------------"
@@ -815,7 +815,6 @@ nnoremap <silent> <leader>sv :ReloadVimrc<CR>
 nnoremap <silent> <leader>sV :ReloadVimrcLocal<CR>
 nnoremap <silent> <leader>st :Theme<CR>
 nnoremap <silent> <leader>sa :ReloadVimrc<CR>:ReloadVimrcLocal<CR>:Theme<CR>
-
 # toggle
 nnoremap <leader>tgA :set autochdir! autochdir? <bar> echon " (set)"<CR>
 nnoremap <leader>tgn :setlocal number! number? <bar> echon " (setlocal)"<CR>
@@ -1032,7 +1031,7 @@ def FindPrg(file: string, _): list<string>
   return filter(files, $"v:val =~? '{file}'")
 enddef
 # :find with a function
-set findfunc=FindPrg
+setglobal findfunc=FindPrg
 
 # edit file in the same directory as the active window one
 nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
