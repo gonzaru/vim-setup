@@ -453,6 +453,14 @@ def PopupCreate(titlePrompt: any = v:none)
     highlight! SearcherPopupPrompt guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
     win_execute(popPrompt.id, "matchadd('SearcherPopupPrompt', '^' .. popPrompt.prompt .. '\\ze')")
   endif
+  # grep only
+  if popData.kind == 'grep'
+    highlight! link SearcherGrep PmenuMatch
+    win_execute(
+      popPrompt.id,
+      "matchadd('SearcherGrep', $'^[^' .. popPrompt.shape .. ']\\{1,' .. (g:searcher_popup_grep_minchars - 1) .. '}')"
+    )
+  endif
   # win_execute(popPrompt.id, 'setlocal wincolor=WildMenu')
   win_execute(popPrompt.id, "matchadd('SearcherPopupCursor', popPrompt.shape .. '$')")
 enddef
@@ -544,6 +552,20 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
+  # toggle case-sensitive (only grep)
+  if popData.kind == 'grep' && key == "\<C-y>"
+    var flag = join(g:searcher_grepprg_insensitive)
+    var idx = index(g:searcher_grepprg_cmd, flag)
+    if idx == -1
+      g:searcher_grepprg_cmd = insert(g:searcher_grepprg_cmd, flag, 1)
+    else
+      remove(g:searcher_grepprg_cmd, idx)
+    endif
+    popData.grepCmd = join(g:searcher_grepprg_cmd)
+    ApplyFilter(id)
+    return true
+  endif
+
   # toggle fuzzy (not grep)
   if popData.kind != 'grep' && key == "\<C-f>"
     g:searcher_popup_fuzzy = !g:searcher_popup_fuzzy
@@ -575,7 +597,16 @@ def CompletionFilter(id: number, key: string): bool
     return popup_filter_menu(id, "\<CR>")
   endif
 
-  # not <CR>
+  # <CR> (enter)
+  if key == "\<CR>"
+    # avoid to close
+    if len(popData.shown) == 1 && popData.shown[0] == ''
+      return true
+    endif
+    return popup_filter_menu(id, key)
+  endif
+
+  # not <CR> (enter)
   if strlen(key) == 1 && key != "\<CR>"
     popPrompt.query ..= key
     ApplyFilter(id)
@@ -583,6 +614,7 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
+  # any other key
   return popup_filter_menu(id, key)
 enddef
 
