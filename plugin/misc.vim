@@ -66,8 +66,8 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscBackGroundToggle misc.BackgroundToggle()
   command! MiscBufferKill misc.BufferKill()
   command! MiscCheckTrailingSpaces misc.CheckTrailingSpaces()
-  command! MiscCompleteOptFuzzyToggle misc.SettingsOptToggle("set", "completeopt", "fuzzy")
-  command! MiscCompleteOptNoSelectToggle misc.SettingsOptToggle("set", "completeopt", "noselect")
+  command! MiscCompleteOptFuzzyToggle misc.SettingsOptToggle("setglobal", "completeopt", "fuzzy")
+  command! MiscCompleteOptNoSelectToggle misc.SettingsOptToggle("setglobal", "completeopt", "noselect")
   command! MiscDiffToggle misc.DiffToggle()
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
@@ -82,12 +82,14 @@ if get(g:, 'misc_no_commands') == 0
   command! -nargs=1 -complete=customlist,misc#CompleteReloadPluginPack MiscReloadPluginOpt {
     misc.ReloadPluginPack(<f-args>, "opt")
   }
+  command! -nargs=0 MiscReloadPluginsOptAll misc.ReloadPluginsPackAll("opt")
   command! -nargs=1 -complete=customlist,misc#CompleteReloadPluginPack MiscReloadPluginStart {
     misc.ReloadPluginPack(<f-args>, "start")
   }
+  command! -nargs=0 MiscReloadPluginsStartAll misc.ReloadPluginsPackAll("start")
   command! MiscSH misc.SH()
-  command! MiscScrollToggleGlobal misc.ScrollToggle("set")
-  command! MiscScrollToggleLocal misc.ScrollToggle("setlocal")
+  command! MiscScrollToggleSetGlobal misc.ScrollToggle("setglobal")
+  command! MiscScrollToggleSetLocal misc.ScrollToggle("setlocal")
   command! MiscSetMaxFoldLevel misc.SetMaxFoldLevel()
   command! MiscSetPythonDynamic misc.SetPythonDynamic()
   command! MiscSignColumnToggle misc.SignColumnToggle()

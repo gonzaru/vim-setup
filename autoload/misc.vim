@@ -157,12 +157,12 @@ export def GuiMenuBarToggle(): void
     utils.EchoWarningMsg("Warning: only use this function with the gui")
     return
   endif
-  if &l:guioptions =~ "m"
-    setlocal guioptions-=m
-    setlocal guioptions+=M
+  if &guioptions =~ "m"
+    set guioptions-=m
+    set guioptions+=M
   else
-    setlocal guioptions-=M
-    setlocal guioptions+=m
+    set guioptions-=M
+    set guioptions+=m
     if !exists('g:did_install_default_menus')
       source $VIMRUNTIME/menu.vim
     endif
@@ -264,18 +264,16 @@ enddef
 
 # reload plugin (pack)
 export def ReloadPluginPack(plugin: string, kind: string): void
-  var dir: string
-  var files: list<string>
-  var ftplugin: string
   if !get(g:, $"{plugin}_enabled")
      utils.EchoErrorMsg($"Error: the plugin '{plugin}' is not enabled or does not exist")
      return
   endif
-  dir = $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}"
+  var dir = $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}"
   if !isdirectory(dir)
      utils.EchoErrorMsg( $"Error: '{fnamemodify(dir, ':~')}' is not a directory or does not exist")
      return
   endif
+  var ftplugin: string
   if plugin == "cyclebuffers"
     ftplugin = "cb"
   elseif plugin == "git"
@@ -285,14 +283,35 @@ export def ReloadPluginPack(plugin: string, kind: string): void
   endif
   execute $"g:loaded_{plugin} = false"
   execute $"g:autoloaded_{plugin} = false"
-  execute $"b:did_ftplugin_{ftplugin} = false"
-  files = [
-    $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/plugin/{plugin}.vim",
-    $"{$HOME}/.vim/pack/plugins/{kind}/{plugin}/autoload/{plugin}.vim"
+  var files = [
+    $"{dir}/plugin/{plugin}.vim",
+    $"{dir}/autoload/{plugin}.vim"
   ]
+  # filetype only
+  if &filetype == ftplugin
+    if get(b:, $"did_ftplugin_{plugin}")
+      execute $"b:did_ftplugin_{plugin} = false"
+    endif
+    add(files, $"{dir}/ftplugin/{ftplugin}.vim")
+  endif
   for file in files
     if filereadable(file)
       execute $"source {file}"
+    endif
+  endfor
+enddef
+
+# reload plugins (pack) all
+export def ReloadPluginsPackAll(kind: string): void
+  var dir = $"{$HOME}/.vim/pack/plugins/{kind}"
+  var lsf = sort(globpath(dir, "*", 0, 1))
+  if empty(lsf)
+    return
+  endif
+  var plugins = mapnew(lsf, (_, val) => fnamemodify(val, ':t'))
+  for plugin in plugins
+    if get(g:, $"{plugin}_enabled")
+      ReloadPluginPack(plugin, kind)
     endif
   endfor
 enddef
@@ -366,10 +385,10 @@ export def SH(): void
     utils.EchoWarningMsg("Warning: only use this function with the gui")
     return
   endif
-  guioptions_save = &l:guioptions
-  setlocal guioptions+=!
+  guioptions_save = &guioptions
+  set guioptions+=!
   sh
-  execute $"setlocal guioptions={guioptions_save}"
+  execute $"set guioptions={guioptions_save}"
 enddef
 
 # delete a register
@@ -420,8 +439,8 @@ enddef
 # toggle scroll
 export def ScrollToggle(mode: string)
   # TODO: sidescroll, sidescrolloff
-  if mode == "set"
-     execute $"set scrolloff={&scrolloff < 1 ? 999 : 0}"
+  if mode == "setglobal"
+     execute $"setglobal scrolloff={&g:scrolloff < 1 ? 999 : 0}"
     v:statusmsg = $"scrolloff={&scrolloff}"
   elseif mode == "setlocal"
     execute $"setlocal scrolloff={&l:scrolloff < 1 ? 999 : 0}"
