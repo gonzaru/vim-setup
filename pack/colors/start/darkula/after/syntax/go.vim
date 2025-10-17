@@ -1,11 +1,6 @@
-vim9script noclear
+vim9script
 # by Gonzaru
 # Distributed under the terms of the GNU General Public License v3
-
-# do not read the file if it is already loaded
-# if !empty(get(b:, "current_syntax_after"))
-#   finish
-# endif
 
 # fmt.Printf("Hello world!") (matches fmt)
 if hlexists('goCustomFunctionName1')
