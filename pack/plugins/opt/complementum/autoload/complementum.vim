@@ -21,9 +21,15 @@ export def Disable()
   # if !empty(mapcheck("<Tab>", "i"))
   #   iunmap <Tab>
   # endif
-  # if !empty(mapcheck("<BS>", "i"))
-  #   iunmap <BS>
-  # endif
+  if !empty(mapcheck(keytrans(g:complementum_keystroke_backspace), "i"))
+    execute $'iunmap {keytrans(g:complementum_keystroke_backspace)}'
+  endif
+  if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_word), "i"))
+    execute $'iunmap {keytrans(g:complementum_keystroke_delete_word)}'
+  endif
+  if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_before_cursor), "i"))
+    execute $'iunmap {keytrans(g:complementum_keystroke_delete_before_cursor)}'
+  endif
   # if !empty(mapcheck("<Space>", "i"))
   #   iunmap <Space>
   # endif
@@ -81,58 +87,42 @@ export def CompleteKey(key: string): void
       feedkeys(g:complementum_keystroke_tab, "n")
     endif
   elseif key == "backspace"
-    # feedkeys(g:complementum_keystroke_backspace, 'n')
-
-    # skip
-    if &autocomplete
+    if pumvisible()
       feedkeys(g:complementum_keystroke_backspace, 'n')
       return
     endif
-
     var cline = getline('.')
     var ccol = col('.')
     var prev = (ccol > 1) ? matchstr(cline[ : ccol - 2], '.$') : ''
     var prev2 = (ccol > 1) ? matchstr(cline[ : ccol - 3], '.$') : ''
-
-    var omni = false
-    if !pumvisible()
-      var num = ccol
-      while num >= 1
-        var char = matchstr(cline[ : num - 3], '.$')
-        if char =~ '\s'
-          break
-        endif
-        if IsTriggerableOmni(&filetype, char)
-          omni = true
-          break
-        endif
-        --num
-      endwhile
-    endif
-
-    if !pumvisible() && omni && prev =~ '\s'
+    if (prev =~ '\s' && prev2 != '' && IsTriggerableOmni(&filetype, [prev2]))
       feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
-    elseif !pumvisible() && prev =~ '\s' && prev2 =~ '^\w$'
+    elseif prev2 =~ '\w' && HasTriggerOmniKey('skipwhitespace')
+      feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
+    elseif prev =~ '\s' && prev2 =~ '\w'
       feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_default, 'n')
     else
       feedkeys(g:complementum_keystroke_backspace, 'n')
     endif
-
-    # used for CompleteOmni, see CompleteFunc (lsp plugin)
-    # char to be deleted
-    # var dchar = (col('.') > 1) ? matchstr(getline('.')[ : col('.') - 2], '.$') : ''
-    # feedkeys(g:complementum_keystroke_backspace, 'n')
-    # timer_start(50, (_) => {
-    #   var coln = col('.')
-    #   if coln <= 1 || dchar =~ '\s' || pumvisible() || mode(1)[0] != 'i'
-    #     return
-    #   endif
-    #   # previous char is '.' (trigger)
-    #   var pchar = matchstr(getline('.')[ : coln - 2], '.$')
-    #   if IsTriggerableOmni(&filetype, pchar)
-    #     CompleteOmni(&filetype)
-    #   endif
-    # })
+  elseif key == "delete-word" || key == "delete-before-cursor"  # <C-w> or <C-u>
+    if pumvisible()
+      if key == "delete-word"
+        feedkeys("\<C-e>" .. g:complementum_keystroke_delete_word, 'n')
+      elseif key == "delete-before-cursor"
+        feedkeys("\<C-e>" .. g:complementum_keystroke_delete_before_cursor, 'n')
+      endif
+    else
+      if key == "delete-word"
+        feedkeys(g:complementum_keystroke_delete_word, 'n')
+      elseif key == "delete-before-cursor"
+        feedkeys(g:complementum_keystroke_delete_before_cursor, 'n')
+      endif
+    endif
+    timer_start(0, (_) => {
+      if !pumvisible() && HasTriggerOmniKey()
+        feedkeys(g:complementum_keystroke_omni, 'n')
+      endif
+    })
   elseif key == "space"
     feedkeys(g:complementum_keystroke_space, "n")
   elseif key == "enter"
@@ -148,7 +138,7 @@ enddef
 # checks if the keystroke is triggerable (default)
 def IsTriggerableDefault(ichar: string): bool
   const minchars = g:complementum_minchars
-  if minchars < 1
+  if pumvisible() || minchars < 1
     return false
   endif
   # non-word
@@ -175,11 +165,36 @@ def IsTriggerableDefault(ichar: string): bool
 enddef
 
 # checks if the keystroke is triggerable (omni)
-def IsTriggerableOmni(lang: string, ichar: string): bool
-  if !has_key(g:complementum_omnichars, lang) || g:complementum_minchars < 1
+def IsTriggerableOmni(lang: string, chars: list<string>): bool
+  if pumvisible() || !has_key(g:complementum_omnichars, lang) || g:complementum_minchars < 1
     return false
   endif
-  return index(g:complementum_omnichars[lang], ichar) >= 0
+  for char in chars
+    if index(g:complementum_omnichars[lang], char) >= 0
+      return true
+    endif
+  endfor
+  return false
+enddef
+
+# has omni trigger key (word)
+def HasTriggerOmniKey(skip: string = ''): bool
+  var omni = false
+  var cline = getline('.')
+  var ccol = col('.')
+  var num = ccol
+  while num >= 1
+    var char = matchstr(cline[ : num - 2], '.$')
+    if skip != 'skipwhitespace' && char =~ '\s'
+      break
+    endif
+    if IsTriggerableOmni(&filetype, [char])
+      omni = true
+      break
+    endif
+    --num
+  endwhile
+  return omni
 enddef
 
 # complete (default)
@@ -190,7 +205,8 @@ export def Complete(lang: string, ichar: string): void
   if pumvisible()
     return
   endif
-  if IsTriggerableOmni(lang, ichar)
+  var prev = matchstr(getline('.')[ : col('.') - 2], '.$')
+  if IsTriggerableOmni(lang, [ichar, prev])
     CompleteOmni(lang)
   elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing
@@ -201,6 +217,9 @@ enddef
 
 # complete (omni)
 def CompleteOmni(lang: string): void
+  if pumvisible()
+    return
+  endif
   if !has_key(g:complementum_omnifuncs, lang)
   && !has_key(g:complementum_lspfuncs, lang)
     return
@@ -225,12 +244,12 @@ def CompleteOmni(lang: string): void
   elseif index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "n")
   elseif &dictionary =~ g:complementum_regex_dict
-      var iskeyword_orig = &l:iskeyword
+      var iskeyword_save = &l:iskeyword
       setlocal iskeyword+=.
       feedkeys(g:complementum_keystroke_dict, "n")
       timer_start(0, (_) => {
         # restore iskeyword
-        execute $"setlocal iskeyword={iskeyword_orig}"
+        execute $"setlocal iskeyword={iskeyword_save}"
       })
       # fallback to function completion
       # timer_start(15, (_) => {

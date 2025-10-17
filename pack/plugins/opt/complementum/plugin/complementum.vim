@@ -59,6 +59,12 @@ endif
 if !exists('g:complementum_keystroke_backspace')
   g:complementum_keystroke_backspace = "\<BS>"
 endif
+if !exists('g:complementum_keystroke_delete_word')
+  g:complementum_keystroke_delete_word = "\<C-w>"
+endif
+if !exists('g:complementum_keystroke_delete_before_cursor')
+  g:complementum_keystroke_delete_before_cursor = "\<C-u>"
+endif
 if !exists('g:complementum_keystroke_space')
   g:complementum_keystroke_space = "\<C-]>\<Space>"  # <C-]> trigger abbreviation
 endif
@@ -152,6 +158,8 @@ nnoremap <silent> <script> <Plug>(complementum-toggle-default-omni-keystroke)
 # inoremap <silent> <script> <Plug>(complementum-complete) <ScriptCmd>noautocmd complementum.Complete(&filetype, v:char)<CR>
 # inoremap <silent> <script> <Plug>(complementum-tab) <ScriptCmd>complementum.CompleteKey("tab")<CR>
 inoremap <silent> <script> <Plug>(complementum-backspace) <ScriptCmd>complementum.CompleteKey("backspace")<CR>
+inoremap <silent> <script> <Plug>(complementum-delete-word) <ScriptCmd>complementum.CompleteKey("delete-word")<CR>
+inoremap <silent> <script> <Plug>(complementum-delete-before-cursor) <ScriptCmd>complementum.CompleteKey("delete-before-cursor")<CR>
 # inoremap <silent> <script> <Plug>(complementum-space) <ScriptCmd>complementum.CompleteKey("space")<CR>
 # inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 
@@ -162,6 +170,12 @@ def Enable()
   # endif
   if empty(mapcheck("<BS>", "i"))
     inoremap <BS> <Plug>(complementum-backspace)
+  endif
+  if empty(mapcheck("<C-w>", "i"))
+    inoremap <C-w> <Plug>(complementum-delete-word)
+  endif
+  if empty(mapcheck("<C-u>", "i"))
+    inoremap <C-u> <Plug>(complementum-delete-before-cursor)
   endif
   # if empty(mapcheck("<Space>", "i"))
   #   inoremap <Space> <Plug>(complementum-space)
