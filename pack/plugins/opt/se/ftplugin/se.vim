@@ -86,7 +86,8 @@ if get(g:, 'se_no_mappings') == 0
     var bpname: string
     var newwid: number
     var sewid = win_getid()
-    var cwd = trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.')))))
+    var top = fnamemodify(getline(1), ':p')
+    var cwd = line('.') == 1 ? top : top .. trim(se#RemoveFileIndicators(se#RemoveDirSep(getline(line('.')))))
     if !isdirectory(cwd)
       return
     endif

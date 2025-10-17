@@ -15,11 +15,11 @@ if get(g:, 'colors_name') == 'darkula'
   highlight! SeFile guifg=#bbbbbb guibg=NONE ctermfg=145 ctermbg=NONE gui=NONE cterm=NONE term=NONE
   highlight! SeHidden guifg=#ff8787 guibg=NONE ctermfg=210 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 else
-  highlight def link SeTop Normal
-  highlight def link SeDirectory Normal
+  highlight def link SeTop Include
+  highlight def link SeDirectory Directory
   highlight def link SeDirectorySep Normal
-  highlight def link SeFile Normal
-  highlight def link SeHidden Normal
+  highlight def link SeFile File
+  highlight def link SeHidden SpecialKey
 endif
 
 b:current_syntax = 'se'
