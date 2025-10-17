@@ -813,16 +813,17 @@ endif
 # source
 nnoremap <silent> <leader>sv :ReloadVimrc<CR>
 nnoremap <silent> <leader>sV :ReloadVimrcLocal<CR>
-nnoremap <silent> <leader>st :Theme<CR>
+nnoremap <silent> <leader>st :ReloadTheme<CR>
 nnoremap <silent> <leader>sa :ReloadVimrc<CR>
                             \:ReloadVimrcLocal<CR>
-                            \:Theme<CR>
+                            \:ReloadTheme<CR>
                             \:ReloadSyntax<CR>
                             \:ReloadFileType<CR>
                             \:ReloadPluginUtils<CR>
                             \:ReloadPluginMisc<CR>
                             \:MiscReloadPluginsOptAll<CR>
                             \:MiscReloadPluginsStartAll<CR>
+                            \:doautocmd <nomodeline> BufEnter<CR>
 # toggle
 nnoremap <leader>tgA :set autochdir! autochdir? <bar> echon " (set)"<CR>
 nnoremap <leader>tgn :setlocal number! number? <bar> echon " (setlocal)"<CR>
@@ -1035,7 +1036,8 @@ if g:searcher_enabled
   command! -nargs=1 GrepDir searcher#Popup('grep', '<args>')
 endif
 def FindPrg(arg: string, _): list<string>
-  var fuzzy = false
+  var fuzzy = true
+  var fuzzyOpts = {limit: 200, smartcase: true}
   var exclude = [
     '--exclude', '.git',
     '--exclude', '.cache',
@@ -1051,7 +1053,7 @@ def FindPrg(arg: string, _): list<string>
   if empty(arg)
     out = files
   elseif fuzzy
-    out = matchfuzzy(files, arg, {smartcase: true})
+    out = matchfuzzy(files, arg, fuzzyOpts)
   else
     out = filter(files, $"v:val =~? '{arg}'")
   endif
@@ -1097,7 +1099,7 @@ command! DarkulaDark Darkula("dark")
 command! DarkulaToggleCursor g:darkula_cursor2 = !g:darkula_cursor2 | Darkula
 
 # reload the current theme
-command! Theme {
+command! ReloadTheme {
   if g:colors_name == "plan9"
     Plan9(g:plan9_style)
   elseif g:colors_name == "darkula"
