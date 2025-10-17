@@ -814,7 +814,15 @@ endif
 nnoremap <silent> <leader>sv :ReloadVimrc<CR>
 nnoremap <silent> <leader>sV :ReloadVimrcLocal<CR>
 nnoremap <silent> <leader>st :Theme<CR>
-nnoremap <silent> <leader>sa :ReloadVimrc<CR>:ReloadVimrcLocal<CR>:Theme<CR>
+nnoremap <silent> <leader>sa :ReloadVimrc<CR>
+                            \:ReloadVimrcLocal<CR>
+                            \:Theme<CR>
+                            \:ReloadSyntax<CR>
+                            \:ReloadFileType<CR>
+                            \:ReloadPluginUtils<CR>
+                            \:ReloadPluginMisc<CR>
+                            \:MiscReloadPluginsOptAll<CR>
+                            \:MiscReloadPluginsStartAll<CR>
 # toggle
 nnoremap <leader>tgA :set autochdir! autochdir? <bar> echon " (set)"<CR>
 nnoremap <leader>tgn :setlocal number! number? <bar> echon " (setlocal)"<CR>
@@ -823,12 +831,12 @@ nnoremap <leader>tgr :setlocal relativenumber! relativenumber? <bar> echon " (se
 nnoremap <leader>tgR :set relativenumber! relativenumber? <bar> echon " (set)"<CR>
 nnoremap <leader>tgi :setlocal infercase! infercase? <bar> echon " (setlocal)"<CR>
 nnoremap <leader>tgI :set infercase! infercase? <bar> echon " (set)"<CR>
-nnoremap <leader>tgj :setlocal joinspaces! joinspaces? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgJ :set joinspaces! joinspaces? <bar> echon " (set)"<CR>
 nnoremap <leader>tgl :setlocal list! list? <bar> echon " (setlocal)"<CR>
 nnoremap <leader>tgL :set list! list? <bar> echon " (set)"<CR>
-nnoremap <leader>tgh :setlocal hlsearch! hlsearch? <bar> echon " (setlocal)"<CR>
-nnoremap <leader>tgp :setlocal paste! paste? <bar> echon " (setlocal)"<CR>
-nnoremap <leader>tgw :setlocal autowrite! autowrite? <bar> echon " (setlocal)"<CR>
+nnoremap <leader>tgH :set hlsearch! hlsearch? <bar> echon " (set)"<CR>
+nnoremap <leader>tgP :set paste! paste? <bar> echon " (set)"<CR>
+nnoremap <leader>tgW :set autowrite! autowrite? <bar> echon " (set)"<CR>
 # nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
@@ -1023,6 +1031,8 @@ if g:searcher_enabled
   command! -nargs=+ -complete=file -bar Findr searcher#Search(<q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findi searcher#Search('-i', <q-args>, '-p', getcwd(), 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findir searcher#Search('-i', <q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
+  command! -nargs=1 FindDir searcher#Popup('find', '<args>')
+  command! -nargs=1 GrepDir searcher#Popup('grep', '<args>')
 endif
 def FindPrg(file: string, _): list<string>
   var exclude = fnamemodify(getcwd(), ":p") =~ '/\.vim/' ? "--exclude undodir --exclude backups" : ""
@@ -1099,6 +1109,13 @@ command! ReloadVimrcLocal {
 
 # reload filetype
 command! ReloadFileType doautocmd <nomodeline> FileType
+
+# reload syntax
+command! ReloadSyntax {
+  var wid = win_getid()
+  windo doautocmd <nomodeline> Syntax
+  win_gotoid(wid)
+}
 
 # reload plugin utils
 command! ReloadPluginUtils {
