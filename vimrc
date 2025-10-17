@@ -1034,11 +1034,28 @@ if g:searcher_enabled
   command! -nargs=1 FindDir searcher#Popup('find', '<args>')
   command! -nargs=1 GrepDir searcher#Popup('grep', '<args>')
 endif
-def FindPrg(file: string, _): list<string>
-  var exclude = fnamemodify(getcwd(), ":p") =~ '/\.vim/' ? "--exclude undodir --exclude backups" : ""
-  var cmd = $"fd --type f --follow --color=never --unrestricted --exclude .git {exclude}"
+def FindPrg(arg: string, _): list<string>
+  var fuzzy = false
+  var exclude = [
+    '--exclude', '.git',
+    '--exclude', '.cache',
+    '--exclude', '.idea',
+    '--exclude', '.venv',
+    '--exclude', 'node_modules',
+    '--exclude', '/backups',
+    '--exclude', '/undodir'
+  ]
+  var cmd = $'fd --type f --follow --color=never --unrestricted {join(exclude)}'
   var files = systemlist(cmd)
-  return filter(files, $"v:val =~? '{file}'")
+  var out: list<string> = []
+  if empty(arg)
+    out = files
+  elseif fuzzy
+    out = matchfuzzy(files, arg, {smartcase: true})
+  else
+    out = filter(files, $"v:val =~? '{arg}'")
+  endif
+  return out
 enddef
 # :find with a function
 setglobal findfunc=FindPrg
