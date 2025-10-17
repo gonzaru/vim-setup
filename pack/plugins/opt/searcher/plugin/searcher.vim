@@ -17,6 +17,9 @@ if !exists('g:searcher_findprg_cmd')
     '--exclude', '.idea',
     '--exclude', '.venv',
     '--exclude', 'node_modules',
+    # https://github.com/sharkdp/fd/issues/851
+    '--exclude', '/backups',
+    '--exclude', '/undodir'
   ]
 endif
 if !exists('g:searcher_findprg_sensitive')
@@ -242,7 +245,9 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 -bar SearcherGitWord execute "normal \<Plug>(searcher-git-word)"
   command! -nargs=0 -bar SearcherLGitWord execute "normal \<Plug>(searcher-lgit-word)"
   command! -nargs=0 SearcherPopupFind execute "normal \<Plug>(searcher-popup-find)"
+  command! -nargs=1 SearcherPopupFindDir searcher.Popup('find', '<args>')
   command! -nargs=0 SearcherPopupGrep execute "normal \<Plug>(searcher-popup-grep)"
+  command! -nargs=1 SearcherPopupGrepDir searcher.Popup('grep', '<args>')
   command! -nargs=0 SearcherPopupRecent execute "normal \<Plug>(searcher-popup-recent)"
   command! -nargs=0 SearcherPopupBuffers execute "normal \<Plug>(searcher-popup-buffers)"
   command! -nargs=0 SearcherPopupSessions execute "normal \<Plug>(searcher-popup-sessions)"

@@ -197,6 +197,7 @@ def CloseHandler(channel: channel): void
     EchoWarningMsg($"Warning: '{popData.kind}' data is empty")
     return
   endif
+  sort(popData.all.raw)
   popData.all.lower = mapnew(popData.all.raw, (_, v) => tolower(v))
   popData.all.idx = range(len(popData.all.lower))
   popData.prev.idx = copy(popData.all.idx)
