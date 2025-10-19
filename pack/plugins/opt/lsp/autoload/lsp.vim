@@ -192,11 +192,11 @@ def UriEncode(str: string): string
 enddef
 
 # running servers
-def RunningServers(): list<string>
+export def RunningServers(): list<dict<any>>
   var svrs = []
   for k in keys(servers)
     if servers[k].running
-      add(svrs, servers[k].name)
+      add(svrs, servers[k])
     endif
   endfor
   return svrs
@@ -216,7 +216,14 @@ enddef
 
 # running server
 def RunningServer(name: string): bool
-  return index(RunningServers(), name) >= 0
+  var status = false
+  for server in RunningServers()
+    if server.name == name
+      status = server.running
+      break
+    endif
+  endfor
+  return status
 enddef
 
 # running
@@ -232,9 +239,9 @@ export def Ready()
 enddef
 
 # pre-checks of requisites
-def PreChecks(server: dict<any>): string
-  if !has_key(LANGUAGES, &filetype)
-    return $"lsp: the filetype '{&filetype}' is not supported"
+def PreChecks(server: dict<any>, lang: string): string
+  if !has_key(LANGUAGES, lang)
+    return $"lsp: the filetype '{lang}' is not supported"
   endif
   if !executable(server.cmd)
     return $"server: '{server.cmd}' command not found"
@@ -257,9 +264,9 @@ def CheckServer(server: dict<any>): string
 enddef
 
 # start server
-export def Start(): void
-  var server = servers[ID(&filetype)]
-  var err = PreChecks(server)
+export def Start(lang: string = &filetype): void
+  var server = servers[ID(lang)]
+  var err = PreChecks(server, lang)
   if !empty(err)
     EchoErrorMsg(err)
     return

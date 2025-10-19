@@ -29,6 +29,28 @@ endif
 import autoload '../autoload/lsp.vim'
 
 # autocmd
+
+# source
+augroup lsp_source
+  var servers: list<dict<any>> = []
+  autocmd!
+  autocmd SourcePre */lsp/autoload/lsp.vim ++once {
+    servers = lsp.RunningServers()
+    if !empty(servers)
+      execute "normal \<Plug>(lsp-stop-all)"
+    endif
+  }
+  autocmd SourcePost */lsp/autoload/lsp.vim ++once {
+    for server in servers
+      # current &filetype uses augroup lsp_start
+      if server.language != &filetype
+        lsp.Start(server.language)
+      endif
+    endfor
+  }
+augroup END
+
+# start
 augroup lsp_start
   autocmd!
   autocmd FileType go,python,terraform ++once {

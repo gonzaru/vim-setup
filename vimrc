@@ -818,11 +818,11 @@ nnoremap <silent> <leader>sa :ReloadVimrc<CR>
                             \:ReloadVimrcLocal<CR>
                             \:ReloadTheme<CR>
                             \:ReloadSyntax<CR>
-                            \:ReloadFileType<CR>
                             \:ReloadPluginUtils<CR>
                             \:ReloadPluginMisc<CR>
                             \:MiscReloadPluginsOptAll<CR>
                             \:MiscReloadPluginsStartAll<CR>
+                            \:ReloadFileType<CR>
                             \:doautocmd <nomodeline> BufEnter<CR>
 # toggle
 nnoremap <leader>tgA :set autochdir! autochdir? <bar> echon " (set)"<CR>
