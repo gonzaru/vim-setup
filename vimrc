@@ -619,7 +619,10 @@ if exists('&completefuzzycollect')
 endif
 if has('popupwin')
   # setglobal completeopt+=popup      # show extra information in a popup window
-  setglobal completeopt+=popuphidden  # like popup option but hidden by default
+  # https://github.com/vim/vim/issues/18442
+  if !has('gui_running')
+    setglobal completeopt+=popuphidden  # like popup option but hidden by default
+  endif
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
   if exists('+completepopup')
     set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
@@ -632,7 +635,7 @@ endif
 # k: dictionary files with dictionary option
 # t: tags
 # set complete=.,w,b  # (default: .,w,b,u,k,t)
-set complete=.^10,w^5,b^5
+set complete=.^10,w^5,b^5,u^5
 set pumborder=    # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
 set pumheight=12  # maximum number of items to show in the popup menu (default: 0)
 set pumwidth=15   # minimum width to use for the popup menu (default: 15)
