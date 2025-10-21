@@ -97,26 +97,26 @@ augroup complementum_insert
 augroup END
 
 # dict
-augroup complementum_dict
-  autocmd!
-  autocmd FileType go {
-    autocmd BufWritePost <buffer>
-    \ if g:complementum_enabled && executable($HOME .. "/.vim/tools/go/gendict-project.sh") |
-    \   job_start($HOME .. "/.vim/tools/go/gendict-project.sh") |
-    \ endif
-  }
-augroup END
+# augroup complementum_dict
+#   autocmd!
+#   autocmd FileType go {
+#     autocmd BufWritePost <buffer>
+#     \ if g:complementum_enabled && executable($HOME .. "/.vim/tools/go/gendict-project.sh") |
+#     \   job_start($HOME .. "/.vim/tools/go/gendict-project.sh") |
+#     \ endif
+#   }
+# augroup END
 
 # tags
-augroup complementum_tags
-  autocmd!
-  autocmd FileType go {
-    autocmd BufWritePost <buffer>
-    \ if g:complementum_enabled && executable($HOME .. "/.vim/tools/go/gentags-project.sh") |
-    \   job_start($HOME .. "/.vim/tools/go/gentags-project.sh") |
-    \ endif
-  }
-augroup END
+# augroup complementum_tags
+#   autocmd!
+#   autocmd FileType go {
+#     autocmd BufWritePost <buffer>
+#     \ if g:complementum_enabled && executable($HOME .. "/.vim/tools/go/gentags-project.sh") |
+#     \   job_start($HOME .. "/.vim/tools/go/gentags-project.sh") |
+#     \ endif
+#   }
+# augroup END
 
 # command-line mode
 # help cmdline-autocompletion
