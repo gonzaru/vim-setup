@@ -68,7 +68,7 @@ execute $"highlight! WildMenu guifg={colors.normal.guifg} guibg=#113a5c ctermfg=
 
 # split windows
 execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! StatusLineNC guifg=#808080 guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg=244 ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
 
 # vertical split
 execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg={isdark ? '#303030' : '#3a3a3a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 236 : 237} gui=NONE cterm=NONE term=NONE"
@@ -135,7 +135,7 @@ highlight! link EndOfBuffer NonText
 highlight! PreInsert guifg=#808080 guibg=NONE ctermfg=244 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # tabs
-execute $"highlight! TabLine guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! TabLine guifg=#808080 guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg=244 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! TabLineSel guifg={colors.normal.guifg} guibg={isdark ? '#444444' : '#4e4e4e'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 238 : 239} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! TabLineFill guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#444444'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 
