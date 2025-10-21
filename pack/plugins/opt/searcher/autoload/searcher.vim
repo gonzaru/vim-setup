@@ -741,6 +741,10 @@ def CompletionPick(id: number, res: number): void
     picked = $'{popData.cwd}/{parts[0]}'
   endif
 
+  # close
+  popup_close(popPrompt.id)
+  popup_close(id)
+
   # action
   if index(['find', 'grep', 'recent', 'buffers', 'sessions', 'quickfix'], popData.kind) >= 0 && filereadable(picked)
     execute $"{popData.mode} {fnameescape(picked)}"
@@ -779,8 +783,6 @@ def CompletionPick(id: number, res: number): void
     feedkeys($"/{picked}\<CR>", 'n')
   endif
 
-  # close
-  popup_close(popPrompt.id)
-  popup_close(id)
+  # restore
   # RestorePos()
 enddef
