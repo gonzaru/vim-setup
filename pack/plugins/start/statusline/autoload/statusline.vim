@@ -82,6 +82,10 @@ export def GitBranch(file: string): void
   if get(g:, 'statusline_gitbranch') && empty(JOB_QUEUE)
     # var cmd = ['git', '--no-pager', 'rev-parse', '--abbrev-ref', 'HEAD']
     var cwd = fnamemodify(file, ':p:h')
+    if !isdirectory(cwd)
+      SetStatus('')
+      return
+    endif
     var cmd = ['git', 'status', '--short', '--branch', '--porcelain', file]
     newJob = job_start(cmd, {
       'out_cb': function(OutHandler),

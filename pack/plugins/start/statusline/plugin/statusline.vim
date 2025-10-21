@@ -25,7 +25,7 @@ augroup statusline_gitstatusline
   autocmd BufNewFile,BufEnter,BufWritePost,CmdwinLeave,ShellCmdPost,VimResume * {
     if g:statusline_gitbranch
       var fpath = expand('%:p')
-      if g:statusline_enabled && &buftype == '' && !empty(fpath)
+      if g:statusline_enabled && &filetype != '' && &buftype == '' && !empty(fpath)
         statusline.GitBranch(fpath)
       else
         statusline.SetStatus('')
