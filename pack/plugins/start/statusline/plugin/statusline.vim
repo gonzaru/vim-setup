@@ -22,7 +22,7 @@ import autoload '../autoload/statusline.vim'
 # autocmd
 augroup statusline_gitstatusline
   autocmd!
-  autocmd BufNewFile,BufEnter,BufWritePost,CmdwinLeave,ShellCmdPost,VimResume * {
+  autocmd BufNewFile,BufEnter,BufWritePost,CmdwinLeave,FileChangedShellPost,ShellCmdPost,VimResume * {
     if g:statusline_gitbranch
       var fpath = expand('%:p')
       if g:statusline_enabled && &filetype != '' && &buftype == '' && !empty(fpath)
