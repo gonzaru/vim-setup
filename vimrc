@@ -650,8 +650,8 @@ set pumwidth=15   # minimum width to use for the popup menu (default: 15)
 # unnamedplus           "", "0, "+         "", "-, "+          "", "1, "+
 # unnamed,unnamedplus   "", "0, "*, "+     "", "-, "+          "", "1, "+
 
-# use clipboard register '+' and also copies it to '*' (yank only)
-if has('clipboard')
+# use clipboard register '+' and also copies it to '*' (yank only) (see :help W23)
+if has('X11') && has('clipboard')
   set clipboard^=unnamed,unnamedplus
 endif
 
