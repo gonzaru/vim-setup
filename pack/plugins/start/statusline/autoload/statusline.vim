@@ -51,26 +51,25 @@ export def GetImOptions(kind: string, fsl: bool): string
 enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
-export def ShortPath(path: string): string
-  var pathName = fnamemodify(path, ':~')
-  var pathNameList = split(pathName, '/')
-  var pathNameTail = fnamemodify(pathName, ':t')
-  var pathNumSlashes = len(pathNameList)
-  var pathNameShort: string
+def ShortPath(path: string): string
+  var name = trim(fnamemodify(path, ':~'), '/', 2)
+  var nameList = split(name, '/')
+  var nameTail = nameList[-1]
+  var numSlashes = len(nameList)
   var dirChars: string
-  for d in pathNameList[0 : pathNumSlashes - 2]
+  if numSlashes == 1
+    return name
+  endif
+  for d in nameList[0 : numSlashes - 2]
     if d[0] == '.'
-      dirChars ..= d[0 : 1] .. '/'
+      dirChars ..= $'{d[0 : 1]}/'
     else
-      dirChars ..= d[0] .. '/'
+      dirChars ..= $'{d[0]}/'
     endif
   endfor
-  if pathName[0] == '/'
-    pathNameShort = '/' .. dirChars .. pathNameTail
-  else
-    pathNameShort = dirChars .. pathNameTail
-  endif
-  return pathNameShort
+  var prefix = name[0] == '/' ? '/' : ''
+  var nameShort = $'{prefix}{dirChars}{nameTail}'
+  return nameShort
 enddef
 
 # statusline git branch
