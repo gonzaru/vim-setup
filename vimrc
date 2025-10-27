@@ -159,6 +159,7 @@ endif
 # cyclebuffers plugin
 if g:cyclebuffers_enabled
   g:cyclebuffers_position = "bottom"  # top, bottom
+  g:cyclebuffers_oldfiles_limit = 15  # default is 0 (no limit)
 endif
 
 # darkula theme
@@ -637,7 +638,7 @@ endif
 # set complete=.,w,b  # (default: .,w,b,u,k,t)
 set complete=.^10,w^5,b^5,u^5
 set pumborder=    # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
-set pumheight=12  # maximum number of items to show in the popup menu (default: 0)
+set pumheight=15  # maximum number of items to show in the popup menu (default: 0)
 set pumwidth=15   # minimum width to use for the popup menu (default: 15)
 
 # (empty) default vim clipboard
@@ -661,23 +662,23 @@ if has("signs")
   set signcolumn=number
 endif
 
-#-------------"
-# key mapping |
-#-------------------------------------------------------------------------------------------------"
-# Commands / Modes | Normal | Insert | Command | Visual | Select | Operator | Terminal | Lang-Arg |
-#------------------|--------|--------|---------|--------|--------|----------|----------|----------|
-# map  / noremap   |    x   |   -    |    -    |   x    |   x    |    x     |    -     |    -     |
-# nmap / nnoremap  |    x   |   -    |    -    |   -    |   -    |    -     |    -     |    -     |
-# vmap / vnoremap  |    -   |   -    |    -    |   x    |   x    |    -     |    -     |    -     |
-# omap / onoremap  |    -   |   -    |    -    |   -    |   -    |    x     |    -     |    -     |
-# xmap / xnoremap  |    -   |   -    |    -    |   x    |   -    |    -     |    -     |    -     |
-# smap / snoremap  |    -   |   -    |    -    |   -    |   x    |    -     |    -     |    -     |
-# map! / noremap!  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    -     |
-# imap / inoremap  |    -   |   x    |    -    |   -    |   -    |    -     |    -     |    -     |
-# lmap / lnoremap  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    x     |
-# cmap / cnoremap  |    -   |   -    |    x    |   -    |   -    |    -     |    -     |    -     |
-# tmap / tnoremap  |    -   |   -    |    -    |   -    |   -    |    -     |    x     |    -     |
-#-------------------------------------------------------------------------------------------------"
+# +-------------+
+# | key mapping |
+# +-------------+-----------------------------------------------------------------------------------+
+# | Commands / Modes | Normal | Insert | Command | Visual | Select | Operator | Terminal | Lang-Arg |
+# +------------------|--------|--------|---------|--------|--------|----------|----------|----------+
+# | map  / noremap   |    x   |   -    |    -    |   x    |   x    |    x     |    -     |    -     |
+# | nmap / nnoremap  |    x   |   -    |    -    |   -    |   -    |    -     |    -     |    -     |
+# | vmap / vnoremap  |    -   |   -    |    -    |   x    |   x    |    -     |    -     |    -     |
+# | omap / onoremap  |    -   |   -    |    -    |   -    |   -    |    x     |    -     |    -     |
+# | xmap / xnoremap  |    -   |   -    |    -    |   x    |   -    |    -     |    -     |    -     |
+# | smap / snoremap  |    -   |   -    |    -    |   -    |   x    |    -     |    -     |    -     |
+# | map! / noremap!  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    -     |
+# | imap / inoremap  |    -   |   x    |    -    |   -    |   -    |    -     |    -     |    -     |
+# | lmap / lnoremap  |    -   |   x    |    x    |   -    |   -    |    -     |    -     |    x     |
+# | cmap / cnoremap  |    -   |   -    |    x    |   -    |   -    |    -     |    -     |    -     |
+# | tmap / tnoremap  |    -   |   -    |    -    |   -    |   -    |    -     |    x     |    -     |
+# +-------------------------------------------------------------------------------------------------+
 
 # macOS default Terminal.app
 # :help mac-lack
@@ -1035,8 +1036,8 @@ if g:searcher_enabled
   command! -nargs=+ -complete=file -bar Findr searcher#Search(<q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findi searcher#Search('-i', <q-args>, '-p', getcwd(), 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar Findir searcher#Search('-i', <q-args>, '-p', systemlist('git rev-parse --show-toplevel')[0], 'findprg', 'quickfix')
-  command! -nargs=1 FindDir searcher#Popup('find', '<args>')
-  command! -nargs=1 GrepDir searcher#Popup('grep', '<args>')
+  command! -nargs=1 -complete=dir FindDir searcher#Popup('find', '<args>')
+  command! -nargs=1 -complete=dir GrepDir searcher#Popup('grep', '<args>')
 endif
 def FindPrg(arg: string, _): list<string>
   var fuzzy = true
@@ -1065,7 +1066,7 @@ enddef
 # :find with a function
 setglobal findfunc=FindPrg
 
-# edit file in the same directory as the active window one
+# edit file in the same directory as the current file
 nnoremap <leader>ee :e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
 # command! -nargs=1 -complete=customlist,misc#CompleteSameDir Ee e <args>
 # cnoremap E e <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
@@ -1073,6 +1074,10 @@ cabbrev E e <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s'
 cabbrev Sp sp <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 cabbrev Vs vsp <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 cabbrev Tabe tabe <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
+
+# open Se in the same directory as the current file
+nnoremap <leader>dd :Se <C-r>=fnamemodify(expand('%:p:h'), ':~') .. '/'<CR>
+cabbrev D Se <C-r>=fnamemodify(expand('%:p:h'), ':~')<CR><C-r>=utils#Eatchar('\s') .. '/'<CR>
 
 # change to directory of the current file
 nnoremap <silent> <leader>cd :LCDC<CR>
