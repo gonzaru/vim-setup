@@ -26,22 +26,27 @@ setlocal bufhidden=wipe
 if get(g:, 'cyclebuffers_no_mappings') == 0
   nnoremap <buffer> <nowait> <ESC> <Plug>(cyclebuffers-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(cyclebuffers-select-edit)
+  nnoremap <buffer> <nowait> <Space> <Plug>(cyclebuffers-select-pedit)
   nnoremap <buffer> <nowait> d <plug>(cyclebuffers-select-delete)
-  nnoremap <buffer> <nowait> D <plug>(cyclebuffers-select-delete!)
+  nnoremap <buffer> <nowait> D <plug>(cyclebuffers-select-delete-keep)
   nnoremap <buffer> <nowait> w <plug>(cyclebuffers-select-wipe)
-  nnoremap <buffer> <nowait> W <plug>(cyclebuffers-select-wipe!)
+  nnoremap <buffer> <nowait> W <plug>(cyclebuffers-select-wipe-keep)
   nnoremap <buffer> <nowait> e <plug>(cyclebuffers-select-edit)
   nnoremap <buffer> <nowait> s <Plug>(cyclebuffers-select-split)
   nnoremap <buffer> <nowait> v <Plug>(cyclebuffers-select-vsplit)
   nnoremap <buffer> <nowait> t <Plug>(cyclebuffers-select-tabedit)
+  nnoremap <buffer> <nowait> p <Plug>(cyclebuffers-select-pedit)
+  nnoremap <buffer> <nowait> P <Plug>(cyclebuffers-close-pedit)
+  nnoremap <buffer> <nowait> J j<Plug>(cyclebuffers-select-pedit)
+  nnoremap <buffer> <nowait> K k<Plug>(cyclebuffers-select-pedit)
   nnoremap <buffer> <nowait> H <Plug>(cyclebuffers-help)
-  nnoremap <buffer> <nowait> K <Plug>(cyclebuffers-help)
 endif
 
 # undo
 b:undo_ftplugin = 'setlocal statusline< winfixbuf< signcolumn< number< cursorline< cursorcolumn< wrap< spell< list< swapfile< buflisted< modifiable< buftype< bufhidden<'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Esc>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Space>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> d'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> D'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> w'
@@ -50,5 +55,8 @@ b:undo_ftplugin ..= ' | silent! nunmap <buffer> e'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> s'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> v'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> t'
-b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> p'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> P'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> J'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> K'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
