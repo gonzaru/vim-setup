@@ -68,6 +68,15 @@ var posData = {
   winid: -1
 }
 
+# prints the error message and saves the message in the message-history
+def EchoErrorMsg(msg: string)
+  if !empty(msg)
+    echohl ErrorMsg
+    echom msg
+    echohl None
+  endif
+enddef
+
 # prints the warning message and saves the message in the message-history
 def EchoWarningMsg(msg: string)
   if !empty(msg)
@@ -75,6 +84,28 @@ def EchoWarningMsg(msg: string)
     echom msg
     echohl None
   endif
+enddef
+
+# short path: /full/path/to/dir -> /f/p/t/dir
+def ShortPath(path: string): string
+  var name = trim(fnamemodify(path, ':~'), '/', 2)
+  var nameList = split(name, '/')
+  var nameTail = nameList[-1]
+  var numSlashes = len(nameList)
+  var dirChars: string
+  if numSlashes == 1
+    return name
+  endif
+  for d in nameList[0 : numSlashes - 2]
+    if d[0] == '.'
+      dirChars ..= $'{d[0 : 1]}/'
+    else
+      dirChars ..= $'{d[0]}/'
+    endif
+  endfor
+  var prefix = name[0] == '/' ? '/' : ''
+  var nameShort = $'{prefix}{dirChars}{nameTail}'
+  return nameShort
 enddef
 
 # find files, grep and git grep searching
@@ -159,6 +190,9 @@ def GetCommandAsync(cmd: string): void
   endif
   # win_execute(popPrompt.id, 'setlocal wincolor=Search')
   var newJob: job
+  if !isdirectory(popData.cwd)
+    return
+  endif
   newJob = job_start(cmd, {
     'out_cb': function(OutHandler),
     'close_cb': function(CloseHandler),
@@ -316,6 +350,11 @@ export def Popup(kind: string, cwd: string = ''): void
   ]
 
   if index(kinds, kind) == -1 && kind !~ 'completion-'
+    return
+  endif
+
+  if !empty(cwd) && !isdirectory(cwd)
+    EchoErrorMsg($"Error: '{cwd}' is not a valid directory")
     return
   endif
 
@@ -486,7 +525,7 @@ def PopupTitle(): string
     endif
   endif
   var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy) ? '+fuzzy ' : ''
-  var title = $' {popPrompt.message}{popData.kind}: {cwd} {fchars}{counter} '
+  var title = $' {popPrompt.message}{popData.kind}: {ShortPath(cwd)} {fchars}{counter} '
   return repeat('─', (&columns / 2) - strchars(title) + 0) .. title  # + 0 (see popPrompt maxwidth)
 enddef
 
