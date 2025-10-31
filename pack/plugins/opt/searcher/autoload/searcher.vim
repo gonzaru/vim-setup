@@ -342,6 +342,38 @@ def RestorePos()
   endif
 enddef
 
+# update highlight
+def UpdateHighlight(mode: string): void
+  if empty(popPrompt.query)
+    return
+  endif
+  if !hlexists('PmenuMatch') || !hlexists('PmenuMatchSel')
+    return
+  endif
+  var selLine = line('.', popData.id)
+  if mode == 'cur'
+    # nothing
+  elseif mode == 'prev'
+    selLine = selLine - 1
+  elseif mode == 'next'
+    selLine = selLine + 1
+  endif
+  # adjust circular
+  var shown = len(popData.shown)
+  if selLine > shown
+    selLine = 1
+  elseif selLine < 1
+    selLine = shown
+  endif
+  var query = escape(popPrompt.query, "\\.^$*[]'\"")
+  query = substitute(query, "'", "''", 'g')
+  var regexPmenuMatch = $'\%(^\|\%{selLine}l\)\@!{query}'
+  var regexPmenuMatchSel = $'\%{selLine}l{query}'
+  win_execute(popData.id, 'clearmatches()')
+  win_execute(popData.id, $"matchadd('PmenuMatch', '{regexPmenuMatch}')")
+  win_execute(popData.id, $"matchadd('PmenuMatchSel', '{regexPmenuMatchSel}')")
+enddef
+
 # popup
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
@@ -494,13 +526,13 @@ def PopupCreate(titlePrompt: any = v:none)
     win_execute(popPrompt.id, "matchadd('SearcherPopupPrompt', '^' .. popPrompt.prompt .. '\\ze')")
   endif
   # grep only
-  if popData.kind == 'grep'
-    highlight! link SearcherGrep PmenuMatch
-    win_execute(
-      popPrompt.id,
-      "matchadd('SearcherGrep', $'^[^' .. popPrompt.shape .. ']\\{1,' .. (g:searcher_popup_grep_minchars - 1) .. '}')"
-    )
-  endif
+  # if popData.kind == 'grep'
+  #   highlight! link SearcherGrep Comment
+  #   win_execute(
+  #     popPrompt.id,
+  #     "matchadd('SearcherGrep', $'^[^' .. popPrompt.shape .. ']\\{1,' .. (g:searcher_popup_grep_minchars - 1) .. '}')"
+  #   )
+  # endif
   # win_execute(popPrompt.id, 'setlocal wincolor=WildMenu')
   win_execute(popPrompt.id, "matchadd('SearcherPopupCursor', popPrompt.shape .. '$')")
 enddef
@@ -552,11 +584,13 @@ def CompletionFilter(id: number, key: string): bool
 
   # <C-n> => <Down>
   if key == "\<C-n>" || key == "\<Down>"
+    UpdateHighlight('next')
     return popup_filter_menu(id, "\<Down>")
   endif
 
   # <C-p> => <Up>
   if key == "\<C-p>" || key == "\<Up>"
+    UpdateHighlight('prev')
     return popup_filter_menu(id, "\<Up>")
   endif
 
@@ -736,6 +770,7 @@ def ApplyFilter(id: number)
     popData.shown = ['']
   endif
 
+  UpdateHighlight('cur')
   popup_setoptions(popPrompt.id, { title: PopupTitle() })
   popup_settext(popPrompt.id, [popPrompt.prompt .. popPrompt.query .. popPrompt.shape])
   popup_setoptions(id, { firstline: 1, cursorline: 1 })  # reset scroll
