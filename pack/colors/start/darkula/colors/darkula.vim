@@ -57,7 +57,7 @@ const colors = {
 
 execute $"highlight! Normal guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
-execute $"highlight! MatchParen guifg=#ffef32 guibg={colors.normal.guibg} ctermfg=226 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! MatchParen guifg=#ffef32 guibg=NONE ctermfg=226 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 highlight! Visual guifg=NONE guibg=#214283 ctermfg=NONE ctermbg=25 gui=NONE cterm=NONE term=NONE
 # TODO
@@ -88,12 +88,12 @@ highlight! link QuickFixLine PmenuSel
 # ToolbarButton
 
 # TODO
-execute $"highlight! ColorColumn guifg={colors.normal.guifg} guibg={isdark ? '#3a3a3a' : '#4a4a4a'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! ColorColumn guifg=NONE guibg={isdark ? '#3a3a3a' : '#4a4a4a'} ctermfg=NONE ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 
 # spell/diagnostics: SpellBad = error, SpellRare = warning
-execute $"highlight! SpellBad guifg=#bc3f3c guibg={colors.normal.guibg} ctermfg=124 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! SpellRare guifg=pink guibg={colors.normal.guibg} ctermfg=175 ctermbg={colors.normal.ctermbg} gui=underline cterm=underline term=NONE"
-execute $"highlight! SpellCap guifg=#d7ffff guibg={colors.normal.guibg} ctermfg=195 ctermbg={colors.normal.ctermbg} gui=underline cterm=underline term=NONE"
+highlight! SpellBad guifg=#bc3f3c guibg=NONE ctermfg=124 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! SpellRare guifg=pink guibg=NONE ctermfg=175 ctermbg=NONE gui=underline cterm=underline term=NONE
+highlight! SpellCap guifg=#d7ffff guibg=NONE ctermfg=195 ctermbg=NONE gui=underline cterm=underline term=NONE
 highlight! link SpellLocal SpellRare
 
 highlight! Search guifg=NONE guibg=#31583c ctermfg=NONE ctermbg=22 gui=NONE cterm=NONE term=NONE
@@ -141,14 +141,14 @@ execute $"highlight! TabLineFill guifg={colors.normal.guifg} guibg={isdark ? '#3
 
 # TODO
 execute $"highlight! Folded guifg=#999999 guibg={colors.normal.guibg} ctermfg=102 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! FoldColumn guifg=#999999 guibg={colors.normal.guibg} ctermfg=102 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! FoldColumn guifg=#999999 guibg=NONE ctermfg=102 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 # highlight! SyntaxFoldLevel guifg=black guibg=#d7ffff ctermfg=black ctermbg=195 gui=NONE cterm=NONE term=NONE
 
-execute $"highlight! Directory guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Directory guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
-execute $"highlight! Question guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! Question guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
-execute $"highlight! MoreMsg guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! MoreMsg guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 execute $"highlight! Title guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
@@ -180,42 +180,42 @@ highlight! link StatusLineTerm StatusLine
 highlight! link StatusLineTermNC StatusLineNC
 
 # :help syntax
-execute $"highlight! Boolean guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Character guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Comment guifg=#999999 guibg={colors.normal.guibg} ctermfg=102 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Conditional guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Constant guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Debug guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Define guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Delimiter guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! Boolean guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Character guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Comment guifg=#999999 guibg=NONE ctermfg=102 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Conditional guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Constant guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Debug guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Define guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Delimiter guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! Error guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
-execute $"highlight! Exception guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Float guifg=#6897bb guibg={colors.normal.guibg} ctermfg=67 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Function guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Identifier guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-# execute $"highlight! Ignore guifg=black guibg={colors.normal.guibg} ctermfg=black ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! Exception guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Float guifg=#6897bb guibg=NONE ctermfg=67 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Function guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Identifier guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+# highlight! Ignore guifg=black guibg=NONE ctermfg=black ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! clear Ignore
-execute $"highlight! Include guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Keyword guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Label guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Macro guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Number guifg=#6897bb guibg={colors.normal.guibg} ctermfg=67 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Operator guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PreCondit guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! PreProc guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Repeat guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Special guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! SpecialChar guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! SpecialComment guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Statement guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! StorageClass guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! String guifg=#6a8759 guibg={colors.normal.guibg} ctermfg=65 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Structure guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Tag guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Todo guifg=#a8c023 guibg={colors.normal.guibg} ctermfg=142 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Type guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Typedef guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! Underlined guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=underline cterm=NONE term=NONE"
+highlight! Include guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Keyword guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Label guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Macro guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Number guifg=#6897bb guibg=NONE ctermfg=67 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Operator guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! PreCondit guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! PreProc guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Repeat guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Special guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! SpecialChar guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! SpecialComment guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Statement guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! StorageClass guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! String guifg=#6a8759 guibg=NONE ctermfg=65 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Structure guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Tag guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Todo guifg=#a8c023 guibg=NONE ctermfg=142 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Type guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Typedef guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+execute $"highlight! Underlined guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=underline cterm=NONE term=NONE"
 
 # signs column
 # highlight! SignColumn guifg=#303030 guibg=#262626 ctermfg=236 ctermbg=235 gui=NONE cterm=NONE term=NONE
@@ -226,8 +226,8 @@ highlight! link SignColumn Normal
 # debugBreakpoint
 
 # syntax errors/warnings
-highlight! ErrorMsg guifg=white guibg=#ff0000 ctermfg=white ctermbg=1 gui=NONE cterm=NONE term=NONE
-highlight! WarningMsg guifg=black guibg=#ffff00 ctermfg=black ctermbg=11 gui=NONE cterm=NONE term=NONE
+highlight! ErrorMsg guifg=white guibg=#ff0000 ctermfg=white ctermbg=196 gui=NONE cterm=NONE term=NONE
+highlight! WarningMsg guifg=black guibg=#ffff00 ctermfg=black ctermbg=226 gui=NONE cterm=NONE term=NONE
 highlight! SyntaxErrorClear guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
 highlight! SyntaxError guifg=black guibg=#ff0000 ctermfg=black ctermbg=9 gui=NONE cterm=NONE term=NONE
 execute $"highlight! SyntaxWarning guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
@@ -253,9 +253,9 @@ execute $"highlight! SyntaxErrorGOVET guifg={colors.normal.guifg} guibg=NONE cte
 
 # go syntax
 # go#config#HighlightFunctions()
-execute $"highlight! goFunction guifg=#ffd75f guibg={colors.normal.guibg} ctermfg=221 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! goReceiverVar guifg=#4eade5 guibg={colors.normal.guibg} ctermfg=74 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! goReceiverType guifg=#6fafbd guibg={colors.normal.guibg} ctermfg=73 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goFunction guifg=#ffd75f guibg=NONE ctermfg=221 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! goReceiverVar guifg=#4eade5 guibg=NONE ctermfg=74 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! goReceiverType guifg=#6fafbd guibg=NONE ctermfg=73 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link goPointerOperator Normal
 
 # go#config#HighlightFunctionParameters()
@@ -263,32 +263,32 @@ highlight! link goParamName Normal
 
 # go#config#HighlightFunctionCalls()
 # TODO ctermfg=137
-execute $"highlight! goFunctionCall guifg=#d7af5f guibg={colors.normal.guibg} ctermfg=179 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goFunctionCall guifg=#d7af5f guibg=NONE ctermfg=179 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # go#config#HighlightTypes()
-execute $"highlight! goTypeConstructor guifg=#6fafbd guibg={colors.normal.guibg} ctermfg=73 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! goTypeDecl guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goTypeConstructor guifg=#6fafbd guibg=NONE ctermfg=73 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! goTypeDecl guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link goTypeName Normal
-execute $"highlight! goDeclType guifg=#cc7832 guibg={colors.normal.guibg} ctermfg=172 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goDeclType guifg=#cc7832 guibg=NONE ctermfg=172 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # go#config#HighlightFields()
-execute $"highlight! goField guifg=#6fafbd guibg={colors.normal.guibg} ctermfg=73 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goField guifg=#6fafbd guibg=NONE ctermfg=73 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # go#config#HighlightBuildConstraints()
-execute $"highlight! goBuildKeyword guifg=#629755 guibg={colors.normal.guibg} ctermfg=64 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goBuildKeyword guifg=#629755 guibg=NONE ctermfg=64 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link goBuildDirectives Normal
 
 # go#config#HighlightGenerateTags()
-execute $"highlight! goGenerate guifg=#629755 guibg={colors.normal.guibg} ctermfg=64 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goGenerate guifg=#629755 guibg=NONE ctermfg=64 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 # TODO
 # goGenerateVariables points to Special
 
 # custom
 # see ~/.vim/after/syntax/go.vim
-execute $"highlight! goCustomFunctionName1 guifg=#afbf7e guibg={colors.normal.guibg} ctermfg=144 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! goCustomFunctionName1 guifg=#afbf7e guibg=NONE ctermfg=144 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # vim syntax
-execute $"highlight! vimEnvVar guifg=#b09d79 guibg={colors.normal.guibg} ctermfg=137 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! vimEnvVar guifg=#b09d79 guibg=NONE ctermfg=137 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link vimFunction Normal
 highlight! link vimFuncVar Normal
 highlight! link vimOption Normal
@@ -297,7 +297,7 @@ highlight! link vimVar Normal
 highlight! link vimFBVar Normal
 highlight! link vimHLGroup Normal
 highlight! link vimEchoHLNone Normal
-execute $"highlight! vimFuncName guifg=#afbf7e guibg={colors.normal.guibg} ctermfg=144 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+highlight! vimFuncName guifg=#afbf7e guibg=NONE ctermfg=144 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # sh syntax
 highlight! link shVariable Normal
