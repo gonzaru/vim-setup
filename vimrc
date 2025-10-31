@@ -323,6 +323,7 @@ set cursorline              # mark with another color the current cursor line
 set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
 setglobal virtualedit=block # allow virtual editing in visual block mode <C-v> (default: empty)
 setglobal path=.,,,**       # set path for finding files with :find (default .,/usr/include,,)
+# set cdhome                # changes the current working directory to the $HOME like in Unix (default: off)
 set noemoji                 # don't consider unicode emoji characters to be full width
 set updatetime=300          # used for the |CursorHold| autocommand event
 set t_ut=                   # disable background color erase (BCE)
@@ -436,6 +437,7 @@ if has('gui_running')
   set nomousefocus                                     # mouse pointer is active automatically on the focused window
   set mousehide                                        # hide the mouse pointer while typing (default: on)
   set winaltkeys=no                                    # disable the access to menu gui entries by using the ALT key
+  # set browsedir=buffer                               # use the directory of the related buffer (default: last)
 endif
 
 # if *syntax manual*, set it *before* filetype plugin on
@@ -626,7 +628,19 @@ if has('popupwin')
   endif
   inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
   if exists('+completepopup')
-    set completepopup+=highlight:InfoPopup,border:off  # see InfoPopUp in theme
+    set completepopup=
+    set completepopup+=border:off,resize:off
+    augroup event_colorscheme
+      autocmd!
+      autocmd ColorScheme * ++once {
+        # (default: highlight:PmenuSel)
+        if hlexists('InfoPopup')
+          set completepopup+=highlight:InfoPopup
+        else
+          set completepopup+=highlight:Pmenu
+        endif
+      }
+      augroup END
   endif
 endif
 # .: the current buffer
