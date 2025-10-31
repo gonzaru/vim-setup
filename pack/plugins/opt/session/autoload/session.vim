@@ -173,7 +173,7 @@ def SaveOptions(file: string): void
     if has('gui_running')
       if exists('g:did_install_default_menus') && &guioptions =~ 'm'
         body = readfile(file)
-        insert(body, $'setlocal guioptions={&guioptions}', -3)
+        insert(body, $'set guioptions={&guioptions}', -3)
         insert(body, 'unlet! g:did_install_default_menus', -3)
         insert(body, 'unlet! g:did_install_syntax_menu', -3)
         insert(body, 'source $VIMRUNTIME/menu.vim', -3)
