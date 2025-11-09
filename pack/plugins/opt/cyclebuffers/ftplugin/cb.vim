@@ -9,7 +9,7 @@ endif
 b:did_ftplugin_cb = true
 
 # cb (cycle buffers)
-setlocal statusline=%{getline('.')}\ [%{cyclebuffers#GetBufferNum(line('.'))}]%=%{line('$')}\ [CB]
+setlocal statusline=%{getline('.')}\ [%{cyclebuffers#GetBufferNum(line('.'))}]\ <F1>:help%=%{line('$')}\ [CB]
 setlocal winfixbuf
 setlocal signcolumn=no
 setlocal number
@@ -40,6 +40,7 @@ if get(g:, 'cyclebuffers_no_mappings') == 0
   nnoremap <buffer> <nowait> J j<Plug>(cyclebuffers-select-pedit)
   nnoremap <buffer> <nowait> K k<Plug>(cyclebuffers-select-pedit)
   nnoremap <buffer> <nowait> H <Plug>(cyclebuffers-help)
+  nnoremap <buffer> <nowait> <F1> <Plug>(cyclebuffers-help)
 endif
 
 # undo
@@ -60,3 +61,4 @@ b:undo_ftplugin ..= ' | silent! nunmap <buffer> P'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> J'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> K'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <F1>'

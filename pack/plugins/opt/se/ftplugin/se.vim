@@ -76,6 +76,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> . <Plug>(se-toggle-hidden-show)
   nnoremap <buffer> <nowait> H <Plug>(se-help)
   nnoremap <buffer> <nowait> K <Plug>(se-help)
+  nnoremap <buffer> <nowait> <F1> <Plug>(se-help)
   nnoremap <buffer> <nowait> w <Plug>(se-godir-git)
   nnoremap <buffer> <nowait> W <Plug>(se-godir-root)
   nnoremap <buffer> <nowait> z <Plug>(se-set-rootdir)
@@ -190,6 +191,7 @@ b:undo_ftplugin ..= ' | silent! nunmap <buffer> M'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> .'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> K'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <F1>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> w'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> W'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> z'

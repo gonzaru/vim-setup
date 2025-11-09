@@ -136,7 +136,7 @@ export def Help()
     <C-g>           # grep files in the selected directory
     <RightMouse>    # find or grep files in the selected directory
     <ESC>           # close Se window [q]
-    H               # shows Se help information [K]
+    <F1>            # shows Se help information [H,K]
   END
   echo join(lines, "\n")
 enddef

@@ -86,6 +86,26 @@ def EchoWarningMsg(msg: string)
   endif
 enddef
 
+# help information
+def Help()
+  var lines =<< trim END
+    <C-n>           # go down [<Down>, <Tab>]
+    <C-p>           # go up   [<Up>, <S-Tab>]
+    <C-y>           # toggle case-sensitve (grep only)
+    <C-f>           # toggle fuzzy mode    (not grep)
+    <CR>            # edit the current file
+    <C-s>           # edit the current file in split mode
+    <C-v>           # edit the current file in a vertical split mode
+    <C-o>           # edit the current file in a preview mode
+    <C-t>           # edit the current file in a tab
+    <C-w>           # delete a word
+    <C-u>           # delete all characters
+    <F1>            # shows searcher help information [<C-k>]
+    <ESC>           # close the popup searcher window
+  END
+  echo join(lines, "\n")
+enddef
+
 # short path: /full/path/to/dir -> /f/p/t/dir
 def ShortPath(path: string): string
   var name = trim(fnamemodify(path, ':~'), '/', 2)
@@ -344,10 +364,11 @@ enddef
 
 # update highlight
 def UpdateHighlight(mode: string): void
-  if empty(popPrompt.query)
+  if !hlexists('PmenuMatch') || !hlexists('PmenuMatchSel')
     return
   endif
-  if !hlexists('PmenuMatch') || !hlexists('PmenuMatchSel')
+  if empty(popPrompt.query)
+    win_execute(popData.id, 'clearmatches()')
     return
   endif
   var selLine = line('.', popData.id)
@@ -557,7 +578,7 @@ def PopupTitle(): string
     endif
   endif
   var fchars = (popData.kind != 'grep' && g:searcher_popup_fuzzy) ? '+fuzzy ' : ''
-  var title = $' {popPrompt.message}{popData.kind}: {ShortPath(cwd)} {fchars}{counter} '
+  var title = $' {popPrompt.message} {fchars}<F1>:help {popData.kind}: {ShortPath(cwd)} {counter} '
   return repeat('─', (&columns / 2) - strchars(title) + 0) .. title  # + 0 (see popPrompt maxwidth)
 enddef
 
@@ -577,19 +598,27 @@ def CompletionFilter(id: number, key: string): bool
     return true
   endif
 
-  # <Tab> => <CR>
-  if key == "\<Tab>"
-    return popup_filter_menu(id, "\<CR>")
+  # <F1>,<C-k>
+  if key == "\<F1>" || key == "\<C-k>"
+    Help()
+    # input('press ENTER to continue')
+    getchar()
+    return true
   endif
 
-  # <C-n> => <Down>
-  if key == "\<C-n>" || key == "\<Down>"
+  # <Tab> => <CR>
+  # if key == "\<Tab>"
+  #   return popup_filter_menu(id, "\<CR>")
+  # endif
+
+  # <C-n>,<Tab> => <Down>
+  if key == "\<C-n>" || key == "\<Down>" || key == "\<Tab>"
     UpdateHighlight('next')
     return popup_filter_menu(id, "\<Down>")
   endif
 
-  # <C-p> => <Up>
-  if key == "\<C-p>" || key == "\<Up>"
+  # <C-p>,<S-tab> => <Up>
+  if key == "\<C-p>" || key == "\<Up>" || key == "\<S-Tab>"
     UpdateHighlight('prev')
     return popup_filter_menu(id, "\<Up>")
   endif

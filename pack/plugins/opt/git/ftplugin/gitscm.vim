@@ -10,7 +10,7 @@ b:did_ftplugin_git = true
 
 # Git
 setlocal syntax=ON
-setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->fnamemodify(':~')\ :\ 'none'}\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-15.(%l,%c%V%)\ %P
+setlocal statusline=[git]:%<%{!empty(git#GitPrevFile())\ ?\ git#GitPrevFile()->fnamemodify(':~')\ :\ 'none'}\ <F1>:help\ %h%q%w%m%r%=%{&ft}\ %{&fenc}[%{&ff}]%{get(g:,'statusline_full','')}\ %-14.(%l,%c%V%)\ %P
 setlocal winfixheight
 setlocal winfixwidth
 setlocal winfixbuf
@@ -35,6 +35,7 @@ if get(g:, 'git_no_mappings') == 0
   nnoremap <buffer> <nowait> <silent> gd <Plug>(git-diff-file)
   nnoremap <buffer> <nowait> <silent> gh <Plug>(git-help)
   nnoremap <buffer> <nowait> <silent> H <Plug>(git-help)
+  nnoremap <buffer> <nowait> <silent> <F1> <Plug>(git-help)
   nnoremap <buffer> <nowait> <silent> gl <Plug>(git-log-file)
   nnoremap <buffer> <nowait> <silent> gL <Plug>(git-log-one-file)
   nnoremap <buffer> <nowait> <silent> gR <Plug>(git-restore-staged-file)
@@ -52,6 +53,7 @@ b:undo_ftplugin ..= ' | silent! nunmap <buffer> gC'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gd'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gh'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> H'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <F1>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gl'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gL'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gR'

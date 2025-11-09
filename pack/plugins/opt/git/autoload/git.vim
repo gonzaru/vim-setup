@@ -63,7 +63,7 @@ export def Help()
     gB     git blame --date short file
     gC     git checkout file
     gd     git diff file
-    gh     help information [H]
+    gh     help information [<F1>, H]
     gl     git log file
     gL     git log --oneline file
     gR     git restore --staged file
