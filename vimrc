@@ -616,9 +616,12 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-setglobal completeopt=menuone,noselect,fuzzy          # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
+setglobal completeopt=menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 if exists('&completefuzzycollect')
-  set completefuzzycollect=keyword                    # (default: empty)
+  set completefuzzycollect=
+  if &completeopt =~ 'fuzzy'
+    set completefuzzycollect+=keyword
+  endif
 endif
 if has('popupwin')
   # setglobal completeopt+=popup      # show extra information in a popup window
@@ -1054,8 +1057,8 @@ if g:searcher_enabled
   command! -nargs=1 -complete=dir GrepDir searcher#Popup('grep', '<args>')
 endif
 def FindPrg(arg: string, _): list<string>
-  var fuzzy = true
-  var fuzzyOpts = {limit: 200, smartcase: true}
+  var fuzzy = get(b:, 'findfunc_fuzzy_enabled', false)
+  var fuzzyOpts = get(b:, 'findfunc_fuzzy_opts', {})
   var exclude = [
     '--exclude', '.git',
     '--exclude', '.cache',
@@ -1078,6 +1081,8 @@ def FindPrg(arg: string, _): list<string>
   return out
 enddef
 # :find with a function
+b:findfunc_fuzzy_enabled = false
+b:findfunc_fuzzy_opts = {limit: 200, smartcase: true}
 setglobal findfunc=FindPrg
 
 # edit file in the same directory as the current file
