@@ -12,6 +12,9 @@ g:loaded_esckey = true
 if !exists('g:esckey_key')
   g:esckey_key = "<C-l>"
 endif
+if !exists('g:esckey_nnoremap')
+  g:esckey_nnoremap = false
+endif
 
 # autoload
 import autoload '../autoload/esckey.vim'

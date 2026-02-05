@@ -172,11 +172,8 @@ endif
 # esckey plugin
 if g:esckey_enabled
   # g:esckey_key = "<C-l>"
-  if has('gui_running')
-    g:esckey_key = "<F23>"
-  else
-    g:esckey_key = "<F3>"
-  endif
+  g:esckey_key = has('gui_running') ? "<F23>" : "<F3>"
+  g:esckey_nnoremap = true  # normal mode
 endif
 
 # format plugin
@@ -417,7 +414,7 @@ if has('gui_running')
     set guifont=Menlo\ Regular:h16
     # set antialias
   else
-    if filereadable($"{$HOME}/.local/share/fonts/SF-Mono-Medium.otf")
+    if filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
       execute $"set guifont=SF\\ Mono\\ Medium\\ {host == 'vologda' ? 12.5 : 12}"
     else
       execute $"set guifont=DejaVu\\ Sans\\ Mono\\ {host == 'vologda' ? 12.8 : 12}"
@@ -429,6 +426,9 @@ if has('gui_running')
   g:guioptions_save = &guioptions
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
   if !keep_guioptions
+    if has('gui_gtk') && !exists('$GTK_THEME')
+      $GTK_THEME = "Adwaita:dark"                      # GTK_THEME=theme:variant (gtk+ >= 3.12)
+    endif
     set guioptions=acdgkM!                             # do not load menus for gui (default: aegimrLtT)
   endif
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window

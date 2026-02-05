@@ -10,20 +10,28 @@ g:autoloaded_esckey = true
 
 # enable key as escape
 export def Enable()
+  # normal mode
+  if g:esckey_nnoremap
+    execute $"nnoremap {g:esckey_key} <Esc>"
+  endif
   # <C-l> goes to normal mode in evim/insertmode
   # <C-l> adds one character from the current match in insert completion
   if tolower(g:esckey_key) == "<c-l>"
     inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<ESC>'
   else
-    execute $"inoremap {g:esckey_key} <ESC>"
+    execute $"inoremap {g:esckey_key} <Esc>"
   endif
-  execute $"vnoremap {g:esckey_key} <ESC>"
-  execute $"cnoremap {g:esckey_key} <ESC>"
+  execute $"vnoremap {g:esckey_key} <Esc>gV"
+  execute $"cnoremap {g:esckey_key} <C-c><Esc>"
+  execute $"onoremap {g:esckey_key} <Esc>"
   g:esckey_key_enabled = true
 enddef
 
 # disable key as escape
 export def Disable()
+  if g:esckey_nnoremap && !empty(mapcheck(g:esckey_key, "n"))
+    execute $"nunmap {g:esckey_key}"
+  endif
   if !empty(mapcheck(g:esckey_key, "i"))
     execute $"iunmap {g:esckey_key}"
   endif
@@ -32,6 +40,9 @@ export def Disable()
   endif
   if !empty(mapcheck(g:esckey_key, "c"))
     execute $"cunmap {g:esckey_key}"
+  endif
+  if !empty(mapcheck(g:esckey_key, "o"))
+    execute $"ounmap {g:esckey_key}"
   endif
   g:esckey_key_enabled = false
 enddef
