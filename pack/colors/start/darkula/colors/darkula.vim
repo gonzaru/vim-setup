@@ -162,7 +162,7 @@ highlight! PmenuKindSel guifg=#cc7832 guibg=#113a5c ctermfg=172 ctermbg=25 gui=N
 execute $"highlight! PmenuSbar guifg=NONE guibg={colors.normal.guibg} ctermfg=NONE ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuThumb guifg=NONE guibg={isdark ? '#303030' : '#999999'} ctermfg=NONE ctermbg={isdark ? 236 : 102} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuExtra guifg=#808080 guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=244 ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
-highlight! PmenuExtraSel guifg=#949494 guibg=#113a5c ctermfg=246 ctermbg=25 gui=NONE cterm=NONE term=NONE
+execute $"highlight! PmenuExtraSel guifg={isdark ? '#949494' : '#9e9e9e'} guibg=#113a5c ctermfg={isdark ? 246 : 247} ctermbg=25 gui=NONE cterm=NONE term=NONE"
 highlight! link PopupSelected PmenuSel
 
 # :help ins-completion
