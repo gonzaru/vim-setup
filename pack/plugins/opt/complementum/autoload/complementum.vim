@@ -166,7 +166,8 @@ enddef
 
 # checks if the keystroke is triggerable (omni)
 def IsTriggerableOmni(lang: string, chars: list<string>): bool
-  if pumvisible() || !has_key(g:complementum_omnichars, lang) || g:complementum_minchars < 1
+  if pumvisible() || g:complementum_minchars < 1
+  || !has_key(g:complementum_omnichars, lang) || !has_key(g:complementum_omnifuncs, lang)
     return false
   endif
   for char in chars
@@ -205,8 +206,8 @@ export def Complete(lang: string, ichar: string): void
   if pumvisible()
     return
   endif
-  var prev = matchstr(getline('.')[ : col('.') - 2], '.$')
-  if IsTriggerableOmni(lang, [ichar, prev])
+  # var prev = matchstr(getline('.')[ : col('.') - 2], '.$')
+  if IsTriggerableOmni(lang, [ichar])
     CompleteOmni(lang)
   elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing
@@ -220,28 +221,24 @@ def CompleteOmni(lang: string): void
   if pumvisible()
     return
   endif
-  if !has_key(g:complementum_omnifuncs, lang)
-  && !has_key(g:complementum_lspfuncs, lang)
-    return
-  endif
   # lsp
   # omnni
   # dictionary
   # default
   #  if get(g:, 'lsp_enabled') && get(g:, 'lsp_complementum')
-  #  && exists('g:lsp_allowed_types') && index(g:lsp_allowed_types, lang) >= 0
+  #  && has_key(g:lsp_allowed_types, lang) && index(g:lsp_allowed_types, lang) >= 0
   #    timer_start(0, (_) => {
   #      lsp#Completion()
   #    })
   #    return
   # endif
-  if get(g:, 'loaded_lsp') && index(g:complementum_lspfuncs[lang], &omnifunc) >= 0
+  if get(g:, 'loaded_lsp') && has_key(g:complementum_lspfuncs, lang) && index(g:complementum_lspfuncs[lang], &l:omnifunc) >= 0
     # lsp plugin
     if &l:omnifunc == 'lsp#OmniFunc' && (!get(g:, 'lsp_enabled') || !get(g:, 'lsp_complementum'))
       return
     endif
     feedkeys(g:complementum_keystroke_omni, "n")
-  elseif index(g:complementum_omnifuncs[lang], &omnifunc) >= 0
+  elseif has_key(g:complementum_omnifuncs, lang) && index(g:complementum_omnifuncs[lang], &l:omnifunc) >= 0
     feedkeys(g:complementum_keystroke_omni, "n")
   elseif &dictionary =~ g:complementum_regex_dict
       var iskeyword_save = &l:iskeyword
