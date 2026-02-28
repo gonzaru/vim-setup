@@ -48,7 +48,11 @@ export def Run(cmd: string, file: string): void
     EchoErrorMsg($"Error: the cmd '{cmd}' is not executable")
     return
   endif
-  echo !empty(file) ? system($"{cmd} {file}") : system(cmd)
+  var flags: string
+  if &filetype == "rust"
+    flags = $"--bin {fnamemodify(file, ':t:r')}"
+  endif
+  echo !empty(file) ? system($"{cmd} {flags} {file}") : system(cmd)
   if v:shell_error != 0
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif
@@ -94,7 +98,11 @@ export def RunWindow(cmd: string, file: string, position: string, gowin: bool): 
     EchoErrorMsg($"Error: the position '{position}' is not allowed")
     return
   endif
-  outmsg = !empty(file) ? systemlist($"{cmd} {file}") : systemlist(cmd)
+  var flags: string
+  if &filetype == "rust"
+    flags = $"--bin {fnamemodify(file, ':t:r')}"
+  endif
+  outmsg = !empty(file) ? systemlist($"{cmd} {flags} {file}") : systemlist(cmd)
   if v:shell_error != 0
     EchoErrorMsg($"Error: exit code {v:shell_error}")
   endif

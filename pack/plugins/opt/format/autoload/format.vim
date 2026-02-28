@@ -9,7 +9,7 @@ endif
 g:autoloaded_format = true
 
 # allowed file types
-const ALLOWED_TYPES = ['sh', 'python', 'go']
+const ALLOWED_TYPES = ['sh', 'python', 'go', 'rust']
 
 # format commands
 const COMMANDS = {
@@ -24,6 +24,9 @@ const COMMANDS = {
   },
   'go': {
     'command': join(g:format_go_command)
+  },
+  'rust': {
+    'command': join(g:format_rust_command)
   }
 }
 

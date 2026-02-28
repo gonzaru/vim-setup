@@ -80,6 +80,10 @@ g:loaded_vimballPlugin = true      # vimballPlugin.vim
 g:loaded_zip = true                # zip.vim
 g:loaded_zipPlugin = true          # zipPlugin.vim
 
+# rust
+# g:no_rust_maps = true            # $VIMRUNTIME/ftplugin/rust.vim
+# g:rust_recommended_style = true  # $VIMRUNTIME/ftplugin/rust.vim
+
 # enable custom plugins
 g:arrowkeys_enabled = true        # enable/disable arrow keys
 g:autoclosechars_enabled = false  # automatic close of chars
@@ -320,6 +324,7 @@ set cursorline              # mark with another color the current cursor line
 set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
 setglobal virtualedit=block # allow virtual editing in visual block mode <C-v> (default: empty)
 setglobal path=.,,,**       # set path for finding files with :find (default .,/usr/include,,)
+setglobal fsync             # flush a file to disk (default: on)
 # set cdhome                # changes the current working directory to the $HOME like in Unix (default: off)
 set noemoji                 # don't consider unicode emoji characters to be full width
 set updatetime=300          # used for the |CursorHold| autocommand event
@@ -616,7 +621,7 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-setglobal completeopt=menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
+setglobal completeopt=menuone,noinsert  # noselect,nearest <> fuzzy,nosort,longest (with autocomplete)
 if exists('&completefuzzycollect')
   set completefuzzycollect=
   if &completeopt =~ 'fuzzy'
@@ -858,6 +863,7 @@ nnoremap <leader>tgl :setlocal list! list? <bar> echon " (setlocal)"<CR>
 nnoremap <leader>tgL :set list! list? <bar> echon " (set)"<CR>
 nnoremap <leader>tgH :set hlsearch! hlsearch? <bar> echon " (set)"<CR>
 nnoremap <leader>tgP :set paste! paste? <bar> echon " (set)"<CR>
+nnoremap <leader>tgv :setlocal readonly! readonly? <bar> echon " (set)"<CR>
 nnoremap <leader>tgW :set autowrite! autowrite? <bar> echon " (set)"<CR>
 # nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
@@ -1045,7 +1051,7 @@ command! -nargs=+ -complete=file -bar Grepr searcher#Search(<q-args>, systemlist
 command! -nargs=+ -complete=file -bar Grepir searcher#Search('-i', <q-args>, systemlist('git rev-parse --show-toplevel')[0], 'grepprg', 'quickfix')
 # vimgrep + quickfix
 command! -nargs=+ -complete=file Vimgrep execute "silent vimgrep! <args>" | cwindow | redraw!
-nnoremap <leader>/ mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
+nnoremap <leader>v mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
 
 # find using searcher plugin
 if g:searcher_enabled

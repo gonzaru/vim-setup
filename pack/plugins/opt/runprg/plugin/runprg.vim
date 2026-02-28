@@ -17,7 +17,9 @@ def GetRunCommand(lang: string): string
     'sh': getline(1) =~ "bash" ? 'bash' : 'sh',
     'bash': 'bash',
     'python': 'python3',
-    'go': 'go run'
+    'go': 'go run',
+    'rust': 'cargo run'
+
   }
   if !has_key(cmds, lang)
     throw $"Error: the lang '{lang}' is not supported"

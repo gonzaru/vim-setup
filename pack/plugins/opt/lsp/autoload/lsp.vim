@@ -12,7 +12,8 @@ g:autoloaded_lsp = true
 const LANGUAGES = {
   'go': 1,
   'python': 2,
-  'terraform': 3
+  'terraform': 3,
+  'rust': 4
 }
 
 # id request
@@ -150,6 +151,17 @@ servers[LANGUAGES['terraform']] = NewServer({
   'args': ['serve', '-log-file=/dev/null'],
   'desc': 'The official Terraform language server',
   'language': 'terraform',
+  'waitInit': true
+})
+
+# rust
+servers[LANGUAGES['rust']] = NewServer({
+  'id': LANGUAGES['rust'],
+  'name': 'rust-analyzer',
+  'cmd': 'rust-analyzer',
+  'args': ['-q', '--log-file', '/dev/null'],
+  'desc': 'A Rust compiler front-end for IDEs',
+  'language': 'rust',
   'waitInit': true
 })
 
@@ -425,7 +437,7 @@ def RequestInitialize(server: dict<any>)
   if server.name == 'gopls'
     initOpts = {
       directoryFilters: [
-        '-**/.cache', '-**/.git', '-**/.idea', '-**/.venv', '-**/build', '-**/dist', '-**/node_modules'
+        '-**/.cache', '-**/.git', '-**/.idea', '-**/.venv', '-**/build', '-**/dist', '-**/node_modules', '-**/target'
       ]
     }
   endif
@@ -434,7 +446,21 @@ def RequestInitialize(server: dict<any>)
   if server.name == 'terraform-ls'
     initOpts = {
       experimentalFeatures: { validateOnSave: false },
-      indexing: { ignoreDirectoryNames: ['.cache', '.git', '.idea', '.venv', 'build', 'dist', 'node_modules'] }
+      indexing: { ignoreDirectoryNames: ['.cache', '.git', '.idea', '.venv', 'build', 'dist', 'node_modules', 'target'] }
+    }
+  endif
+
+  # rust-analyzer only
+  if server.name == 'rust-analyzer'
+    initOpts = {
+      files: {
+        excludeDirs: [
+          '.cache', '.git', '.idea', '.venv', 'build', 'dist', 'node_modules', 'target'
+        ],
+        watcherExclude: [
+          '**/.cache/**', '**/.git/**', '**/.idea/**', '**/.venv/**', '**/build/**', '**/dist/**', '**/node_modules/**', '**/target/**'
+        ],
+      }
     }
   endif
 
@@ -543,6 +569,23 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
               typeCheckingMode: 'off',
               diagnosticMode: 'openFilesOnly',
               autoImportCompletions: v:false
+            }
+          }
+        }
+      }
+    })
+  endif
+
+  # rust-analyzer only
+  if server.name == 'rust-analyzer'
+    ch_sendexpr(server.channel, {
+      jsonrpc: '2.0',
+      method: 'workspace/didChangeConfiguration',
+      params: {
+        settings: {
+          rust-analyzer: {
+            diagnostics: {
+              enable: v:false
             }
           }
         }

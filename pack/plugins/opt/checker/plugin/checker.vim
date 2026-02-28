@@ -22,6 +22,10 @@ const TOOL = {
   'go': {
     'default': 'go',
     'exttool': 'govet'
+  },
+  'rust': {
+    'default': 'rust',
+    'exttool': 'rustc'
   }
 }
 
@@ -85,6 +89,25 @@ if executable("go") && executable("gofmt")
       \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "write") |
       \ if get(g:, 'format_enabled') && get(g:, 'format_go_on_write') |
       \   format#Language("go", expand("%:p")) |
+      \ endif
+    }
+  augroup END
+endif
+
+# Rust
+if executable("rustc")
+  augroup checker_rust
+    autocmd!
+    # autocmd DiffUpdated *.rs b:checker_enabled = false
+    autocmd FileType rust {
+      autocmd BufWinEnter <buffer>
+      \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "read")
+    }
+    autocmd FileType rust {
+      autocmd BufWrite <buffer>
+      \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "write") |
+      \ if get(g:, 'format_enabled') && get(g:, 'format_rust_on_write') |
+      \   format#Language("rust", expand("%:p")) |
       \ endif
     }
   augroup END

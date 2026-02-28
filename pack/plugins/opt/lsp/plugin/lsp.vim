@@ -9,7 +9,7 @@ endif
 g:loaded_lsp = true
 
 # global variables
-g:lsp_allowed_types = ["go", "python", "terraform"]
+g:lsp_allowed_types = ['go', 'python', 'terraform', 'rust']
 if !exists('g:lsp_python_auto_imports')
   g:lsp_python_auto_imports = false
 endif
@@ -53,8 +53,8 @@ augroup END
 # start
 augroup lsp_start
   autocmd!
-  autocmd FileType go,python,terraform ++once {
-    if g:lsp_enabled
+  autocmd FileType go,python,terraform,rust ++once {
+    if g:lsp_enabled && index(g:lsp_allowed_types, &filetype) >= 0
       execute "normal \<Plug>(lsp-start)"
     endif
   }

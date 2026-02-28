@@ -9,7 +9,7 @@ endif
 g:autoloaded_checker = true
 
 # allowed file types
-const CHECKER_ALLOWED_TYPES = ['sh', 'python', 'go']
+const CHECKER_ALLOWED_TYPES = ['sh', 'python', 'go', 'rust']
 
 # signs titles
 const SIGNS_TITLES = {
@@ -24,7 +24,11 @@ const SIGNS_TITLES = {
   'go': {
     'go': 'GO',
     'govet': 'GV'
-  }
+  },
+  'rust': {
+    'rust': 'RU',
+    'rustc': 'RC'
+  },
 }
 
 # signs errors
@@ -40,6 +44,10 @@ const SIGNS_ERRORS = {
   'go': {
     'go': 'checker_go',
     'govet': 'checker_govet'
+  },
+  'rust': {
+    'rust': 'checker_rust',
+    'rustc': 'checker_rustc'
   }
 }
 
@@ -59,6 +67,11 @@ execute 'sign define ' .. SIGNS_ERRORS['go']['go']
   .. ' text=✘ texthl=' .. (hlexists('SyntaxErrorGO') ? 'SyntaxErrorGO' : 'ErrorMsg')
 execute 'sign define ' .. SIGNS_ERRORS['go']['govet']
   .. ' text=↳ texthl=' .. (hlexists('SyntaxErrorGOVET') ? 'SyntaxErrorGOVET' : 'WarningMsg')
+# Rust
+execute 'sign define ' .. SIGNS_ERRORS['rust']['rust']
+  .. ' text=✘ texthl=' .. (hlexists('SyntaxErrorRUST') ? 'SyntaxErrorRUST' : 'ErrorMsg')
+execute 'sign define ' .. SIGNS_ERRORS['rust']['rustc']
+  .. ' text=↳ texthl=' .. (hlexists('SyntaxErrorRUSTC') ? 'SyntaxErrorRUSTC' : 'WarningMsg')
 
 # checker errors
 final ERRORS = {
@@ -73,6 +86,10 @@ final ERRORS = {
   'go': {
     'go': 0,
     'govet': 0
+  },
+  'rust': {
+    'rust': 0,
+    'rustc': 0
   }
 }
 
@@ -86,6 +103,9 @@ final JOB_QUEUE = {
   },
   'go': {
     'govet': []
+  },
+  'rust': {
+    'rustc': []
   }
 }
 
@@ -93,7 +113,8 @@ final JOB_QUEUE = {
 const REGEX_STATUSLINE_SIGN = {
   'sh': '^\[' .. SIGNS_TITLES['sh']['sh'] .. '=\d*\]\[' .. SIGNS_TITLES['sh']['shellcheck'] .. '=\d*N\?E\?\] ',
   'python': '^\[' .. SIGNS_TITLES['python']['python'] .. '=\d*\]\[' .. SIGNS_TITLES['python']['pep8'] .. '=\d*N\?E\?\] ',
-  'go': '^\[' .. SIGNS_TITLES['go']['go'] .. '=\d*\]\[' .. SIGNS_TITLES['go']['govet'] .. '=\d*N\?E\?\] '
+  'go': '^\[' .. SIGNS_TITLES['go']['go'] .. '=\d*\]\[' .. SIGNS_TITLES['go']['govet'] .. '=\d*N\?E\?\] ',
+  'rust': '^\[' .. SIGNS_TITLES['rust']['rust'] .. '=\d*\]\[' .. SIGNS_TITLES['rust']['rustc'] .. '=\d*N\?E\?\] '
 }
 
 # statusline regex signs
@@ -128,7 +149,17 @@ const CHECKER_FILES = {
     'govet': {
       'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_go_govet_syntax-{PID}.log'
     }
-  }
+  },
+  'rust': {
+    'rust': {
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_rust_rust_syntax-{PID}.log',
+      'emitfile': $'{TMPDIR}/{$USER}-vim-checker_rust_rust_emit-{PID}.rmeta'
+    },
+    'rustc': {
+      'syntaxfile': $'{TMPDIR}/{$USER}-vim-checker_rust_rustc-{PID}.log',
+      'emitfile': $'{TMPDIR}/{$USER}-vim-checker_rust_rustc_emit-{PID}.rmeta'
+    }
+  },
 }
 
 # prints the error message and saves the message in the message-history
@@ -232,6 +263,9 @@ export def CheckAsync(lang: string, file: string, tools: dict<string>): void
   elseif lang == 'go'
     # no stdin
     cmd = ['go', 'vet', '.']
+  elseif lang == 'rust'
+    var tmpfile = CHECKER_FILES[lang][tools.exttool]['emitfile']
+    cmd = ['rustc', $'--emit=metadata={tmpfile}', '-']
   endif
   if &filetype == lang && !BufferIsEmpty() && empty(JOB_QUEUE[lang][tools.exttool])
     var cbvars = {
@@ -252,8 +286,8 @@ export def CheckAsync(lang: string, file: string, tools: dict<string>): void
       'err_io': 'out',
       'cwd': cwddir
     }
-    # stdin (sh, python)
-    if index(['sh', 'python'], lang) != -1
+    # stdin (sh, python, rust)
+    if index(['sh', 'python', 'rust'], lang) != -1
       opts.in_io = 'buffer'
       opts.in_buf = bufnr(file)
     endif
@@ -284,6 +318,9 @@ def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
     cmd = $'python3 -c {shellescape('import ast,sys; ast.parse(sys.stdin.read(), filename="<buffer>")')} 2>&1'
   elseif lang == 'go'
     cmd = 'gofmt -e 2>&1'
+  elseif lang == 'rust'
+    var tmpfile = CHECKER_FILES[lang][lang]['emitfile']
+    cmd = $'rustc --emit=metadata={tmpfile} 2>&1 -'
   endif
   var errOut: string
   var bufFile = join(getline(1, '$'), "\n") .. (&l:eol ? "\n" : '')
@@ -304,6 +341,8 @@ def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
       errLine = str2nr(trim(split(errOut)[-1], ')', 2))
     elseif lang == 'go'
       errLine = str2nr(split(errOut, ':')[1])
+    elseif lang == 'rust'
+      errLine = str2nr(split(split(errOut, "\n")[1], ':')[1])
     endif
     if !empty(errLine)
       sign_place(errLine, '', signErrTool, file, {'lnum': errLine})
@@ -312,6 +351,10 @@ def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
   endif
   if filereadable(synFile) && (!getfsize(synFile) || !numErrs)
     delete(synFile)
+  endif
+  # tmp emit file (rustc)
+  if lang == 'rust' && filereadable(CHECKER_FILES[lang][lang]['emitfile'])
+    delete(CHECKER_FILES[lang][lang]['emitfile'])
   endif
   return [numErrs, errOut]
 enddef
@@ -339,6 +382,12 @@ def SetToolSigns(lang: string, extTool: string, file: string): list<any>
       endif
     elseif lang == 'go'
       if extTool == 'govet' && line =~ $'^./{fnamemodify(file, ':t')}:'
+        errLine = str2nr(split(line, ':')[1])
+        add(lineErrs, line)
+        ++numErrs
+      endif
+    elseif lang == 'rust'
+      if extTool == 'rustc' && line =~ $' --> <anon>:'
         errLine = str2nr(split(line, ':')[1])
         add(lineErrs, line)
         ++numErrs
@@ -392,6 +441,10 @@ def ExitHandler(vars: dict<string>, job: job, status: number)
   endif
   if filereadable(vars.syntaxfile) && (!getfsize(vars.syntaxfile) || !ERRORS[vars.lang][vars.exttool])
     delete(vars.syntaxfile)
+  endif
+  # tmp emit file (rustc)
+  if vars.lang == 'rust' && filereadable(CHECKER_FILES[vars.lang][vars.exttool]['emitfile'])
+    delete(CHECKER_FILES[vars.lang][vars.exttool]['emitfile'])
   endif
   if selWinID != fileWinID
     win_gotoid(selWinID)
@@ -533,6 +586,13 @@ def GetErrorLine(lang: string, tool: string): string
     elseif tool == 'govet'
       var file = fnamemodify(bufname('%'), ':t')
       idx = match(errOut, $'^./{file}:{curLine}:[^:]*: ')
+      if idx >= 0
+        errMsg = errOut[idx]
+      endif
+    endif
+  elseif lang == 'rust'
+    if tool == 'rust' || tool == 'rustc'
+      idx = match(errOut, $'<anon>:{curLine}:[0-9]\+$') - 1
       if idx >= 0
         errMsg = errOut[idx]
       endif

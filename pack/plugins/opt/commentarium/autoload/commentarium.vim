@@ -10,7 +10,7 @@ g:autoloaded_commentarium = true
 
 # allowed file types
 const COMMENT_C_STYLE_BLOCK = ["c", "cpp", "java", "sql"]
-const COMMENT_C_STYLE_LINE = ["go", "php", "javascript"]
+const COMMENT_C_STYLE_LINE = ["go", "php", "javascript", "rust"]
 const COMMENT_HASH_STYLE = ["sh", "perl", "python"]
 const COMMENT_HTML_TAG = ["html", "xml"]
 const COMMENT_VIM = ["vim"]

@@ -21,6 +21,7 @@ if !exists('g:complementum_omnichars')
     'go': ["."],
   # 'c': [".", "#"],
     'terraform': ["."],
+    'rust': [".", "::"],
   }
 endif
 if !exists('g:complementum_omnifuncs')
@@ -28,6 +29,7 @@ if !exists('g:complementum_omnifuncs')
     'python': ["python3complete#Complete"],
     'go': ["go#complete#Complete"],
   # 'c': ["ccomplete#Complete"],
+  # 'rust': ["rust#Complete"],
   }
 endif
 if !exists('g:complementum_lspfuncs')
@@ -36,6 +38,7 @@ if !exists('g:complementum_lspfuncs')
     'go': ['lsp#OmniFunc', 'g:LspOmniFunc'],
   # 'c': ['g:LspOmniFunc'],
     'terraform': ['lsp#OmniFunc', 'g:LspOmniFunc'],
+    'rust': ['lsp#OmniFunc', 'g:LspOmniFunc'],
   }
 endif
 if !exists('g:complementum_regex_dict')

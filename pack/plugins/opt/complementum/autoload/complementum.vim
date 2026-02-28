@@ -77,6 +77,7 @@ enddef
 
 # complete the key
 export def CompleteKey(key: string): void
+  var lang = &filetype
   if g:complementum_debuginfo
     defer DebugInfo()
   endif
@@ -95,7 +96,16 @@ export def CompleteKey(key: string): void
     var ccol = col('.')
     var prev = (ccol > 1) ? matchstr(cline[ : ccol - 2], '.$') : ''
     var prev2 = (ccol > 1) ? matchstr(cline[ : ccol - 3], '.$') : ''
-    if (prev =~ '\s' && prev2 != '' && IsTriggerableOmni(&filetype, [prev2]))
+    # omni char '::'
+    if prev =~ '\s' && prev2 == ':'
+    && has_key(g:complementum_omnichars, lang) && index(g:complementum_omnichars[lang], '::') >= 0
+      var prev3 = (ccol > 1) ? matchstr(cline[ : ccol - 4], '.$') : ''
+      if prev3 == ':' && IsTriggerableOmni(lang, '::')
+        feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
+      else
+        feedkeys(g:complementum_keystroke_backspace, 'n')
+      endif
+    elseif prev =~ '\s' && prev2 != '' && IsTriggerableOmni(lang, prev2)
       feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
     elseif prev2 =~ '\w' && HasTriggerOmniKey('skipwhitespace')
       feedkeys(g:complementum_keystroke_backspace .. g:complementum_keystroke_omni, 'n')
@@ -128,7 +138,7 @@ export def CompleteKey(key: string): void
   elseif key == "enter"
     # autoendstructs plugin
     if get(g:, "autoendstructs_enabled") && !pumvisible()
-      feedkeys(autoendstructs#End(&filetype), "n")
+      feedkeys(autoendstructs#End(lang), "n")
     else
       feedkeys(g:complementum_keystroke_enter, "n")
     endif
@@ -165,21 +175,19 @@ def IsTriggerableDefault(ichar: string): bool
 enddef
 
 # checks if the keystroke is triggerable (omni)
-def IsTriggerableOmni(lang: string, chars: list<string>): bool
-  if pumvisible() || g:complementum_minchars < 1
-  || !has_key(g:complementum_omnichars, lang) || !has_key(g:complementum_omnifuncs, lang)
+def IsTriggerableOmni(lang: string, symbol: string): bool
+  if pumvisible() || g:complementum_minchars < 1 || !has_key(g:complementum_omnichars, lang)
     return false
   endif
-  for char in chars
-    if index(g:complementum_omnichars[lang], char) >= 0
-      return true
-    endif
-  endfor
-  return false
+  if !has_key(g:complementum_omnifuncs, lang) && !has_key(g:complementum_lspfuncs, lang)
+    return false
+  endif
+  return index(g:complementum_omnichars[lang], symbol) >= 0
 enddef
 
 # has omni trigger key (word)
 def HasTriggerOmniKey(skip: string = ''): bool
+  var lang = &filetype
   var omni = false
   var cline = getline('.')
   var ccol = col('.')
@@ -189,7 +197,15 @@ def HasTriggerOmniKey(skip: string = ''): bool
     if skip != 'skipwhitespace' && char =~ '\s'
       break
     endif
-    if IsTriggerableOmni(&filetype, [char])
+    var symbol = char
+    # omni char '::'
+    if symbol == ':' && has_key(g:complementum_omnichars, lang) && index(g:complementum_omnichars[lang], '::') >= 0
+      var prev = matchstr(cline[ : num - 3], '.$')
+      if prev == ':'
+        symbol = '::'
+      endif
+    endif
+    if IsTriggerableOmni(lang, symbol)
       omni = true
       break
     endif
@@ -206,8 +222,15 @@ export def Complete(lang: string, ichar: string): void
   if pumvisible()
     return
   endif
-  # var prev = matchstr(getline('.')[ : col('.') - 2], '.$')
-  if IsTriggerableOmni(lang, [ichar])
+  var symbol = ichar
+  # omni char '::'
+  if symbol == ':' && has_key(g:complementum_omnichars, lang) && index(g:complementum_omnichars[lang], '::') >= 0
+    var prev = matchstr(getline('.')[ : col('.') - 2], '.$')
+    if prev == ':'
+      symbol = '::'
+    endif
+  endif
+  if IsTriggerableOmni(lang, symbol)
     CompleteOmni(lang)
   elseif ichar =~ '^\W$' || state('m') == 'm'
     # do nothing

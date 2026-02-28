@@ -30,6 +30,12 @@ endif
 if !exists('g:format_go_on_write')
   g:format_go_on_write = false
 endif
+if !exists('g:format_rust_command')
+  g:format_rust_command = ['rustfmt', '-q']
+endif
+if !exists('g:format_rust_on_write')
+  g:format_rust_on_write = false
+endif
 
 # autoload
 import autoload '../autoload/format.vim'
