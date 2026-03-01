@@ -58,6 +58,7 @@ enddef
 export def Help()
   var lines =<< trim END
     <CR>   shows a commit or switch to a branch
+    <ESC>  closes the git window
     gA     git add file
     gb     git blame file
     gB     git blame --date short file
@@ -151,26 +152,67 @@ def SetupWindow()
   endif
 enddef
 
-# shows a commit or switch to a branch
-export def DoAction(line: string, cwddir: string, selwin: bool): void
-  var curcol: number
-  var curline: number
-  var elem = trim(line)
-  if empty(elem)
+# menu action
+def MenuAction(file: string, cwddir: string, selwin: bool)
+  var choice = inputlist([
+    'Select:',
+    '1. diff',
+    '2. checkout',
+    '3. add',
+    '4. restore'
+  ])
+  if empty(choice)
     return
   endif
-  elem = split(substitute(line, '^commit \|^* ', "", ""), " ")[0]
-  if IsValidHash(elem)
-    Run($"git show {elem}", cwddir, selwin)
-  elseif BranchExists(elem, cwddir)
-    curline = line('.')
-    curcol = col('.')
-    Run($"git switch {elem}", cwddir, selwin)
-    if get(g:, 'statusline_enabled')
-      cursor(curline, curcol)
-      sleep! 200m
-      doautocmd DirChanged
+  if choice < 1 || choice > 4
+    EchoErrorMsg($"Error: wrong option '{choice}'")
+    return
+  endif
+  if choice == 1
+    Run($"git diff -- {file}", cwddir, selwin)
+  elseif choice == 2
+    Run($"git checkout -- {file}", cwddir, selwin)
+  elseif choice == 3
+    Run($"git add -- {file}", cwddir, selwin)
+  elseif choice == 4
+    Run($"git restore --staged -- {file}", cwddir, selwin)
+  endif
+  if choice != 1
+    feedkeys("\<Esc>", 'n')
+    Run($"git status --porcelain", cwddir, selwin)
+  endif
+enddef
+
+# shows a commit or switch to a branch
+export def DoAction(line: string, cwddir: string, selwin: bool): void
+  var elem: string
+  if empty(trim(line))
+    return
+  endif
+  var hash = '^\x\{8\} '
+  if line =~ '^commit ' || line =~ hash  # commit, hash
+    if line =~ hash
+      elem = split(line, " ")[0]
+    else
+      elem = substitute(line, '^commit ', "", "")
     endif
+    if IsValidHash(elem)
+      Run($"git show {elem}", cwddir, selwin)
+    endif
+  elseif line =~ '^* \|^  '  # branch
+    elem = substitute(line, '^* \|^  ', "", "")
+    if BranchExists(elem, cwddir)
+      var curpos = getcurpos()
+      Run($"git switch {elem}", cwddir, selwin)
+      if get(g:, 'statusline_enabled')
+        setpos('.', curpos)
+        sleep! 200m
+        doautocmd DirChanged
+      endif
+    endif
+  elseif line =~ '^ M \|^?? \|^A '
+    elem = substitute(line, '^ M \|^?? \|^A ', "", "")
+    MenuAction(elem, cwddir, true)
   endif
 enddef
 
@@ -193,7 +235,7 @@ export def Run(args: string, cwddir: string, selwin: bool): void
     return
   endif
   if empty(outmsg)
-    echo $"Info: empty output by args: '{args}', status: {v:shell_error == 0 ? 'OK' : 'NOK'}"
+    echomsg $"Info: empty output by args: '{args}', status: {v:shell_error == 0 ? 'OK' : 'NOK'}"
     return
   endif
   SetGitPrevFile(curfile)

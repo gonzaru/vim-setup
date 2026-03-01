@@ -28,6 +28,7 @@ setlocal buftype=nowrite
 setlocal bufhidden=wipe
 if get(g:, 'git_no_mappings') == 0
   nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action)
+  nnoremap <buffer> <nowait> <silent> <ESC> <Plug>(git-close)
   nnoremap <buffer> <nowait> <silent> gA <Plug>(git-add-file)
   nnoremap <buffer> <nowait> <silent> gb <Plug>(git-blame)
   nnoremap <buffer> <nowait> <silent> gB <Plug>(git-blame-short)
@@ -46,6 +47,7 @@ endif
 # undo
 b:undo_ftplugin = 'setlocal syntax< statusline< winfixheight< winfixwidth< winfixbuf< number< cursorline< cursorcolumn< wrap< spell< list< swapfile< buflisted< buftype< bufhidden<'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <ESC>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gA'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gb'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> gB'

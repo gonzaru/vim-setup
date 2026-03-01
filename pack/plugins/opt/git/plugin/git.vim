@@ -26,6 +26,7 @@ nnoremap <silent> <script> <Plug>(git-branch-remotes) <ScriptCmd>git.Run("git br
 nnoremap <silent> <script> <Plug>(git-checkout-file)
   \ <ScriptCmd>git.CheckOutFile(PrevOrNewFile(), getcwd(), false, false)<CR>
 nnoremap <silent> <script> <Plug>(git-close) <ScriptCmd>git.Close()<CR>
+nnoremap <silent> <script> <Plug>(git-commit) <ScriptCmd>git.Run("git status --porcelain", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-diff) <ScriptCmd>git.Run("git diff", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-diff-file) <ScriptCmd>git.Run($"git diff {PrevOrNewFile()}", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-do-action) <ScriptCmd>git.DoAction(getline('.'), getcwd(), false)<CR>
@@ -40,7 +41,9 @@ nnoremap <silent> <script> <Plug>(git-restore-staged-file)
   \ <ScriptCmd>git.Run($"git restore --staged {PrevOrNewFile()}", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-show) <ScriptCmd>git.Run("git show", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-show-file) <ScriptCmd>git.Run($"git show {PrevOrNewFile()}", getcwd(), false)<CR>
+nnoremap <silent> <script> <Plug>(git-stash) <ScriptCmd>git.Run("git stash", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-stash-list) <ScriptCmd>git.Run("git stash list", getcwd(), false)<CR>
+nnoremap <silent> <script> <Plug>(git-stash-pop) <ScriptCmd>git.Run("git stash pop", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-status) <ScriptCmd>git.Run("git status", getcwd(), true)<CR>
 nnoremap <silent> <script> <Plug>(git-status-file)
   \ <ScriptCmd>git.Run($"git status {PrevOrNewFile()}", getcwd(), false)<CR>
@@ -74,6 +77,9 @@ enddef
 
 # set mappings
 if get(g:, 'git_no_mappings') == 0
+  if empty(mapcheck("<leader>va", "n"))
+    nnoremap <leader>va <Plug>(git-commit)
+  endif
   if empty(mapcheck("<leader>vb", "n"))
     nnoremap <leader>vb <Plug>(git-branch)
   endif
@@ -136,6 +142,7 @@ if get(g:, 'git_no_commands') == 0
   command! GitBranchRemotes execute "normal \<Plug>(git-branch-remotes)"
   command! GitCheckOutFile execute "normal \<Plug>(git-checkout-file)"
   command! GitClose execute "normal \<Plug>(git-close)"
+  command! GitCommit execute "normal \<Plug>(git-commit)"
   command! GitDiff execute "normal \<Plug>(git-diff)"
   command! GitDiffFile execute "normal \<Plug>(git-diff-file)"
   command! GitDiffStaged git.Run('git diff --staged', getcwd(), true)
@@ -152,7 +159,9 @@ if get(g:, 'git_no_commands') == 0
   command! GitRestoreStagedFile execute "normal \<Plug>(git-restore-staged-file)"
   command! GitShow execute "normal \<Plug>(git-show)"
   command! GitShowFile execute "normal \<Plug>(git-show-file)"
+  command! GitStash execute "normal \<Plug>(git-stash)"
   command! GitStashList execute "normal \<Plug>(git-stash-list)"
+  command! GitStashPop execute "normal \<Plug>(git-stash-pop)"
   command! GitStatus execute "normal \<Plug>(git-status)"
   command! GitStatusFile execute "normal \<Plug>(git-status-file)"
   command! GitStatusShort git.Run('git status --short', getcwd(), true)
