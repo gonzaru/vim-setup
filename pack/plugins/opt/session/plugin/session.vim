@@ -32,8 +32,8 @@ import autoload '../autoload/session.vim'
 # TODO
 
 # define mappings
-nnoremap <silent> <script> <Plug>(session-load) :SessionLoad<Space>
-nnoremap <silent> <script> <Plug>(session-delete) :SessionDelete<Space>
+nnoremap <silent> <script> <Plug>(session-load) <ScriptCmd>feedkeys(':SessionLoad<Space><Tab>', 't')<CR>
+nnoremap <silent> <script> <Plug>(session-delete) <ScriptCmd>feedkeys(':SessionDelete<Space><Tab>', 't')<CR>
 nnoremap <silent> <script> <Plug>(session-write) <ScriptCmd>session.Write(g:session_directory, v:this_session)<CR>
 nnoremap <silent> <script> <Plug>(session-rename) <ScriptCmd>session.Rename(g:session_directory)<CR>
 nnoremap <silent> <script> <Plug>(session-close) <ScriptCmd>session.Close()<CR>
