@@ -91,7 +91,7 @@ g:autoendstructs_enabled = true   # automatic end of structures
 g:bufferonly_enabled = true       # remove all buffers except the current one
 g:checker_enabled = true          # checker plugin
 g:commentarium_enabled = true     # comment by language
-g:complementum_enabled = true     # complete by language
+g:complementum_enabled = false    # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
 g:esckey_enabled = true           # use key as escape
@@ -612,8 +612,13 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # set smartindent   # clever autoindenting, works for C-like programs (see cinwords)
 
 # :help ins-completion
-# setglobal autocomplete  # shows a completion menu as you type:
-# set iskeyword+=-        # keywords (default: "@,48-57,_,192-255")
+if !g:complementum_enabled
+  setglobal autocomplete       # shows a completion menu as you type:
+  set autocompletedelay=300    # delay in milliseconds before the autocomplete appears (default: 0)
+  set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
+endif
+# set iskeyword+=-             # keywords (default: "@,48-57,_,192-255")
+
 # <C-x><C-o>
 # set omnifunc=syntaxcomplete#Complete
 # <C-x><C-u>
@@ -621,7 +626,11 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
-setglobal completeopt=menuone,noinsert  # noselect,nearest <> fuzzy,nosort,longest (with autocomplete)
+if &autocomplete
+  setglobal completeopt=menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
+else
+  setglobal completeopt=menuone,noinsert  # noselect,nearest <> fuzzy,nosort,longest (with autocomplete)
+endif
 if exists('&completefuzzycollect')
   set completefuzzycollect=
   if &completeopt =~ 'fuzzy'
@@ -732,7 +741,7 @@ def MapInsertTab(mode: string): string
     keystroke = copilot#Accept()
   elseif pumvisible()
     var info = complete_info()
-    if info.selected == -1 || &completeopt =~ 'noselect'
+    if info.selected == -1 || (&autocomplete && &completeopt =~ 'noselect')
       if mode == 'tab'
         keystroke = "\<C-n>"
       elseif mode == 'stab'
@@ -947,7 +956,7 @@ nnoremap <leader>. :tabnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
 # nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
-nnoremap <nowait><leader><leader> :b #<CR>
+# nnoremap <nowait><leader><leader> :b #<CR>
 nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
@@ -1051,7 +1060,7 @@ command! -nargs=+ -complete=file -bar Grepr searcher#Search(<q-args>, systemlist
 command! -nargs=+ -complete=file -bar Grepir searcher#Search('-i', <q-args>, systemlist('git rev-parse --show-toplevel')[0], 'grepprg', 'quickfix')
 # vimgrep + quickfix
 command! -nargs=+ -complete=file Vimgrep execute "silent vimgrep! <args>" | cwindow | redraw!
-nnoremap <leader>v mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
+nnoremap <leader>vg mS:Vimgrep<Space>//gj<Space><C-r>=fnamemodify(expand('%'), ':~')<CR><C-b><S-Right><Right><Right>
 
 # find using searcher plugin
 if g:searcher_enabled
