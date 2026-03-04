@@ -90,6 +90,7 @@ g:autoclosechars_enabled = false  # automatic close of chars
 g:autoendstructs_enabled = true   # automatic end of structures
 g:bufferonly_enabled = true       # remove all buffers except the current one
 g:checker_enabled = true          # checker plugin
+g:cmplwild_enabled = true         # complete command-line
 g:commentarium_enabled = true     # comment by language
 g:complementum_enabled = false    # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
@@ -119,6 +120,7 @@ const plugins = [
   'autoendstructs',
   'bufferonly',
   'checker',
+  'cmplwild',
   'commentarium',
   'complementum',
   'cyclebuffers',
@@ -153,6 +155,11 @@ if g:checker_enabled
   g:checker_showpopup = false
 endif
 
+# cmplwild plugin
+if g:cmplwild_enabled
+  g:cmplwild_fuzzy = false
+endif
+
 # complementum plugin
 if g:complementum_enabled
   # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default "\<C-n>")
@@ -176,7 +183,7 @@ endif
 # esckey plugin
 if g:esckey_enabled
   # g:esckey_key = "<C-l>"
-  g:esckey_key = has('gui_running') ? "<F23>" : "<F3>"
+  g:esckey_key = has('gui_running') ? "<F21>" : "<F3>"
   g:esckey_nnoremap = true  # normal mode
 endif
 
@@ -514,7 +521,7 @@ if has("wildmenu")
   set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default: full)
   set wildignorecase              # case is ignored when completing files and directories (see fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
-  set wildoptions+=fuzzy          # (fuzzy) fuzzy matching
+  # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
   set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
 endif
 
@@ -613,9 +620,9 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 
 # :help ins-completion
 if !g:complementum_enabled
-  setglobal autocomplete       # shows a completion menu as you type:
-  set autocompletedelay=300    # delay in milliseconds before the autocomplete appears (default: 0)
-  set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
+  setglobal autocomplete         # shows a completion menu as you type:
+  # set autocompletedelay=300    # delay in milliseconds before the autocomplete appears (default: 0)
+  # set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
 endif
 # set iskeyword+=-             # keywords (default: "@,48-57,_,192-255")
 
@@ -802,7 +809,9 @@ vnoremap <leader># <C-\><C-n><ScriptCmd>misc#SearchSelectedText('backward')<CR>
 nnoremap <leader>hg :echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ",")<CR>
 
 # stop highlighting + update diff (if present) + clear and redraw the screen
-nnoremap <silent> <leader><C-l> :nohlsearch <bar> if &l:diff <bar> diffupdate <bar> endif<CR><C-l>
+nnoremap <silent> <leader><C-l> :nohlsearch<bar>
+      \if &l:diff <bar> diffupdate <bar> endif<bar>
+      \if &autoread <bar> checktime % <bar> endif<CR><C-l>
 
 # del
 # <C-l> goes to normal mode in evim/insertmode
@@ -918,15 +927,21 @@ if has('gui_running')
   nnoremap <silent> <C-z>
     \ :below terminal ++close ++norestore
     \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s gvim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+  nnoremap <silent> <leader><BackSpace>
+    \ :botright vertical terminal ++close ++norestore
+    \ /bin/sh -c "tmux -L gvim-terminal-ai new-session -c $HOME -A -D -s gvim-terminal-ai"<CR>
 else
   nnoremap <silent> <leader><CR>
     \ :below terminal ++close ++norestore
     \ /bin/sh -c "tmux -L vim-terminal new-session -c $HOME -A -D -s vim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 endif
+# nnoremap <silent> <leader><BackSpace> :botright vertical terminal ++close ++norestore<CR>
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 # *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
 # tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
+# TODO: recheck, has problems from terminal to buffer (use <C-w>w)
+tnoremap <C-w><C-w> <Nop>
 tnoremap <C-w><Esc> <C-w>N:doautocmd CmdwinLeave<CR>
 tnoremap <C-d> <C-w>:bd!<CR>
 
@@ -1219,6 +1234,25 @@ endif
 # vim events
 augroup event_vim
   autocmd!
+  # check if the file was changed (:set autoread)
+  # only if it comes from a previous terminal
+  # TODO: check FileChangedShell
+  #autocmd FocusGained,BufEnter * {
+  autocmd WinEnter * {
+  #  if &autoread && mode() != 'c' && getcmdwintype() == ''
+  #    var prev = winnr('#')
+  #    if prev > 0
+  #      var info = getwininfo(win_getid(prev))[0]
+  #      if has_key(info, 'terminal') && info.terminal == 1
+  #        # only current buffer
+  #        checktime %
+  #      endif
+  #    endif
+  #  endif
+    if &autoread && mode() != 'c' && getcmdwintype() == ''
+      checktime %
+    endif
+  }
   # save the session and the view
   autocmd VimLeavePre * ++once {
     if isdirectory(sessiondir)

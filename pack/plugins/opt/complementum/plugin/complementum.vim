@@ -90,6 +90,7 @@ import autoload '../autoload/complementum.vim'
 # autocmd
 augroup complementum_insert
   autocmd!
+  # TODO: test KeyInputPre
   autocmd InsertCharPre * {
     if g:complementum_enabled && &buftype == '' && !&autocomplete
       if !pumvisible() && state('m') == ''
@@ -120,35 +121,6 @@ augroup END
 #     \ endif
 #   }
 # augroup END
-
-# command-line mode
-# help cmdline-autocompletion
-augroup complementum_cmdline
-  autocmd!
-  # [:/\?]
-  autocmd CmdlineEnter : {
-    if g:complementum_enabled
-      g:complementum_wildmode_save = &wildmode
-      g:complementum_wildoptions_save = &wildoptions
-      set wildmode=noselect:lastused,full
-      set wildoptions=pum,fuzzy
-    endif
-  }
-  # [:/\?]
-  autocmd CmdlineLeave : {
-    if g:complementum_enabled
-      &wildmode = g:complementum_wildmode_save
-      &wildoptions = g:complementum_wildoptions_save
-    endif
-  }
-  # [:/\?]
-  autocmd CmdlineChanged : {
-    if g:complementum_enabled
-      complementum.CmdLineChanged()
-      wildtrigger()
-    endif
-  }
-augroup END
 
 # define mappings
 nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>Enable()<CR>

@@ -282,18 +282,3 @@ def CompleteOmni(lang: string): void
     feedkeys(g:complementum_keystroke_default, "n")
   endif
 enddef
-
-# complete command-line
-export def CmdLineChanged(): void
-  var info = cmdcomplete_info()
-  var cmd = getcmdline()
-  if empty(info) || getcmdcompltype() != 'file'
-    return
-  endif
-  if info.selected != -1
-    if getcmdcomplpat() =~ '\/\/$'
-      # foo// -> foo/<complete>
-      setcmdline(substitute(cmd, '\/\/$', '/', ''))
-    endif
-  endif
-enddef
