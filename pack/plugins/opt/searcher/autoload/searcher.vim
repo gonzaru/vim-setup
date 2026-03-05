@@ -278,6 +278,16 @@ def ExitHandler(job: job, status: number)
   endif
 enddef
 
+# get help by doc/tags
+def GetHelpDocTags(): list<string>
+  var files = []
+  var tagfile = globpath(&rtp, 'doc/tags')
+  if filereadable(tagfile)
+    files = map(readfile(tagfile), (_, val) => split(val, "\t")[0])
+  endif
+  return files
+enddef
+
 # get history
 def GetHistory(type: string): list<string>
   var files = []
@@ -399,7 +409,7 @@ enddef
 export def Popup(kind: string, cwd: string = ''): void
   var kinds = [
     'find', 'grep', 'recent', 'buffers', 'sessions', 'changes', 'jumps', 'marks', 'mappings',
-    'quickfix', 'commands', 'completions', 'themes', 'history-ex', 'history-search'
+    'quickfix', 'commands', 'completions', 'themes', 'help-doc-tags', 'history-ex', 'history-search'
   ]
 
   if index(kinds, kind) == -1 && kind !~ 'completion-'
@@ -458,6 +468,8 @@ export def Popup(kind: string, cwd: string = ''): void
   elseif popData.kind == 'themes'
     popData.mode = 'colorscheme'
     files = GetCompletion('color')
+  elseif popData.kind == 'help-doc-tags'
+    files = GetHelpDocTags()
   elseif popData.kind == 'history-ex'
     files = GetHistory('ex')
   elseif popData.kind == 'history-search'
@@ -823,7 +835,7 @@ def CompletionPick(id: number, res: number): void
     picked = $'{popData.cwd}/{popData.shown[res - 1]}'  # -2 instead of -1 (prompt)
   elseif index(['recent', 'buffers', 'sessions'], popData.kind) >= 0
     picked = fnamemodify(popData.shown[res - 1], ':p')
-  elseif index(['changes', 'jumps', 'themes', 'commands', 'completions'], popData.kind) >= 0 || popData.kind =~ 'completion-'
+  elseif index(['changes', 'jumps', 'themes', 'commands', 'completions', 'help-doc-tags'], popData.kind) >= 0 || popData.kind =~ 'completion-'
     picked = popData.shown[res - 1]
   elseif popData.kind == 'quickfix'
     picked = fnamemodify(split(popData.shown[res - 1], ':')[0], ':p')
@@ -878,6 +890,14 @@ def CompletionPick(id: number, res: number): void
   elseif popData.kind =~ 'completion-'
     # TODO
     # echomsg picked
+  elseif popData.kind == 'help-doc-tags'
+    var cmd = ':help'
+    if popData.mode == 'vsplit'
+      cmd = ':vertical help'
+    elseif popData.mode == 'tabedit'
+      cmd = ':tab help'
+    endif
+    feedkeys($":{cmd} {picked}\<CR>", 'n')
   elseif popData.kind == 'history-ex'
     timer_start(0, (_) => {
       execute picked

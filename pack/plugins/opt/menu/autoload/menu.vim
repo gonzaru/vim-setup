@@ -319,8 +319,9 @@ export def AddMenuExtra()
     anoremenu 1000.1000.1019.26 &Extra.&Plugins.&Searcher.&PopupCompletions<Tab>Leader>f* <Plug>(searcher-popup-completions)
     anoremenu 1000.1000.1019.27 &Extra.&Plugins.&Searcher.&PopupMappings<Tab>Leader>f_ <Plug>(searcher-popup-mappings)
     anoremenu 1000.1000.1019.28 &Extra.&Plugins.&Searcher.&PopupMarks<Tab>Leader>f' <Plug>(searcher-popup-marks)
-    anoremenu 1000.1000.1019.29 &Extra.&Plugins.&Searcher.&PopupHistoryEx<Tab>Leader>f: <Plug>(searcher-popup-history-ex)
-    anoremenu 1000.1000.1019.30 &Extra.&Plugins.&Searcher.&PopupHistorySearch<Tab>Leader>f/ <Plug>(searcher-popup-history-search)
+    anoremenu 1000.1000.1019.29 &Extra.&Plugins.&Searcher.&PopupHelpDocTags<Tab>Leader>f? <Plug>(searcher-popup-help-doc-tags)
+    anoremenu 1000.1000.1019.30 &Extra.&Plugins.&Searcher.&PopupHistoryEx<Tab>Leader>f: <Plug>(searcher-popup-history-ex)
+    anoremenu 1000.1000.1019.31 &Extra.&Plugins.&Searcher.&PopupHistorySearch<Tab>Leader>f/ <Plug>(searcher-popup-history-search)
   endif
 
   # statusline

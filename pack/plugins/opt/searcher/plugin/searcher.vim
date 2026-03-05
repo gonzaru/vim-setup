@@ -130,6 +130,7 @@ nnoremap <silent> <script> <plug>(searcher-popup-mappings) <ScriptCmd>searcher.P
 nnoremap <silent> <script> <plug>(searcher-popup-commands) <ScriptCmd>searcher.Popup("commands")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-completions) <ScriptCmd>searcher.Popup("completions")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-themes) <ScriptCmd>searcher.Popup("themes")<CR>
+nnoremap <silent> <script> <plug>(searcher-popup-help-doc-tags) <ScriptCmd>searcher.Popup("help-doc-tags")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-history-ex) <ScriptCmd>searcher.Popup("history-ex")<CR>
 nnoremap <silent> <script> <plug>(searcher-popup-history-search) <ScriptCmd>searcher.Popup("history-search")<CR>
 
@@ -222,6 +223,9 @@ if get(g:, 'searcher_no_mappings') == 0
   if empty(mapcheck("<leader>f_", "n"))
     nnoremap <leader>f_ <Plug>(searcher-popup-mappings)
   endif
+  if empty(mapcheck("<leader>f?", "n"))
+    nnoremap <leader>f? <Plug>(searcher-popup-help-doc-tags)
+  endif
   if empty(mapcheck("<leader>f:", "n"))
     nnoremap <leader>f: <Plug>(searcher-popup-history-ex)
   endif
@@ -259,6 +263,7 @@ if get(g:, 'searcher_no_commands') == 0
   command! -nargs=0 SearcherPopupCommands execute "normal \<Plug>(searcher-popup-commands)"
   command! -nargs=0 SearcherPopupCompletions execute "normal \<Plug>(searcher-popup-completions)"
   command! -nargs=0 SearcherPopupThemes execute "normal \<Plug>(searcher-popup-themes)"
+  command! -nargs=0 SearcherPopupHelpDocTags execute "normal \<Plug>(searcher-popup-help-doc-tags)"
   command! -nargs=0 SearcherPopupHistoryEx execute "normal \<Plug>(searcher-popup-history-ex)"
   command! -nargs=0 SearcherPopupHistorySearch execute "normal \<Plug>(searcher-popup-history-search)"
 endif
