@@ -55,20 +55,24 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> <BackSpace> <Plug>(se-godir-parent)
   nnoremap <buffer> <nowait> b <Plug>(se-godir-parent)
   nnoremap <buffer> <nowait> ~ <Plug>(se-godir-home)
+  nnoremap <buffer> <nowait> c <Plug>(se-create-file)
+  nnoremap <buffer> <nowait> C <Plug>(se-copy-file)
   nnoremap <buffer> <nowait> d <Plug>(se-godir-home)
+  nnoremap <buffer> <nowait> D <Plug>(se-delete-file)
   nnoremap <buffer> <nowait> a <Plug>(se-godir-prompt)
   nnoremap <buffer> <nowait> i <Plug>(se-toggle-dirsfirst-show)
   nnoremap <buffer> <nowait> y <Plug>(se-toggle-onlydirs-show)
   nnoremap <buffer> <nowait> Y <Plug>(se-toggle-onlyfiles-show)
   nnoremap <buffer> <nowait> r <Plug>(se-refresh)
+  nnoremap <buffer> <nowait> R <Plug>(se-rename-file)
   nnoremap <buffer> <nowait> f <Plug>(se-godir-prev)
   nnoremap <buffer> <nowait> F <Plug>(se-followfile)
   nnoremap <buffer> <nowait> h <Plug>(se-resize-left)
   nnoremap <buffer> <nowait> l <Plug>(se-resize-right)
   nnoremap <buffer> <nowait> = <Plug>(se-resize-restore)
   nnoremap <buffer> <nowait> + <Plug>(se-resize-maxcol)
-  nnoremap <buffer> <nowait> c <Plug>(se-open-with-custom)
-  nnoremap <buffer> <nowait> C <Plug>(se-open-with-default)
+  nnoremap <buffer> <nowait> x <Plug>(se-open-with-custom)
+  nnoremap <buffer> <nowait> X <Plug>(se-open-with-default)
   nnoremap <buffer> <nowait> o <Plug>(se-toggle-hidden-position)
   nnoremap <buffer> <nowait> u <Plug>(se-toggle-perms-show)
   nnoremap <buffer> <nowait> m <Plug>(se-check-mime)
@@ -170,20 +174,24 @@ b:undo_ftplugin ..= ' | silent! nunmap <buffer> -'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <BackSpace>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> b'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> ~'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> c'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> C'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> d'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> D'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> a'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> i'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> y'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> Y'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> r'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> R'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> f'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> F'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> h'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> l'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> ='
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> +'
-b:undo_ftplugin ..= ' | silent! nunmap <buffer> c'
-b:undo_ftplugin ..= ' | silent! nunmap <buffer> C'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> x'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> X'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> o'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> u'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> m'

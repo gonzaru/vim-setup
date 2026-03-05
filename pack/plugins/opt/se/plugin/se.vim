@@ -23,6 +23,9 @@ endif
 if !exists('g:se_followfile')
   g:se_followfile = false
 endif
+if !exists('g:se_focusrefresh')
+  g:se_focusrefresh = true
+endif
 if !exists('g:se_dirsfirst')
   g:se_dirsfirst = false
 endif
@@ -71,6 +74,18 @@ if get(g:, 'se_followfile')
     }
   augroup END
 endif
+
+# focus se
+if get(g:, 'se_focusrefresh')
+  augroup se_focus
+    autocmd FileType se {
+      autocmd WinEnter <buffer> se.Refresh()
+      # TODO: why lost the cursor?
+      # autocmd BufWinEnter <buffer> se.Refresh()
+    }
+  augroup END
+endif
+
 #if get(g:, 'se_colors')
 #  augroup se_colors
 #    autocmd!
@@ -93,6 +108,10 @@ nnoremap <silent> <script> <Plug>(se-followfile)
   \ <ScriptCmd>se.FollowFile(fnamemodify(bufname(winbufnr(winnr('#'))), ":p"))<CR>
 nnoremap <silent> <script> <Plug>(se-godir-git) <ScriptCmd>se.GoDirGit()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-home) <ScriptCmd>se.GoDirHome()<CR>
+nnoremap <silent> <script> <Plug>(se-create-file) <ScriptCmd>se.CreateFile()<CR>
+nnoremap <silent> <script> <Plug>(se-copy-file) <ScriptCmd>se.CopyFile()<CR>
+nnoremap <silent> <script> <Plug>(se-delete-file) <ScriptCmd>se.DeleteFile()<CR>
+nnoremap <silent> <script> <Plug>(se-rename-file) <ScriptCmd>se.RenameFile()<CR>
 nnoremap <silent> <script> <Plug>(se-godir-root) <ScriptCmd>se.GoDirRoot()<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-dirsfirst-show) <ScriptCmd>se.ToggleDirsFirst<CR>
 nnoremap <silent> <script> <Plug>(se-toggle-onlydirs-show) <ScriptCmd>se.ToggleOnlyDirs<CR>

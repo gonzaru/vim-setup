@@ -108,7 +108,10 @@ export def Help()
     T               # edit the current file in a tab and toggle Se
     p               # preview the current file in a window
     P               # close the preview window currently open
+    c               # create a file or directory
+    C               # copy the file or directory
     d               # change to home directory [~]
+    D               # delete the file or directory
     a               # change to prompt directory
     i               # toggle to show directories first
     y               # toggle to show only directories
@@ -117,6 +120,7 @@ export def Help()
     f               # change to previous directory
     F               # follow the current file
     r               # refresh the current directory
+    R               # rename the file or directory
     h               # resize Se window to the left
     l               # resize Se window to the right
     =               # resize Se window to default size
@@ -125,8 +129,8 @@ export def Help()
     u               # toggle to show the file permissions
     m               # check the default app for mime type
     M               # set default app for mime type
-    c               # open the file with a custom program
-    C               # open the file with the default program
+    x               # open the file with a custom program
+    X               # open the file with the default program
     w               # change to git root directory
     W               # change to custom root directory (g:se_rootdir)
     z               # set the current directory as custom root directory
@@ -755,6 +759,117 @@ def HasChild(cline: number): bool
     return true
   endif
   return false
+enddef
+
+# delete the file or directory
+export def DeleteFile()
+  var file = trim(RemoveFileIndicators(RemoveDirSep(getline('.'))))
+  var ftype = getftype(file)
+  if ftype == "file" && filereadable(file)
+    if input($"Are you sure to delete the {ftype} '{file}'? (y,n) ", "n") == "y"
+      if delete(fnameescape(file)) == -1
+        throw $"Error: cannot remove the {ftype} '{file}'"
+      endif
+    endif
+  elseif ftype == "dir" && isdirectory(file)
+    if input($"Are you sure to delete the {ftype} '{file}'? (y,n) ", "n") == "y"
+      if input($"Again, are you sure to really delete the {ftype} '{file}'? (y,n) ", "n") == "y"
+        if delete(fnameescape(file), "rf") == -1
+          throw $"Error: cannot remove the {ftype} '{file}'"
+        endif
+      endif
+    endif
+  else
+    EchoErrorMsg($"Error: cannot remove the {ftype} '{file}'")
+  endif
+  Refresh()
+  redraw!
+enddef
+
+# rename the file or directory
+export def RenameFile(): void
+  var file = trim(RemoveFileIndicators(RemoveDirSep(getline('.'))))
+  var ftype = getftype(file)
+  if !filereadable(file) && !isdirectory(file)
+    EchoErrorMsg($"Error: cannot rename the {ftype} '{file}'")
+    return
+  endif
+  if input($"Are you sure to rename the {ftype} '{file}'? (y,n) ", "n") == "y"
+    var new = input($"Rename '{file}' to: ")
+    if empty(new)
+      redraw!
+      return
+    endif
+    if new == file
+      throw $"Error: '{new}' and '{file}' are the same"
+    endif
+    if rename(file, fnameescape(new)) != 0
+      throw $"Error: cannot rename the {ftype} '{file}' to '{new}'"
+    endif
+  endif
+  Refresh()
+  redraw!
+enddef
+
+# copy the file or directory
+export def CopyFile(): void
+  var file = trim(RemoveFileIndicators(RemoveDirSep(getline('.'))))
+  var ftype = getftype(file)
+  if !filereadable(file) && !isdirectory(file)
+    EchoErrorMsg($"Error: cannot copy the {ftype} '{file}'")
+    return
+  endif
+  if input($"Are you sure to copy '{file}'? (y,n) ", "n") == "y"
+    var new = input($"Copy '{file}' to: ")
+    if empty(new)
+      redraw!
+      return
+    endif
+    if new == file
+      throw $"Error: '{new}' and '{file}' are the same"
+    endif
+    system($"cp -r {file} {fnameescape(new)}")
+    if v:shell_error != 0
+      throw $"Error: cannot copy the {ftype} '{file}' to '{new}'"
+    endif
+  endif
+  Refresh()
+  redraw!
+enddef
+
+# create a file or directory
+export def CreateFile(): void
+  var choice = inputlist(
+    [
+      'Select:',
+      '1. New file',
+      '2. New directory',
+    ]
+  )
+  if empty(choice)
+    return
+  endif
+  if choice < 1 || choice > 2
+    EchoErrorMsg($"Error: wrong option '{choice}'")
+    return
+  endif
+  var ftype = (choice == 1) ? 'file' : 'directory'
+  var new = input($"New {ftype}: ")
+  if empty(new)
+    redraw!
+    return
+  endif
+  if choice == 1
+    if writefile([], fnameescape(new)) == -1
+      throw $"Error: cannot create the {ftype} '{new}'"
+    endif
+  elseif choice == 2
+    if mkdir(fnameescape(new), "p") == 0
+      throw $"Error: cannot create the {ftype} '{new}'"
+    endif
+  endif
+  Refresh()
+  redraw!
 enddef
 
 # resize Se window
