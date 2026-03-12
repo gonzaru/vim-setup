@@ -29,12 +29,13 @@ augroup cmplwild_cmdline
   autocmd!
   # [:/\?]
   autocmd CmdlineEnter [:/\?] {
-    if g:cmplwild_enabled
+    if &wildmenu && g:cmplwild_enabled
       g:cmplwild_incsearch_save = &incsearch
       g:cmplwild_wildmode_save = &wildmode
       g:cmplwild_wildoptions_save = &wildoptions
       set noincsearch  # TODO: blinks popup
       set wildmode=noselect:lastused,full
+      # set wildmode=noselect,longest,full
       if g:cmplwild_fuzzy
         set wildoptions=pum,fuzzy
       else
@@ -44,7 +45,7 @@ augroup cmplwild_cmdline
   }
   # [:/\?]
   autocmd CmdlineLeave [:/\?] {
-    if g:cmplwild_enabled
+    if &wildmenu && g:cmplwild_enabled
       &incsearch = g:cmplwild_incsearch_save
       &wildmode = g:cmplwild_wildmode_save
       &wildoptions = g:cmplwild_wildoptions_save
@@ -54,7 +55,7 @@ augroup cmplwild_cmdline
   autocmd CmdlineChanged [:/\?] CmplTrigger()
   var _timer = -1
   def CmplTrigger(): void
-    if !g:cmplwild_enabled
+    if !&wildmenu || !g:cmplwild_enabled
       return
     endif
     if _timer != -1
@@ -78,6 +79,22 @@ augroup END
 nnoremap <silent> <script> <Plug>(cmplwild-enable) <ScriptCmd>cmplwild.Enable()<CR>
 nnoremap <silent> <script> <Plug>(cmplwild-disable) <ScriptCmd>cmplwild.Disable()<CR>
 nnoremap <silent> <script> <Plug>(cmplwild-toggle) <ScriptCmd>cmplwild.Toggle()<CR>
+
+# set mappings
+if get(g:, 'cmplwild_no_mappings') == 0
+  if empty(mapcheck("<Left>", "c"))
+    cnoremap <expr> <Left> wildmenumode() ? "\<C-e>\<Left>" : "\<Left>"
+  endif
+  if empty(mapcheck("<Right>", "c"))
+    cnoremap <expr> <Right> wildmenumode() ? "\<C-e>\<Right>" : "\<Right>"
+  endif
+  # if empty(mapcheck("<Up>", "c"))
+  #   cnoremap <expr> <Up> wildmenumode() ? "\<C-e>\<Up>" : "\<Up>"
+  # endif
+  # if empty(mapcheck("<Down>", "c"))
+  #   cnoremap <expr> <Down> wildmenumode() ? "\<C-e>\<Down>" : "\<Down>"
+  # endif
+endif
 
 # set commands
 if get(g:, 'cmplwild_no_commands') == 0
