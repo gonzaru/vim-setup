@@ -15,6 +15,18 @@ endif
 if !exists('g:esckey_nnoremap')
   g:esckey_nnoremap = false
 endif
+if !exists('g:esckey_inoremap')
+  g:esckey_inoremap = true
+endif
+if !exists('g:esckey_cnoremap')
+  g:esckey_cnoremap = true
+endif
+if !exists('g:esckey_vnoremap')
+  g:esckey_vnoremap = true
+endif
+if !exists('g:esckey_onoremap')
+  g:esckey_onoremap = true
+endif
 
 # autoload
 import autoload '../autoload/esckey.vim'
