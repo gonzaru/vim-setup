@@ -74,6 +74,7 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscGoLastEditCursor GoLastEditCursorPos()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
   command! MiscCmdMenuBarToggle misc.CmdMenuBarToggle()
+  command! MiscLigaturesToggle misc.LigaturesToggle()
   command! MiscMapInsertEnter misc.MapInsertEnter()
   command! MiscMapInsertTab misc.MapInsertTab()
   command! MiscPythonDynamic misc.SetPythonDynamic()

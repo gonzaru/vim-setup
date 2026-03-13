@@ -109,10 +109,11 @@ export def FoldToggle()
 enddef
 
 # increase, decrease and reset the gui font size
-export def FontSize(opt: string): void
+export def FontSize(opt: string, argpts: float = 0.0): void
   var new: string
-  var num: number
+  var points: float
   var spl: list<string>
+  var step: float = 0.5
   if opt == "reset"
     &guifont = g:guifont_save
     return
@@ -121,15 +122,18 @@ export def FontSize(opt: string): void
   # if has('gui_macvim') "Menlo Regular:h16"
   spl = split(&guifont)
   if opt == "increase"
-    num = str2nr(spl[-1]) + 1
+    points = str2float(spl[-1]) + step
+    echomsg spl[-1]
   elseif opt == "decrease"
-    num = str2nr(spl[-1]) - 1
-    if num < 1
-      num = 1
+    points = str2float(spl[-1]) - step
+    if points < 1.0
+      points = 1.0
     endif
+  elseif opt == "set" && argpts >= 1.0
+    points = argpts
   endif
-  if num >= 1
-    new = escape($"{join(spl[: -2])} {num}", " ")
+  if points >= 1.0
+    new = escape($"{join(spl[: -2])} {points}", " ")
     execute $"set guifont={new}"
   endif
 enddef
@@ -184,6 +188,19 @@ export def CmdMenuBarToggle(): void
     msg = $"g:did_install_default_menus={g:did_install_default_menus}"
   endif
   v:statusmsg = msg
+enddef
+
+# ligatures toggle
+export def LigaturesToggle(): void
+  if !has('gui_running')
+    return
+  endif
+  if empty(&guiligatures) && !empty(get(g:, 'guiligatures_save', ''))
+    execute $"set guiligatures={g:guiligatures_save}"
+  else
+    set guiligatures=
+  endif
+  v:statusmsg = $"guiligatures={&guiligatures}"
 enddef
 
 # map insert backspace
@@ -475,5 +492,77 @@ export def SyntaxToggle()
     # v:statusmsg = "syntax " .. (exists("g:syntax_on") ? "on" : "off")
     # utils.EchoWarningMsg($"Warning: filetype '{&filetype}' does not have ftplugin syntax")
     v:statusmsg = $"Warning: filetype '{&filetype}' does not have ftplugin syntax"
+  endif
+enddef
+
+# set gui font
+export def SetGuiFont(arg: any = v:none): void
+  var font: string
+  var fonts: list<string> = []
+  if !has('gui_running')
+    return
+  endif
+  if has('gui_macvim')
+    fonts = ['SFMono-Regular:h16', 'Menlo Regular:h16']
+  else
+    fonts = [
+      'Cascadia Code 12.0',                    # ligatures
+      'DejaVu Sans Mono 12.0',
+      'Iosevka 13.0',                          # 12.0, 14.5
+      'Iosevka Medium 13.0',                   # 12.0, 14.5
+      'Iosevka Extended 12.5',                 # 12.0
+      'Iosevka Medium Extended 12.5',          # 12.0
+      'Iosevka Nerd Font 13.0',
+      'Iosevka Nerd Font Medium 13.0',
+      'IosevkaSlab 13.0',                      # 13.0, 14.5
+      'IosevkaSlab Medium 13.0',               # 13.0, 14.5
+      'IosevkaSlab Extended 13.0',             # 13.0
+      'IosevkaSlab Medium Extended 13.0',      # 13.0
+      'JetBrainsMono 11.5',                    # ligatures
+      'JetBrainsMono Medium 11.5',             # ligatures
+      'JetBrainsMono Nerd Font 11.5',          # ligatures
+      'JetBrainsMono Nerd Font Medium 11.5',   # ligatures
+      'JetBrainsMonoNL 11.5',                  # no ligatures
+      'JetBrainsMonoNL Medium 11.5',           # no ligatures
+      'Lilex 12.0',                            # ligatures
+      'Lilex Medium 12.0',                     # ligatures
+      'MonoLisa Regular 12.0',                 # ligatures
+      'MonoLisa Medium 12.0',                  # ligatures
+      'MonoLisa Freezed Regular 12.0',         # ligatures (g replaced)
+      'MonoLisa Freezed Medium 12.0',          # ligatures (g replaced)
+      'SF Mono 12.0',
+      'SF Mono Medium 12.0',
+      'SFMono Nerd Font 12.0',
+      'SFMono Nerd Font Medium 12.0',
+      'Victor Mono 12.0',                      # ligatures
+      'Victor Mono Medium 12.0'               # ligatures
+    ]
+  endif
+  if arg != v:none && arg == '*'
+    set guifont=*
+    return
+  endif
+  var lenf = len(fonts)
+  if arg != v:none && arg =~ '^\d\+$'
+    var num = str2nr(arg)
+    if num <= 0 || num > lenf
+      utils.EchoErrorMsg($"Error: font does not exist with the number '{num}'")
+    else
+      font = substitute(fonts[str2nr(arg) - 1], ' ', '\\ ', 'g')
+      execute $"set guifont={font}"
+    endif
+    return
+  endif
+  var choice = inputlist(
+    map(copy(fonts), (i, v) => printf($"{lenf >= 10 ? '%2d.' : '%d.'} %s", i + 1, v))
+  )
+  if empty(choice)
+    return
+  endif
+  if choice < 1 || choice > lenf
+    utils.EchoErrorMsg($"Error: wrong option '{choice}'")
+  else
+    font = substitute(fonts[choice - 1], ' ', '\\ ', 'g')
+    execute $"set guifont={font}"
   endif
 enddef
