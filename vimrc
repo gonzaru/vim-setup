@@ -162,9 +162,10 @@ endif
 
 # complementum plugin
 if g:complementum_enabled
-  # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default "\<C-n>")
-  # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default "\<C-x>\<C-n>")
+  # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default: "\<C-n>")
+  # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
+  g:complementum_minchars = 1
 endif
 
 # cyclebuffers plugin
@@ -183,8 +184,21 @@ endif
 # esckey plugin
 if g:esckey_enabled
   # g:esckey_key = "<C-l>"
-  g:esckey_key = has('gui_running') ? "<F21>" : "<F3>"
-  g:esckey_nnoremap = true  # normal mode
+  # <F23> maps to <F23> in gui, but <F3> in terminal
+  g:esckey_key = has('gui_running') ? '<F23>' : '<F3>'
+  g:esckey_nnoremap = false  # normal mode
+  g:esckey_cnoremap = false  # command mode
+  if has('gui_running')
+    if !g:esckey_cnoremap
+      cnoremap <F23> <Nop>
+    endif
+    # terminal mode
+    tnoremap <F23> <Nop>
+  else
+    if !g:esckey_cnoremap
+      cnoremap <F3> <Nop>
+    endif
+  endif
 endif
 
 # format plugin
@@ -256,81 +270,85 @@ endif
 set nocompatible            # use vim defaults instead of 100% vi compatibility
 # set verbose=16            # if > 0; then vim will give debug messages
 set debug=throw             # throw an exception on errors and set v:errmsg
-set shortmess=a             # abbreviation status messages shorter (default filnxtToOS)
+set shortmess=a             # abbreviation status messages shorter (default: filnxtToOS)
 set shortmess+=I            # no vim splash
 set shortmess+=c            # don't give ins-completion-menu messages
 set shortmess+=C            # don't give messages while scanning for ins-completion
 set shortmess+=t            # truncate message when necessary
-set cmdheight=1             # space for displaying status messages (default is 1)
+set cmdheight=1             # space for displaying status messages (default: 1)
+set cmdwinheight=7          # number of lines to use for the command-line "q:" window (default: 7)
 set noerrorbells            # turn off error bells (do not bell on errors)
 set belloff=all             # turn off error bells (do not bell on all events)
 set novisualbell            # turn off visual bell (no sound, no visuals)
 set title                   # update title window (dwm top bar)
 set titlestring=%F          # when non-empty, sets the title of the window. it uses statusline syntax (default: empty)
 set titleold=               # do not show default title "thanks for flying vim" if set notitle
+set titlelen=0              # do not abbreviate the filename in terminal titles (default: 85)
 set noicon                  # the icon text of the window will not be set to the value of iconstring
-set noallowrevins           # allow ctrl-_ in insert and command-line mode (default is off)
+set noallowrevins           # allow ctrl-_ in insert and command-line mode (default: off)
 set noshowmode              # don't show current mode insert, command, replace, visual, etc
 set noshowcmd               # don't show command on the last line of screen (ex: see visual mode)
-set esckeys                 # allow usage of cursor keys within insert mode
+set esckeys                 # allow usage of cursor and functions keys within insert mode
 set lazyredraw              # on: redraw only when needed, nice for editing macros
-set linespace=0             # number of pixel lines inserted between characters (default is 0)
+set redrawtime=10000        # time in ms for redrawing the display (default: 2000)
+set linespace=0             # number of pixel lines inserted between characters (default : 0)
 setglobal autoread          # automatically read the file if it has been modified externally
 # set autowrite             # write automatically the contents of the file if it has been modified (:make, <C-]> etc.)
 # set autochdir             # change the current working directory when opening a file
-set noruler                 # don't show line and column number (see statusline)
+set noruler                 # don't show line and column number (see: statusline)
 set magic                   # use extended regexp in search patterns
 set modelines=0             # do not use modelines
 set nomodeline              # avoid modeline vulnerability
 set equalalways             # windows are automatically made the same size after splitting or closing a window
-set helpheight=0            # zero disables this (default 20)
+set helpheight=0            # zero to disable (default: 20)
 set formatoptions-=cro      # remove '"' line below automatically when current line is a comment (after/ftplugin/vim.vim)
-set formatoptions+=j        # delete comment character when joining commented lines (:help fo-table) (default is tcq)
+set formatoptions+=j        # delete comment character when joining commented lines (:help fo-table) (default: tcq)
 set nrformats-=octal        # do not recognize octal numbers for Ctrl-A and Ctrl-X
-set commentstring=          # empty template for a comment (default /* %s */)
+set commentstring=          # empty template for a comment (default: /* %s */)
 setglobal scrolloff=0       # minimal number of screen lines to keep above/below the cursor (0, defaults.vim 5, 999 center)
-set sidescroll=0            # minimal number of columns to scroll horizontally (default 0)
+set sidescroll=0            # minimal number of columns to scroll horizontally (default: 0)
 setglobal sidescrolloff=0   # minimal number of screen columns to keep to the left and to the right of the cursor
 # set smoothscroll          # scrolling using screen lines
 set nostartofline           # some jump commands move the cursor to the first non-blank like <C-^> previous buffer
 set nojoinspaces            # disable adding to spaces after '.' when joining a file, adding one instead of two
-set nofixeol                # do not add an EOL at the end of file if missing, keep original file as is (default on)
+set nofixeol                # do not add an EOL at the end of file if missing, keep original file as is (default: on)
 set notimeout               # don't time out on :mappings
 set ttimeout                # timeout off and ttimeout on -> time out on key codes
-set ttimeoutlen=10          # wait time for key codes or maps (default 100ms ESC etc)
+set ttimeoutlen=10          # wait time for key codes or maps (default: 100ms ESC etc)
 set keymodel=startsel       # using a shifted special key starts (<S-Left,Right,Up,Down>) (visual or select mode)
 set keymodel+=stopsel       # using non shifted stops (visual or select mode)
 set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 # set cpoptions+=n          # the column used for 'number' and 'relativenumber' will be used for text of wrapped lines
 set nonumber                # print the line number in front of each line
 set relativenumber          # show the line number relative to the line
-# set numberwidth=4         # minimal number of columns to use for the line number (default 4)
+# set numberwidth=4         # minimal number of columns to use for the line number (default: 4)
 set laststatus=2            # to display the status line always
 set display=lastline        # the last line in a window will be displayed if possible
 set ignorecase              # case-insensitive search (also affects if == 'var', use if == 'var')
 set smartcase               # except if start with capital letter
 setglobal tagcase=followscs # default followic, (followscs follow the 'smartcase' and 'ignorecase' options)
 set noinfercase             # when ignorecase is on and doing completion, the typed text is adjusted accordingly
-set nofileignorecase        # case is not ignored when using file names and directories (default OS specific)
+set nofileignorecase        # case is not ignored when using file names and directories (default: OS specific)
 # set jumpoptions=stack     # make the jumplist behave like the tagstack
 set hlsearch                # to highlight all search matches
 nohlsearch                  # but stop highlighting initially
-set incsearch               # jumps to search word when typing on serch /foo (default no)
+set incsearch               # jumps to search word when typing on serch /foo (default: no)
 set nospell                 # disable spell checking
-# set spelllang=en,ru       # a comma-separated list of word list name (default "en"), see autoload/misc.vim -> SetImOptions()
+# set spelllang=en,ru       # a comma-separated list of word list name (default: "en"), see autoload/misc.vim -> SetImOptions()
 set spelloptions+=camel     # camel CaseWord is considered a separate word
-set spellsuggest=best,15    # method and the maximum number of suggestions (default best)
+set spellsuggest=best,15    # method and the maximum number of suggestions (default: best)
 set noshowmatch             # disable matching parenthesis
 set matchtime=1             # seconds to show matching parenthesis
 set matchpairs=(:),{:},[:]  # characters that form pairs (default "(:),{:},[:]")
 set nofoldenable            # when off, all folds are open
 set foldmethod=manual       # disable automatic folding
 set foldopen-=block         # don't open folds when jumping with "(", "{", "[[", "[{", etc.
-set foldlevelstart=99       # all folds open (default -1)
+set foldlevelstart=99       # all folds open (default: -1)
 set cursorline              # mark with another color the current cursor line
-set cursorlineopt=both      # behavior of cursorline {line, number} (default both)
+set cursorlineopt=both      # behavior of cursorline {line, number} (default: both)
+set colorcolumn=            # screen columns that are highlighted with |hl-ColorColumn| (default: "")
 setglobal virtualedit=block # allow virtual editing in visual block mode <C-v> (default: empty)
-setglobal path=.,,,**       # set path for finding files with :find (default .,/usr/include,,)
+setglobal path=.,,,**       # set path for finding files with :find (default: .,/usr/include,,)
 setglobal fsync             # flush a file to disk (default: on)
 # set cdhome                # changes the current working directory to the $HOME like in Unix (default: off)
 set noemoji                 # don't consider unicode emoji characters to be full width
@@ -419,17 +437,29 @@ endif
 
 # gui
 if has('gui_running')
-  # see :SetGuiFont
+  # see misc#SetGuiFont()
   if has('gui_macvim')
-    # viminfo with macvim version
     # set guifont=SFMono-Regular:h16
     set guifont=Menlo\ Regular:h16
     # set antialias
   else
-    if filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
-      execute $"set guifont=SF\\ Mono\\ Medium\\ {host == 'vologda' ? 12.5 : 12}"
+    if 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Regular.otf")
+      execute $"set guifont=SF\\ Mono\\ 12.0"
+    elseif 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
+      execute $"set guifont=SF\\ Mono\\ Medium\\ 12.0"
+    elseif 1 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Medium.ttc")
+      # execute $"set guifont=Iosevka\\ 13.0"                      # 12.0, 14.5
+      # execute $"set guifont=Iosevka\\ Medium\\ 13.0"
+      # execute $"set guifont=Iosevka\\ Extended\\ 12.5"           # 12.0
+      execute $"set guifont=Iosevka\\ Medium\\ Extended\\ 12.5"    # 12.0
     else
-      execute $"set guifont=DejaVu\\ Sans\\ Mono\\ {host == 'vologda' ? 12.8 : 12}"
+      # execute $"set guifont=DejaVu\\ Sans\\ Mono\\ 12"
+      set guifont=Monospace\ 12
+    endif
+    set guiligatures=
+    g:guiligatures_save = '!\"#$%&()*+-./:<=>?@[]^_{\|~'  # see misc#LigaturesToggle()
+    if &guifont =~ 'JetBrainsMono \|Iosevka \|Victor \|Lilex \|MonoLisa '
+      execute $"set guiligatures={g:guiligatures_save}"
     endif
   endif
   execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
@@ -438,9 +468,9 @@ if has('gui_running')
   g:guioptions_save = &guioptions
   set guicursor=a:blinkwait500-blinkon500-blinkoff500  # default is blinkwait700-blinkon400-blinkoff250
   if !keep_guioptions
-    if has('gui_gtk') && !exists('$GTK_THEME')
-      $GTK_THEME = "Adwaita:dark"                      # GTK_THEME=theme:variant (gtk+ >= 3.12)
-    endif
+    # if has('gui_gtk') && !exists('$GTK_THEME')
+    #   $GTK_THEME = "Adwaita:dark"                    # GTK_THEME=theme:variant (gtk+ >= 3.12)
+    # endif
     set guioptions=acdgkM!                             # do not load menus for gui (default: aegimrLtT)
   endif
   set guiheadroom=0                                    # when zero, the whole screen height will be used by the window
@@ -461,7 +491,9 @@ if has("syntax")
   syntax manual
   # debug :syntime on, :syntime report
   # .vim/after/syntax
-  # syntax sync fromstart
+  # accurate highlighting, but can be slow (see: 'redrawtime')
+  # autocmd BufEnter * :syntax sync fromstart
+  command! SyntaxSync :syntax sync fromstart
   set synmaxcol=256
 endif
 
@@ -505,7 +537,7 @@ endif
 # keyboard layout (see :help i_CTRL-^)
 if has('keymap') && has("langmap") && exists("+langremap")
   set nolangremap               # prevents that the langmap option applies to characters (defaults.vim)
-  # set keymap=russian-jcuken   # XFree86 'ru' keymap compatible (see inoremap <C-^>)
+  # set keymap=russian-jcuken   # XFree86 'ru' keymap compatible (see: inoremap <C-^>)
   set iminsert=0                # 0 lmap is off and IM is off (default: 0)
   set imsearch=-1               # 0 lmap is off and IM is off (default: -1)
   # set imstatusfunc=SetImFunc  # called to obtain the status of input method
@@ -519,7 +551,7 @@ if has("wildmenu")
   set wildcharm=<C-z>             # like 'wildchar' but it works in macros and mappings (<C-z> becomes <Tab>)
   set wildmenu                    # enchange command line completion
   set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default: full)
-  set wildignorecase              # case is ignored when completing files and directories (see fileignorecase)
+  set wildignorecase              # case is ignored when completing files and directories (see: fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
   # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
   set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
@@ -616,7 +648,7 @@ set more      # when on, listings pause when the whole screen is filled (default
 set autoindent      # copy indent from current line when starting a new line
 set copyindent      # copy the structure of the existing lines indent when autoindenting a new line
 set preserveindent  # when changing the indent of the current line, preserve it if possible
-# set smartindent   # clever autoindenting, works for C-like programs (see cinwords)
+# set smartindent   # clever autoindenting, works for C-like programs (see: cinwords)
 
 # :help ins-completion
 if !g:complementum_enabled
@@ -650,7 +682,7 @@ if has('popupwin')
   if !has('gui_running')
     setglobal completeopt+=popuphidden  # like popup option but hidden by default
   endif
-  inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : '<C-f>'
+  inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : "\<C-f>"
   if exists('+completepopup')
     set completepopup=
     set completepopup+=border:off,resize:off
@@ -675,9 +707,10 @@ endif
 # t: tags
 # set complete=.,w,b  # (default: .,w,b,u,k,t)
 set complete=.^10,w^5,b^5,u^5
-set pumborder=    # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
-set pumheight=15  # maximum number of items to show in the popup menu (default: 0)
-set pumwidth=15   # minimum width to use for the popup menu (default: 15)
+set pumborder=     # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
+set pumheight=10   # maximum number of items to show in the popup menu (default: 0)
+set pumwidth=15    # minimum width to use for the popup menu (default: 15)
+set pummaxwidth=0  # maximum width to use for the popup menu (default: 0)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -724,7 +757,7 @@ endif
 # <C-@> needs to be entered as <C-S-2>
 
 # mapping leaders
-g:mapleader = "\<C-s>"  # (see terminal "stty -ixon" and &t_xo)
+g:mapleader = "\<C-s>"  # (see: terminal "stty -ixon" and &t_xo)
 
 # alternative second leader
 g:maplocalleader = "\<C-_>"
@@ -737,23 +770,20 @@ g:maplocalleader = "\<C-_>"
 # misc#MapInsertEnter()
 # misc#MapInsertSpace()
 # misc#MapInsertTab()
-# inoremap <expr> <silent> <Tab> pumvisible() ? '<C-y>' : '<Tab>'
-# inoremap <expr> <silent> <Tab> pumvisible() ? '<C-n>' : '<Tab>'
-# inoremap <expr> <silent> <S-Tab> pumvisible() ? '<C-p>' : '<S-Tab>'
+# inoremap <expr> <silent> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
+# inoremap <expr> <silent> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+# inoremap <expr> <silent> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 # completion for lsp with <BS>, see CompleteKey (complementum plugin)
-# inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : '<BS>'
+# inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : "\<BS>"
 def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
   elseif pumvisible()
-    var info = complete_info()
-    if info.selected == -1 || (&autocomplete && &completeopt =~ 'noselect')
-      if mode == 'tab'
-        keystroke = "\<C-n>"
-      elseif mode == 'stab'
-        keystroke = "\<C-p>"
-      endif
+    if &autocomplete || &completeopt =~ 'noselect'
+      # var info = complete_info()
+      # keystroke = (info.selected == -1) ? "\<C-n>\<C-y>" : "\<C-y>"
+      keystroke = (mode == 'tab') ? "\<C-n>" : "\<C-p>"  # tab, stab
     else
       keystroke = "\<C-y>"
     endif
@@ -776,12 +806,19 @@ else
 endif
 
 # save
-nnoremap <leader><C-u> :update<CR>
-inoremap <leader><C-u> <Cmd>update<CR>
+nnoremap <leader><C-w> :update<CR>
+inoremap <leader><C-w> <Cmd>update<CR>
 nnoremap <leader><C-b> :Backup<CR>
 command! Backup {
-  var bak = $"{&backupdir}/{expand('%:t')}-{strftime('%Y%m%d%H%M%S')}{&backupext}"
-  execute $"write {bak}"
+  var filepath = expand('%:p')
+  var filetail = fnamemodify(filepath, ':t')
+  var fileback = $"{&backupdir}/{filetail}-{strftime('%Y%m%d%H%M%S')}{&backupext}"
+  system($"cp {filepath} {fileback}")
+  if v:shell_error != 0
+    throw $"Error: failed to copy '{filepath}' to '{fileback}'"
+  else
+    echomsg $'"{fnamemodify(fileback, ":~")}" [w]'
+  endif
 }
 command! Please {
   var msg = "Are you sure to write it using sudo? (yes, no): "
@@ -817,7 +854,7 @@ nnoremap <silent> <leader><C-l> :nohlsearch<bar>
 # <C-l> goes to normal mode in evim/insertmode
 # <C-l> adds one character from the current match in completion
 # delete forward to be like its analogous <C-h>
-inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? '<C-l>' : '<DEL>'
+inoremap <expr> <C-l> (pumvisible() <bar><bar> &insertmode) ? "\<C-l>" : "\<DEL>"
 
 # yank
 # nnoremap Y y$
@@ -886,6 +923,7 @@ nnoremap <leader>tgW :set autowrite! autowrite? <bar> echon " (set)"<CR>
 # nnoremap <leader># :nohlsearch<CR>
 if g:misc_enabled
   nnoremap <leader>tgd <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgG <ScriptCmd>misc#LigaturesToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgs <ScriptCmd>misc#SyntaxToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgb <ScriptCmd>misc#BackgroundToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgo <ScriptCmd>misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
@@ -939,7 +977,7 @@ endif
 nnoremap <silent> <leader><C-z> :terminal ++curwin ++noclose<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
 # *avoid* to use <ESC> mappings in terminal mode
 # tnoremap <C-[> <C-w>N
-# tnoremap <expr> <C-[> (&ft == "fzf") ? "<ESC>" : "<C-w>N"
+# tnoremap <expr> <C-[> (&ft == "fzf") ? "\<ESC>" : "\<C-w>N"
 # TODO: recheck, has problems from terminal to buffer (use <C-w>w)
 tnoremap <C-w><C-w> <Nop>
 tnoremap <C-w><Esc> <C-w>N:doautocmd CmdwinLeave<CR>
@@ -971,7 +1009,7 @@ nnoremap <leader>. :tabnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
 # nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
-# nnoremap <nowait><leader><leader> :b #<CR>
+nnoremap <nowait> <leader><leader> :b #<CR>
 nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
@@ -1026,7 +1064,7 @@ nnoremap <leader>cP <ScriptCmd>popup_clear(1)<CR>
 nnoremap <leader>ss /\C
 nnoremap <leader>si /\c
 
-# diff (see copy-diff)
+# diff (see: copy-diff)
 if g:misc_enabled
   nnoremap <localleader>dt <ScriptCmd>misc#DiffToggle()<CR>:echo v:statusmsg<CR>
 endif
@@ -1215,10 +1253,12 @@ command! ReloadPluginMisc {
 
 # set gui font (shows a gui panel to pick a font)
 if has('gui_running')
-  command! SetGuiFont set guifont=*
+  command! Font echo getfontname()
   command! Fonti misc#FontSize("increase")
   command! Fontd misc#FontSize("decrease")
   command! Fontr misc#FontSize("reset")
+  command! -nargs=? Fontg misc#SetGuiFont(<f-args>)
+  command! -nargs=1 Fonts misc#FontSize("set", <args>)
   noremap <leader>+ <ScriptCmd>misc#FontSize("increase")<CR>
   noremap <leader>- <ScriptCmd>misc#FontSize("decrease")<CR>
   noremap <leader>= <ScriptCmd>misc#FontSize("reset")<CR>
