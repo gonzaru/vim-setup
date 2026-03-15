@@ -10,10 +10,11 @@ g:autoloaded_lsp = true
 
 # supported languages
 const LANGUAGES = {
-  'go': 1,
-  'python': 2,
-  'terraform': 3,
-  'rust': 4
+  'c': 1,
+  'go': 2,
+  'python': 3,
+  'rust': 4,
+  'terraform': 5
 }
 
 # id request
@@ -123,6 +124,16 @@ enddef
 # servers
 var servers: dict<dict<any>> = {}
 
+# c
+servers[LANGUAGES['c']] = NewServer({
+  'id': LANGUAGES['c'],
+  'name': 'clangd',
+  'cmd': 'clangd',
+  'args': ['--background-index', '--clang-tidy', '--log=error'],
+  'desc': 'clangd language server',
+  'language': 'c'
+})
+
 # gopls
 servers[LANGUAGES['go']] = NewServer({
   'id': LANGUAGES['go'],
@@ -143,17 +154,6 @@ servers[LANGUAGES['python']] = NewServer({
   'language': 'python'
 })
 
-# terraform-ls
-servers[LANGUAGES['terraform']] = NewServer({
-  'id': LANGUAGES['terraform'],
-  'name': 'terraform-ls',
-  'cmd': 'terraform-ls',
-  'args': ['serve', '-log-file=/dev/null'],
-  'desc': 'The official Terraform language server',
-  'language': 'terraform',
-  'waitInit': true
-})
-
 # rust
 servers[LANGUAGES['rust']] = NewServer({
   'id': LANGUAGES['rust'],
@@ -162,6 +162,17 @@ servers[LANGUAGES['rust']] = NewServer({
   'args': ['-q', '--log-file', '/dev/null'],
   'desc': 'A Rust compiler front-end for IDEs',
   'language': 'rust',
+  'waitInit': true
+})
+
+# terraform-ls
+servers[LANGUAGES['terraform']] = NewServer({
+  'id': LANGUAGES['terraform'],
+  'name': 'terraform-ls',
+  'cmd': 'terraform-ls',
+  'args': ['serve', '-log-file=/dev/null'],
+  'desc': 'The official Terraform language server',
+  'language': 'terraform',
   'waitInit': true
 })
 
@@ -433,6 +444,18 @@ def RequestInitialize(server: dict<any>)
   # initialization options
   var initOpts = {}
 
+  # clangd only
+  if server.name == 'clangd'
+    initOpts = {
+      fallbackFlags: [
+        '-std=c99',
+        '-I/usr/include',
+        '-I/usr/local/include',
+        '-I/usr/X11R6/include'
+      ]
+    }
+  endif
+
   # gopls only
   if server.name == 'gopls'
     initOpts = {
@@ -647,8 +670,9 @@ def RequestCompletion(server: dict<any>)
         character: pos[1]
       },
       context: {
-        triggerKind: 2,  # 2 = TriggerCharacter ".'
-        triggerCharacter: '.'
+        # triggerKind: 2,       # 2 = TriggerCharacter "."
+        # triggerCharacter: '.'
+        triggerKind: 1          # 1 = manual invocation
       },
     }
   })
@@ -670,8 +694,9 @@ def RequestCompletionNoAsync(server: dict<any>): dict<any>
         character: pos[1]
       },
       context: {
-        triggerKind: 2,  # 2 = TriggerCharacter ".'
-        triggerCharacter: '.'
+        # triggerKind: 2,       # 2 = TriggerCharacter "."
+        # triggerCharacter: '.'
+        triggerKind: 1          # 1 = manual invocation
       },
     }
   }, { 'timeout': timeout })
@@ -738,10 +763,11 @@ def FormatCompletions(server: dict<any>, items: list<dict<any>>): list<any>
     if server.name == 'terraform-ls'
       label = join(split(label, '\.')[1 :], '.')
     endif
+    var kindStr = has_key(COMPLETION_KINDS, string(kind)) ? COMPLETION_KINDS[string(kind)]['short'] : ''
     add(fitems, {
-      'word': label,
-      'abbr': label,
-      'kind': COMPLETION_KINDS[kind]['short'],
+      'word': trim(label),
+      'abbr': trim(label),
+      'kind': kindStr,
       'info': detail,
       'menu': printf('%s', detail),
       'user_data': string(it)
@@ -860,7 +886,7 @@ export def OmniFunc(findstart: number, base: string): any
     # items = filter(items, (_, it) => stridx(it.label, base) == 0)
     # ignore case
     var baseLower = tolower(base)
-    items = filter(items, (_, it) => stridx(tolower(it.label), baseLower) == 0)
+    items = filter(items, (_, it) => stridx(trim(tolower(it.label)), baseLower) == 0)
   endif
 
   # filter

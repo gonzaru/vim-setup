@@ -19,8 +19,19 @@ setlocal shiftround
 setlocal expandtab
 setlocal cscopetag
 setlocal cscopetagorder=0
-setlocal iskeyword=a-z,A-Z,48-57,_,.,-,>  # see 'complete'
+setlocal iskeyword=a-z,A-Z,48-57,_  # see 'complete'
 #^ setlocal omnifunc=ccomplete#Complete
+if get(g:, "lsp_enabled")
+  setlocal omnifunc=lsp#OmniFunc
+  # setlocal complete^=o^10
+  if &autocomplete && !get(g:, "complementum_enabled")
+    # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
+    # trigger for '.'
+    inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+    # trigger for '->'
+    inoremap <buffer> <nowait> <silent> <expr> > (col('.') > 2 && getline('.')[col('.') - 2] == '-' && getline('.')[col('.') - 3] =~ '\k') ? ">\<C-x>\<C-o>" : ">"
+  endif
+endif
 
 # undo
 b:undo_ftplugin = 'setlocal syntax< nowrap< showbreak< tabstop< softtabstop< shiftwidth< shiftround< expandtab< cscopetag< cscopetagorder< iskeyword<'

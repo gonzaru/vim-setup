@@ -19,7 +19,10 @@ if get(g:, "lsp_enabled")
   # setlocal complete^=o^10
   if &autocomplete && !get(g:, "complementum_enabled")
     # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
-    inoremap <buffer> <nowait> <silent> <expr> . (getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+    # methods and fields (trigger for '.')
+    inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+    # namespaces and associated functions (trigger for '::')
+    inoremap <buffer> <nowait> <silent> <expr> : (col('.') > 1 && getline('.')[col('.') - 2] == ':') ? ":\<C-x>\<C-o>" : ":"
   endif
 endif
 
