@@ -27,13 +27,14 @@ enddef
 # complete command-line
 export def CmdLineChanged(): void
   var cmd: string
+  var cmpltypes = ['file', 'dir_in_path', 'command']
   var info = cmdcomplete_info()
-  if empty(info) || getcmdcompltype() != 'file'
+  if empty(info) || mode() != 'c' || index(cmpltypes, getcmdcompltype()) == -1
     return
   endif
   cmd = getcmdline()
   if info.selected != -1
-    if getcmdcomplpat() =~ '\/\/$'
+    if info.pum_visible == 0 && getcmdcomplpat() =~ '\/\/$'
       # foo// -> foo/<complete>
       setcmdline(substitute(cmd, '\/\/$', '/', ''))
     endif
