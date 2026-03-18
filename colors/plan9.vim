@@ -31,13 +31,17 @@ g:colors_name = "plan9"
 if !exists('g:plan9_style')
   g:plan9_style = "light"  # only light
 endif
+if !exists('g:plan9_cursorline')
+  g:plan9_cursorline = false
+endif
 
 # colors
+const cursorline = g:plan9_cursorline
 const termgui = has('termguicolors') && &termguicolors
 const colors = {
   'normal': {
     'guifg': 'black',
-    'guibg': '#ffffd7',
+    'guibg': '#ffffe8',
     'ctermfg': 'black',
     'ctermbg': 230
   }
@@ -55,19 +59,19 @@ execute $"highlight! Visual guifg={colors.normal.guifg} guibg=#ffffaf ctermfg={c
 execute $"highlight! WildMenu guifg={colors.normal.guifg} guibg=#ffffaf ctermfg={colors.normal.ctermfg} ctermbg=229 gui=NONE cterm=NONE term=NONE"
 
 # statusline
-execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg=#d7d7af ctermfg={colors.normal.ctermfg} ctermbg={termgui ? 187 : 186} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg=#dedebd ctermfg={colors.normal.ctermfg} ctermbg={termgui ? 187 : 144} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! StatusLine guifg={colors.normal.guifg} guibg=#e1faff ctermfg={colors.normal.ctermfg} ctermbg=195 gui=underline cterm=NONE term=NONE"
+execute $"highlight! StatusLineNC guifg={colors.normal.guifg} guibg=#efefd8 ctermfg={colors.normal.ctermfg} ctermbg=187 gui=NONE cterm=NONE term=NONE"
 
 # vertical split color
-execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg=#dedebd ctermfg={colors.normal.ctermfg} ctermbg={termgui ? 187 : 144} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! VertSplit guifg={colors.normal.guifg} guibg=#dedebd ctermfg={colors.normal.ctermfg} ctermbg=144 gui=NONE cterm=NONE term=NONE"
 
 # execute $"highlight! Cursor guifg=white guibg={colors.normal.guifg} gui=NONE cterm=NONE term=NONE"
-# highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
-highlight! Cursor guifg=white guibg=#606060 gui=NONE cterm=NONE term=NONE
+highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
+# highlight! Cursor guifg=white guibg=#606060 gui=NONE cterm=NONE term=NONE
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
-highlight! CursorLine guifg=NONE guibg=#eeeec7 ctermfg=NONE ctermbg=187 gui=NONE cterm=NONE term=NONE
-execute $"highlight! CursorLineNR guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLine guifg=NONE guibg={cursorline ? '#efefd8' : 'NONE'} ctermfg=NONE ctermbg={cursorline ? 187 : 'NONE'} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLineNR guifg=#d70000 guibg=NONE ctermfg=160 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -120,9 +124,9 @@ highlight! link EndOfBuffer NonText
 highlight! PreInsert guifg=#585858 guibg=NONE ctermfg=240 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 # tabs
-highlight! TabLine guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
-execute $"highlight! TabLineSel guifg={colors.normal.guifg} guibg=#d7ffff ctermfg={colors.normal.ctermfg} ctermbg=195 gui=NONE cterm=NONE term=NONE"
-highlight! TabLineFill guifg=white guibg=black ctermfg=white ctermbg=black gui=NONE cterm=NONE term=NONE
+highlight! TabLine guifg=#767676 guibg=#efefd8 ctermfg=243 ctermbg=187 gui=NONE cterm=NONE term=NONE
+execute $"highlight! TabLineSel guifg={colors.normal.guifg} guibg=#eefeff ctermfg={colors.normal.ctermfg} ctermbg=195 gui=NONE cterm=NONE term=NONE"
+highlight! TabLineFill guifg=#767676 guibg=#efefd8 ctermfg=243 ctermbg=187 gui=NONE cterm=NONE term=NONE
 
 execute $"highlight! Folded guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! FoldColumn guifg={colors.normal.guifg} guibg=#d7ffff ctermfg={colors.normal.ctermfg} ctermbg=195 gui=NONE cterm=NONE term=NONE"
@@ -137,15 +141,15 @@ execute $"highlight! MoreMsg guifg={colors.normal.guifg} guibg={colors.normal.gu
 execute $"highlight! Title guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # complete popup menu
-highlight! Pmenu guifg=NONE guibg=#ffffaf ctermfg=NONE ctermbg=229 gui=NONE cterm=NONE term=NONE
+highlight! Pmenu guifg=NONE guibg=#ffffd7 ctermfg=NONE ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! PmenuSel guifg=NONE guibg=#dfffd7 ctermfg=NONE ctermbg=194 gui=NONE cterm=NONE term=NONE
 highlight! PmenuMatch guifg=#d70000 guibg=NONE ctermfg=160 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! PmenuMatchSel guifg=#d70000 guibg=#dfffd7 ctermfg=160 ctermbg=194 gui=NONE cterm=NONE term=NONE
-highlight! PmenuKind guifg=#005f00 guibg=#ffffaf ctermfg=22 ctermbg=229 gui=NONE cterm=NONE term=NONE
+highlight! PmenuKind guifg=#005f00 guibg=#ffffd7 ctermfg=22 ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! PmenuKindSel guifg=#005f00 guibg=#dfffd7 ctermfg=22 ctermbg=194 gui=NONE cterm=NONE term=NONE
 highlight! PmenuSbar guifg=NONE guibg=#afaf87 ctermfg=NONE ctermbg=144 gui=NONE cterm=NONE term=NONE
 highlight! PmenuThumb guifg=NONE guibg=#afafff ctermfg=NONE ctermbg=147 gui=NONE cterm=NONE term=NONE
-highlight! PmenuExtra guifg=#585858 guibg=#ffffaf ctermfg=240 ctermbg=229 gui=NONE cterm=NONE term=NONE
+highlight! PmenuExtra guifg=#585858 guibg=#ffffd7 ctermfg=240 ctermbg=229 gui=NONE cterm=NONE term=NONE
 highlight! PmenuExtraSel guifg=#585858 guibg=#dfffd7 ctermfg=240 ctermbg=194 gui=NONE cterm=NONE term=NONE
 highlight! link PopupSelected PmenuSel
 
@@ -166,7 +170,8 @@ highlight! link StatusLineTermNC StatusLineNC
 # :help syntax
 highlight! link Boolean Normal
 highlight! link Character Normal
-highlight! Comment guifg=#585858 guibg=NONE ctermfg=240 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+# highlight! Comment guifg=#585858 guibg=NONE ctermfg=240 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! Comment guifg=#005500 guibg=NONE ctermfg=22 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link Conditional Normal
 highlight! link Constant Normal
 highlight! link Debug Normal
