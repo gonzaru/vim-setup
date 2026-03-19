@@ -34,8 +34,12 @@ endif
 if !exists('g:plan9_cursorline')
   g:plan9_cursorline = false
 endif
+if !exists('g:plan9_color_comments')
+  g:plan9_color_comments = false
+endif
 
 # colors
+const colorcomments = g:plan9_color_comments
 const cursorline = g:plan9_cursorline
 const termgui = has('termguicolors') && &termguicolors
 const colors = {
@@ -170,8 +174,7 @@ highlight! link StatusLineTermNC StatusLineNC
 # :help syntax
 highlight! link Boolean Normal
 highlight! link Character Normal
-# highlight! Comment guifg=#585858 guibg=NONE ctermfg=240 ctermbg=NONE gui=NONE cterm=NONE term=NONE
-highlight! Comment guifg=#005500 guibg=NONE ctermfg=22 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+execute $"highlight! Comment guifg={colorcomments ? '#005500' : '#585858'} guibg=NONE ctermfg={colorcomments ? 22 : 240} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 highlight! link Conditional Normal
 highlight! link Constant Normal
 highlight! link Debug Normal
