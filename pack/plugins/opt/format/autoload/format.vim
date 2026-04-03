@@ -9,7 +9,7 @@ endif
 g:autoloaded_format = true
 
 # allowed file types
-const ALLOWED_TYPES = ['sh', 'python', 'go', 'rust']
+const ALLOWED_TYPES = ['sh', 'python', 'go', 'rust', 'terraform']
 
 # format commands
 const COMMANDS = {
@@ -27,7 +27,10 @@ const COMMANDS = {
   },
   'rust': {
     'command': join(g:format_rust_command)
-  }
+  },
+  'terraform': {
+    'command': join(g:format_terraform_command)
+  },
 }
 
 # prints the error message and saves the message in the message-history

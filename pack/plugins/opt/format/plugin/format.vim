@@ -36,6 +36,12 @@ endif
 if !exists('g:format_rust_on_write')
   g:format_rust_on_write = false
 endif
+if !exists('g:format_terraform_command')
+  g:format_terraform_command = ['terraform', 'fmt']
+endif
+if !exists('g:format_terraform_on_write')
+  g:format_terraform_on_write = false
+endif
 
 # autoload
 import autoload '../autoload/format.vim'
