@@ -228,11 +228,12 @@ export def AddMenuExtra()
     anoremenu 1000.1000.1012.18 &Extra.&Plugins.&Git.&Pull<Tab><Leader>vp <Plug>(git-pull)
     anoremenu 1000.1000.1012.19 &Extra.&Plugins.&Git.&RestoreStagedFile <Plug>(git-restore-staged-file)
     anoremenu 1000.1000.1012.20 &Extra.&Plugins.&Git.&Status<Tab><Leader>vs <Plug>(git-status)
-    anoremenu 1000.1000.1012.21 &Extra.&Plugins.&Git.&StatusFile <Plug>(git-status-file)
-    anoremenu 1000.1000.1012.22 &Extra.&Plugins.&Git.&Show<Tab><Leader>vS <Plug>(git-show)
-    anoremenu 1000.1000.1012.23 &Extra.&Plugins.&Git.&ShowFile <Plug>(git-show-file)
-    anoremenu 1000.1000.1012.24 &Extra.&Plugins.&Git.&TagList<Tab><Leader>vt <Plug>(git-tag-list)
-    anoremenu 1000.1000.1012.25 &Extra.&Plugins.&Git.&TagListRemote<Tab><Leader>vT <Plug>(git-tag-list-remote)
+    anoremenu 1000.1000.1012.21 &Extra.&Plugins.&Git.&StatusShort<Tab><Leader>vS <Plug>(git-status-short)
+    anoremenu 1000.1000.1012.22 &Extra.&Plugins.&Git.&StatusFile <Plug>(git-status-file)
+    anoremenu 1000.1000.1012.23 &Extra.&Plugins.&Git.&Show<Tab><Leader>vo <Plug>(git-show)
+    anoremenu 1000.1000.1012.24 &Extra.&Plugins.&Git.&ShowFile <Plug>(git-show-file)
+    anoremenu 1000.1000.1012.25 &Extra.&Plugins.&Git.&TagList<Tab><Leader>vt <Plug>(git-tag-list)
+    anoremenu 1000.1000.1012.26 &Extra.&Plugins.&Git.&TagListRemote<Tab><Leader>vT <Plug>(git-tag-list-remote)
   endif
 
   # habit
