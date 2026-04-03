@@ -52,6 +52,9 @@ enddef
 
 # short path: /full/path/to/dir -> /f/p/t/dir
 export def ShortPath(path: string): string
+  if path == '/'
+    return '/'
+  endif
   var name = trim(fnamemodify(path, ':~'), '/', 2)
   var nameList = split(name, '/')
   var nameTail = nameList[-1]
