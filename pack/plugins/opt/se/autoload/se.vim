@@ -96,7 +96,7 @@ enddef
 # help information
 export def Help()
   var lines =<< trim END
-    e               # edit the current file [<CR>,<2-LeftMouse>]
+    e               # edit the current file [<CR>,<Tab>,<2-LeftMouse>]
     E               # edit the current file and toggle Se
     <Space>         # 1) file: edit the current file and stay in Se
                     # 2) dir: change the current directory as base

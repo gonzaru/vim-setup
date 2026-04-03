@@ -37,6 +37,7 @@ if get(g:, 'se_no_mappings') == 0
   nnoremap <buffer> <nowait> q <Plug>(se-close)
   nnoremap <buffer> <nowait> <ESC> <Plug>(se-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(se-gofile-edit)
+  nnoremap <buffer> <nowait> <Tab> <Plug>(se-gofile-edit)
   # <LeftRelease> (one click)
   nnoremap <buffer> <2-LeftMouse> <Plug>(se-gofile-edit)
   # nnoremap <buffer> <nowait> <Space> <Plug>(se-gofile-editk)
@@ -158,6 +159,7 @@ b:undo_ftplugin = 'setlocal syntax< statusline< winfixheight< winfixwidth< winfi
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> q'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Esc>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
+b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Tab>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <2-LeftMouse>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Space>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> e'
