@@ -17,32 +17,34 @@ enddef
 
 # complementum disable
 export def Disable()
-  # TODO: remove it using g:complementum_keystroke_(tab|backspace|space|enter)
-  # if !empty(mapcheck("<Tab>", "i"))
-  #   iunmap <Tab>
-  # endif
-  if !empty(mapcheck(keytrans(g:complementum_keystroke_backspace), "i"))
-    execute $'iunmap {keytrans(g:complementum_keystroke_backspace)}'
+  if get(g:, 'complementum_no_mappings') == 0
+    # TODO: remove it using g:complementum_keystroke_(tab|backspace|space|enter)
+    # if !empty(mapcheck("<Tab>", "i"))
+    #   iunmap <Tab>
+    # endif
+    if !empty(mapcheck(keytrans(g:complementum_keystroke_backspace), "i"))
+      execute $'iunmap {keytrans(g:complementum_keystroke_backspace)}'
+    endif
+    if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_word), "i"))
+      execute $'iunmap {keytrans(g:complementum_keystroke_delete_word)}'
+    endif
+    if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_before_cursor), "i"))
+      execute $'iunmap {keytrans(g:complementum_keystroke_delete_before_cursor)}'
+    endif
+    # if !empty(mapcheck("<Space>", "i"))
+    #   iunmap <Space>
+    # endif
+    # if !empty(mapcheck("<CR>", "i"))
+    #   iunmap <CR>
+    # endif
+    ## misc plugin
+    # if get(g:, "misc_enabled")
+    #   misc#MapInsertBackSpace()
+    #   misc#MapInsertEnter()
+    #   misc#MapInsertSpace()
+    #   misc#MapInsertTab()
+    # endif
   endif
-  if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_word), "i"))
-    execute $'iunmap {keytrans(g:complementum_keystroke_delete_word)}'
-  endif
-  if !empty(mapcheck(keytrans(g:complementum_keystroke_delete_before_cursor), "i"))
-    execute $'iunmap {keytrans(g:complementum_keystroke_delete_before_cursor)}'
-  endif
-  # if !empty(mapcheck("<Space>", "i"))
-  #   iunmap <Space>
-  # endif
-  # if !empty(mapcheck("<CR>", "i"))
-  #   iunmap <CR>
-  # endif
-  ## misc plugin
-  # if get(g:, "misc_enabled")
-  #   misc#MapInsertBackSpace()
-  #   misc#MapInsertEnter()
-  #   misc#MapInsertSpace()
-  #   misc#MapInsertTab()
-  # endif
   g:complementum_enabled = false
 enddef
 
@@ -51,7 +53,7 @@ export def Toggle()
   if g:complementum_enabled
     Disable()
   else
-    Enable()
+    g:ComplementumEnable()
   endif
   v:statusmsg = $"complementum={g:complementum_enabled}"
 enddef
@@ -212,6 +214,26 @@ def HasTriggerOmniKey(skip: string = ''): bool
     --num
   endwhile
   return omni
+enddef
+
+# insert complete
+export def InsComplete()
+  var minchars = g:complementum_minchars
+  # '\k$'
+  if getcharstr(1) == '' && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. minchars .. ',}$'
+    SkipTextChangedIEvent()
+    feedkeys(g:complementum_keystroke_default, 'n')
+  endif
+enddef
+
+# skip text changed event
+export def SkipTextChangedIEvent(): string
+  # Suppress next event caused by <C-e> (or <C-n> when no matches found)
+  set eventignore+=TextChangedI
+  timer_start(1, (_) => {
+    set eventignore-=TextChangedI
+  })
+  return ''
 enddef
 
 # complete (default)

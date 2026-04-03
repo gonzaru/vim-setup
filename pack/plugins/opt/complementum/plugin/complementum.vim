@@ -9,6 +9,9 @@ endif
 g:loaded_complementum = true
 
 # global variables
+if !exists('g:complementum_autodelay')
+  g:complementum_autodelay = 300  # ms
+endif
 if !exists('g:complementum_debuginfo')
   g:complementum_debuginfo = false
 endif
@@ -90,15 +93,38 @@ import autoload '../autoload/complementum.vim'
 # autocmd
 augroup complementum_insert
   autocmd!
+
   # TODO: test KeyInputPre
-  autocmd InsertCharPre * {
-    if g:complementum_enabled && &buftype == '' && !&autocomplete
-      if !pumvisible() && state('m') == ''
-        complementum.Complete(&filetype, v:char)
+  # autocmd InsertCharPre * {
+  #   if g:complementum_enabled && &buftype == '' && !&autocomplete
+  #     if !pumvisible() && state('m') == ''
+  #       complementum.Complete(&filetype, v:char)
+  #     endif
+  #   endif
+  # }
+
+  # https://www.vim.org/vim-9.2-released.php
+  var _timer = -1
+  autocmd TextChangedI * {
+    if g:complementum_enabled && &buftype == ''
+      # character before the cursor is a "word" character (\k) '\k$'
+      if !pumvisible() && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+        timer_stop(_timer)
+        _timer = timer_start(g:complementum_autodelay, (_) => complementum.InsComplete())
+      else
+        timer_stop(_timer)
       endif
     endif
   }
 augroup END
+
+# close completion
+if !get(g:, 'echords_enabled')
+  # inoremap <silent> <C-e> <C-r>=<SID>complementum.SkipTextChangedIEvent()<CR><C-e>
+  inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<C-e>"
+else
+  inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<End>"
+endif
 
 # dict
 # augroup complementum_dict
@@ -123,7 +149,7 @@ augroup END
 # augroup END
 
 # define mappings
-nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>Enable()<CR>
+nnoremap <silent> <script> <Plug>(complementum-enable) <ScriptCmd>g:ComplementumEnable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-disable) <ScriptCmd>complementum.Disable()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle) <ScriptCmd>complementum.Toggle()<CR>
 nnoremap <silent> <script> <Plug>(complementum-toggle-default-keystroke)
@@ -139,54 +165,56 @@ inoremap <silent> <script> <Plug>(complementum-delete-before-cursor) <ScriptCmd>
 # inoremap <silent> <script> <Plug>(complementum-enter) <ScriptCmd>complementum.CompleteKey("enter")<CR>
 
 # complementum enable
-def Enable()
-  # if empty(mapcheck("<Tab>", "i"))
-  #   inoremap <Tab> <Plug>(complementum-tab)
-  # endif
-  if empty(mapcheck("<BS>", "i"))
-    inoremap <BS> <Plug>(complementum-backspace)
-  endif
-  if empty(mapcheck("<C-w>", "i"))
-    inoremap <C-w> <Plug>(complementum-delete-word)
-  endif
-  if empty(mapcheck("<C-u>", "i"))
-    inoremap <C-u> <Plug>(complementum-delete-before-cursor)
-  endif
-  # if empty(mapcheck("<Space>", "i"))
-  #   inoremap <Space> <Plug>(complementum-space)
-  # endif
-  # if empty(mapcheck("<CR>", "i"))
-  #   inoremap <CR> <Plug>(complementum-enter)
-  # endif
-  # toggle
-  if empty(mapcheck("<leader>tgc", "n"))
-    nnoremap <leader>tgc <Plug>(complementum-toggle):echo v:statusmsg<CR>
-  endif
-  if empty(mapcheck("<leader>tgC", "n"))
-    nnoremap <leader>tgC <Plug>(complementum-toggle-default-keystroke):echo v:statusmsg<CR>
-  endif
-  if empty(mapcheck("<leader>tGC", "n"))
-    nnoremap <leader>tGC <Plug>(complementum-toggle-default-omni-keystroke):echo v:statusmsg<CR>
-  endif
-  # see augroup complementum_cmdline
-  if empty(mapcheck("<Up>", "c"))
-    cnoremap <expr> <Up> wildmenumode() ? "\<C-e>\<Up>"   : "\<Up>"
-  endif
-  if empty(mapcheck("<Down>", "c"))
-    cnoremap <expr> <Down> wildmenumode() ? "\<C-e>\<Down>" : "\<Down>"
-  endif
-  if empty(mapcheck("<Left>", "c"))
-    cnoremap <expr> <Left> wildmenumode() ? "\<C-e>\<Left>"   : "\<Left>"
-  endif
-  if empty(mapcheck("<Right>", "c"))
-    cnoremap <expr> <Right> wildmenumode() ? "\<C-e>\<Right>" : "\<Right>"
+def g:ComplementumEnable(): void
+  if get(g:, 'complementum_no_mappings') == 0
+    # if empty(mapcheck("<Tab>", "i"))
+    #   inoremap <Tab> <Plug>(complementum-tab)
+    # endif
+    if empty(mapcheck("<BS>", "i"))
+      inoremap <BS> <Plug>(complementum-backspace)
+    endif
+    if empty(mapcheck("<C-w>", "i"))
+      inoremap <C-w> <Plug>(complementum-delete-word)
+    endif
+    if empty(mapcheck("<C-u>", "i"))
+      inoremap <C-u> <Plug>(complementum-delete-before-cursor)
+    endif
+    # if empty(mapcheck("<Space>", "i"))
+    #   inoremap <Space> <Plug>(complementum-space)
+    # endif
+    # if empty(mapcheck("<CR>", "i"))
+    #   inoremap <CR> <Plug>(complementum-enter)
+    # endif
+    # toggle
+    if empty(mapcheck("<leader>tgc", "n"))
+      nnoremap <leader>tgc <Plug>(complementum-toggle):echo v:statusmsg<CR>
+    endif
+    if empty(mapcheck("<leader>tgC", "n"))
+      nnoremap <leader>tgC <Plug>(complementum-toggle-default-keystroke):echo v:statusmsg<CR>
+    endif
+    if empty(mapcheck("<leader>tGC", "n"))
+      nnoremap <leader>tGC <Plug>(complementum-toggle-default-omni-keystroke):echo v:statusmsg<CR>
+    endif
+    # see augroup complementum_cmdline
+    if empty(mapcheck("<Up>", "c"))
+      cnoremap <expr> <Up> wildmenumode() ? "\<C-e>\<Up>"   : "\<Up>"
+    endif
+    if empty(mapcheck("<Down>", "c"))
+      cnoremap <expr> <Down> wildmenumode() ? "\<C-e>\<Down>" : "\<Down>"
+    endif
+    if empty(mapcheck("<Left>", "c"))
+      cnoremap <expr> <Left> wildmenumode() ? "\<C-e>\<Left>"   : "\<Left>"
+    endif
+    if empty(mapcheck("<Right>", "c"))
+      cnoremap <expr> <Right> wildmenumode() ? "\<C-e>\<Right>" : "\<Right>"
+    endif
   endif
   g:complementum_enabled = true
 enddef
 
 # set mappings
 if get(g:, 'complementum_no_mappings') == 0
-  Enable()
+  g:ComplementumEnable()
 endif
 
 # set commands

@@ -92,9 +92,10 @@ g:bufferonly_enabled = true       # remove all buffers except the current one
 g:checker_enabled = true          # checker plugin
 g:cmplwild_enabled = true         # complete command-line
 g:commentarium_enabled = true     # comment by language
-g:complementum_enabled = false    # complete by language
+g:complementum_enabled = true     # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
+g:echords_enabled = true          # echors keys
 g:esckey_enabled = true           # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
@@ -110,6 +111,7 @@ g:session_enabled = true          # session
 g:statusline_enabled = true       # statusline
 g:tabline_enabled = true          # tab page
 g:utils_enabled = true            # utils for misc plugin and generic use
+g:viewmode_enabled = true         # view mode
 g:xkb_enabled = false             # xkb
 
 # add plugins
@@ -125,6 +127,7 @@ const plugins = [
   'complementum',
   'cyclebuffers',
   'documentare',
+  'echords',
   'esckey',
   'format',
   'git',
@@ -137,6 +140,7 @@ const plugins = [
   'searcher',
   'session',
   'tabline',
+  'viewmode',
   'xkb'
 ]
 for plugin in plugins
@@ -166,6 +170,9 @@ if g:complementum_enabled
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
   g:complementum_minchars = 1
+  g:complementum_autodelay = 300  # ms
+  # TODO: 1 vs true (true fails now)
+  g:complementum_no_mappings = 1
 endif
 
 # cyclebuffers plugin
@@ -181,22 +188,34 @@ if colortheme == "darkula"
   g:darkula_pmenumatch2 = false           # pmenu match color n2
 endif
 
+# plan9 theme
+if colortheme == "plan9"
+  g:plan9_cursorline = false
+  g:plan9_color_comments = false
+endif
+
 # esckey plugin
 if g:esckey_enabled
   # g:esckey_key = "<C-l>"
   # <F23> maps to <F23> in gui, but <F3> in terminal
-  g:esckey_key = has('gui_running') ? '<F23>' : '<F3>'
+  # g:esckey_key = has('gui_running') ? '<F23>' : '<F3>'
+  # inoremap ^V<89> (Ctrl+v + key)
+  # g:esckey_key = ''
+  g:esckey_key = '<F12>'
   g:esckey_nnoremap = false  # normal mode
-  g:esckey_cnoremap = false  # command mode
+  g:esckey_cnoremap = true  # command mode
   if has('gui_running')
     if !g:esckey_cnoremap
-      cnoremap <F23> <Nop>
+      # cnoremap <F23> <Nop>
+      cnoremap <F12> <Nop>
     endif
     # terminal mode
-    tnoremap <F23> <Nop>
+    # tnoremap <F23> <Nop>
+    tnoremap <F12> <Nop>
   else
     if !g:esckey_cnoremap
-      cnoremap <F3> <Nop>
+      # cnoremap <F3> <Nop>
+      cnoremap <F12> <Nop>
     endif
   endif
 endif
@@ -427,11 +446,15 @@ if !has('gui_running')
   endif
   # disable xon/xoff handshaking (<C-s>)
   &t_xo = ""
-  # enable modifyOtherKeys level 2 (see :help modifyOtherKeys)
-  # <C-Tab>, <C-S-Tab>
   if alacritty || alacritty_tmux
+    # enable modifyOtherKeys level 2 (see :help modifyOtherKeys)
+    # <C-Tab>, <C-S-Tab>
     &t_ti ..= "\<Esc>[>4;2m"
     &t_te ..= "\<Esc>[>4;m"
+    # use <S-Space> <Char-8203> = \u200b (see alacritty.toml)
+    map <Char-8203> <S-Space>
+    map! <Char-8203> <S-Space>
+    tnoremap <Char-8203> <Nop>
   endif
 endif
 
@@ -447,20 +470,21 @@ if has('gui_running')
       execute $"set guifont=SF\\ Mono\\ 12.0"
     elseif 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
       execute $"set guifont=SF\\ Mono\\ Medium\\ 12.0"
-    elseif 1 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Medium.ttc")
+    elseif 1 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Regular.ttc")
       # execute $"set guifont=Iosevka\\ 13.0"                      # 12.0, 14.5
       # execute $"set guifont=Iosevka\\ Medium\\ 13.0"
-      # execute $"set guifont=Iosevka\\ Extended\\ 12.5"           # 12.0
-      execute $"set guifont=Iosevka\\ Medium\\ Extended\\ 12.5"    # 12.0
+      execute $"set guifont=Iosevka\\ Extended\\ 12.0"             # 12.0
+      # execute $"set guifont=Iosevka\\ Medium\\ Extended\\ 12.0"  # 12.0
     else
       # execute $"set guifont=DejaVu\\ Sans\\ Mono\\ 12"
       set guifont=Monospace\ 12
     endif
     set guiligatures=
-    g:guiligatures_save = '!\"#$%&()*+-./:<=>?@[]^_{\|~'  # see misc#LigaturesToggle()
-    if &guifont =~ 'JetBrainsMono \|Iosevka \|Victor \|Lilex \|MonoLisa '
-      execute $"set guiligatures={g:guiligatures_save}"
-    endif
+    # g:guiligatures_save = '!\"#$%&()*+-./:<=>?@[]^_{\|~'  # see misc#LigaturesToggle()
+    g:guiligatures_save = '=!><'
+    # if &guifont =~ 'JetBrainsMono \|Iosevka \|Victor \|Lilex \|Monaspace \|MonoLisa \|Fira Code '
+    #   execute $"set guiligatures={g:guiligatures_save}"
+    # endif
   endif
   execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
   var keep_guioptions = exists('g:guioptions_save') && &guioptions =~ "m"  # menu bar is present
@@ -653,7 +677,7 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # :help ins-completion
 if !g:complementum_enabled
   setglobal autocomplete         # shows a completion menu as you type:
-  # set autocompletedelay=300    # delay in milliseconds before the autocomplete appears (default: 0)
+  set autocompletedelay=300      # delay in milliseconds before the autocomplete appears (default: 0)
   # set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
 endif
 # set iskeyword+=-             # keywords (default: "@,48-57,_,192-255")
@@ -668,7 +692,12 @@ setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>
 if &autocomplete
   setglobal completeopt=menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 else
-  setglobal completeopt=menuone,noinsert  # noselect,nearest <> fuzzy,nosort,longest (with autocomplete)
+  # setglobal completeopt=menuone,noinsert
+  setglobal completeopt=menuone,noselect
+  # setglobal completeopt=menuone,preinsert
+endif
+if &completeopt =~ 'preinsert'
+  set infercase
 endif
 if exists('&completefuzzycollect')
   set completefuzzycollect=
@@ -682,7 +711,7 @@ if has('popupwin')
   if !has('gui_running')
     setglobal completeopt+=popuphidden  # like popup option but hidden by default
   endif
-  inoremap <expr> <silent> <C-f> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : "\<C-f>"
+  inoremap <expr> <silent> <C-h> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : "\<C-h>"
   if exists('+completepopup')
     set completepopup=
     set completepopup+=border:off,resize:off
@@ -707,10 +736,10 @@ endif
 # t: tags
 # set complete=.,w,b  # (default: .,w,b,u,k,t)
 set complete=.^10,w^5,b^5,u^5
-set pumborder=     # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
-set pumheight=10   # maximum number of items to show in the popup menu (default: 0)
-set pumwidth=15    # minimum width to use for the popup menu (default: 15)
-set pummaxwidth=0  # maximum width to use for the popup menu (default: 0)
+set pumborder=       # defines a border for the popup (default: empty) (hl-PmenuBorder, hl-PmenuShadow)
+set pumheight=10     # maximum number of items to show in the popup menu (default: 0)
+set pumwidth=15      # minimum width to use for the popup menu (default: 15)
+set pummaxwidth=100  # maximum width to use for the popup menu (default: 0)
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -779,6 +808,18 @@ def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
+  elseif &completeopt =~ 'preinsert' && preinserted()
+    var info = complete_info()
+    if info.pum_visible
+      keystroke = "\<C-y>"
+    elseif &pumheight == 1
+      keystroke = info.preinserted_text
+      # timer_start(0, (_) => {
+      #   if pumvisible()
+      #     feedkeys("\<C-y>", "n")
+      #   endif
+      # })
+    endif
   elseif pumvisible()
     if &autocomplete || &completeopt =~ 'noselect'
       # var info = complete_info()
@@ -895,7 +936,8 @@ endif
 nnoremap <silent> <leader>sv :ReloadVimrc<CR>
 nnoremap <silent> <leader>sV :ReloadVimrcLocal<CR>
 nnoremap <silent> <leader>st :ReloadTheme<CR>
-nnoremap <silent> <leader>sa :ReloadVimrc<CR>
+nnoremap <silent> <leader>sa :echo '<lt>leader>sa is disabled'<CR>
+nnoremap <silent> <leader>sA :ReloadVimrc<CR>
                             \:ReloadVimrcLocal<CR>
                             \:ReloadTheme<CR>
                             \:ReloadSyntax<CR>
