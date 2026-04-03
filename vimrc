@@ -95,7 +95,7 @@ g:commentarium_enabled = true     # comment by language
 g:complementum_enabled = true     # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
-g:echords_enabled = true          # echors keys
+g:echords_enabled = false         # echors keys
 g:esckey_enabled = true           # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
@@ -143,11 +143,6 @@ const plugins = [
   'viewmode',
   'xkb'
 ]
-for plugin in plugins
-  if get(g:, $"{plugin}_enabled")
-    execute $"packadd! {plugin}"
-  endif
-endfor
 
 # arrowkeys plugin
 if g:arrowkeys_enabled
@@ -157,6 +152,19 @@ endif
 # checker plugin
 if g:checker_enabled
   g:checker_showpopup = false
+endif
+
+# darkula theme
+if colortheme == "darkula"
+  g:darkula_style = "dark"                # light or dark
+  g:darkula_cursor2 = has('gui_running')  # alternative cursor n2
+  g:darkula_pmenumatch2 = false           # pmenu match color n2
+endif
+
+# plan9 theme
+if colortheme == "plan9"
+  g:plan9_cursorline = false
+  g:plan9_color_comments = false
 endif
 
 # cmplwild plugin
@@ -179,19 +187,6 @@ endif
 if g:cyclebuffers_enabled
   g:cyclebuffers_position = "bottom"  # top, bottom
   g:cyclebuffers_oldfiles_limit = 15  # default is 0 (no limit)
-endif
-
-# darkula theme
-if colortheme == "darkula"
-  g:darkula_style = "dark"                # light or dark
-  g:darkula_cursor2 = has('gui_running')  # alternative cursor n2
-  g:darkula_pmenumatch2 = false           # pmenu match color n2
-endif
-
-# plan9 theme
-if colortheme == "plan9"
-  g:plan9_cursorline = false
-  g:plan9_color_comments = false
 endif
 
 # esckey plugin
@@ -276,6 +271,11 @@ if g:statusline_enabled
   g:statusline_gitstatusfile = true
 endif
 
+# view mode plugin
+if g:viewmode_enabled
+  g:viewmode_auto_readonly = true
+endif
+
 # xkb plugin
 if g:xkb_enabled
   g:xkb_layout_first = "level3(caps_switch)"
@@ -284,6 +284,13 @@ if g:xkb_enabled
   g:xkb_cmd_layout_next = ["setxkbsw", "-s", "1"]   # next
   g:xkb_debug_info = false
 endif
+
+# load plugins
+for plugin in plugins
+  if get(g:, $"{plugin}_enabled")
+    execute $"packadd! {plugin}"
+  endif
+endfor
 
 # global settings
 set nocompatible            # use vim defaults instead of 100% vi compatibility
