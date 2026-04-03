@@ -153,31 +153,34 @@ def SetupWindow()
 enddef
 
 # menu action
-def MenuAction(file: string, cwddir: string, selwin: bool)
-  var choice = inputlist([
-    'Select:',
-    '1. diff',
-    '2. checkout',
-    '3. add',
-    '4. restore'
-  ])
+def MenuAction(file: string, cwddir: string, selwin: bool): void
+  var menu = ['diff', 'checkout', 'add', 'restore']
+  var lenm = len(menu)
+  var choice = inputlist(
+    extend([ 'Select:'], map(copy(menu), (i, v) => printf($"{lenm >= 10 ? '%2d.' : '%d.'} %s", i + 1, v)))
+  )
   if empty(choice)
     return
   endif
-  if choice < 1 || choice > 4
+  if choice < 1 || choice > lenm
     EchoErrorMsg($"Error: wrong option '{choice}'")
     return
   endif
-  if choice == 1
+  var action = menu[choice - 1]
+  var message = $"{toupper(action[0]) .. action[1 :]} file '{fnamemodify(trim(file), ':p:~')}'?"
+	if action != 'diff' && confirm(message, "&Yes\n&No", 2) != 1
+	  return
+	endif
+  if action == 'diff'
     Run($"git diff -- {file}", cwddir, selwin)
-  elseif choice == 2
+  elseif action == 'checkout'
     Run($"git checkout -- {file}", cwddir, selwin)
-  elseif choice == 3
+  elseif action == 'add'
     Run($"git add -- {file}", cwddir, selwin)
-  elseif choice == 4
+  elseif action == 'restore'
     Run($"git restore --staged -- {file}", cwddir, selwin)
   endif
-  if choice != 1
+  if action != 'diff'
     feedkeys("\<Esc>", 'n')
     Run($"git status --porcelain", cwddir, selwin)
   endif

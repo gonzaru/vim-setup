@@ -45,6 +45,8 @@ nnoremap <silent> <script> <Plug>(git-stash) <ScriptCmd>git.Run("git stash", get
 nnoremap <silent> <script> <Plug>(git-stash-list) <ScriptCmd>git.Run("git stash list", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-stash-pop) <ScriptCmd>git.Run("git stash pop", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-status) <ScriptCmd>git.Run("git status", getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-status-short) <ScriptCmd>git.Run("git status --short", getcwd(), true)<CR>
+nnoremap <silent> <script> <Plug>(git-status-short-file) <ScriptCmd>git.Run($"git status --short {expand('%:p')}", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-status-file)
   \ <ScriptCmd>git.Run($"git status {PrevOrNewFile()}", getcwd(), false)<CR>
 nnoremap <silent> <script> <Plug>(git-tag-list) <ScriptCmd>git.Run("git tag", getcwd(), false)<CR>
@@ -104,6 +106,9 @@ if get(g:, 'git_no_mappings') == 0
   if empty(mapcheck("<leader>vL", "n"))
     nnoremap <leader>vL <Plug>(git-log-oneline)
   endif
+  if empty(mapcheck("<leader>vo", "n"))
+    nnoremap <leader>vo <Plug>(git-show)
+  endif
   if empty(mapcheck("<leader>vp", "n"))
     nnoremap <leader>vp <Plug>(git-pull)
   endif
@@ -111,7 +116,7 @@ if get(g:, 'git_no_mappings') == 0
     nnoremap <leader>vs <Plug>(git-status)
   endif
   if empty(mapcheck("<leader>vS", "n"))
-    nnoremap <leader>vS <Plug>(git-show)
+    nnoremap <leader>vS <Plug>(git-status-short)
   endif
   if empty(mapcheck("<leader>vt", "n"))
     nnoremap <leader>vt <Plug>(git-tag-list)
@@ -164,8 +169,8 @@ if get(g:, 'git_no_commands') == 0
   command! GitStashPop execute "normal \<Plug>(git-stash-pop)"
   command! GitStatus execute "normal \<Plug>(git-status)"
   command! GitStatusFile execute "normal \<Plug>(git-status-file)"
-  command! GitStatusShort git.Run('git status --short', getcwd(), true)
-  command! GitStatusShortFile git.Run($"git status --short {expand('%:p')}", getcwd(), false)
+  command! GitStatusShort execute "normal \<Plug>(git-status-short)"
+  command! GitStatusShortFile execute "normal \<Plug>(git-status-short-file)"
   command! GitTagList execute "normal \<Plug>(git-tag-list)"
   command! GitTagListRemote execute "normal \<Plug>(git-tag-list-remote)"
 endif
