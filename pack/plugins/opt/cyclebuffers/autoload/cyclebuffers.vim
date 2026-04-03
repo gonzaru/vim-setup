@@ -24,9 +24,9 @@ enddef
 # help information
 export def Help()
   var lines =<< trim END
-    d        # delete the current buffer
+    d        # delete the current buffer and close cyclebuffers window
     D        # delete the current buffer and stay in cyclebuffers window
-    w        # wipe the current buffer
+    w        # wipe the current buffer and close cyclebuffers window
     W        # wipe the current buffer and stay in cyclebuffers window
     e        # edit the current buffer [<CR>]
     s        # edit the current buffer in split mode
