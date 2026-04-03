@@ -506,12 +506,16 @@ export def SetGuiFont(arg: any = v:none): void
     fonts = ['SFMono-Regular:h16', 'Menlo Regular:h16']
   else
     fonts = [
-      'Cascadia Code 12.0',                    # ligatures
+      'BlexMono Nerd Font 12.5',
+      'BlexMono Nerd Font Medium 12.5',
+      'Cascadia Code 12.5',                    # ligatures
       'DejaVu Sans Mono 12.0',
+      'Fira Code 12.2',                        # ligatures
+      'Fira Code Medium 12.2',                 # ligatures
       'Iosevka 13.0',                          # 12.0, 14.5
       'Iosevka Medium 13.0',                   # 12.0, 14.5
-      'Iosevka Extended 12.5',                 # 12.0
-      'Iosevka Medium Extended 12.5',          # 12.0
+      'Iosevka Extended 12.0',                 # 12.0
+      'Iosevka Medium Extended 12.0',          # 12.0
       'Iosevka Nerd Font 13.0',
       'Iosevka Nerd Font Medium 13.0',
       'IosevkaSlab 13.0',                      # 13.0, 14.5
@@ -524,18 +528,20 @@ export def SetGuiFont(arg: any = v:none): void
       'JetBrainsMono Nerd Font Medium 11.5',   # ligatures
       'JetBrainsMonoNL 11.5',                  # no ligatures
       'JetBrainsMonoNL Medium 11.5',           # no ligatures
-      'Lilex 12.0',                            # ligatures
-      'Lilex Medium 12.0',                     # ligatures
-      'MonoLisa Regular 12.0',                 # ligatures
+      'Lilex 12.5',                            # ligatures
+      'Lilex Medium 12.5',                     # ligatures
+      'Monaspace Neon 12.0',                   # ligatures
+      'Monaspace Neon Medium 12.0',            # ligatures
+      'MonoLisa 12.0',                         # ligatures
       'MonoLisa Medium 12.0',                  # ligatures
-      'MonoLisa Freezed Regular 12.0',         # ligatures (g replaced)
-      'MonoLisa Freezed Medium 12.0',          # ligatures (g replaced)
+    # 'MonoLisa Freezed Regular 12.0',         # ligatures (g replaced)
+    # 'MonoLisa Freezed Medium 12.0',          # ligatures (g replaced)
       'SF Mono 12.0',
       'SF Mono Medium 12.0',
-      'SFMono Nerd Font 12.0',
-      'SFMono Nerd Font Medium 12.0',
-      'Victor Mono 12.0',                      # ligatures
-      'Victor Mono Medium 12.0'               # ligatures
+    # 'SFMono Nerd Font 12.0',
+    # 'SFMono Nerd Font Medium 12.0',
+      'Victor Mono 13.1',                      # ligatures
+      'Victor Mono Medium 13.1'                # ligatures
     ]
   endif
   if arg != v:none && arg == '*'
