@@ -40,7 +40,7 @@ nnoremap <silent> <script> <Plug>(esckey-disable) <ScriptCmd>esckey.Disable()<CR
 nnoremap <silent> <script> <Plug>(esckey-toggle) <ScriptCmd>esckey.Toggle()<CR>
 
 # set mappings
-if get(g:, 'esckey_no_mappings') == 0
+if !get(g:, 'esckey_no_mappings')
   if empty(mapcheck("<leader>je", "n"))
     nnoremap <leader>je <Plug>(esckey-enable)
   endif
@@ -53,7 +53,7 @@ if get(g:, 'esckey_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'esckey_no_commands') == 0
+if !get(g:, 'esckey_no_commands')
   command! EscKeyEnable execute "normal \<Plug>(esckey-enable)"
   command! EscKeyDisable execute "normal \<Plug>(esckey-disable)"
   command! EscKeyToggle execute "normal \<Plug>(esckey-toggle)"

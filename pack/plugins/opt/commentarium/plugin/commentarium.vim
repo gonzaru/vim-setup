@@ -22,7 +22,7 @@ vnoremap <silent> <script> <Plug>(commentarium-undo-range)
   \ <ESC><ScriptCmd>commentarium.UndoCommentRange(line("'<"), line("'>"), getpos("v"))<CR>gv=
 
 # set mappings
-if get(g:, 'commentarium_no_mappings') == 0
+if !get(g:, 'commentarium_no_mappings')
   if empty(mapcheck("<leader>/", "n"))
     nnoremap <leader>/ <Plug>(commentarium-do)
   endif
@@ -56,7 +56,7 @@ endif
 # vnoremap <leader>\ <ESC>:'<,'>s/\/\///g<ESC>gv=
 
 # set commands
-if get(g:, 'commentarium_no_commands') == 0
+if !get(g:, 'commentarium_no_commands')
   command! CommentariumComment commentarium.DoComment(line('.'), col('.'))
   command! -range CommentariumCommentRange {
     commentarium.DoCommentRange(<line1>, <line2>, getpos('.'))

@@ -135,7 +135,7 @@ nnoremap <silent> <script> <plug>(searcher-popup-history-ex) <ScriptCmd>searcher
 nnoremap <silent> <script> <plug>(searcher-popup-history-search) <ScriptCmd>searcher.Popup("history-search")<CR>
 
 # set mappings
-if get(g:, 'searcher_no_mappings') == 0
+if !get(g:, 'searcher_no_mappings')
   if empty(mapcheck("<leader>sf", "n"))
     nnoremap <leader>sf <Plug>(searcher-find)
   endif
@@ -235,7 +235,7 @@ if get(g:, 'searcher_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'searcher_no_commands') == 0
+if !get(g:, 'searcher_no_commands')
   command! -nargs=+ -complete=file -bar SearcherFind searcher.Search(<args>, 'findprg', 'quickfix')
   command! -nargs=+ -complete=file -bar SearcherLFind searcher.Search(<args>, 'findprg', 'locationlist')
   command! -nargs=0 -bar SearcherFindWord execute "normal \<Plug>(searcher-find-word)"

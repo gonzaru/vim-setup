@@ -22,7 +22,7 @@ nnoremap <silent> <script> <Plug>(bufferonly-wipe!)
   \ <ScriptCmd>bufferonly.RemoveAllExceptCurrent("wipe!")<CR>
 
 # set mappings
-if get(g:, 'bufferonly_no_mappings') == 0
+if !get(g:, 'bufferonly_no_mappings')
   if empty(mapcheck("<leader>bo", "n"))
     nnoremap <leader>bo <Plug>(bufferonly-delete)
   endif
@@ -38,7 +38,7 @@ if get(g:, 'bufferonly_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'bufferonly_no_commands') == 0
+if !get(g:, 'bufferonly_no_commands')
   command! BufferOnlyDelete execute "normal \<Plug>(bufferonly-delete)"
   command! -bang BufferOnlyDelete execute "normal \<Plug>(bufferonly-delete!)"
   command! BufferOnlyWipe execute "normal \<Plug>(bufferonly-wipe)"

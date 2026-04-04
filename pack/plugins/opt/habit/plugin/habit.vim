@@ -22,7 +22,7 @@ nnoremap <silent> <script> <Plug>(habit-disable) <ScriptCmd>habit.Disable()<CR>
 nnoremap <silent> <script> <Plug>(habit-toggle) <ScriptCmd>habit.Toggle()<CR>
 
 # set mappings
-if get(g:, 'habit_no_mappings') == 0
+if !get(g:, 'habit_no_mappings')
   if empty(mapcheck("<leader>he", "n"))
     nnoremap <leader>he <Plug>(habit-enable)
   endif
@@ -35,7 +35,7 @@ if get(g:, 'habit_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'habit_no_commands') == 0
+if !get(g:, 'habit_no_commands')
   command! HabitEnable execute "normal \<Plug>(habit-enable)"
   command! HabitDisable execute "normal \<Plug>(habit-disable)"
   command! HabitToggle execute "normal \<Plug>(habit-toggle)"

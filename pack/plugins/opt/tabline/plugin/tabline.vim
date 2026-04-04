@@ -15,9 +15,9 @@ import autoload '../autoload/tabline.vim'
 # define mappings
 #
 # set mappings
-# if get(g:, 'tabline_no_mappings') == 0
+# if !get(g:, 'tabline_no_mappings')
 # endif
 #
 # set commands
-# if get(g:, 'tabline_no_commands') == 0
+# if !get(g:, 'tabline_no_commands')
 # endif

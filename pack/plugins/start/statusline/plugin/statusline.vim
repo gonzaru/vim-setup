@@ -46,14 +46,14 @@ nnoremap <silent> <script> <Plug>(statusline-git-disable) :StatusLineGitDisable<
 nnoremap <silent> <script> <Plug>(statusline-git-toggle) :StatusLineGitToggle<CR>
 
 # set mappings
-if get(g:, 'statusline_no_mappings') == 0
+if !get(g:, 'statusline_no_mappings')
   if empty(mapcheck('<leader>tgg', 'n'))
     nnoremap <leader>tgg <Plug>(statusline-git-toggle)
   endif
 endif
 
 # set commands
-if get(g:, 'statusline_no_commands') == 0
+if !get(g:, 'statusline_no_commands')
   command! StatusLineGitEnable {
     g:statusline_gitbranch = true
     statusline.GitBranch(expand('%:p'))

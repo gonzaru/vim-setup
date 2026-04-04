@@ -78,7 +78,7 @@ def PrevOrNewFile(): string
 enddef
 
 # set mappings
-if get(g:, 'git_no_mappings') == 0
+if !get(g:, 'git_no_mappings')
   if empty(mapcheck("<leader>va", "n"))
     nnoremap <leader>va <Plug>(git-commit)
   endif
@@ -127,7 +127,7 @@ if get(g:, 'git_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'git_no_commands') == 0
+if !get(g:, 'git_no_commands')
   command! -nargs=+ Git git.Run($'git <args>', getcwd(), false)
   command! -nargs=+ -complete=file GitGrep {
     var grepprg_orig = &l:grepprg

@@ -63,13 +63,13 @@ nnoremap <silent> <script> <Plug>(format-language)
 \ <ScriptCmd>format.Language(&filetype, expand('%:p'))<CR>
 
 # set mappings
-if get(g:, 'format_no_mappings') == 0
+if !get(g:, 'format_no_mappings')
   if empty(mapcheck("<leader>fm", "n"))
     nnoremap <leader>fm <Plug>(format-language)
   endif
 endif
 
 # set commands
-if get(g:, 'format_no_commands') == 0
+if !get(g:, 'format_no_commands')
   command! FormatLanguage execute "normal \<Plug>(format-language)"
 endif

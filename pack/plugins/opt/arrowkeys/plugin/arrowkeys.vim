@@ -22,7 +22,7 @@ nnoremap <silent> <script> <Plug>(arrowkeys-disable) <ScriptCmd>arrowkeys.Disabl
 nnoremap <silent> <script> <Plug>(arrowkeys-toggle) <ScriptCmd>arrowkeys.Toggle()<CR>
 
 # set mappings
-if get(g:, 'arrowkeys_no_mappings') == 0
+if !get(g:, 'arrowkeys_no_mappings')
   if empty(mapcheck("<leader>ae", "n"))
     nnoremap <leader>ae <Plug>(arrowkeys-enable)
   endif
@@ -35,7 +35,7 @@ if get(g:, 'arrowkeys_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'arrowkeys_no_commands') == 0
+if !get(g:, 'arrowkeys_no_commands')
   command! ArrowKeysEnable execute "normal \<Plug>(arrowkeys-enable)"
   command! ArrowKeysDisable execute "normal \<Plug>(arrowkeys-disable)"
   command! ArrowKeysToggle execute "normal \<Plug>(arrowkeys-toggle)"

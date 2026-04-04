@@ -166,7 +166,7 @@ inoremap <silent> <script> <Plug>(complementum-delete-before-cursor) <ScriptCmd>
 
 # complementum enable
 def g:ComplementumEnable(): void
-  if get(g:, 'complementum_no_mappings') == 0
+  if !get(g:, 'complementum_no_mappings')
     # if empty(mapcheck("<Tab>", "i"))
     #   inoremap <Tab> <Plug>(complementum-tab)
     # endif
@@ -213,12 +213,12 @@ def g:ComplementumEnable(): void
 enddef
 
 # set mappings
-if get(g:, 'complementum_no_mappings') == 0
+if !get(g:, 'complementum_no_mappings')
   g:ComplementumEnable()
 endif
 
 # set commands
-if get(g:, 'complementum_no_commands') == 0
+if !get(g:, 'complementum_no_commands')
   command! ComplementumEnable execute "normal \<Plug>(complementum-enable)"
   command! ComplementumDisable execute "normal \<Plug>(complementum-disable)"
   command! ComplementumToggle execute "normal \<Plug>(complementum-toggle)"

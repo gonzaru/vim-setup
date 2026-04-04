@@ -16,14 +16,14 @@ nnoremap <silent> <script> <Plug>(autoendstructs-toggle) <ScriptCmd>autoendstruc
 inoremap <silent> <script> <Plug>(autoendstructs-end) <C-r>=<SID>autoendstructs.End(&filetype)<CR>
 
 # set mappings
-if get(g:, 'autoendstructs_no_mappings') == 0
+if !get(g:, 'autoendstructs_no_mappings')
   if empty(mapcheck("<leader>tge", "n"))
     nnoremap <leader>tge <Plug>(autoendstructs-toggle):echo v:statusmsg<CR>
   endif
 endif
 
 # set commands
-if get(g:, 'autoendstructs_no_commands') == 0
+if !get(g:, 'autoendstructs_no_commands')
   command! AutoEndStructsEnable g:autoendstructs_enabled = true
   command! AutoEndStructsDisable g:autoendstructs_enabled = false
   command! AutoEndStructsToggle g:autoendstructs_enabled = !g:autoendstructs_enabled

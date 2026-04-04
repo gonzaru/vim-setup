@@ -17,7 +17,7 @@ enddef
 
 # complementum disable
 export def Disable()
-  if get(g:, 'complementum_no_mappings') == 0
+  if !get(g:, 'complementum_no_mappings')
     # TODO: remove it using g:complementum_keystroke_(tab|backspace|space|enter)
     # if !empty(mapcheck("<Tab>", "i"))
     #   iunmap <Tab>

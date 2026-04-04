@@ -131,7 +131,7 @@ def SignsDebug(lang: string, mode: string)
 enddef
 
 # set mappings
-if get(g:, 'checker_no_mappings') == 0
+if !get(g:, 'checker_no_mappings')
   # signs debug information
   if empty(mapcheck("<F6>", "n"))
     nnoremap <F6> <Plug>(checker-signsdebug-cur)
@@ -158,7 +158,7 @@ if get(g:, 'checker_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'checker_no_commands') == 0
+if !get(g:, 'checker_no_commands')
   command! CheckerEnable execute "normal \<Plug>(checker-enable)"
   command! CheckerDisable execute "normal \<Plug>(checker-disable)"
   command! CheckerToggle execute "normal \<Plug>(checker-toggle)"

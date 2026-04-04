@@ -78,7 +78,7 @@ nnoremap <silent> <script> <Plug>(lsp-running) <ScriptCmd>lsp.Running()<CR>
 nnoremap <silent> <script> <Plug>(lsp-ready) <ScriptCmd>lsp.Ready()<CR>
 
 # set mappings
-if get(g:, 'lsp_no_mappings') == 0
+if !get(g:, 'lsp_no_mappings')
   if empty(mapcheck("<leader>gd", "n"))
     nnoremap <leader>gd <Plug>(lsp-definition)
   endif
@@ -103,7 +103,7 @@ if get(g:, 'lsp_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'lsp_no_commands') == 0
+if !get(g:, 'lsp_no_commands')
   command! LSPStart execute "normal \<Plug>(lsp-start)"
   command! LSPStop execute "normal \<Plug>(lsp-stop)"
   command! LSPStopAll execute "normal \<Plug>(lsp-stop-all)"

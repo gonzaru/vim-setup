@@ -141,14 +141,14 @@ nnoremap <silent> <script> <Plug>(se-resize-maxcol) <ScriptCmd>se.Resize("maxcol
 # see ../ftplugin/se.vim
 
 # set mappings
-if get(g:, 'se_no_mappings') == 0
+if !get(g:, 'se_no_mappings')
   if empty(mapcheck("<leader>se", "n"))
     nnoremap <leader>se <Plug>(se-toggle)
   endif
 endif
 
 # set commands
-if get(g:, 'se_no_commands') == 0
+if !get(g:, 'se_no_commands')
   command! -nargs=? -complete=dir_in_path Se {
     var arg = fnamemodify(expand('<args>'), ":p")
     if !empty(arg) && isdirectory(arg)

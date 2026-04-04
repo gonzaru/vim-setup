@@ -35,7 +35,7 @@ nnoremap <silent> <script> <Plug>(runprg-window)
 nnoremap <silent> <script> <Plug>(runprg-close) <ScriptCmd>runprg.Close()<CR>
 
 # set mappings
-if get(g:, 'runprg_no_mappings') == 0
+if !get(g:, 'runprg_no_mappings')
   if empty(mapcheck("<leader>ru", "n"))
     nnoremap <leader>ru <Plug>(runprg-run)
   endif
@@ -48,7 +48,7 @@ if get(g:, 'runprg_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'runprg_no_commands') == 0
+if !get(g:, 'runprg_no_commands')
   command! Run execute "normal \<Plug>(runprg-run)"
   command! RunWindow execute "normal \<Plug>(runprg-window)"
   command! RunClose execute "normal \<Plug>(runprg-close)"

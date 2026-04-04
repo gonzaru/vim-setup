@@ -21,7 +21,7 @@ inoremap <silent> <script> <Plug>(autoclosechars-bracketleft)
   \ <C-r>=<SID>autoclosechars.Close("bracketleft", getchar())<CR>
 
 # set mappings
-if get(g:, 'autoclosechars_no_mappings') == 0
+if !get(g:, 'autoclosechars_no_mappings')
   if empty(mapcheck("[", "i"))
     inoremap [ [<Plug>(autoclosechars-bracketleft)
   endif
@@ -37,7 +37,7 @@ if get(g:, 'autoclosechars_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'autoclosechars_no_commands') == 0
+if !get(g:, 'autoclosechars_no_commands')
   command! AutoCloseCharsEnable g:autoclosechars_enabled = true
   command! AutoCloseCharsDisable g:autoclosechars_enabled = false
   command! AutoCloseCharsToggle execute "normal \<Plug>(autoclosechars-toggle)"

@@ -16,7 +16,7 @@ nnoremap <silent> <script> <Plug>(scratch-buffer) <ScriptCmd>scratch.Buffer()<CR
 nnoremap <silent> <script> <Plug>(scratch-terminal) <ScriptCmd>scratch.Terminal()<CR>
 
 # set mappings
-if get(g:, 'scratch_no_mappings') == 0
+if !get(g:, 'scratch_no_mappings')
   if empty(mapcheck("<leader>s<BS>", "n"))
     nnoremap <silent><leader>s<BS> <Plug>(scratch-buffer)
   endif
@@ -32,7 +32,7 @@ if get(g:, 'scratch_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'scratch_no_commands') == 0
+if !get(g:, 'scratch_no_commands')
   command! ScratchBuffer execute "normal \<Plug>(scratch-buffer)"
   command! ScratchTerminal execute "normal \<Plug>(scratch-terminal)"
 endif

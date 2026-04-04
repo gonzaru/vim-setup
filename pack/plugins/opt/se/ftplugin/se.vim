@@ -33,7 +33,7 @@ setlocal noswapfile
 setlocal nobuflisted
 setlocal buftype=nofile
 setlocal bufhidden=hide
-if get(g:, 'se_no_mappings') == 0
+if !get(g:, 'se_no_mappings')
   nnoremap <buffer> <nowait> q <Plug>(se-close)
   nnoremap <buffer> <nowait> <ESC> <Plug>(se-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(se-gofile-edit)

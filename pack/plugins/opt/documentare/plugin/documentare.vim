@@ -16,14 +16,14 @@ nnoremap <silent> <script> <Plug>(documentare-doc) <ScriptCmd>documentare.Doc(&f
 nnoremap <silent> <script> <Plug>(documentare-close) <ScriptCmd>documentare.Close()<CR>
 
 # set mappings
-if get(g:, 'documentare_no_mappings') == 0
+if !get(g:, 'documentare_no_mappings')
   if empty(mapcheck("<leader>K", "n"))
     nnoremap <leader>K <Plug>(documentare-doc)
   endif
 endif
 
 # set commands
-if get(g:, 'documentare_no_commands') == 0
+if !get(g:, 'documentare_no_commands')
   command! DocumentareDoc execute "normal \<Plug>(documentare-doc)"
   command! DocumentareClose execute "normal \<Plug>(documentare-close)"
 endif

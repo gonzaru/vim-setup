@@ -92,14 +92,14 @@ nnoremap <silent> <script> <Plug>(xkb-layout-next) <ScriptCmd>xkb.Layout([], "ne
 nnoremap <silent> <script> <Plug>(xkb-toggle-layout) <ScriptCmd>xkb.ToggleLayout()<CR>
 
 # set mappings
-if get(g:, 'xkb_no_mappings') == 0
+if !get(g:, 'xkb_no_mappings')
   if empty(mapcheck("<leader>xt", "n"))
     nnoremap <leader>xt <Plug>(xkb-toggle-layout)
   endif
 endif
 
 # set commands
-if get(g:, 'xkb_no_commands') == 0
+if !get(g:, 'xkb_no_commands')
   command! XKBLayoutFirst execute "normal \<Plug>(xkb-layout-first)"
   command! XKBLayoutNext execute "normal \<Plug>(xkb-layout-next)"
   command! XKBToggleLayout execute "normal \<Plug>(xkb-toggle-layout)"

@@ -40,7 +40,7 @@ nnoremap <silent> <script> <Plug>(session-close) <ScriptCmd>session.Close()<CR>
 nnoremap <silent> <script> <Plug>(session-close!) <ScriptCmd>session.Close(true)<CR>
 
 # set mappings
-if get(g:, 'session_no_mappings') == 0
+if !get(g:, 'session_no_mappings')
   if empty(mapcheck('<leader>pw', 'n'))
     nnoremap <silent><leader>pw <Plug>(session-write)
   endif
@@ -62,7 +62,7 @@ if get(g:, 'session_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'session_no_commands') == 0
+if !get(g:, 'session_no_commands')
   command! -nargs=0 -bang SessionClose session.Close(!empty('<bang>'))
   command! -nargs=0 SessionRename execute "normal \<Plug>(session-rename)"
   command! -nargs=1 -complete=customlist,session.CompleteLoad SessionLoad session.Load(g:session_directory, '<args>')

@@ -38,7 +38,7 @@ nnoremap <silent> <script> <Plug>(viewmode-toggle) <ScriptCmd>viewmode.Toggle()<
 nnoremap <silent> <script> <Plug>(viewmode-help) <ScriptCmd>viewmode.Help()<CR>
 
 # set mappings
-if get(g:, 'viewmode_no_mappings') == 0
+if !get(g:, 'viewmode_no_mappings')
   if empty(mapcheck("<leader>we", "n"))
     nnoremap <leader>we <Plug>(viewmode-enable)
   endif
@@ -54,7 +54,7 @@ if get(g:, 'viewmode_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'viewmode_no_commands') == 0
+if !get(g:, 'viewmode_no_commands')
   command! ViewModeEnable execute "normal \<Plug>(viewmode-enable)"
   command! ViewModeDisable execute "normal \<Plug>(viewmode-disable)"
   command! ViewModeToggle execute "normal \<Plug>(viewmode-toggle)"

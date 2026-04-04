@@ -81,7 +81,7 @@ nnoremap <silent> <script> <Plug>(cmplwild-disable) <ScriptCmd>cmplwild.Disable(
 nnoremap <silent> <script> <Plug>(cmplwild-toggle) <ScriptCmd>cmplwild.Toggle()<CR>
 
 # set mappings
-if get(g:, 'cmplwild_no_mappings') == 0
+if !get(g:, 'cmplwild_no_mappings')
   if empty(mapcheck("<Left>", "c"))
     cnoremap <expr> <Left> wildmenumode() ? "\<C-e>\<Left>" : "\<Left>"
   endif
@@ -97,7 +97,7 @@ if get(g:, 'cmplwild_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'cmplwild_no_commands') == 0
+if !get(g:, 'cmplwild_no_commands')
   command! CmplWildEnable execute "normal \<Plug>(cmplwild-enable)"
   command! CmplWildDisable execute "normal \<Plug>(cmplwild-disable)"
   command! CmplWildToggle execute "normal \<Plug>(cmplwild-toggle)"

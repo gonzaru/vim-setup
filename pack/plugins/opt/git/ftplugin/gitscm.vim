@@ -26,7 +26,7 @@ setlocal noswapfile
 setlocal nobuflisted
 setlocal buftype=nowrite
 setlocal bufhidden=wipe
-if get(g:, 'git_no_mappings') == 0
+if !get(g:, 'git_no_mappings')
   nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action)
   nnoremap <buffer> <nowait> <silent> <ESC> <Plug>(git-close)
   nnoremap <buffer> <nowait> <silent> gA <Plug>(git-add-file)

@@ -23,7 +23,7 @@ nnoremap <silent> <script> <Plug>(menu-menu-add-extra) <ScriptCmd>menu.AddMenuEx
 nnoremap <silent> <script> <Plug>(menu-menu-del-extra) <ScriptCmd>menu.DelMenuExtra()<CR>
 
 # set mappings
-if get(g:, 'menu_no_mappings') == 0
+if !get(g:, 'menu_no_mappings')
   if empty(mapcheck("<leader>me", "n"))
     nnoremap <leader>me <Plug>(menu-menu-add-extra)
   endif
@@ -39,7 +39,7 @@ if get(g:, 'menu_no_mappings') == 0
 endif
 
 # set commands
-if get(g:, 'menu_no_commands') == 0
+if !get(g:, 'menu_no_commands')
   command! MenuAddExtra execute "normal \<Plug>(menu-menu-add-extra)"
   command! MenuDelExtra execute "normal \<Plug>(menu-menu-del-extra)"
   # TODO: <Plug>?

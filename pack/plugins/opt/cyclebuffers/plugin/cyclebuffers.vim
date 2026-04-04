@@ -36,14 +36,14 @@ nnoremap <silent> <script> <Plug>(cyclebuffers-select-vsplit) <ScriptCmd>cyclebu
 nnoremap <silent> <script> <Plug>(cyclebuffers-select-tabedit) <ScriptCmd>cyclebuffers.SelectBuffer(line('.'), "tabedit")<CR>
 
 # set mappings
-if get(g:, 'cyclebuffers_no_mappings') == 0
+if !get(g:, 'cyclebuffers_no_mappings')
   if empty(mapcheck("<leader><Space>", "n"))
     nnoremap <leader><Space> <Plug>(cyclebuffers-cycle)
   endif
 endif
 
 # set commands
-if get(g:, 'cyclebuffers_no_commands') == 0
+if !get(g:, 'cyclebuffers_no_commands')
   command! CycleBuffers execute "normal \<Plug>(cyclebuffers-cycle)"
   command! CycleOldFiles execute "normal \<Plug>(cyclebuffers-oldfiles)"
 endif
