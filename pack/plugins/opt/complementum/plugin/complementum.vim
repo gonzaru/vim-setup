@@ -95,36 +95,62 @@ augroup complementum_insert
   autocmd!
 
   # TODO: test KeyInputPre
-  # autocmd InsertCharPre * {
-  #   if g:complementum_enabled && &buftype == '' && !&autocomplete
-  #     if !pumvisible() && state('m') == ''
-  #       complementum.Complete(&filetype, v:char)
+  var _timer = -1
+  autocmd InsertCharPre * {
+    var triggers = get(g:complementum_omnichars, &filetype, [])
+    var is_trigger_omni = (index(triggers, v:char) >= 0) || (v:char == ':' && index(triggers, '::') >= 0 && getline('.')->strpart(col('.') - 2, 1) == ':')
+    if g:complementum_enabled && &buftype == '' && !&autocomplete && !pumvisible() && state('m') == '' && (v:char =~ '\k' || is_trigger_omni)
+      timer_stop(_timer)
+      var vchar = v:char
+      _timer = timer_start(is_trigger_omni ? 0 : g:complementum_autodelay, (_) => complementum.Complete(&filetype, vchar))
+    else
+      timer_stop(_timer)
+    endif
+  }
+
+  # https://www.vim.org/vim-9.2-released.php
+  # var _timer = -1
+  # autocmd TextChangedI * {
+  #   if g:complementum_enabled && &buftype == ''
+  #     # character before the cursor is a "word" character (\k) '\k$'
+  #     if !pumvisible() && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+  #       timer_stop(_timer)
+  #       _timer = timer_start(g:complementum_autodelay, (_) => complementum.InsComplete())
+  #     else
+  #       timer_stop(_timer)
   #     endif
   #   endif
   # }
 
-  # https://www.vim.org/vim-9.2-released.php
-  var _timer = -1
-  autocmd TextChangedI * {
-    if g:complementum_enabled && &buftype == ''
-      # character before the cursor is a "word" character (\k) '\k$'
-      if !pumvisible() && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
-        timer_stop(_timer)
-        _timer = timer_start(g:complementum_autodelay, (_) => complementum.InsComplete())
-      else
-        timer_stop(_timer)
-      endif
-    endif
-  }
+  # workaround inoremap <C-n> <Up> does not work in omni
+  # workaround inoremap <C-p> <Down> does not work in omni
+  # autocmd CompleteChanged * {
+  #   var info = complete_info(['mode'])
+  #   if info.mode == 'omni' && &completeopt !~ 'preinsert'
+  #     setlocal completeopt+=preinsert
+  #   endif
+  # }
+
+  # workaround inoremap <C-n> <Up> does not work in omni
+  # workaround inoremap <C-p> <Down> does not work in omni
+  # autocmd CompleteDonePre * {
+  #   var info = complete_info(['mode'])
+  #   if info.mode == 'omni' && &completeopt !~ 'preinsert'
+  #     setlocal completeopt-=preinsert
+  #   endif
+  # }
+
+  # avoid complete after complete
+  # autocmd CompleteDone * complementum.SkipTextChangedIEvent()
 augroup END
 
 # close completion
-if !get(g:, 'echords_enabled')
-  # inoremap <silent> <C-e> <C-r>=<SID>complementum.SkipTextChangedIEvent()<CR><C-e>
-  inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<C-e>"
-else
-  inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<End>"
-endif
+# if !get(g:, 'echords_enabled')
+#   # inoremap <silent> <C-e> <C-r>=<SID>complementum.SkipTextChangedIEvent()<CR><C-e>
+#   inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<C-e>"
+# else
+#   inoremap <expr> <C-e> pumvisible() ? (complementum.SkipTextChangedIEvent() .. "\<C-e>") : "\<End>"
+# endif
 
 # dict
 # augroup complementum_dict

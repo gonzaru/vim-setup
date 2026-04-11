@@ -217,24 +217,24 @@ def HasTriggerOmniKey(skip: string = ''): bool
 enddef
 
 # insert complete
-export def InsComplete()
-  var minchars = g:complementum_minchars
-  # '\k$'
-  if getcharstr(1) == '' && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. minchars .. ',}$'
-    SkipTextChangedIEvent()
-    feedkeys(g:complementum_keystroke_default, 'n')
-  endif
-enddef
+# export def InsComplete()
+#   var minchars = g:complementum_minchars
+#   # '\k$'
+#   if getcharstr(1) == '' && getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. minchars .. ',}$'
+#     SkipTextChangedIEvent()
+#     feedkeys(g:complementum_keystroke_default, 'n')
+#   endif
+# enddef
 
 # skip text changed event
-export def SkipTextChangedIEvent(): string
-  # Suppress next event caused by <C-e> (or <C-n> when no matches found)
-  set eventignore+=TextChangedI
-  timer_start(1, (_) => {
-    set eventignore-=TextChangedI
-  })
-  return ''
-enddef
+# export def SkipTextChangedIEvent(): string
+#   # Suppress next event caused by <C-e> (or <C-n> when no matches found)
+#   set eventignore+=TextChangedI
+#   timer_start(1, (_) => {
+#     set eventignore-=TextChangedI
+#   })
+#   return ''
+# enddef
 
 # complete (default)
 export def Complete(lang: string, ichar: string): void

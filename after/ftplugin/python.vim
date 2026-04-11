@@ -24,7 +24,7 @@ setlocal cinwords=if,elif,else,for,while,try,except,finally,def,class
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
   # setlocal complete^=o^10
-  if &autocomplete || get(g:, "complementum_enabled")
+  if &autocomplete && !get(g:, "complementum_enabled")
     # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
     # trigger for '.'
     inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
