@@ -21,7 +21,7 @@ setlocal nolist
 setlocal noswapfile
 setlocal nobuflisted
 setlocal nomodifiable
-setlocal buftype=nowrite
+setlocal buftype=nofile
 setlocal bufhidden=wipe
 if !get(g:, 'cyclebuffers_no_mappings')
   nnoremap <buffer> <nowait> <ESC> <Plug>(cyclebuffers-close)

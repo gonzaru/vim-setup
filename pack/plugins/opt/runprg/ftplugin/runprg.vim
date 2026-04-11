@@ -24,7 +24,7 @@ setlocal winfixwidth
 setlocal noswapfile
 setlocal nobuflisted
 setlocal nomodifiable
-setlocal buftype=nowrite
+setlocal buftype=nofile
 setlocal bufhidden=wipe
 
 # undo

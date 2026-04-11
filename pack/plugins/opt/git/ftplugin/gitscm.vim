@@ -24,7 +24,7 @@ setlocal nospell
 setlocal nolist
 setlocal noswapfile
 setlocal nobuflisted
-setlocal buftype=nowrite
+setlocal buftype=nofile
 setlocal bufhidden=wipe
 if !get(g:, 'git_no_mappings')
   nnoremap <buffer> <nowait> <silent> <CR> <Plug>(git-do-action)
