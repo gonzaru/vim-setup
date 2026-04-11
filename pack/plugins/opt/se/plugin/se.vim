@@ -26,6 +26,9 @@ endif
 if !exists('g:se_focusrefresh')
   g:se_focusrefresh = true
 endif
+if !exists('g:se_editdot')
+  g:se_editdot = true
+endif
 if !exists('g:se_dirsfirst')
   g:se_dirsfirst = false
 endif
@@ -78,11 +81,28 @@ endif
 # focus se
 if get(g:, 'se_focusrefresh')
   augroup se_focus
+    autocmd!
     autocmd FileType se {
       autocmd WinEnter <buffer> se.Refresh()
       # TODO: why lost the cursor?
       # autocmd BufWinEnter <buffer> se.Refresh()
     }
+  augroup END
+endif
+
+# edit dot -> :edit .
+if get(g:, 'se_editdot')
+  augroup se_editdot
+  autocmd!
+  autocmd BufEnter * {
+    if &filetype != 'se' && &buftype == '' && !&modified  # && line('$') <= 1 && getline(1) == ''
+      var path = expand('%:p')
+      if !empty(path) && isdirectory(path)
+        silent! bwipeout!
+        execute $":Se {path}"
+      endif
+    endif
+  }
   augroup END
 endif
 
