@@ -11,9 +11,14 @@ g:autoloaded_calculator = true
 # script local variables
 const BUFFER_NAME = $"calculator_{strcharpart(sha256('calculator'), 0, 8)}"
 
+# gets Run buffer window id
+def GetRunBufWinId(): number
+  return bufexists(BUFFER_NAME) ? bufwinid(BUFFER_NAME) : -1
+enddef
+
 # close
 export def Close()
-  var runwinid = bufexists(BUFFER_NAME)
+  var runwinid = GetRunBufWinId()
   if runwinid > 0
     win_execute(runwinid, "bw")
   endif
