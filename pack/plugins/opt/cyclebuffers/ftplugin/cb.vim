@@ -25,6 +25,7 @@ setlocal buftype=nofile
 setlocal bufhidden=wipe
 if !get(g:, 'cyclebuffers_no_mappings')
   nnoremap <buffer> <nowait> <ESC> <Plug>(cyclebuffers-close)
+  nnoremap <buffer> <nowait> q <Plug>(cyclebuffers-close)
   nnoremap <buffer> <nowait> <CR> <Plug>(cyclebuffers-select-edit)
   nnoremap <buffer> <nowait> <Space> <Plug>(cyclebuffers-select-pedit)
   nnoremap <buffer> <nowait> d <plug>(cyclebuffers-select-delete)
@@ -46,6 +47,7 @@ endif
 # undo
 b:undo_ftplugin = 'setlocal statusline< winfixbuf< signcolumn< number< cursorline< cursorcolumn< wrap< spell< list< swapfile< buflisted< modifiable< buftype< bufhidden<'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Esc>'
+b:undo_ftplugin ..= ' | silent! nunmap q <Esc>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <CR>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> <Space>'
 b:undo_ftplugin ..= ' | silent! nunmap <buffer> d'

@@ -36,7 +36,7 @@ export def Help()
     P        # close the preview window
     J        # edit the next buffer in a preview window
     K        # edit the previous buffer in a preview window
-    <ESC>    # close cyclebuffers window
+    <ESC>    # close cyclebuffers window [q]
     <F1>     # shows cyclebuffers help information [H]
   END
   echo join(lines, "\n")
