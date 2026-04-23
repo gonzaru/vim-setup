@@ -360,27 +360,28 @@ export def SetMaxFoldLevel()
 enddef
 
 # set python3 with dynamic support
-export def SetPythonDynamic()
+export def SetPythonDynamic(): void
   var homepython: string
   var libpython: string
-  if has("python3_dynamic")
-    if has('mac')
-      homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
-      libpython = $"{homepython}/Python3"
-    elseif has('linux')
-      homepython = "/usr"
-      try
-        libpython = sort(
-          globpath($"{homepython}/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
-          (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
-        )[-1]
-      catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
-      endtry
-    endif
-    if isdirectory(homepython) && filereadable(libpython)
-      execute $"set pythonthreehome={homepython}"
-      execute $"set pythonthreedll={libpython}"
-    endif
+  if !has("python3_dynamic")
+    return
+  endif
+  if has('mac')
+    homepython = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/Current"
+    libpython = $"{homepython}/Python3"
+  elseif has('linux')
+    homepython = "/usr"
+    try
+      libpython = sort(
+        globpath($"{homepython}/lib/x86_64-linux-gnu", "libpython3*.so.1", 0, 1),
+        (s1: string, s2: string): number => str2nr(split(s1, "\\.")[1]) - str2nr(split(s2, "\\.")[1])
+      )[-1]
+    catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range: libpython3*.so.1 was not found
+    endtry
+  endif
+  if isdirectory(homepython) && filereadable(libpython)
+    execute $"set pythonthreehome={homepython}"
+    execute $"set pythonthreedll={libpython}"
   endif
 enddef
 
@@ -528,18 +529,18 @@ export def SetGuiFont(arg: any = v:none): void
       'JetBrainsMono Nerd Font Medium 11.5',   # ligatures
       'JetBrainsMonoNL 11.5',                  # no ligatures
       'JetBrainsMonoNL Medium 11.5',           # no ligatures
-      'Lilex 12.5',                            # ligatures
-      'Lilex Medium 12.5',                     # ligatures
+      'Lilex 12.0',                            # ligatures
+      'Lilex Medium 12.0',                     # ligatures
       'Monaspace Neon 12.0',                   # ligatures
       'Monaspace Neon Medium 12.0',            # ligatures
       'MonoLisa 12.0',                         # ligatures
       'MonoLisa Medium 12.0',                  # ligatures
     # 'MonoLisa Freezed Regular 12.0',         # ligatures (g replaced)
     # 'MonoLisa Freezed Medium 12.0',          # ligatures (g replaced)
-      'SF Mono 12.0',
-      'SF Mono Medium 12.0',
-    # 'SFMono Nerd Font 12.0',
-    # 'SFMono Nerd Font Medium 12.0',
+      'SF Mono 12.5',
+      'SF Mono Medium 12.5',
+    # 'SFMono Nerd Font 12.5',
+    # 'SFMono Nerd Font Medium 12.5',
       'Victor Mono 13.1',                      # ligatures
       'Victor Mono Medium 13.1'                # ligatures
     ]
