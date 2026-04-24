@@ -43,15 +43,19 @@ if (executable("sh") || executable("bash")) && executable(TOOL['sh']['exttool'])
     autocmd!
     # autocmd DiffUpdated FileType sh b:checker_enabled = false
     autocmd FileType sh {
-      autocmd BufWinEnter <buffer>
-      \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "read")
+      if g:checker_enabled
+        autocmd BufWinEnter <buffer>
+        \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "read")
+      endif
     }
     autocmd FileType sh {
-      autocmd BufWrite <buffer>
-      \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, 'format_sh_on_write') |
-      \   format#Language("sh", expand("%:p")) |
-      \ endif
+      if g:checker_enabled
+        autocmd BufWrite <buffer>
+        \ checker.DoChecker("sh", TOOL['sh']['default'], TOOL['sh']['exttool'], expand('<afile>:p'), "write") |
+        \ if get(g:, 'format_enabled') && get(g:, 'format_sh_on_write') |
+        \   format#Language("sh", expand("%:p")) |
+        \ endif
+      endif
     }
   augroup END
 endif
@@ -62,15 +66,19 @@ if executable("python3") && (executable(TOOL['python']['exttool']) || executable
     autocmd!
     # autocmd DiffUpdated FileType python b:checker_enabled = false
     autocmd FileType python {
-      autocmd BufWinEnter <buffer>
-      \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "read")
+      if g:checker_enabled
+        autocmd BufWinEnter <buffer>
+        \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "read")
+      endif
     }
     autocmd FileType python {
-      autocmd BufWrite <buffer>
-      \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, 'format_python_on_write') |
-      \   format#Language("python", expand("%:p")) |
-      \ endif
+      if g:checker_enabled
+        autocmd BufWrite <buffer>
+        \ checker.DoChecker("python", TOOL['python']['default'], TOOL['python']['exttool'], expand('<afile>:p'), "write") |
+        \ if get(g:, 'format_enabled') && get(g:, 'format_python_on_write') |
+        \   format#Language("python", expand("%:p")) |
+        \ endif
+      endif
     }
   augroup END
 endif
@@ -81,15 +89,19 @@ if executable("go") && executable("gofmt")
     autocmd!
     # autocmd DiffUpdated *.go b:checker_enabled = false
     autocmd FileType go {
-      autocmd BufWinEnter <buffer>
-      \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "read")
+      if g:checker_enabled
+        autocmd BufWinEnter <buffer>
+        \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "read")
+      endif
     }
     autocmd FileType go {
-      autocmd BufWrite <buffer>
-      \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, 'format_go_on_write') |
-      \   format#Language("go", expand("%:p")) |
-      \ endif
+      if g:checker_enabled
+        autocmd BufWrite <buffer>
+        \ checker.DoChecker("go", TOOL['go']['default'], TOOL['go']['exttool'], expand('<afile>:p'), "write") |
+        \ if get(g:, 'format_enabled') && get(g:, 'format_go_on_write') |
+        \   format#Language("go", expand("%:p")) |
+        \ endif
+      endif
     }
   augroup END
 endif
@@ -100,15 +112,19 @@ if executable("rustc")
     autocmd!
     # autocmd DiffUpdated *.rs b:checker_enabled = false
     autocmd FileType rust {
-      autocmd BufWinEnter <buffer>
-      \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "read")
+      if g:checker_enabled
+        autocmd BufWinEnter <buffer>
+        \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "read")
+      endif
     }
     autocmd FileType rust {
-      autocmd BufWrite <buffer>
-      \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "write") |
-      \ if get(g:, 'format_enabled') && get(g:, 'format_rust_on_write') |
-      \   format#Language("rust", expand("%:p")) |
-      \ endif
+      if g:checker_enabled
+        autocmd BufWrite <buffer>
+        \ checker.DoChecker("rust", TOOL['rust']['default'], TOOL['rust']['exttool'], expand('<afile>:p'), "write") |
+        \ if get(g:, 'format_enabled') && get(g:, 'format_rust_on_write') |
+        \   format#Language("rust", expand("%:p")) |
+        \ endif
+      endif
     }
   augroup END
 endif
