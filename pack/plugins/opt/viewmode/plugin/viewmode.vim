@@ -21,7 +21,7 @@ augroup viewmode_readonly
   autocmd!
   # :set readonly
   autocmd OptionSet readonly {
-    if g:viewmode_auto_readonly
+    if g:viewmode_enabled && g:viewmode_auto_readonly
       if v:option_new == "1"
         viewmode.Enable()
       else
