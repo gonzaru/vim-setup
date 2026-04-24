@@ -39,8 +39,9 @@ if get(g:, "complementum_enabled")
 endif
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
-  # setlocal complete^=o^10
-  if &autocomplete && !get(g:, "complementum_enabled")
+  setlocal complete^=o^10
+  if ((&autocomplete && !get(g:, "complementum_enabled")) || (get(g:, "complementum_enabled") && !get(g:, "complementum_autopopup")))
+  && reg_recording() == ''
     # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
     # trigger for '.'
     inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
