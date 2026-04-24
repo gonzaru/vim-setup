@@ -89,6 +89,7 @@ g:arrowkeys_enabled = true        # enable/disable arrow keys
 g:autoclosechars_enabled = false  # automatic close of chars
 g:autoendstructs_enabled = true   # automatic end of structures
 g:bufferonly_enabled = true       # remove all buffers except the current one
+g:calculator_enabled = true       # calculator
 g:checker_enabled = true          # checker plugin
 g:cmplwild_enabled = true         # complete command-line
 g:commentarium_enabled = true     # comment by language
@@ -103,6 +104,7 @@ g:habit_enabled = false           # habit
 g:lsp_enabled = true              # lsp
 g:menu_enabled = true             # menu options
 g:misc_enabled = true             # miscelania functions
+g:pyvenv_enabled = true           # pyvenv for python
 g:runprg_enabled = true           # run programs
 g:scratch_enabled = true          # scratch stuff
 g:se_enabled = true               # se plugin (simple explorer)
@@ -121,6 +123,7 @@ const plugins = [
   'autoclosechars',
   'autoendstructs',
   'bufferonly',
+  'calculator',
   'checker',
   'cmplwild',
   'commentarium',
@@ -134,6 +137,7 @@ const plugins = [
   'habit',
   'lsp',
   'menu',
+  'pyvenv',
   'runprg',
   'scratch',
   'se',
@@ -178,15 +182,21 @@ if g:complementum_enabled
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
   g:complementum_minchars = 1
-  g:complementum_autodelay = 300  # ms
-  # TODO: 1 vs true (true fails now)
-  g:complementum_no_mappings = 1
+  g:complementum_autodelay = 500  # ms
+  g:complementum_autopopup = false
+  g:complementum_no_mappings = true
 endif
 
 # cyclebuffers plugin
 if g:cyclebuffers_enabled
   g:cyclebuffers_position = "bottom"  # top, bottom
   g:cyclebuffers_oldfiles_limit = 15  # default is 0 (no limit)
+endif
+
+# echords plugin
+if g:echords_enabled
+  g:echords_auto_enable = true
+  g:echords_extra_mappings = true
 endif
 
 # esckey plugin
@@ -243,6 +253,11 @@ if g:menu_enabled
   g:menu_add_menu_extra = true
 endif
 
+# pyvenv plugin
+if g:pyvenv_enabled
+  g:pyvenv_lsp_restart = true
+endif
+
 # se plugin (simple explorer)
 if g:se_enabled
   g:se_colors = true
@@ -269,6 +284,7 @@ endif
 if g:statusline_enabled
   g:statusline_gitbranch = true
   g:statusline_gitstatusfile = true
+  g:statusline_pyvenv = true
 endif
 
 # view mode plugin
@@ -462,6 +478,80 @@ if !has('gui_running')
     map <Char-8203> <S-Space>
     map! <Char-8203> <S-Space>
     tnoremap <Char-8203> <Nop>
+    # use <S-CR> <Char-8204> \u200c (see alacritty.toml)
+    map <Char-8204> <S-CR>
+    map! <Char-8204> <S-CR>
+    tnoremap <Char-8204> <Nop>
+    # use <C-S-a> <Char-8205> \u200d (see alacritty.toml)
+    # does not work <C-S-a>
+    map <Char-8205> <F13>
+    map! <Char-8205> <F13>
+    tnoremap <Char-8205> <Nop>
+    # use <C-S-e> <Char-8206> \u200e (see alacritty.toml)
+    # does not work <C-S-e>
+    map <Char-8206> <F14>
+    map! <Char-8206> <F14>
+    tnoremap <Char-8206> <Nop>
+    # use <C-S-f> <Char-8207> \u200f (see alacritty.toml)
+    map <Char-8207> <C-S-BackSpace>
+    map! <Char-8207> <C-S-BackSpace>
+    tnoremap <Char-8207> <Nop>
+    # use <C-S-_> <Char-8208> \u2010 (see alacritty.toml)
+    map <Char-8208> <F15>
+    map! <Char-8208> <F15>
+    tnoremap <Char-8208> <Nop>
+    # use <C-S-?> <Char-8209> \u2011 (see alacritty.toml)
+    map <Char-8209> <F16>
+    map! <Char-8209> <F16>
+    tnoremap <Char-8209> <Nop>
+    # use <C-M-S-_> <Char-8210> \u2012 (see alacritty.toml)
+    map <Char-8210> <F17>
+    map! <Char-8210> <F17>
+    tnoremap <Char-8210> <Nop>
+    # use <C-S-Up> <Char-8211> \u2013 (see alacritty.toml)
+    map <Char-8211> <F18>
+    map! <Char-8211> <F18>
+    tnoremap <Char-8211> <Nop>
+    # use <C-S-Down> <Char-8212> \u2014 (see alacritty.toml)
+    map <Char-8212> <F19>
+    map! <Char-8212> <F19>
+    tnoremap <Char-8212> <Nop>
+    # use <C-M-S-v> <Char-8213> \u2015 (see alacritty.toml)
+    map <Char-8213> <F20>
+    map! <Char-8213> <F20>
+    tnoremap <Char-8213> <Nop>
+    # use <C-S-n> <Char-8214> \u2016 (see alacritty.toml)
+    map <Char-8214> <F21>
+    map! <Char-8214> <F21>
+    tnoremap <Char-8214> <Nop>
+    # use <C-S-p> <Char-8215> \u2017 (see alacritty.toml)
+    map <Char-8215> <F22>
+    map! <Char-8215> <F22>
+    tnoremap <Char-8215> <Nop>
+    # use <M-@> <Char-2018> \u2018 (see alacritty.toml)
+    map <Char-8216> <M-Space>
+    map! <Char-8216> <M-Space>
+    tnoremap <Char-8216> <M-Space>
+    # use <M-n> <Char-8217> \u2019 (see alacritty.toml)
+    map <Char-8217> <M-n>
+    map! <Char-8217> <M-n>
+    tnoremap <Char-8217> <Nop>
+    # use <M-p> <Char-8218> \u201A (see alacritty.toml)
+    map <Char-8218> <M-p>
+    map! <Char-8218> <M-p>
+    tnoremap <Char-8218> <Nop>
+    # use <M-[> <Char-8219> \u201B (see alacritty.toml)
+    map ‛ <M-[>
+    map! ‛ <M-[>
+    tnoremap ‛ <Nop>
+    # use <M-]> <Char-8220> \u201C (see alacritty.toml)
+    map <Char-8220> <M-]>
+    map! <Char-8220> <M-]>
+    tnoremap <Char-8220> <Nop>
+    # use <M-Tab> <Char-8221> \u201D (see alacritty.toml)
+    map <Char-8221> <M-Tab>
+    map! <Char-8221> <M-Tab>
+    tnoremap <Char-8221> <Nop>
   endif
 endif
 
@@ -473,11 +563,11 @@ if has('gui_running')
     set guifont=Menlo\ Regular:h16
     # set antialias
   else
-    if 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Regular.otf")
-      execute $"set guifont=SF\\ Mono\\ 12.0"
+    if 1 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Regular.otf")
+      execute $"set guifont=SF\\ Mono\\ 12.5"
     elseif 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
-      execute $"set guifont=SF\\ Mono\\ Medium\\ 12.0"
-    elseif 1 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Regular.ttc")
+      execute $"set guifont=SF\\ Mono\\ Medium\\ 12.5"
+    elseif 0 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Regular.ttc")
       # execute $"set guifont=Iosevka\\ 13.0"                      # 12.0, 14.5
       # execute $"set guifont=Iosevka\\ Medium\\ 13.0"
       execute $"set guifont=Iosevka\\ Extended\\ 12.0"             # 12.0
@@ -697,10 +787,10 @@ endif
 # completion
 setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>)
 if &autocomplete
-  setglobal completeopt=menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
+  setglobal completeopt=menu,menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 else
   # setglobal completeopt=menuone,noinsert
-  setglobal completeopt=menuone,noselect
+  setglobal completeopt=menu,menuone,noselect
   # setglobal completeopt=menuone,preinsert
 endif
 if &completeopt =~ 'preinsert'
@@ -732,7 +822,7 @@ if has('popupwin')
           set completepopup+=highlight:Pmenu
         endif
       }
-      augroup END
+    augroup END
   endif
 endif
 # .: the current buffer
@@ -747,6 +837,9 @@ set pumborder=       # defines a border for the popup (default: empty) (hl-Pmenu
 set pumheight=10     # maximum number of items to show in the popup menu (default: 0)
 set pumwidth=15      # minimum width to use for the popup menu (default: 15)
 set pummaxwidth=100  # maximum width to use for the popup menu (default: 0)
+
+# map <S-CR> (close completion + CR)
+inoremap <expr> <S-CR> pumvisible() ? "\<C-e>\<CR>"  : "\<S-CR>"
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -813,8 +906,23 @@ g:maplocalleader = "\<C-_>"
 # inoremap <expr> <silent> <BS> get(g:, 'complementum_enabled') ? '<Plug>(complementum-backspace)' : "\<BS>"
 def MapInsertTab(mode: string): string
   var keystroke = "\<Tab>"
+  # recording @macro
+  if reg_recording() != ''
+    return keystroke
+  endif
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
+  elseif g:complementum_enabled && !g:complementum_autopopup && !pumvisible()
+    # var line = getline('.')
+    # if !empty(trim(line)) && line->strpart(0, col('.') - 1) =~ '^\s*$'
+    #   # indent
+    #   keystroke = "\<C-\>\<C-n>==I"
+    # elseif line->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+    #   keystroke = g:complementum_keystroke_default
+    # endif
+    if getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+      keystroke = g:complementum_keystroke_default
+    endif
   elseif &completeopt =~ 'preinsert' && preinserted()
     var info = complete_info()
     if info.pum_visible
@@ -832,6 +940,7 @@ def MapInsertTab(mode: string): string
       # var info = complete_info()
       # keystroke = (info.selected == -1) ? "\<C-n>\<C-y>" : "\<C-y>"
       keystroke = (mode == 'tab') ? "\<C-n>" : "\<C-p>"  # tab, stab
+      # keystroke = (mode == 'tab') ? "\<Down>" : "\<Up>"    # tab, stab
     else
       keystroke = "\<C-y>"
     endif
