@@ -10,6 +10,10 @@ g:loaded_lsp = true
 
 # global variables
 g:lsp_allowed_types = ['c', 'go', 'python', 'rust', 'terraform']
+# TODO
+# if !exists('g:lsp_auto_stop')
+#   g:lsp_auto_stop = false
+# endif
 if !exists('g:lsp_python_auto_imports')
   g:lsp_python_auto_imports = false
 endif
@@ -35,18 +39,22 @@ augroup lsp_source
   var servers: list<dict<any>> = []
   autocmd!
   autocmd SourcePre */lsp/autoload/lsp.vim ++once {
-    servers = lsp.RunningServers()
-    if !empty(servers)
-      execute "normal \<Plug>(lsp-stop-all)"
+    if g:lsp_enabled
+      servers = lsp.RunningServers()
+      if !empty(servers)
+        execute "normal \<Plug>(lsp-stop-all)"
+      endif
     endif
   }
   autocmd SourcePost */lsp/autoload/lsp.vim ++once {
-    for server in servers
-      # current &filetype uses augroup lsp_start
-      if server.language != &filetype
-        lsp.Start(server.language)
-      endif
-    endfor
+    if g:lsp_enabled
+      for server in servers
+        # current &filetype uses augroup lsp_start
+        if server.language != &filetype
+          lsp.Start(server.language)
+        endif
+      endfor
+    endif
   }
 augroup END
 
