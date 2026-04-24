@@ -12,6 +12,9 @@ g:loaded_complementum = true
 if !exists('g:complementum_autodelay')
   g:complementum_autodelay = 300  # ms
 endif
+if !exists('g:complementum_autopopup')
+  g:complementum_autopopup = true
+endif
 if !exists('g:complementum_debuginfo')
   g:complementum_debuginfo = false
 endif
@@ -95,16 +98,32 @@ augroup complementum_insert
   autocmd!
 
   # TODO: test KeyInputPre
+  var _col = -1
+  var _line = -1
   var _timer = -1
   autocmd InsertCharPre * {
-    var triggers = get(g:complementum_omnichars, &filetype, [])
-    var is_trigger_omni = (index(triggers, v:char) >= 0) || (v:char == ':' && index(triggers, '::') >= 0 && getline('.')->strpart(col('.') - 2, 1) == ':')
-    if g:complementum_enabled && &buftype == '' && !&autocomplete && !pumvisible() && state('m') == '' && (v:char =~ '\k' || is_trigger_omni)
-      timer_stop(_timer)
-      var vchar = v:char
-      _timer = timer_start(is_trigger_omni ? 0 : g:complementum_autodelay, (_) => complementum.Complete(&filetype, vchar))
-    else
-      timer_stop(_timer)
+    if g:complementum_enabled && g:complementum_autopopup
+      var triggers = get(g:complementum_omnichars, &filetype, [])
+      var is_trigger_omni = (index(triggers, v:char) >= 0) || (v:char == ':' && index(triggers, '::') >= 0 && getline('.')->strpart(col('.') - 2, 1) == ':')
+      if reg_recording() == '' && &buftype == '' && !&autocomplete && !pumvisible() && state('m') == '' && (v:char =~ '\k' || is_trigger_omni)
+        timer_stop(_timer)
+        var vchar = v:char
+        _line = line('.')
+        _col = col('.')
+        _timer = timer_start(is_trigger_omni ? 0 : g:complementum_autodelay, (_) => complementum.Complete(&filetype, vchar))
+      else
+        timer_stop(_timer)
+        _timer = -1
+      endif
+    endif
+  }
+
+  autocmd CursorMovedI * {
+    if g:complementum_enabled && g:complementum_autopopup && reg_recording() == ''
+      if _timer != -1 && (_line != line('.') || col('.') != _col + 1)
+        timer_stop(_timer)
+        _timer = -1
+      endif
     endif
   }
 
@@ -250,4 +269,7 @@ if !get(g:, 'complementum_no_commands')
   command! ComplementumToggle execute "normal \<Plug>(complementum-toggle)"
   command! ComplementumToggleDefaultKeystroke execute "normal \<Plug>(complementum-toggle-default-keystroke)"
   command! ComplementumToggleDefaultOmniKeystroke execute "normal \<Plug>(complementum-toggle-default-omni-keystroke)"
+  command! ComplementumEnableAutoPopup g:complementum_autopopup = true
+  command! ComplementumDisableAutoPopup g:complementum_autopopup = false
+  command! ComplementumToggleAutoPopup g:complementum_autopopup = !g:complementum_autopopup
 endif
