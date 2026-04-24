@@ -72,7 +72,6 @@ augroup cmplwild_cmdline
       _timer = -1
     })
   enddef
-
 augroup END
 
 # define mappings
