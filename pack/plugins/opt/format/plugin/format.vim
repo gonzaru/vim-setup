@@ -52,7 +52,7 @@ import autoload '../autoload/format.vim'
 #   autocmd!
 #   autocmd FileType sh,python,go {
 #     autocmd BufWritePre <buffer>
-#     \ if index(["sh", "python", "go"], &filetype) >= 0 && get(g:, $"format_{&filetype}_on_write") |
+#     \ if g:format_enabled && index(["sh", "python", "go"], &filetype) >= 0 && get(g:, $"format_{&filetype}_on_write") |
 #     \   execute "normal \<Plug>(format-language)" |
 #     \ endif
 #   }
