@@ -153,7 +153,11 @@ execute $"highlight! MoreMsg guifg={colors.normal.guifg} guibg=NONE ctermfg={col
 execute $"highlight! Title guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # complete popup menu
-execute $"highlight! Pmenu guifg=NONE guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=NONE ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+if pmenumatch2
+  execute $"highlight! Pmenu guifg=NONE guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg=NONE ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+else
+  execute $"highlight! Pmenu guifg={isdark ? '#9e9e9e' : '#a8a8a8'} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={isdark ? 247 : 248} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
+endif
 highlight! PmenuSel guifg=NONE guibg=#113a5c ctermfg=NONE ctermbg=25 gui=NONE cterm=NONE term=NONE
 execute $"highlight! PmenuMatch guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg={isdark ? '#3a3a3a' : '#46484a'} ctermfg={pmenumatch2 ? 215 : 255} ctermbg={isdark ? 237 : 238} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! PmenuMatchSel guifg={pmenumatch2 ? '#ffaf5f' : '#eeeeee'} guibg=#113a5c ctermfg={pmenumatch2 ? 215 : 255} ctermbg=25 gui=NONE cterm=NONE term=NONE"
