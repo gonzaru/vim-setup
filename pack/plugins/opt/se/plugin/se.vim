@@ -83,9 +83,11 @@ if get(g:, 'se_focusrefresh')
   augroup se_focus
     autocmd!
     autocmd FileType se {
-      autocmd WinEnter <buffer> se.Refresh()
-      # TODO: why lost the cursor?
-      # autocmd BufWinEnter <buffer> se.Refresh()
+      if g:se_enabled
+        autocmd WinEnter <buffer> se.Refresh()
+        # TODO: why lost the cursor?
+        # autocmd BufWinEnter <buffer> se.Refresh()
+      endif
     }
   augroup END
 endif
@@ -95,7 +97,7 @@ if get(g:, 'se_editdot')
   augroup se_editdot
   autocmd!
   autocmd BufEnter * {
-    if &filetype != 'se' && &buftype == '' && !&modified  # && line('$') <= 1 && getline(1) == ''
+    if g:se_enabled && &filetype != 'se' && &buftype == '' && !&modified  # && line('$') <= 1 && getline(1) == ''
       var path = expand('%:p')
       if !empty(path) && isdirectory(path)
         silent! bwipeout!
@@ -110,7 +112,7 @@ endif
 #  augroup se_colors
 #    autocmd!
 #    autocmd BufWinEnter * {
-#      if g:se_colors
+#      if g:se_enabled && g:se_colors
 #        se.SetColors()
 #      endif
 #    }
