@@ -15,6 +15,9 @@ endif
 if !exists('g:statusline_gitstatusfile')
   g:statusline_gitstatusfile = false
 endif
+if !exists('g:statusline_virtualenv')
+  g:statusline_virtualenv = false
+endif
 
 # autoload
 import autoload '../autoload/statusline.vim'
@@ -23,7 +26,7 @@ import autoload '../autoload/statusline.vim'
 augroup statusline_gitstatusline
   autocmd!
   autocmd BufNewFile,BufEnter,BufWritePost,CmdwinLeave,FileChangedShellPost,ShellCmdPost,VimResume * {
-    if g:statusline_gitbranch
+    if g:statusline_enabled && g:statusline_gitbranch
       var fpath = expand('%:p')
       if g:statusline_enabled && &filetype != '' && &buftype == '' && !empty(fpath)
         statusline.GitBranch(fpath)
@@ -39,6 +42,7 @@ augroup statusline_gitstatusline
   #     statusline.SetStatus('')
   #   endif
   # }
+augroup END
 
 # define mappings
 nnoremap <silent> <script> <Plug>(statusline-git-enable) :StatusLineGitEnable<CR>
