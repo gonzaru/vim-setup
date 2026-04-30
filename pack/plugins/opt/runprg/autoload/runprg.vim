@@ -44,6 +44,7 @@ enddef
 
 # run
 export def Run(cmd: string, file: string): void
+  var outmsg: string
   if empty(cmd) || !executable(split(cmd)[0])
     EchoErrorMsg($"Error: the cmd '{cmd}' is not executable")
     return
@@ -52,9 +53,14 @@ export def Run(cmd: string, file: string): void
   if &filetype == "rust"
     flags = $"--bin {fnamemodify(file, ':t:r')}"
   endif
-  echo !empty(file) ? system($"{cmd} {flags} {file}") : system(cmd)
+  outmsg = !empty(file) ? system($"{cmd} {flags} {file}") : system(cmd)
   if v:shell_error != 0
     EchoErrorMsg($"Error: exit code {v:shell_error}")
+  endif
+  if empty(outmsg)
+    EchoWarningMsg("Warning: empty output")
+  else
+    echo trim(outmsg, "\r\n")
   endif
 enddef
 
