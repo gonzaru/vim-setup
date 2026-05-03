@@ -34,7 +34,13 @@ export def Activate(path: string): void
   filter(path_list, (idx, val) => val != venv_path)
   $PATH = $"{venv_path}:{join(path_list, ':')}"
 
-  var version = split(globpath($VIRTUAL_ENV .. '/lib/', "*", 0, 1)[0], '/')[-1]
+  var version: string
+  try
+    version = split(globpath($VIRTUAL_ENV .. '/lib/', "*", 0, 1)[0], '/')[-1]
+  catch /^Vim\%((\a\+)\)\=:E684:/  # E684: List index out of range
+    EchoErrorMsg($"Error: {fnamemodify(venv, ':~')} is not a valid venv directory")
+    return
+  endtry
   var site_packages = $VIRTUAL_ENV  .. $'/lib/{version}/site-packages'
   if isdirectory(site_packages)
     py3 import sys
