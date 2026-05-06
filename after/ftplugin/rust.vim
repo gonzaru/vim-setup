@@ -21,7 +21,7 @@ if get(g:, "lsp_enabled")
   && reg_recording() == ''
     # inoremap <buffer> <nowait> <silent> <expr> . ".\<C-x>\<C-o>"
     # methods and fields (trigger for '.')
-    inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k') ? ".\<C-x>\<C-o>" : "."
+    inoremap <buffer> <nowait> <silent> <expr> . (col('.') > 1 && getline('.')[col('.') - 2] =~ '\k\<Bar>)\<Bar>]\<Bar>"\<Bar>''\<Bar>}') ? ".\<C-x>\<C-o>" : "."
     # namespaces and associated functions (trigger for '::')
     inoremap <buffer> <nowait> <silent> <expr> : (col('.') > 1 && getline('.')[col('.') - 2] == ':') ? ":\<C-x>\<C-o>" : ":"
   endif
