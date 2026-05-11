@@ -88,6 +88,7 @@ g:loaded_zipPlugin = true          # zipPlugin.vim
 g:arrowkeys_enabled = true        # enable/disable arrow keys
 g:autoclosechars_enabled = false  # automatic close of chars
 g:autoendstructs_enabled = true   # automatic end of structures
+g:autowrite_enabled = false       # automatic write
 g:bufferonly_enabled = true       # remove all buffers except the current one
 g:calculator_enabled = true       # calculator
 g:checker_enabled = true          # checker plugin
@@ -96,7 +97,7 @@ g:commentarium_enabled = true     # comment by language
 g:complementum_enabled = true     # complete by language
 g:cyclebuffers_enabled = true     # cycle between buffers
 g:documentare_enabled = true      # document information helper
-g:echords_enabled = false         # echors keys
+g:echords_enabled = true          # echors keys
 g:esckey_enabled = true           # use key as escape
 g:format_enabled = true           # format things
 g:git_enabled = true              # git vcs
@@ -122,6 +123,7 @@ const plugins = [
   'arrowkeys',
   'autoclosechars',
   'autoendstructs',
+  'autowrite',
   'bufferonly',
   'calculator',
   'checker',
@@ -335,7 +337,9 @@ set lazyredraw              # on: redraw only when needed, nice for editing macr
 set redrawtime=10000        # time in ms for redrawing the display (default: 2000)
 set linespace=0             # number of pixel lines inserted between characters (default : 0)
 setglobal autoread          # automatically read the file if it has been modified externally
-# set autowrite             # write automatically the contents of the file if it has been modified (:make, <C-]> etc.)
+if g:autowrite_enabled
+  set autowrite             # write automatically the contents of the file if it has been modified (:make, <C-]> etc.)
+endif
 # set autochdir             # change the current working directory when opening a file
 set noruler                 # don't show line and column number (see: statusline)
 set magic                   # use extended regexp in search patterns
