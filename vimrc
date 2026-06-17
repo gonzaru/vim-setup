@@ -1090,6 +1090,7 @@ if g:misc_enabled
   nnoremap <leader>tgb <ScriptCmd>misc#BackgroundToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgo <ScriptCmd>misc#SignColumnToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgf <ScriptCmd>misc#FoldColumnToggle()<CR>:echo v:statusmsg<CR>
+  nnoremap <leader>tgF <ScriptCmd>misc#GuiFullScreenToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgz <ScriptCmd>misc#FoldToggle()<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgy <ScriptCmd>misc#FuzzyToggle("completeopt")<CR>:echo v:statusmsg<CR>
   nnoremap <leader>tgY <ScriptCmd>misc#FuzzyToggle("wildoptions")<CR>:echo v:statusmsg<CR>

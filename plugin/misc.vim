@@ -72,6 +72,7 @@ if get(g:, 'misc_no_commands') == 0
   command! MiscFoldColumnToggle misc.FoldColumnToggle()
   command! MiscFoldToggle misc.FoldToggle()
   command! MiscGoLastEditCursor GoLastEditCursorPos()
+  command! MiscGuiFullScreenToggle misc.GuiFullScreenToggle()
   command! MiscGuiMenuBarToggle misc.GuiMenuBarToggle()
   command! MiscCmdMenuBarToggle misc.CmdMenuBarToggle()
   command! MiscLigaturesToggle misc.LigaturesToggle()

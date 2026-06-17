@@ -155,6 +155,20 @@ export def GoBufferPos(bnum: number)
   endif
 enddef
 
+# toggle gui fullscreen
+export def GuiFullScreenToggle(): void
+  if !has('gui_running')
+    utils.EchoWarningMsg("Warning: only use this function with the gui")
+    return
+  endif
+  if &guioptions =~ "s"
+    set guioptions-=s
+  else
+    set guioptions+=s
+  endif
+  v:statusmsg = $"guioptions={&guioptions}"
+enddef
+
 # toggle gui menu bar
 export def GuiMenuBarToggle(): void
   if !has('gui_running')
@@ -171,7 +185,7 @@ export def GuiMenuBarToggle(): void
       source $VIMRUNTIME/menu.vim
     endif
   endif
-  v:statusmsg = $"guioptions={&l:guioptions}"
+  v:statusmsg = $"guioptions={&guioptions}"
 enddef
 
 # toggle cmd menu bar
