@@ -10,6 +10,7 @@ g:autoloaded_cyclebuffers = true
 
 # script local variables
 var PEDITID: number = -1
+var PREVWID: number = -1
 var LINEBUF: list<dict<any>>
 
 # prints warning message and saves the message in the message-history
@@ -46,6 +47,7 @@ enddef
 def ClearGlobals()
   LINEBUF = []
   PEDITID = -1
+  PREVWID = -1
 enddef
 
 # cycle between buffers
@@ -62,6 +64,7 @@ export def Cycle(): void
     EchoWarningMsg("Warning: there is only one buffer available")
     return
   endif
+  PREVWID = win_getid()
   SetBufferLines(bufinfo)
   if g:cyclebuffers_position == "top"
     topleft split new
@@ -85,6 +88,7 @@ export def CycleOldFiles(): void
     EchoWarningMsg("Warning: 'v:oldfiles' is empty")
     return
   endif
+  PREVWID = win_getid()
   if g:cyclebuffers_position == "top"
     topleft split new
   else
@@ -139,6 +143,15 @@ def SetBufferLines(bufinfo: list<dict<any>>)
     })
     ++num
   endfor
+enddef
+
+# close the window
+export def Close()
+  ClosePreview()
+  close
+  if PREVWID > 0
+    win_gotoid(PREVWID)
+  endif
 enddef
 
 # close the preview window

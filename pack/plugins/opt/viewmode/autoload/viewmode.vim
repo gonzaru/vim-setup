@@ -14,78 +14,99 @@ export def Help()
     <               # move to the beggining of buffer
     >               # move to the end of buffer [o,%]
     d               # scroll forward (half screen)
+    D               # scroll forward (half screen) (centered)
     u               # scroll backward (half screen)
+    U               # scroll backward (half screen) (centered)
     <Space>         # scroll forward (page)
     <S-Space>       # scroll backward (page)
     y               # scroll backward one line
-    <CR>            # scroll forward one line
+    Y               # scroll backward one line (centered)
+    <CR>            # scroll forward one line [e]
+    <S-CR>          # scroll forward one line (centered) [E]
     =               # print the current line number
     s               # do forward incremental search
     r               # do reverse incremental search
     .               # set the mark
     @               # return to the mark
-    e               # exit view mode
-    E               # exit view mode and make the buffer editable
+    q               # exit view mode
+    Q               # exit view mode and make the buffer editable
   END
   echo join(lines, "\n")
 enddef
 
 # enable viewmode keys
 export def Enable()
+  setlocal nomodifiable readonly
   # move to the beggining of buffer
-  nnoremap < gg
+  nnoremap <buffer> < gg
   # move to the end of buffer
-  nnoremap > G
-  nnoremap o G
-  nnoremap % G
+  nnoremap <buffer> > G
+  nnoremap <buffer> o G
+  nnoremap <buffer> % G
   # scroll forward (half screen)
-  nnoremap d <C-d>
+  nnoremap <buffer> d <C-d>
+  # scroll forward (half screen) (centered)
+  nnoremap <buffer> D <C-d>zz
   # scroll backward (half screen)
-  nnoremap u <C-u>
+  nnoremap <buffer> u <C-u>
+  # scroll backward (half screen) (centerd)
+  nnoremap <buffer> U <C-u>zz
   # scroll forward (page)
-  nnoremap <Space> <C-f>
+  nnoremap <buffer> <Space> <C-f>
   # scroll backward (page)
-  nnoremap <S-Space> <C-b>
+  nnoremap <buffer> <S-Space> <C-b>
   # scroll backward one line
-  nnoremap y <C-y>
+  nnoremap <buffer> y <C-y>
+  # scroll backward one line (centered)
+  nnoremap <buffer> Y kzz
   # scroll forward one line
-  nnoremap <CR> <C-e>
+  nnoremap <buffer> <CR> <C-e>
+  nnoremap <buffer> e <C-e>
+  # scroll forward one line (centered)
+  nnoremap <buffer> <S-CR> jzz
+  nnoremap <buffer> E jzz
   # prints the current line number
-  nnoremap = <Cmd>echo "Line " .. line('.')<CR>
+  nnoremap <buffer> = <Cmd>echo "Line " .. line('.')<CR>
   # do forward incremental search
-  nnoremap s /
+  nnoremap <buffer> s /
   # do reverse incremental search
-  nnoremap r ?
+  nnoremap <buffer> r ?
   # TODO check marks
   # set the mark
-  nnoremap . m'<Cmd>echo 'Mark set'<CR>
+  nnoremap <buffer> . m'<Cmd>echo 'Mark set'<CR>
   # return to the mark
-  nnoremap @ `'
+  nnoremap <buffer> @ `'
   # exit view mode
-  nnoremap e <ScriptCmd>Disable()<CR>
+  nnoremap <buffer> q <ScriptCmd>Disable()<CR>
   # exit view mode and make the buffer editable
-  nnoremap E <ScriptCmd>Disable()<CR><Cmd>setlocal noreadonly<CR>
+  nnoremap <buffer> Q <ScriptCmd>Disable()<CR><Cmd>setlocal modifiable noreadonly<CR>
 enddef
 
 # disable viewmode keys
 export def Disable()
-  nnoremap < <
-  nnoremap > >
-  nnoremap o o
-  nnoremap % %
-  nnoremap d d
-  nnoremap u u
-  nnoremap <Space> <Space>
-  nnoremap <S-Space> <S-Space>
-  nnoremap y y
-  nnoremap <CR> <CR>
-  nnoremap = =
-  nnoremap s s
-  nnoremap r r
-  nnoremap . .
-  nnoremap @ @
-  nnoremap e e
-  nnoremap E E
+  silent! nunmap <buffer> <
+  silent! nunmap <buffer> >
+  silent! nunmap <buffer> o
+  silent! nunmap <buffer> %
+  silent! nunmap <buffer> d
+  silent! nunmap <buffer> D
+  silent! nunmap <buffer> u
+  silent! nunmap <buffer> U
+  silent! nunmap <buffer> <Space>
+  silent! nunmap <buffer> <S-Space>
+  silent! nunmap <buffer> e
+  silent! nunmap <buffer> E
+  silent! nunmap <buffer> y
+  silent! nunmap <buffer> Y
+  silent! nunmap <buffer> <CR>
+  silent! nunmap <buffer> <S-CR>
+  silent! nunmap <buffer> =
+  silent! nunmap <buffer> s
+  silent! nunmap <buffer> r
+  silent! nunmap <buffer> .
+  silent! nunmap <buffer> @
+  silent! nunmap <buffer> q
+  silent! nunmap <buffer> Q
 enddef
 
 # toggle viewmode keys

@@ -20,7 +20,7 @@ endif
 import autoload '../autoload/cyclebuffers.vim'
 
 # define mappings
-nnoremap <silent> <script> <Plug>(cyclebuffers-close) <Cmd>close \| pclose<CR>
+nnoremap <silent> <script> <Plug>(cyclebuffers-close) <ScriptCmd>cyclebuffers.Close()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-close-pedit) <ScriptCmd>cyclebuffers.ClosePreview()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-help) <ScriptCmd>cyclebuffers.Help()<CR>
 nnoremap <silent> <script> <Plug>(cyclebuffers-cycle) <ScriptCmd>cyclebuffers.Cycle()<CR>
