@@ -9,6 +9,9 @@ endif
 g:loaded_autowrite = true
 
 # global variables
+if !exists('g:autowrite_autodelay')
+  g:autowrite_autodelay = 300  # ms
+endif
 if !exists('g:autowrite_mode')
   g:autowrite_mode = 'soft'
 endif
@@ -17,16 +20,33 @@ endif
 import autoload '../autoload/autowrite.vim'
 
 # autowrite events
+var _timer = -1
 augroup autowrite_events
   autocmd!
+
   # see 'updatetime'
   autocmd CursorHold,CursorHoldI *  {
     if g:autowrite_enabled
-      if &buftype == '' && &l:modifiable && !empty(bufname('%')) && !&l:readonly
-        silent! update
+      if reg_recording() == '' && &buftype == '' && &l:modifiable && !empty(bufname('%')) && !&l:readonly
+        timer_stop(_timer)
+        # g:autowrite_autodelay + &updatetime
+        _timer = timer_start(g:autowrite_autodelay, (_) => execute('silent! update'))
+      else
+        timer_stop(_timer)
+        _timer = -1
       endif
     endif
   }
+
+  autocmd CursorMoved,CursorMovedI * {
+    if g:autowrite_enabled
+      if _timer != -1
+        timer_stop(_timer)
+        _timer = -1
+      endif
+    endif
+  }
+
 augroup END
 
 # define mappings
