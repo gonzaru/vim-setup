@@ -24,7 +24,7 @@ if !exists('g:se_followfile')
   g:se_followfile = false
 endif
 if !exists('g:se_focusrefresh')
-  g:se_focusrefresh = true
+  g:se_focusrefresh = false
 endif
 if !exists('g:se_editdot')
   g:se_editdot = true
@@ -83,7 +83,7 @@ if get(g:, 'se_focusrefresh')
   augroup se_focus
     autocmd!
     autocmd FileType se {
-      if g:se_enabled
+      if g:se_enabled && g:se_focusrefresh
         autocmd WinEnter <buffer> se.Refresh()
         # TODO: why lost the cursor?
         # autocmd BufWinEnter <buffer> se.Refresh()
@@ -188,6 +188,7 @@ if !get(g:, 'se_no_commands')
   command! SeHelp execute "normal \<Plug>(se-help)"
   command! SeToggle execute "normal \<Plug>(se-toggle)"
   command! SeToggleColors g:se_colors = !g:se_colors
+  command! SeToggleFocusRefresh g:se_focusrefresh = !g:se_focusrefresh
   command! SeToggleFollowFile g:se_followfile = !g:se_followfile
   command! SeToggleResizeMaxCol g:se_resizemaxcol = !g:se_resizemaxcol
   command! SeTogglePosition g:se_position = g:se_position == "left" ? "right" : "left"
