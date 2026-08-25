@@ -41,9 +41,6 @@ export def Enable()
   # C-M-p
   # C-M-n
 
-  # TODO: ispell-word
-  # M-$
-
   # TODO: fill-paragraph
   # M-q
 
@@ -134,6 +131,16 @@ export def Enable()
 
   # exchange point and mark (implies vnoremap)
   vnoremap <C-x><C-x> o
+
+  # set mark args words away M-@ (M-S-@)
+  inoremap <M-@> <C-o>ve
+
+  # interactive replace a text string (current line to end of the buffer)
+  # inoremap <M-%> <C-o>:.,$///gc<Left><Left><Left><Left>
+  inoremap <M-%> <ScriptCmd>QueryReplace()<CR>
+
+  # check spelling of current word
+  inoremap <M-$> <ScriptCmd>SpellWord()<CR>
 
   # go to line beginning (non-blank)
   inoremap <M-m> <C-o>^
@@ -227,6 +234,9 @@ export def Enable()
 
   # go to directory
   inoremap <C-x>d <C-\><C-n><ScriptCmd>feedkeys(":edit " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
+
+  # edit the current directory
+  inoremap <C-x><C-j> <Cmd>edit .<CR>
 
   # write file
   inoremap <C-x><C-w> <C-\><C-n><ScriptCmd>feedkeys(":write " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
@@ -380,7 +390,10 @@ export def Enable()
   inoremap <M-,> <C-o><C-t>
 
   # shells / terminal
+  # execute a shell command
   inoremap <M-!> <C-o>:!
+  # execute a shell command asynchronously
+  inoremap <M-&> <ScriptCmd>AsyncShellCmd()<CR>
 
   # M-num numeric arguments (C-u num)
   inoremap <M-1> <C-o>1
@@ -641,6 +654,9 @@ export def Disable()
     silent! iunmap <C-u><C-@>
   endif
   silent! vunmap <C-x><C-x>
+  silent! iunmap <M-@>
+  silent! iunmap <M-%>
+  silent! iunmap <M-$>
   silent! iunmap <M-m>
   silent! iunmap <M-S-m>
   silent! iunmap <M-a>
@@ -684,6 +700,7 @@ export def Disable()
   silent! iunmap <C-x>s
   silent! iunmap <C-x><C-s>
   silent! iunmap <C-x>d
+  silent! iunmap <C-x><C-j>
   silent! iunmap <C-x><C-w>
   silent! iunmap <C-t>
   silent! iunmap <M-t>
@@ -744,6 +761,7 @@ export def Disable()
   silent! iunmap <C-x>4.
   silent! iunmap <M-,>
   silent! iunmap <M-!>
+  silent! iunmap <M-&>
   silent! iunmap <M-1>
   silent! iunmap <M-2>
   silent! iunmap <M-3>
@@ -844,6 +862,59 @@ export def Toggle()
   endif
   g:echords_enabled = !g:echords_enabled
   v:statusmsg = $"echords={g:echords_enabled}"
+enddef
+
+# async shell command
+def AsyncShellCmd(): void
+  var cmd = input("Async shell command: ")
+  if empty(cmd)
+    redraw!
+    return
+  endif
+  var winid = win_getid()
+  execute $"below terminal ++noclose ++norestore {cmd}"
+  win_gotoid(winid)
+enddef
+
+# query replace
+def QueryReplace(): void
+  var old = input("Query Replace: ")
+  if old == ""
+    redraw!
+    return
+  endif
+  var new = input($"Query replace {old} with: ")
+  if new == ""
+    redraw!
+    return
+  endif
+  feedkeys($"\<C-o>:.,$s/{old}/{new}/gc\<CR>", "n")
+enddef
+
+# spell word
+def SpellWord()
+  var lspell = &l:spell
+  if !lspell
+    setlocal spell
+  endif
+  var cword: string
+  try
+    cword = expand('<cword>')
+  catch /^Vim\%((\a\+)\)\=:E348:/  # E348: No string under cursor
+  endtry
+  var bad = spellbadword(cword)
+  if !empty(cword)
+    # correct ['', '']
+    # incorrect ['word', 'bad'] # bad, rare, local, caps
+    if bad[1] == ""
+      echo $"{toupper(cword)} is correct"
+    else
+      normal! z=
+    endif
+  endif
+  if !lspell
+    setlocal nospell
+  endif
 enddef
 
 # zap to char
