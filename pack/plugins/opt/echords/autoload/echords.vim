@@ -74,7 +74,8 @@ export def Enable()
   # collission: i_CTRL-A insert previously inserted text
   # inoremap <C-a> <C-o>0
   # inoremap <C-a> <C-o>^
-  inoremap <C-a> <Home>
+  # inoremap <C-a> <Home>
+  inoremap <C-a> <ScriptCmd>MoveBeginningOfLine()<CR>
   # go to line beginning + select
   if has('gui_running')
     inoremap <C-S-a> <C-o>v0
@@ -889,6 +890,15 @@ def QueryReplace(): void
     return
   endif
   feedkeys($"\<C-o>:.,$s/{old}/{new}/gc\<CR>", "n")
+enddef
+
+# move beginning of line
+def MoveBeginningOfLine()
+  if indent(line('.')) != virtcol('.') - 1
+    normal! ^
+  else
+    normal! 0
+  endif
 enddef
 
 # spell word
