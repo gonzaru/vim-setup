@@ -529,8 +529,11 @@ export def Enable()
   # split window vertical
   inoremap <C-x>3 <C-o><C-w>v
 
-  # switch cursor to another window
+  # switch cursor to another window forward
   inoremap <C-x>o <C-o><C-w>w
+
+  # switch cursor to another window backward
+  inoremap <C-x>O <C-o><C-w>W
 
   # resize vertical equal window
   inoremap <C-x>+ <C-o><C-w>=
@@ -834,6 +837,7 @@ export def Disable()
   silent! iunmap <C-x>2
   silent! iunmap <C-x>3
   silent! iunmap <C-x>o
+  silent! iunmap <C-x>O
   silent! iunmap <C-x>+
   silent! iunmap <C-x>{
   silent! iunmap <C-x>}
