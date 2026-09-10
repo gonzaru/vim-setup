@@ -184,8 +184,8 @@ if g:complementum_enabled
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
   g:complementum_minchars = 1
-  g:complementum_autodelay = 500  # ms
-  g:complementum_autopopup = false
+  g:complementum_autodelay = 300  # ms
+  g:complementum_autopopup = true
   g:complementum_no_mappings = true
 endif
 
@@ -209,7 +209,7 @@ if g:esckey_enabled
   # inoremap ^V<89> (Ctrl+v + key)
   # g:esckey_key = ''
   g:esckey_key = '<F12>'
-  g:esckey_nnoremap = false  # normal mode
+  g:esckey_nnoremap = false # normal mode
   g:esckey_cnoremap = true  # command mode
   if has('gui_running')
     if !g:esckey_cnoremap
@@ -567,11 +567,11 @@ if has('gui_running')
     set guifont=Menlo\ Regular:h16
     # set antialias
   else
-    if 1 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Regular.otf")
+    if 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Regular.otf")
       execute $"set guifont=SF\\ Mono\\ 12.5"
     elseif 0 && filereadable($"{$HOME}/.local/share/fonts/SF-Mono/SF-Mono-Medium.otf")
       execute $"set guifont=SF\\ Mono\\ Medium\\ 12.5"
-    elseif 0 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Regular.ttc")
+    elseif 1 && filereadable($"{$HOME}/.local/share/fonts/Iosevka/SGr-Iosevka-Regular.ttc")
       # execute $"set guifont=Iosevka\\ 13.0"                      # 12.0, 14.5
       # execute $"set guifont=Iosevka\\ Medium\\ 13.0"
       execute $"set guifont=Iosevka\\ Extended\\ 12.0"             # 12.0
@@ -793,9 +793,9 @@ setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>
 if &autocomplete
   setglobal completeopt=menu,menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 else
-  # setglobal completeopt=menuone,noinsert
-  setglobal completeopt=menu,menuone,noselect
-  # setglobal completeopt=menuone,preinsert
+  setglobal completeopt=menu,menuone,noinsert
+  # setglobal completeopt=menu,menuone,noselect
+  # setglobal completeopt=menu,menuone,preinsert
 endif
 if &completeopt =~ 'preinsert'
   set infercase
@@ -842,8 +842,31 @@ set pumheight=10     # maximum number of items to show in the popup menu (defaul
 set pumwidth=15      # minimum width to use for the popup menu (default: 15)
 set pummaxwidth=100  # maximum width to use for the popup menu (default: 0)
 
+# map <CR> (close completion + CR)
+# inoremap <expr> <CR> pumvisible() ? "\<C-e>\<CR>" : "\<CR>"
+
 # map <S-CR> (close completion + CR)
-inoremap <expr> <S-CR> pumvisible() ? "\<C-e>\<CR>"  : "\<S-CR>"
+inoremap <expr> <S-CR> pumvisible() ? "\<C-e>\<CR>" : "\<S-CR>"
+
+# popup menu to move "like arrows" (highlight only)
+inoremap <expr> <C-p> pumvisible() ? "\<Up>" : "\<C-p>"
+inoremap <expr> <C-n> pumvisible() ? "\<Down>" : "\<C-n>"
+
+# map <Space> (space or insert completion + space)
+def MapInsertSpace(): string
+  var keystroke = "\<Space>"
+  # recording @macro
+  if reg_recording() != ''
+    return keystroke
+  endif
+  if pumvisible()
+    var info = complete_info()
+    keystroke = (info.selected <= 0) ? "\<C-e>\<Space>" : "\<C-y>\<Space>"
+  endif
+  return keystroke
+enddef
+# inoremap <expr> <Space> pumvisible() ? "\<C-y>\<Space>" : "\<Space>"
+inoremap <silent> <expr> <Space> <SID>MapInsertSpace()
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
