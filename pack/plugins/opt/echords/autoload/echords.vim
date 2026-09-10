@@ -28,6 +28,9 @@ export def Enable()
   # https://www.gnu.org/software/emacs/manual/html_node/emacs/Shift-Selection.html
   # when Shift modifier, it triggers a built-in feature called shift-select-mode
 
+  # TODO: delete all spaces and tabs at point
+  # M-\
+
   # TODO: indent-region
   # C-M-\ # TODO: indent-region
 
@@ -64,6 +67,12 @@ export def Enable()
 
   # TODO: show all lines in the current buffer containing a match
   # <M-s>o
+
+  # TODO: add more search
+  # M-s w
+  # M-s _
+  # M-s .
+  # M-s M-.
 
   # TODO: mark defun (put mark at end of this defun, point at beginning)
   # <C-H-h>
@@ -198,7 +207,13 @@ export def Enable()
   # inoremap <C-p> <Up>
   # inoremap <expr> <C-p> pumvisible() <bar><bar> preinserted() ? "\<C-p>" : "\<Up>"
   # inoremap <expr> <C-p> pumvisible() ? "\<C-e>\<Up>" : "\<Up>"
-  inoremap <expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+  # inoremap <expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+  inoremap <expr> <C-p>
+  \ pumvisible() && get(g:, 'loaded_complementum')
+  \ ? "\<Up>"
+  \ : pumvisible()
+  \ ? "\<C-p>"
+  \ : "\<Up>"
 
   # goto previous line + select
   if has('gui_running')
@@ -216,7 +231,14 @@ export def Enable()
   # inoremap <expr> <C-n> pumvisible() <bar><bar> preinserted() ? "\<C-n>" : "\<Down>"
   # inoremap <C-n> <Down>
   # inoremap <expr> <C-n> pumvisible() ? "\<C-e>\<Down>" : "\<Down>"
-  inoremap <expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
+  # inoremap <expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
+  inoremap <expr> <C-n>
+  \ pumvisible() && get(g:, 'loaded_complementum')
+  \ ? "\<Down>"
+  \ : pumvisible()
+  \ ? "\<C-n>"
+  \ : "\<Down>"
+
   # goto next line + select
   if has('gui_running')
     inoremap <C-S-n> <C-o>v$j
@@ -232,6 +254,9 @@ export def Enable()
   inoremap <C-x>s <Cmd>wall<CR>
   # save-buffer, this saves only the current buffer
   inoremap <C-x><C-s> <Cmd>update<CR>
+
+  # revert the buffer quick
+  inoremap <C-x>xg <cmd>e!<CR>
 
   # go to directory
   inoremap <C-x>d <C-\><C-n><ScriptCmd>feedkeys(":edit " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
@@ -316,6 +341,7 @@ export def Enable()
   # TODO: map to <M-0> fails
   # inoremap <M-0><C-k> <C-u>
   # inoremap <M--><C-k> <C-u>
+  # inoremap <C-0><C-k> <C-u>
 
   # delete line forward
   # collission: i_CTRL_K enter digraph
@@ -700,6 +726,7 @@ export def Disable()
   silent! vunmap <C-n>
   silent! iunmap <C-x>s
   silent! iunmap <C-x><C-s>
+  silent! iunmap <C-x>xg
   silent! iunmap <C-x>d
   silent! iunmap <C-x><C-j>
   silent! iunmap <C-x><C-w>
