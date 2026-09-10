@@ -48,7 +48,9 @@ if get(g:, "lsp_enabled")
   endif
 endif
 if get(g:, "autoendstructs_enabled")
-  inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
+  # inoremap <buffer> <nowait> <CR> <Plug>(autoendstructs-end)
+  # inoremap <buffer> <nowait> <expr> <CR> pumvisible() ? "\<C-e>\<CR>" : "\<Plug>(autoendstructs-end)"
+  inoremap <buffer> <nowait> <expr> <CR> pumvisible() ? "\<C-y>" : "\<Plug>(autoendstructs-end)"
 endif
 # setlocal colorcolumn=120
 # matchadd('ColorColumn', '\%120v', 10)
