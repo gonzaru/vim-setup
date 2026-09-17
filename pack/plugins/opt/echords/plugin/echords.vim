@@ -12,6 +12,21 @@ g:loaded_echords = true
 if !exists('g:echords_auto_enable')
   g:echords_auto_enable = false
 endif
+if !exists('g:echords_normal_mappings')
+  g:echords_normal_mappings = false
+endif
+if !exists('g:echords_visual_mappings')
+  g:echords_visual_mappings = false
+endif
+if !exists('g:echords_command_mappings')
+  g:echords_command_mappings = false
+endif
+if !exists('g:echords_operator_mappings')
+  g:echords_operator_mappings = false
+endif
+if !exists('g:echords_terminal_mappings')
+  g:echords_terminal_mappings = false
+endif
 if !exists('g:echords_extra_mappings')
   g:echords_extra_mappings = false
 endif

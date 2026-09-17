@@ -20,6 +20,8 @@ export def Enable()
 
   # TODO: terminal maps
 
+  # TODO: nnoremap?
+
   # TODO: vnoremap?
 
   # TODO: onoremap?
@@ -31,9 +33,6 @@ export def Enable()
   # TODO: delete all spaces and tabs at point
   # M-\
 
-  # TODO: indent-region
-  # C-M-\ # TODO: indent-region
-
   # go to functions
   # M-?  (xref-find-references)
 
@@ -43,9 +42,6 @@ export def Enable()
   # C-M-u
   # C-M-p
   # C-M-n
-
-  # TODO: fill-paragraph
-  # M-q
 
   # TODO: set-fill-column
   # C-x f
@@ -80,11 +76,19 @@ export def Enable()
   # TODO: check all :help popupmenu-keys
 
   # go to line beginning
-  # collission: i_CTRL-A insert previously inserted text
+  # collision: i_CTRL-A insert previously inserted text
   # inoremap <C-a> <C-o>0
   # inoremap <C-a> <C-o>^
   # inoremap <C-a> <Home>
   inoremap <C-a> <ScriptCmd>MoveBeginningOfLine()<CR>
+  if g:echords_visual_mappings
+    # collision: v_CTRL-A add [count] to the number
+    vnoremap <C-a> ^
+  endif
+  if g:echords_normal_mappings
+    # collision: CTRL-A add [count] to the number
+    nnoremap <C-a> ^
+  endif
   # go to line beginning + select
   if has('gui_running')
     inoremap <C-S-a> <C-o>v0
@@ -94,13 +98,15 @@ export def Enable()
   endif
   # use <C-x><C-a> to use the builtin <C-a>
   inoremap <C-x><C-a> <C-a>
-  # collission: c_CTRL-A all names that match the pattern in front of the cursor are inserted (default: <C-b>)
-  cnoremap <C-a> <Home>
-  # use <C-x><C-a> to use the builtin <C-a>
-  cnoremap <C-x><C-a> <C-a>
+  if g:echords_command_mappings
+    # collision: c_CTRL-A all names that match the pattern in front of the cursor are inserted (default: <C-b>)
+    cnoremap <C-a> <Home>
+    # use <C-x><C-a> to use the builtin <C-a>
+    cnoremap <C-x><C-a> <C-a>
+  endif
 
   # go to line end
-  # collission: i_CTRL-E insert the character which is below the cursor
+  # collision: i_CTRL-E insert the character which is below the cursor
   # inoremap <C-e> <C-o>$
   # inoremap <expr> <C-e> pumvisible() ? "\<C-e>" : "\<C-o>$"
   # see complementum map with <C-e>
@@ -109,6 +115,14 @@ export def Enable()
   # endif
   # inoremap <C-e> <End>
   inoremap <expr> <C-e> pumvisible() ? "\<C-e>" : "\<End>"
+  if g:echords_visual_mappings
+    vnoremap <C-e> $
+  endif
+  if g:echords_normal_mappings
+    # collision: CTRL-E scroll window [count] lines downwards
+    # TODO: alternative key for scroll
+    nnoremap <C-e> $
+  endif
 
   # go to line end + select
   if has('gui_running')
@@ -118,19 +132,38 @@ export def Enable()
     inoremap <F14> <C-o>v$
   endif
   # it goes by default
-  # cnoremap <C-e <End>
+  if g:echords_command_mappings
+    cnoremap <C-e> <End>
+  endif
+
+  # collision: i_CTRL-Q (same as i_CTRL-V, insert next non-digit literally)
+  inoremap <C-q> <C-o>
+  # add new line below
+  inoremap <C-o> <C-o>o
+  # add new line above
+  if has('gui_running')
+    inoremap <C-S-o> <C-o>O
+  endif
 
   # mark set
   if has('gui_running')
     inoremap <C-Space> <C-o>v
+    if g:echords_normal_mappings
+      nnoremap <C-Space> v
+    endif
   else
     inoremap <C-@> <C-o>v
+    if g:echords_normal_mappings
+      nnoremap <C-@> v
+    endif
   endif
-  # collission: i_CTRL-@ insert previously inserted text and stop insert
-  inoremap <C-S-@> <C-o>v
+  if has('gui_running')
+    # collision: i_CTRL-@ insert previously inserted text and stop insert
+    inoremap <C-S-@> <C-o>v
+  endif
 
   # mark entire buffer
-  inoremap <C-x>h <C-o>gg<C-o>VG
+  inoremap <C-x>h <Cmd>normal! ggVG<CR>
 
   # go to last edit position
   if has('gui_running')
@@ -140,7 +173,9 @@ export def Enable()
   endif
 
   # exchange point and mark (implies vnoremap)
-  vnoremap <C-x><C-x> o
+  if g:echords_visual_mappings
+    vnoremap <C-x><C-x> o
+  endif
 
   # set mark args words away M-@ (M-S-@)
   inoremap <M-@> <C-o>ve
@@ -151,6 +186,12 @@ export def Enable()
 
   # check spelling of current word
   inoremap <M-$> <ScriptCmd>SpellWord()<CR>
+
+  # fill paragraph
+  inoremap <M-q> <Cmd>normal! gwap<CR>
+  if g:echords_visual_mappings
+    vnoremap <M-q> gw
+  endif
 
   # go to line beginning (non-blank)
   inoremap <M-m> <C-o>^
@@ -186,7 +227,7 @@ export def Enable()
   # go to paragraph forward
   inoremap <M-}> <C-o>}
   inoremap <C-Down> <C-o>}
-  # go to paragraph forwared + select
+  # go to paragraph forward + select
   if has('gui_running')
     inoremap <C-S-Down> <C-o>v}
   else
@@ -202,7 +243,7 @@ export def Enable()
   inoremap <C-M-End> <C-o>]m
 
   # goto previous line
-  # collission: i_CTRL-P completion find the previous match
+  # collision: i_CTRL-P completion find the previous match
   # TODO: is ignored with omni (C-x C-o)
   # inoremap <C-p> <Up>
   # inoremap <expr> <C-p> pumvisible() <bar><bar> preinserted() ? "\<C-p>" : "\<Up>"
@@ -222,10 +263,12 @@ export def Enable()
     inoremap <F22> <C-o>v0k
   endif
   # select previous line
-  vnoremap <C-p> k
+  if g:echords_visual_mappings
+    vnoremap <C-p> k
+  endif
 
   # goto next line
-  # collission: i_CTRL-N completion find the next match
+  # collision: i_CTRL-N completion find the next match
   # TODO: is ignored with omni (C-x C-o)
   # inoremap <C-n> <Down>
   # inoremap <expr> <C-n> pumvisible() <bar><bar> preinserted() ? "\<C-n>" : "\<Down>"
@@ -246,20 +289,45 @@ export def Enable()
     inoremap <F21> <C-o>v$j
   endif
   # select next line
-  vnoremap <C-n> j
+  if g:echords_visual_mappings
+    vnoremap <C-n> j
+  endif
+
+  # isearch fordward
+  # collission with <leader> <C-s>
+  inoremap <C-s><C-s> <C-\><C-n>/
+
+  if g:echords_normal_mappings
+    nnoremap <C-s><C-s> /
+  endif
+
+  # isearch backward
+  # collision with i_CTRL-R_CTRL-R insert the contents of a register. (like i_CTLR-R, but inserted literally)
+  inoremap <C-r><C-r> <C-\><C-n>?
+  if g:echords_normal_mappings
+    # collision with CTRL-R_CTRL-R insert the contents of a register. (like CTLR-R, but inserted literally)
+    nnoremap <C-r><C-r> ?
+  endif
 
   # write
-  # collission with i_CTRL_X_s and i_CTRL_X i_CTRL_X_s locate the word in front of the cursor and first the first spell suggestion for it
+  # collision with i_CTRL_X_s and i_CTRL_X i_CTRL_X_s locate the word in front of the cursor and first the first spell suggestion for it
   # save-some-buffers, this saves all the buffers
   inoremap <C-x>s <Cmd>wall<CR>
   # save-buffer, this saves only the current buffer
   inoremap <C-x><C-s> <Cmd>update<CR>
 
   # revert the buffer quick
-  inoremap <C-x>xg <cmd>e!<CR>
+  inoremap <C-x>xg <Cmd>e!<CR>
 
   # go to directory
   inoremap <C-x>d <C-\><C-n><ScriptCmd>feedkeys(":edit " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
+
+  # find file
+  # collision with i_CTRL_X_CTRL-F search for the first file name that starts with the same characters as before the cursor
+  inoremap <C-x><C-f> <C-\><C-n>:edit<Space>
+
+  # save buffers and kill terminal (exit)
+  # inoremap <C-x><C-c> <Cmd>confirm qa<CR>
 
   # edit the current directory
   inoremap <C-x><C-j> <Cmd>edit .<CR>
@@ -268,17 +336,17 @@ export def Enable()
   inoremap <C-x><C-w> <C-\><C-n><ScriptCmd>feedkeys(":write " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
 
   # transpose characters
-  # collission: i_CTRL-T insert one shiftwidth of indent at the start of the current line
+  # collision: i_CTRL-T insert one shiftwidth of indent at the start of the current line
   # TODO: looks a little different
   # TODO: builtin <C-t> it's very useful
-  inoremap <C-t> <C-o>x<C-o>p
+  inoremap <C-t> <Cmd>normal! xp<CR>
 
   # transpose words
   inoremap <M-t> <C-o>dw<C-o>e<Right><Space><C-o>p<Left>
 
   # transpose lines
-  # collission: i_CTRL-X i_CTRL-T like completion thesaurus dictionary
-  inoremap <C-x><C-t> <C-o>dd<C-o>p
+  # collision: i_CTRL-X i_CTRL-T like completion thesaurus dictionary
+  inoremap <C-x><C-t> <Cmd>normal! ddp<CR>
 
   # TODO: transpose sexps
   # inoremap <C-M-t>
@@ -286,50 +354,76 @@ export def Enable()
   # character backward
   inoremap <C-b> <Left>
   # TODO: problem with plugin cmplwild (when popup menu)
-  # collission: c_CTRL-B cursor to beginning of command-line <Home>
-  cnoremap <C-b> <Left>
+  # collision: c_CTRL-B cursor to beginning of command-line <Home>
+  if g:echords_command_mappings
+    cnoremap <C-b> <Left>
+  endif
+  if g:echords_visual_mappings
+    vnoremap <expr> <C-b> col('.') == 1 ? "k$" : "h"
+  endif
 
   # character forward
-  # collission: i_CTRL-F characters that can precede each key
+  # collision: i_CTRL-F characters that can precede each key
   inoremap <C-f> <Right>
-  # collission: c_CTRL-F open the command-line window
-  cnoremap <C-f> <Right>
-  # use <C-x><C-f> to use the vim builtin <C-f>
-  cnoremap <C-x><C-f> <C-f>
+  if g:echords_command_mappings
+    # collision: c_CTRL-F open the command-line window
+    cnoremap <C-f> <Right>
+    # use <C-x><C-f> to use the vim builtin <C-f>
+    cnoremap <C-x><C-f> <C-f>
+  endif
+  if g:echords_visual_mappings
+    vnoremap <expr> <C-f> col('.') >= col('$') - 1 ? "j0" : "l"
+  endif
 
   # word backward
   # inoremap <M-b> <S-Left>
   inoremap <M-b> <C-o>b
   inoremap <M-Left> <C-o>b
   inoremap <C-Left> <C-o>b
-  cnoremap <M-b> <S-Left>
+  if g:echords_command_mappings
+    cnoremap <M-b> <S-Left>
+  endif
+  if g:echords_visual_mappings
+    vnoremap <M-b> b
+  endif
 
   # word forward
   # inoremap <M-f> <S-Right>
   inoremap <M-f> <C-o>e<Right>
   inoremap <M-Right> <C-o>e<Right>
   inoremap <C-Right> <C-o>e<Right>
-  cnoremap <M-f> <S-Right>
+  if g:echords_command_mappings
+    cnoremap <M-f> <S-Right>
+  endif
+  if g:echords_visual_mappings
+    vnoremap <M-f> e
+  endif
 
   # delete character backward
   # same as vim <DEL> = <BackSpace>
   # delete character forward
-  # collission: i_CTRL_D delete one shiftwidth of indent at the start of the current line
+  # collision: i_CTRL_D delete one shiftwidth of indent at the start of the current line
   # inoremap <C-d> <C-o>x
   inoremap <C-d> <Del>
-  # collission: c_CTRL-D list names that match the pattern in front of the cursor
-  cnoremap <C-d> <Del>
-  cnoremap <M-d> <S-Right><C-w>
+  if g:echords_command_mappings
+    # collision: c_CTRL-D list names that match the pattern in front of the cursor
+    cnoremap <C-d> <Del>
+    cnoremap <M-d> <S-Right><C-w>
+  endif
 
   # delete word backward
   inoremap <M-BackSpace> <C-w>
-  cnoremap <M-BackSpace> <C-w>
   inoremap <C-BackSpace> <C-w>
-  cnoremap <C-BackSpace> <C-w>
+  if g:echords_command_mappings
+    cnoremap <M-BackSpace> <C-w>
+    cnoremap <C-BackSpace> <C-w>
+  endif
 
   # delete the whole line
-  # inoremap <C-S-BackSpace> <C-o>0<C-o>dd
-  inoremap <C-S-BackSpace> <C-o>0<C-o>d$
+  if has('gui_running')
+    # inoremap <C-S-BackSpace> <C-o>0<C-o>dd
+    inoremap <C-S-BackSpace> <Cmd>normal! 0d$<CR>
+  endif
 
   # TODO: check
   # delete word forward
@@ -344,25 +438,47 @@ export def Enable()
   # inoremap <C-0><C-k> <C-u>
 
   # delete line forward
-  # collission: i_CTRL_K enter digraph
+  # collision: i_CTRL_K enter digraph
   # inoremap <C-k> <C-o>d$
-  inoremap <expr> <C-k> empty(trim(getline('.'))) ? "\<C-o>dd" : "\<C-o>d$"
-  # collission: c_CTRL-K enter diagraph
-  # cnoremap <C-k> <ScriptCmd>setcmdline("")<CR>
-  cnoremap <C-k> <ScriptCmd>DeleteCmdLine()<CR>
+  inoremap <expr> <C-k> col('.') == col('$') ? "\<Cmd>normal! gJ\<CR>" : "\<Cmd>normal! d$\<CR>"
+  if has('gui_running')
+    inoremap <expr> <C-S-k> empty(trim(getline('.'))) ? "\<Cmd>normal! dd\<CR>" : "\<Cmd>normal! d$\<CR>"
+  endif
+  if g:echords_command_mappings
+    # collision: c_CTRL-K enter diagraph
+    # cnoremap <C-k> <ScriptCmd>setcmdline("")<CR>
+    cnoremap <C-k> <ScriptCmd>DeleteCmdLine()<CR>
+  endif
 
   # yank
   # recheck alternative to == (formating)
-  # collission: i_CTRL_Y insert the character which is above the cursor
+  # collision: i_CTRL_Y insert the character which is above the cursor
   # inoremap <C-y> <C-o>p<C-o>==
-  inoremap <expr> <C-y> pumvisible() <bar><bar> preinserted() ? "\<C-y>" : "\<C-o>p\<C-o>=="
-  # collission: c_CTRL-Y when there is a modeless selection, copy the selection into the clipboard
-  # cnoremap <C-y> <C-r>*
-  # cnoremap <C-y> <C-r>+
-  cnoremap <C-y> <C-r>"
+  inoremap <expr> <C-y> pumvisible() <bar><bar> preinserted() ? "\<C-y>" : "\<C-r>\<C-p>\""
+  if g:echords_command_mappings
+    # collision: c_CTRL-Y when there is a modeless selection, copy the selection into the clipboard
+    # cnoremap <C-y> <C-r>*
+    # cnoremap <C-y> <C-r>+
+    cnoremap <C-y> <C-r>"
+  endif
 
   # paste interactive (yank-pop)
   inoremap <M-y> <C-x><C-r>
+
+  # kill ring save (copy selection)
+  if g:echords_visual_mappings
+    vnoremap <M-w> y
+  endif
+
+  # kill region (cut selection)
+  if g:echords_visual_mappings
+    vnoremap <C-w> d
+  endif
+
+  # indent region
+  if g:echords_visual_mappings
+    vnoremap <C-M-\> =
+  endif
 
   # undo
   # inoremap <C-/> <C-o>u
@@ -371,7 +487,7 @@ export def Enable()
   inoremap <C-/> <Cmd>undo<CR>
   inoremap <C-x>u <Cmd>undo<CR>
   inoremap <Undo> <Cmd>undo<CR>
-  # collission: i_CTRL-_ switch between languages
+  # collision: i_CTRL-_ switch between languages
   if has('gui_running')
    inoremap <C-S-_> <Cmd>undo<CR>
   else
@@ -406,13 +522,16 @@ export def Enable()
   # go to mini buffer M-x
   inoremap <M-x> <C-\><C-n>:
   inoremap <C-x><CR> <C-\><C-n>:
+
+  # eval expression
   # inoremap <M-:> <C-\><C-n>:
 
   # tags
   # find a tag (xref-find-definitions)
   inoremap <M-.> <C-o><C-]>
   # find a tag (a definition) in other window
-  inoremap <C-x>4. <C-o><C-w>}
+  inoremap <C-x>4. <Cmd>wincmd }<CR>
+
   # go back (xref-go-back)
   inoremap <M-,> <C-o><C-t>
 
@@ -433,24 +552,28 @@ export def Enable()
   inoremap <M-8> <C-o>8
   inoremap <M-9> <C-o>9
   # C-num numeric arguments (C-u num)
-  inoremap <C-1> <C-o>1
-  inoremap <C-2> <C-o>2
-  inoremap <C-3> <C-o>3
-  inoremap <C-4> <C-o>4
-  inoremap <C-5> <C-o>5
-  inoremap <C-6> <C-o>6
-  inoremap <C-7> <C-o>7
-  inoremap <C-8> <C-o>8
-  inoremap <C-9> <C-o>9
+  if has('gui_running')
+    inoremap <C-1> <C-o>1
+    inoremap <C-2> <C-o>2
+    inoremap <C-3> <C-o>3
+    inoremap <C-4> <C-o>4
+    inoremap <C-5> <C-o>5
+    inoremap <C-6> <C-o>6
+    inoremap <C-7> <C-o>7
+    inoremap <C-8> <C-o>8
+    inoremap <C-9> <C-o>9
+  endif
 
   # TODO: map to this? (undefined by default)
   ### inoremap <M-p> <Up>
   ### inoremap <M-n> <Down>
-  cnoremap <M-p> <Up>
-  cnoremap <M-n> <Down>
+  if g:echords_command_mappings
+    cnoremap <M-p> <Up>
+    cnoremap <M-n> <Down>
+  endif
 
   # scroll down
-  # collission: i_CTRL_V insert non-digit literally
+  # collision: i_CTRL_V insert non-digit literally
   # inoremap <C-v> <C-o><C-d>
   inoremap <C-v> <PageDown>
 
@@ -459,7 +582,7 @@ export def Enable()
   inoremap <M-v> <PageUp>
 
   # scroll current line top, center, bottom  (zz, zb, zt)
-  # collission: i_CTRL_L when 'insertmode' is set, go to noremal mode
+  # collision: i_CTRL_L when 'insertmode' is set, go to noremal mode
   # inoremap <C-l> <ScriptCmd>ScrollTo()<CR>
   inoremap <expr> <C-l> pumvisible() ? "\<C-l>" : "\<ScriptCmd>ScrollTo()\<CR>"
 
@@ -497,79 +620,118 @@ export def Enable()
   # <M-g>p
 
   # go to buffer beginning
-  inoremap <M-<> <C-o>1G<C-o>0
-  inoremap <C-Home> <C-o>1G<C-o>0
+  inoremap <M-<> <Cmd>normal! 1G0<CR>
+  inoremap <C-Home> <Cmd>normal! 1G0<CR>
 
   # go to buffer end
-  inoremap <M->>  <C-o>G<C-o>$
-  inoremap <C-End>  <C-o>G<C-o>$
+  inoremap <M->> <Cmd>normal! G$<CR>
+  inoremap <C-End> <Cmd>normal! G$<CR>
 
   # abbreviations (all buffers)
-  # expand previous world
+  # expand previous word
   # inoremap <M-/> <C-p>
   # TODO: check if <C-n> or <C-o>
   inoremap <expr> <M-/> pumvisible() <bar><bar> preinserted() ? "\<C-e>\<C-p>" : "\<C-p>"
 
   # abbreviations (current buffer)
-  # expand previous world
+  # expand previous word
   # inoremap <C-M-/> <C-x><C-p>
   # inoremap <expr> <C-M-/> pumvisible() ? "\<C-e>\<C-x>\<C-p>" : "\<C-x>\<C-p>"
 
   # windows
 
   # close this window
-  inoremap <C-x>0 <C-o><C-w>c
+  inoremap <C-x>0 <Cmd>close<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>0 <C-w>c
+  endif
 
   # delete all other windows (only)
-  inoremap <C-x>1 <C-o><C-w>o
+  inoremap <C-x>1 <Cmd>only<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>1 <C-w>o
+  endif
 
   # split window horizontal
-  inoremap <C-x>2 <C-o><C-w>s
+  inoremap <C-x>2 <Cmd>split<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>2 <C-w>s
+  endif
 
   # split window vertical
-  inoremap <C-x>3 <C-o><C-w>v
+  inoremap <C-x>3 <Cmd>vsplit<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>3 <C-w>v
+  endif
 
   # switch cursor to another window forward
-  inoremap <C-x>o <C-o><C-w>w
+  inoremap <C-x>o <Cmd>wincmd w<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>o <C-w>w
+  endif
 
   # switch cursor to another window backward
-  inoremap <C-x>O <C-o><C-w>W
+  inoremap <C-x>O <Cmd>wincmd W<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>O <C-w>W
+  endif
 
   # resize vertical equal window
-  inoremap <C-x>+ <C-o><C-w>=
+  inoremap <C-x>+ <Cmd>wincmd =<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>+ <C-w>=
+  endif
 
   # shrink window narrower
-  inoremap <C-x>{ <C-o><C-w><
+  inoremap <C-x>{ <Cmd>wincmd <<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>{ <C-w><
+  endif
 
   # grow window wider
-  inoremap <C-x>} <C-o><C-w>>
+  inoremap <C-x>} <Cmd>wincmd ><CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>} <C-w>>
+  endif
 
   # TODO: shrink window if larger than buffer
   # C-x -
 
   # TODO: recheck
   # grow window taller
-  inoremap <C-x>^ <C-o><C-w>+
+  inoremap <C-x>^ <Cmd>wincmd +<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-x>^ <C-w>+
+  endif
 
   # scroll other window forward
-  # TODO: do it better
-  inoremap <C-M-v> <C-o><C-w>w<C-o><PageDown><C-o><C-w>W
+  inoremap <C-M-v> <Cmd>wincmd w<CR><PageDown><Cmd>wincmd W<CR>
+  if g:echords_normal_mappings
+    nnoremap <C-M-v> <C-w>w<PageDown><C-w>W
+  endif
 
-  # scroll other window forward
+  # scroll other window backward
   if has('gui_running')
-    inoremap <C-M-S-v> <C-o><C-w>w<C-o><PageUp><C-o><C-w>W
+    inoremap <C-M-S-v> <Cmd>wincmd w<CR><PageUp><Cmd>wincmd W<CR>
+    if g:echords_normal_mappings
+      nnoremap <C-M-S-v> <C-w>w<PageUp><C-w>W
+    endif
   else
-    inoremap <F20> <C-o><C-w>w<C-o><PageUp><C-o><C-w>W
+    inoremap <F20> <Cmd>wincmd w<CR><PageUp><Cmd>wincmd W<CR>
+    if g:echords_normal_mappings
+      nnoremap <F20> <C-w>w<PageUp><C-w>W
+    endif
   endif
 
   # TODO: recheck
   # find file other window
   inoremap <C-x>4<C-f> <C-o>:split<Space>
 
-  # TODO: recheck
-  # formating
+  # formatting
   # delete indentation
   # inoremap <M-^> <Up><End><C-o>J
+  inoremap <M-^> <Cmd>normal! gJ<CR>
+
   # TODO? add command?
 
   # TODO
@@ -582,16 +744,25 @@ export def Enable()
   # collision: i_CTRL-e insert the character which is below the cursor
   inoremap <C-x>e <C-\><C-n>@z
 
-  #) abort)
-  # collission: i_CTRL_G don't start a new undo block with the next left/right cursor movement
+  # abort
+  # collision: i_CTRL_G don't start a new undo block with the next left/right cursor movement
   # inoremap <C-g> <C-c>
   # inoremap <C-g> <C-\><C-n>
   inoremap <expr> <C-g> pumvisible() <bar><bar> preinserted() ? "\<C-e>" : "\<C-\>\<C-n>"
-  # collission: c_CTRL-g when 'incsearch' is set, entering a search pattern for '/' or '?' move to the next match
-  cnoremap <C-g> <C-c><Esc>
-  # collission: v_CTRL-g (several options)
-  vnoremap <C-g> <Esc>gV
-  onoremap <C-g> <Esc>
+  if g:echords_command_mappings
+    # collision: c_CTRL-g when 'incsearch' is set, entering a search pattern for '/' or '?' move to the next match
+    cnoremap <C-g> <C-c><Esc>
+  endif
+  # collision: v_CTRL-g (several options)
+  if g:echords_visual_mappings
+    vnoremap <C-g> <Esc>gV
+  endif
+  if g:echords_operator_mappings
+    onoremap <C-g> <Esc>
+  endif
+  if g:echords_normal_mappings
+    nnoremap <C-g> <Esc>
+  endif
 
   # TODO: add more
   # extras
@@ -603,19 +774,19 @@ export def Enable()
     inoremap <M-S-o> <C-o>O
 
     # duplicate line
-    inoremap <leader>ed <C-o>^<C-o>yy<C-o>p
+    inoremap <leader>ed <Cmd>normal! ^yyp<CR>
 
     # copy line
-    inoremap <leader>ew <C-o>^<C-o>yy
+    inoremap <leader>ew <Cmd>normal! ^yy<CR>
 
     # copy from above
-    inoremap <leader>eP <C-o>k<C-o>^<C-o>yy<C-o>p
+    inoremap <leader>eP <Cmd>normal! k^yyp<CR>
 
     # join line
     inoremap <leader>eJ <C-o>J
 
     # prints the current file name and the cursor position
-    inoremap <C-x>= <C-o><C-g>
+    inoremap <C-x>= <Cmd>file<CR>
 
     # count words
     inoremap <leader>e= <Cmd>echo wordcount()<CR>
@@ -627,66 +798,106 @@ export def Enable()
   # TODO: recheck terminal maps to disable section
   # terminal
 
-  # word backward
-  tnoremap <M-b> <Esc>b
+  if g:echords_terminal_mappings
+    # word backward
+    tnoremap <M-b> <Esc>b
 
-  # word forward
-  tnoremap <M-f> <Esc>f
+    # word forward
+    tnoremap <M-f> <Esc>f
 
-  # delete character backward
-  tnoremap <C-d> <Del>
+    # delete character backward
+    tnoremap <C-d> <Del>
 
-  # delete word forward
-  tnoremap <M-d> <Esc>d
+    # delete word forward
+    tnoremap <M-d> <Esc>d
 
-  # move
-  tnoremap <M-p> <Up>
-  tnoremap <M-n> <Down>
+    # move
+    tnoremap <M-p> <Up>
+    tnoremap <M-n> <Down>
 
-  # delete word backward
-  tnoremap <M-BackSpace> <Esc>b<Esc>d
-  tnoremap <C-BackSpace> <Esc>b<Esc>d
+    # delete word backward
+    tnoremap <M-BackSpace> <Esc>b<Esc>d
+    tnoremap <C-BackSpace> <Esc>b<Esc>d
 
-  # TODO: bash?
-  tnoremap <C-M-h> <Esc>b<Esc>d
+    # TODO: bash?
+    tnoremap <C-M-h> <Esc>b<Esc>d
 
-  # delete the whole line
-  tnoremap <C-S-BackSpace> <C-a><C-k>
+    # delete the whole line
+    if has('gui_running')
+      tnoremap <C-S-BackSpace> <C-a><C-k>
+    endif
+  endif
 enddef
 
 # disable echords keys
 export def Disable()
   silent! iunmap <C-a>
+  if g:echords_visual_mappings
+    silent! vunmap <C-a>
+  endif
+  if g:echords_normal_mappings
+    silent! nunmap <C-a>
+  endif
   if has('gui_running')
     silent! iunmap <C-S-a>
   else
     silent! iunmap <F13>
   endif
   silent! iunmap <C-x><C-a>
-  silent! cunmap <C-a>
-  silent! cunmap <C-x><C-a>
+  if g:echords_command_mappings
+    silent! cunmap <C-a>
+    silent! cunmap <C-x><C-a>
+  endif
   silent! iunmap <C-e>
+  if g:echords_visual_mappings
+    silent! vunmap <C-e>
+  endif
+  if g:echords_normal_mappings
+    silent! nunmap <C-e>
+  endif
+  if g:echords_command_mappings
+    silent! cunmap <C-e>
+  endif
   if has('gui_running')
     silent! iunmap <C-S-e>
   else
     silent! iunmap <F14>
   endif
+  silent! iunmap <C-q>
+  silent! iunmap <C-o>
+  if has('gui_running')
+    silent! iunmap <C-S-o>
+  endif
   if has('gui_running')
     silent! iunmap <C-Space>
+    if g:echords_normal_mappings
+      silent! nunmap <C-Space>
+    endif
   else
     silent! iunmap <C-@>
+    if g:echords_normal_mappings
+      silent! nunmap <C-@>
+    endif
   endif
-  silent! iunmap <C-S-@>
+  if has('gui_running')
+    silent! iunmap <C-S-@>
+  endif
   silent! iunmap <C-x>h
   if has('gui_running')
     silent! iunmap <C-u><C-Space>
   else
     silent! iunmap <C-u><C-@>
   endif
-  silent! vunmap <C-x><C-x>
+  if g:echords_visual_mappings
+    silent! vunmap <C-x><C-x>
+  endif
   silent! iunmap <M-@>
   silent! iunmap <M-%>
   silent! iunmap <M-$>
+  silent! iunmap <M-q>
+  if g:echords_visual_mappings
+    silent! vunmap <M-q>
+  endif
   silent! iunmap <M-m>
   silent! iunmap <M-S-m>
   silent! iunmap <M-a>
@@ -719,51 +930,99 @@ export def Disable()
   else
     silent! iunmap <F22>
   endif
-  silent! vunmap <C-p>
+  if g:echords_visual_mappings
+    silent! vunmap <C-p>
+  endif
   silent! iunmap <C-n>
+  silent! iunmap <C-s><C-s>
+  silent! iunmap <C-r><C-r>
   if has('gui_running')
     silent! iunmap <C-S-n>
   else
     silent! iunmap <F21>
   endif
-  silent! vunmap <C-n>
+  if g:echords_visual_mappings
+    silent! vunmap <C-n>
+  endif
   silent! iunmap <C-x>s
   silent! iunmap <C-x><C-s>
   silent! iunmap <C-x>xg
   silent! iunmap <C-x>d
+  silent! iunmap <C-x><C-f>
+  # silent! iunmap <C-x><C-c>
   silent! iunmap <C-x><C-j>
   silent! iunmap <C-x><C-w>
   silent! iunmap <C-t>
   silent! iunmap <M-t>
   silent! iunmap <C-x><C-t>
   silent! iunmap <C-b>
-  silent! cunmap <C-b>
+  if g:echords_command_mappings
+    silent! cunmap <C-b>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <C-b>
+  endif
   silent! iunmap <C-f>
-  silent! cunmap <C-f>
-  silent! cunmap <C-x><C-f>
+  if g:echords_command_mappings
+    silent! cunmap <C-f>
+    silent! cunmap <C-x><C-f>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <C-f>
+  endif
   silent! iunmap <M-b>
   silent! iunmap <M-Left>
   silent! iunmap <C-Left>
-  silent! cunmap <M-b>
+  if g:echords_command_mappings
+    silent! cunmap <M-b>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <M-b>
+  endif
   silent! iunmap <M-f>
   silent! iunmap <M-Right>
   silent! iunmap <C-Right>
-  silent! cunmap <M-f>
+  if g:echords_command_mappings
+    silent! cunmap <M-f>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <M-f>
+  endif
   silent! iunmap <C-d>
-  silent! cunmap <C-d>
-  silent! cunmap <M-d>
+  if g:echords_command_mappings
+    silent! cunmap <C-d>
+    silent! cunmap <M-d>
+  endif
   silent! iunmap <M-BackSpace>
-  silent! cunmap <M-BackSpace>
   silent! iunmap <C-BackSpace>
-  silent! cunmap <C-BackSpace>
-  silent! iunmap <C-S-BackSpace>
+  if g:echords_command_mappings
+    silent! cunmap <M-BackSpace>
+    silent! cunmap <C-BackSpace>
+  endif
+  if has('gui_running')
+    silent! iunmap <C-S-BackSpace>
+  endif
   silent! iunmap <M-d>
   silent! iunmap <C-Delete>
   silent! iunmap <C-k>
-  silent! cunmap <C-k>
+  if has('gui_running')
+    silent! iunmap <C-S-k>
+  endif
   silent! iunmap <C-y>
-  silent! cunmap <C-y>
+  if g:echords_command_mappings
+    silent! cunmap <C-k>
+    silent! cunmap <C-y>
+  endif
   silent! iunmap <M-y>
+  if g:echords_visual_mappings
+    silent! vunmap <M-w>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <C-w>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <C-M-\>
+  endif
   silent! iunmap <C-/>
   silent! iunmap <C-x>u
   silent! iunmap <Undo>
@@ -787,7 +1046,7 @@ export def Disable()
   silent! iunmap <C-x>k
   silent! iunmap <M-x>
   silent! iunmap <C-x><CR>
-  # inoremap <M-:> <M-:>
+  # silent! iunmap <M-:>
   silent! iunmap <M-.>
   silent! iunmap <C-x>4.
   silent! iunmap <M-,>
@@ -802,19 +1061,23 @@ export def Disable()
   silent! iunmap <M-7>
   silent! iunmap <M-8>
   silent! iunmap <M-9>
-  silent! iunmap <C-1>
-  silent! iunmap <C-2>
-  silent! iunmap <C-3>
-  silent! iunmap <C-4>
-  silent! iunmap <C-5>
-  silent! iunmap <C-6>
-  silent! iunmap <C-7>
-  silent! iunmap <C-8>
-  silent! iunmap <C-9>
+  if has('gui_running')
+    silent! iunmap <C-1>
+    silent! iunmap <C-2>
+    silent! iunmap <C-3>
+    silent! iunmap <C-4>
+    silent! iunmap <C-5>
+    silent! iunmap <C-6>
+    silent! iunmap <C-7>
+    silent! iunmap <C-8>
+    silent! iunmap <C-9>
+  endif
   ### silent! iunmap <M-p>
   ### silent! iunmap <M-n>
-  silent! cunmap <M-p>
-  silent! cunmap <M-n>
+  if g:echords_command_mappings
+    silent! cunmap <M-p>
+    silent! cunmap <M-n>
+  endif
   silent! iunmap <C-v>
   silent! iunmap <M-v>
   silent! iunmap <C-l>
@@ -833,30 +1096,78 @@ export def Disable()
   silent! iunmap <M-/>
   silent! iunmap <C-M-/>
   silent! iunmap <C-x>0
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>0
+  endif
   silent! iunmap <C-x>1
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>1
+  endif
   silent! iunmap <C-x>2
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>2
+  endif
   silent! iunmap <C-x>3
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>3
+  endif
   silent! iunmap <C-x>o
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>o
+  endif
   silent! iunmap <C-x>O
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>O
+  endif
   silent! iunmap <C-x>+
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>+
+  endif
   silent! iunmap <C-x>{
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>{
+  endif
   silent! iunmap <C-x>}
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>}
+  endif
   silent! iunmap <C-x>^
+  if g:echords_normal_mappings
+    silent! nunmap <C-x>^
+  endif
   silent! iunmap <C-M-v>
+  if g:echords_normal_mappings
+    silent! nunmap <C-M-v>
+  endif
   if has('gui_running')
     silent! iunmap <C-M-S-v>
+    if g:echords_normal_mappings
+      silent! nunmap <C-M-S-v>
+    endif
   else
     silent! iunmap <F20>
+    if g:echords_normal_mappings
+      silent! nunmap <F20>
+    endif
   endif
   silent! iunmap <C-x>4<C-f>
   silent! iunmap <C-x>(
   silent! iunmap <C-x>)
   silent! iunmap <C-x>e
-  # inoremap <M-^> <M-^>
+  silent! iunmap <M-^>
   silent! iunmap <C-g>
-  silent! cunmap <C-g>
-  silent! vunmap <C-g>
-  silent! ounmap <C-g>
+  if g:echords_command_mappings
+    silent! cunmap <C-g>
+  endif
+  if g:echords_visual_mappings
+    silent! vunmap <C-g>
+  endif
+  if g:echords_operator_mappings
+    silent! ounmap <C-g>
+  endif
+  if g:echords_normal_mappings
+    silent! nunmap <C-g>
+  endif
 
   if g:echords_extra_mappings
     silent! iunmap <M-o>
@@ -870,19 +1181,23 @@ export def Disable()
     silent! iunmap <leader>ez
   endif
 
-  # TODO: recheck terminal maps to disable section
-  # terminal
-  silent! tunmap <M-b>
-  silent! tunmap <M-f>
-  silent! tunmap <C-d>
-  silent! tunmap <M-d>
-  silent! tunmap <M-p>
-  silent! tunmap <M-n>
-  silent! tunmap <M-BackSpace>
-  silent! tunmap <C-BackSpace>
-  silent! tunmap <C-S-BackSpace>
-  # TODO: bash?
-  silent! tunmap <C-M-h>
+  if g:echords_terminal_mappings
+    # TODO: recheck terminal maps to disable section
+    # terminal
+    silent! tunmap <M-b>
+    silent! tunmap <M-f>
+    silent! tunmap <C-d>
+    silent! tunmap <M-d>
+    silent! tunmap <M-p>
+    silent! tunmap <M-n>
+    silent! tunmap <M-BackSpace>
+    silent! tunmap <C-BackSpace>
+    if has('gui_running')
+      silent! tunmap <C-S-BackSpace>
+    endif
+    # TODO: bash?
+    silent! tunmap <C-M-h>
+  endif
 enddef
 
 # toggle echords keys
@@ -1018,5 +1333,5 @@ def DeleteCmdLine(): void
   var new = line[: pos - 2]
   setcmdline(new)
   setcmdpos(strlen(new) + 1)
-  # TODO: custom collission with <C-Space> (see vimrc.local)
+  # TODO: custom collision with <C-Space> (see vimrc.local)
 enddef
