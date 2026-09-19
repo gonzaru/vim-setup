@@ -195,16 +195,25 @@ export def Enable()
 
   # go to line beginning (non-blank)
   inoremap <M-m> <C-o>^
+   if g:echords_normal_mappings
+    nnoremap <M-m> ^
+  endif
   # go to line beginning (non-blank) + select
   inoremap <M-S-m> <C-o>v^
 
   # go to sentence backward
   inoremap <M-a> <C-o>(
+  if g:echords_normal_mappings
+    nnoremap <M-a> (
+  endif
   # go to sentence backward + select
   inoremap <M-S-a> <C-o>v(
 
   # go to sentence forward
   inoremap <M-e> <C-o>)
+  if g:echords_normal_mappings
+    nnoremap <M-e> )
+  endif
   # go to sentence forward + select
   inoremap <M-S-e> <C-o>v)
 
@@ -217,6 +226,10 @@ export def Enable()
   # go to paragraph backward
   inoremap <M-{> <C-o>{
   inoremap <C-Up> <C-o>{
+  if g:echords_normal_mappings
+    nnoremap <M-{> {
+    nnoremap <C-Up> {
+  endif
   # go to paragraph backward + select
   if has('gui_running')
     inoremap <C-S-Up> <C-o>v{
@@ -227,6 +240,10 @@ export def Enable()
   # go to paragraph forward
   inoremap <M-}> <C-o>}
   inoremap <C-Down> <C-o>}
+  if g:echords_normal_mappings
+    nnoremap <M-}> }
+    nnoremap <C-Down> }
+  endif
   # go to paragraph forward + select
   if has('gui_running')
     inoremap <C-S-Down> <C-o>v}
@@ -238,9 +255,17 @@ export def Enable()
   # method up
   inoremap <C-M-a> <C-o>[m
   inoremap <C-M-Home> <C-o>[m
+  if g:echords_normal_mappings
+    nnoremap <C-M-a> [m
+    nnoremap <C-M-Home> [m
+  endif
   # method down
   inoremap <C-M-e> <C-o>]m
   inoremap <C-M-End> <C-o>]m
+  if g:echords_normal_mappings
+    nnoremap <C-M-e> ]m
+    nnoremap <C-M-End> ]m
+  endif
 
   # goto previous line
   # collision: i_CTRL-P completion find the previous match
@@ -248,19 +273,24 @@ export def Enable()
   # inoremap <C-p> <Up>
   # inoremap <expr> <C-p> pumvisible() <bar><bar> preinserted() ? "\<C-p>" : "\<Up>"
   # inoremap <expr> <C-p> pumvisible() ? "\<C-e>\<Up>" : "\<Up>"
-  # inoremap <expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
-  inoremap <expr> <C-p>
-  \ pumvisible() && get(g:, 'loaded_complementum')
-  \ ? "\<Up>"
-  \ : pumvisible()
-  \ ? "\<C-p>"
-  \ : "\<Up>"
+  inoremap <expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+  # inoremap <expr> <C-p>
+  # \ pumvisible() && get(g:, 'loaded_complementum')
+  # \ ? "\<Up>"
+  # \ : pumvisible()
+  # \ ? "\<C-p>"
+  # \ : "\<Up>"
+  if g:echords_normal_mappings
+    nnoremap <C-p> k
+  endif
 
   # goto previous line + select
   if has('gui_running')
-    inoremap <C-S-p> <C-o>v0k
+    # inoremap <C-S-p> <C-o>v0k
+    inoremap <expr> <C-S-p> pumvisible() ? "\<C-e>\<C-o>k" : "\<C-o>v0k"
   else
-    inoremap <F22> <C-o>v0k
+    # inoremap <F22> <C-o>v0k
+    inoremap <expr> <F22> pumvisible() ? "\<C-e>\<C-o>k" : "\<C-o>v0k"
   endif
   # select previous line
   if g:echords_visual_mappings
@@ -274,32 +304,39 @@ export def Enable()
   # inoremap <expr> <C-n> pumvisible() <bar><bar> preinserted() ? "\<C-n>" : "\<Down>"
   # inoremap <C-n> <Down>
   # inoremap <expr> <C-n> pumvisible() ? "\<C-e>\<Down>" : "\<Down>"
-  # inoremap <expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
-  inoremap <expr> <C-n>
-  \ pumvisible() && get(g:, 'loaded_complementum')
-  \ ? "\<Down>"
-  \ : pumvisible()
-  \ ? "\<C-n>"
-  \ : "\<Down>"
+  inoremap <expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
+  # inoremap <expr> <C-n>
+  # \ pumvisible() && get(g:, 'loaded_complementum')
+  # \ ? "\<Down>"
+  # \ : pumvisible()
+  # \ ? "\<C-n>"
+  # \ : "\<Down>"
+  if g:echords_normal_mappings
+    nnoremap <C-n> j
+  endif
 
   # goto next line + select
   if has('gui_running')
-    inoremap <C-S-n> <C-o>v$j
+    # inoremap <C-S-n> <C-o>v$j
+    inoremap <expr> <C-S-n> pumvisible() ? "\<C-e>\<C-o>j" : "\<C-o>v$j"
   else
-    inoremap <F21> <C-o>v$j
+    # inoremap <F21> <C-o>v$j
+    inoremap <expr> <F21> pumvisible() ? "\<C-e>\<C-o>j" : "\<C-o>v$j"
   endif
   # select next line
   if g:echords_visual_mappings
     vnoremap <C-n> j
   endif
 
-  # isearch fordward
-  # collission with <leader> <C-s>
+  # isearch forward
+  # collision with <leader> <C-s>
   inoremap <C-s><C-s> <C-\><C-n>/
-
   if g:echords_normal_mappings
     nnoremap <C-s><C-s> /
   endif
+
+  # search the current word or char forward
+  inoremap <C-s><C-w> <C-\><C-n>*
 
   # isearch backward
   # collision with i_CTRL-R_CTRL-R insert the contents of a register. (like i_CTLR-R, but inserted literally)
@@ -308,6 +345,9 @@ export def Enable()
     # collision with CTRL-R_CTRL-R insert the contents of a register. (like CTLR-R, but inserted literally)
     nnoremap <C-r><C-r> ?
   endif
+
+  # search the current word or char backward
+  inoremap <C-r><C-w> <C-\><C-n>#
 
   # write
   # collision with i_CTRL_X_s and i_CTRL_X i_CTRL_X_s locate the word in front of the cursor and first the first spell suggestion for it
@@ -330,7 +370,10 @@ export def Enable()
   # inoremap <C-x><C-c> <Cmd>confirm qa<CR>
 
   # edit the current directory
-  inoremap <C-x><C-j> <Cmd>edit .<CR>
+  inoremap <C-x><C-j> <C-\><C-n><Cmd>edit .<CR>
+  if g:echords_extra_mappings
+    inoremap <C-x>j <C-\><C-n><Cmd>edit .<CR>
+  endif
 
   # write file
   inoremap <C-x><C-w> <C-\><C-n><ScriptCmd>feedkeys(":write " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
@@ -361,6 +404,10 @@ export def Enable()
   if g:echords_visual_mappings
     vnoremap <expr> <C-b> col('.') == 1 ? "k$" : "h"
   endif
+  if g:echords_normal_mappings
+    # collison: CTRL-F scroll window [count] pages backwards (backwards) <PageUp>
+    nnoremap <C-b> h
+  endif
 
   # character forward
   # collision: i_CTRL-F characters that can precede each key
@@ -374,6 +421,10 @@ export def Enable()
   if g:echords_visual_mappings
     vnoremap <expr> <C-f> col('.') >= col('$') - 1 ? "j0" : "l"
   endif
+  if g:echords_normal_mappings
+    # collison: CTRL-F scroll window [count] pages forwards (downwards) <PageDown>
+    nnoremap <C-f> l
+  endif
 
   # word backward
   # inoremap <M-b> <S-Left>
@@ -386,6 +437,9 @@ export def Enable()
   if g:echords_visual_mappings
     vnoremap <M-b> b
   endif
+  if g:echords_normal_mappings
+    nnoremap <M-b> b
+  endif
 
   # word forward
   # inoremap <M-f> <S-Right>
@@ -397,6 +451,9 @@ export def Enable()
   endif
   if g:echords_visual_mappings
     vnoremap <M-f> e
+  endif
+  if g:echords_normal_mappings
+    nnoremap <M-f> e
   endif
 
   # delete character backward
@@ -511,7 +568,7 @@ export def Enable()
   # TODO: list etc
   # inoremap <C-x>b <C-o>:bprevious
   # inoremap <C-x>b <C-\><C-n>:b<Space>
-  inoremap <C-x>b <C-\><C-n><ScriptCmd>feedkeys(":b " .. fnamemodify(bufname('#'), ":~"))<CR>
+  inoremap <C-x>b <C-\><C-n><ScriptCmd>feedkeys(":buffer " .. fnamemodify(bufname('#'), ":~"))<CR>
 
   # list all buffers
   inoremap <C-x><C-b> <Cmd>ls<CR>
@@ -521,7 +578,6 @@ export def Enable()
 
   # go to mini buffer M-x
   inoremap <M-x> <C-\><C-n>:
-  inoremap <C-x><CR> <C-\><C-n>:
 
   # eval expression
   # inoremap <M-:> <C-\><C-n>:
@@ -531,9 +587,16 @@ export def Enable()
   inoremap <M-.> <C-o><C-]>
   # find a tag (a definition) in other window
   inoremap <C-x>4. <Cmd>wincmd }<CR>
+  if g:echords_normal_mappings
+    nnoremap <M-.> <C-]>
+    nnoremap <C-x>4. <C-w>}
+  endif
 
   # go back (xref-go-back)
   inoremap <M-,> <C-o><C-t>
+  if g:echords_normal_mappings
+    nnoremap <M-,> <C-t>
+  endif
 
   # shells / terminal
   # execute a shell command
@@ -576,18 +639,34 @@ export def Enable()
   # collision: i_CTRL_V insert non-digit literally
   # inoremap <C-v> <C-o><C-d>
   inoremap <C-v> <PageDown>
+  if g:echords_normal_mappings
+    # collision: CTRL-V start visual mode blockwise
+    nnoremap <C-v> <PageDown>
+    # add leader as alternative
+    nnoremap <leader><C-v> <C-v>
+  endif
 
   # scroll up
   # inoremap <M-v> <C-o><C-u>
   inoremap <M-v> <PageUp>
+  if g:echords_normal_mappings
+    nnoremap <M-v> <PageUp>
+  endif
 
   # scroll current line top, center, bottom  (zz, zb, zt)
   # collision: i_CTRL_L when 'insertmode' is set, go to noremal mode
   # inoremap <C-l> <ScriptCmd>ScrollTo()<CR>
   inoremap <expr> <C-l> pumvisible() ? "\<C-l>" : "\<ScriptCmd>ScrollTo()\<CR>"
+  if g:echords_normal_mappings
+    # collision: CTRL-L clear and redraw the screen
+    nnoremap <C-l> <ScriptCmd>ScrollTo()<CR>
+  endif
 
   # move between top, middle, bottom of window
   inoremap <M-r> <ScriptCmd>CursorTo()<CR>
+  if g:echords_normal_mappings
+    nnoremap <M-r> <ScriptCmd>CursorTo()<CR>
+  endif
 
   # TODO
   # scroll left, right
@@ -612,6 +691,10 @@ export def Enable()
   # TODO: add message "Goto line: "
   inoremap <M-g>g <C-o>:
   inoremap <M-g><M-g> <C-o>:
+  if g:echords_normal_mappings
+    nnoremap <M-g>g :
+    nnoremap <M-g><M-g> :
+  endif
 
   # TODO: errors
   # go to next error
@@ -622,10 +705,18 @@ export def Enable()
   # go to buffer beginning
   inoremap <M-<> <Cmd>normal! 1G0<CR>
   inoremap <C-Home> <Cmd>normal! 1G0<CR>
+  if g:echords_normal_mappings
+    nnoremap <M-<> gg
+    nnoremap <C-Home> gg
+  endif
 
   # go to buffer end
   inoremap <M->> <Cmd>normal! G$<CR>
   inoremap <C-End> <Cmd>normal! G$<CR>
+  if g:echords_normal_mappings
+    nnoremap <M->> G
+    nnoremap <C-End> G
+  endif
 
   # abbreviations (all buffers)
   # expand previous word
@@ -767,6 +858,26 @@ export def Enable()
   # TODO: add more
   # extras
   if g:echords_extra_mappings
+
+    # leader
+    # imap: recursive map for <leader>
+    imap <C-x><C-x> <C-\><C-n><leader>
+
+    # M-x
+    inoremap <C-x><CR> <C-\><C-n>:
+    inoremap <C-x><C-m> <C-\><C-n>:
+
+    if g:echords_normal_mappings
+        nnoremap <M-x> :
+    endif
+
+    # go to alternate buffer
+    # collision: i_CTRL_^ toggle to use of typing language characters
+    inoremap <C-^> <Cmd>buffer#<CR>
+
+    # delete current buffer
+    inoremap <C-x>K <Cmd>bdelete<CR>
+
     # begin a new line below the cursor
     inoremap <M-o> <C-o>o
 
@@ -899,15 +1010,28 @@ export def Disable()
     silent! vunmap <M-q>
   endif
   silent! iunmap <M-m>
+  if g:echords_normal_mappings
+    silent! nunmap <M-m>
+  endif
   silent! iunmap <M-S-m>
   silent! iunmap <M-a>
+  if g:echords_normal_mappings
+    silent! nunmap <M-a>
+  endif
   silent! iunmap <M-S-a>
   silent! iunmap <M-e>
+  if g:echords_normal_mappings
+    silent! nunmap <M-e>
+  endif
   silent! iunmap <M-S-e>
   silent! iunmap <C-x><BackSpace>
   silent! iunmap <M-k>
   silent! iunmap <M-{>
   silent! iunmap <C-Up>
+  if g:echords_normal_mappings
+    silent! nunmap <M-{>
+    silent! nunmap <C-Up>
+  endif
   if has('gui_running')
     silent! iunmap <C-S-Up>
   else
@@ -915,6 +1039,10 @@ export def Disable()
   endif
   silent! iunmap <M-}>
   silent! iunmap <C-Down>
+  if g:echords_normal_mappings
+    silent! nunmap <M-}>
+    silent! nunmap <C-Down>
+  endif
   if has('gui_running')
     silent! iunmap <C-S-Down>
   else
@@ -922,9 +1050,20 @@ export def Disable()
   endif
   silent! iunmap <C-M-a>
   silent! iunmap <C-M-Home>
+  if g:echords_normal_mappings
+    silent! nunmap <C-M-a>
+    silent! nunmap <C-M-Home>
+  endif
   silent! iunmap <C-M-e>
   silent! iunmap <C-M-End>
+  if g:echords_normal_mappings
+    silent! nunmap <C-M-e>
+    silent! nunmap <C-M-End>
+  endif
   silent! iunmap <C-p>
+  if g:echords_normal_mappings
+    silent! nunmap <C-p>
+  endif
   if has('gui_running')
     silent! iunmap <C-S-p>
   else
@@ -934,8 +1073,13 @@ export def Disable()
     silent! vunmap <C-p>
   endif
   silent! iunmap <C-n>
+  if g:echords_normal_mappings
+    silent! nunmap <C-n>
+  endif
   silent! iunmap <C-s><C-s>
+  silent! iunmap <C-s><C-w>
   silent! iunmap <C-r><C-r>
+  silent! iunmap <C-r><C-w>
   if has('gui_running')
     silent! iunmap <C-S-n>
   else
@@ -951,6 +1095,9 @@ export def Disable()
   silent! iunmap <C-x><C-f>
   # silent! iunmap <C-x><C-c>
   silent! iunmap <C-x><C-j>
+  if g:echords_extra_mappings
+    silent! iunmap <C-x>j
+  endif
   silent! iunmap <C-x><C-w>
   silent! iunmap <C-t>
   silent! iunmap <M-t>
@@ -962,6 +1109,9 @@ export def Disable()
   if g:echords_visual_mappings
     silent! vunmap <C-b>
   endif
+  if g:echords_normal_mappings
+    silent! nunmap <C-b>
+  endif
   silent! iunmap <C-f>
   if g:echords_command_mappings
     silent! cunmap <C-f>
@@ -969,6 +1119,9 @@ export def Disable()
   endif
   if g:echords_visual_mappings
     silent! vunmap <C-f>
+  endif
+  if g:echords_normal_mappings
+    silent! nunmap <C-f>
   endif
   silent! iunmap <M-b>
   silent! iunmap <M-Left>
@@ -979,6 +1132,9 @@ export def Disable()
   if g:echords_visual_mappings
     silent! vunmap <M-b>
   endif
+  if g:echords_normal_mappings
+    silent! nunmap <M-b>
+  endif
   silent! iunmap <M-f>
   silent! iunmap <M-Right>
   silent! iunmap <C-Right>
@@ -987,6 +1143,9 @@ export def Disable()
   endif
   if g:echords_visual_mappings
     silent! vunmap <M-f>
+  endif
+  if g:echords_normal_mappings
+    silent! nunmap <M-f>
   endif
   silent! iunmap <C-d>
   if g:echords_command_mappings
@@ -1045,11 +1204,15 @@ export def Disable()
   silent! iunmap <C-x><C-b>
   silent! iunmap <C-x>k
   silent! iunmap <M-x>
-  silent! iunmap <C-x><CR>
   # silent! iunmap <M-:>
   silent! iunmap <M-.>
   silent! iunmap <C-x>4.
   silent! iunmap <M-,>
+  if g:echords_normal_mappings
+    silent! nunmap <M-.>
+    silent! nunmap <C-x>4.
+    silent! nunmap <M-,>
+  endif
   silent! iunmap <M-!>
   silent! iunmap <M-&>
   silent! iunmap <M-1>
@@ -1080,8 +1243,19 @@ export def Disable()
   endif
   silent! iunmap <C-v>
   silent! iunmap <M-v>
+  if g:echords_normal_mappings
+    silent! nunmap <C-v>
+    silent! nunmap <M-v>
+    silent! nunmap <leader><C-v>
+  endif
   silent! iunmap <C-l>
+  if g:echords_normal_mappings
+    silent! nunmap <C-l>
+  endif
   silent! iunmap <M-r>
+  if g:echords_normal_mappings
+    silent! nunmap <M-r>
+  endif
   silent! iunmap <M-z>
   silent! iunmap <M-u>
   silent! iunmap <M-l>
@@ -1089,10 +1263,22 @@ export def Disable()
   silent! iunmap <C-x><C-q>
   silent! iunmap <M-g>g
   silent! iunmap <M-g><M-g>
+  if g:echords_normal_mappings
+    silent! nunmap <M-g>g
+    silent! nunmap <M-g><M-g>
+  endif
   silent! iunmap <M-<>
   silent! iunmap <C-Home>
+  if g:echords_normal_mappings
+    silent! nunmap <M-<>
+    silent! nunmap <C-Home>
+  endif
   silent! iunmap <M->>
   silent! iunmap <C-End>
+  if g:echords_normal_mappings
+    silent! nunmap <M->>
+    silent! nunmap <C-End>
+  endif
   silent! iunmap <M-/>
   silent! iunmap <C-M-/>
   silent! iunmap <C-x>0
@@ -1170,6 +1356,10 @@ export def Disable()
   endif
 
   if g:echords_extra_mappings
+    silent! iunmap <C-x><C-x>
+    silent! iunmap <C-^>
+    silent! iunmap <C-x>K
+    silent! iunmap <C-x><CR>
     silent! iunmap <M-o>
     silent! iunmap <M-S-o>
     silent! iunmap <leader>ed
@@ -1177,6 +1367,10 @@ export def Disable()
     silent! iunmap <leader>eP
     silent! iunmap <leader>eJ
     silent! iunmap <C-x>=
+    silent! iunmap <C-x><C-m>
+    if g:echords_normal_mappings
+      silent! nunmap <M-x>
+    endif
     silent! iunmap <leader>e=
     silent! iunmap <leader>ez
   endif
