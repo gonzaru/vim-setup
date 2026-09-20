@@ -371,9 +371,9 @@ export def Enable()
 
   # edit the current directory
   inoremap <C-x><C-j> <C-\><C-n><Cmd>edit .<CR>
-  if g:echords_extra_mappings
-    inoremap <C-x>j <C-\><C-n><Cmd>edit .<CR>
-  endif
+  # if g:echords_extra_mappings
+  #  inoremap <C-x>j <C-\><C-n><Cmd>edit .<CR>
+  # endif
 
   # write file
   inoremap <C-x><C-w> <C-\><C-n><ScriptCmd>feedkeys(":write " .. expand('%:p:~:h') .. $"{expand('%:p:h') == '/' ? '' : '/'}")<CR>
@@ -405,7 +405,7 @@ export def Enable()
     vnoremap <expr> <C-b> col('.') == 1 ? "k$" : "h"
   endif
   if g:echords_normal_mappings
-    # collison: CTRL-F scroll window [count] pages backwards (backwards) <PageUp>
+    # collision: CTRL-F scroll window [count] pages backwards (backwards) <PageUp>
     nnoremap <C-b> h
   endif
 
@@ -524,12 +524,20 @@ export def Enable()
 
   # kill ring save (copy selection)
   if g:echords_visual_mappings
-    vnoremap <M-w> y
+    if g:echords_override_mappings
+      vnoremap <M-w> d
+    else
+      vnoremap <M-w> y
+    endif
   endif
 
   # kill region (cut selection)
   if g:echords_visual_mappings
-    vnoremap <C-w> d
+    if g:echords_override_mappings
+      vnoremap <C-w> y
+    else
+      vnoremap <C-w> d
+    endif
   endif
 
   # indent region
@@ -705,17 +713,22 @@ export def Enable()
   # go to buffer beginning
   inoremap <M-<> <Cmd>normal! 1G0<CR>
   inoremap <C-Home> <Cmd>normal! 1G0<CR>
+  inoremap <C-x>[ <Cmd>normal! 1G0<CR>
   if g:echords_normal_mappings
     nnoremap <M-<> gg
     nnoremap <C-Home> gg
+    nnoremap <C-x>[ 1G0
   endif
 
   # go to buffer end
   inoremap <M->> <Cmd>normal! G$<CR>
   inoremap <C-End> <Cmd>normal! G$<CR>
+  # collision: i_CTRL-X_CTRL-] search the first tag that starts with the same character before the cursor
+  inoremap <C-x>] <Cmd>normal! G$<CR>
   if g:echords_normal_mappings
     nnoremap <M->> G
     nnoremap <C-End> G
+    nnoremap <C-x>] G$
   endif
 
   # abbreviations (all buffers)
@@ -885,7 +898,10 @@ export def Enable()
     inoremap <M-S-o> <C-o>O
 
     # duplicate line
-    inoremap <leader>ed <Cmd>normal! ^yyp<CR>
+    inoremap <leader>ed <ScriptCmd>DuplicateLine()<CR>
+    inoremap <C-x>j <ScriptCmd>DuplicateLine()<CR>
+    nnoremap <C-x>j <ScriptCmd>DuplicateLine()<CR>
+    vnoremap <C-x>j <C-\><C-n><ScriptCmd>DuplicateVisualRegion()<CR>
 
     # copy line
     inoremap <leader>ew <Cmd>normal! ^yy<CR>
@@ -1095,9 +1111,9 @@ export def Disable()
   silent! iunmap <C-x><C-f>
   # silent! iunmap <C-x><C-c>
   silent! iunmap <C-x><C-j>
-  if g:echords_extra_mappings
-    silent! iunmap <C-x>j
-  endif
+  # if g:echords_extra_mappings
+  #  silent! iunmap <C-x>j
+  # endif
   silent! iunmap <C-x><C-w>
   silent! iunmap <C-t>
   silent! iunmap <M-t>
@@ -1269,15 +1285,19 @@ export def Disable()
   endif
   silent! iunmap <M-<>
   silent! iunmap <C-Home>
+  silent! iunmap <C-x>[
   if g:echords_normal_mappings
     silent! nunmap <M-<>
     silent! nunmap <C-Home>
+    silent! nunmap <C-x>[
   endif
   silent! iunmap <M->>
   silent! iunmap <C-End>
+  silent! iunmap <C-x>]
   if g:echords_normal_mappings
     silent! nunmap <M->>
     silent! nunmap <C-End>
+    silent! nunmap <C-x>]
   endif
   silent! iunmap <M-/>
   silent! iunmap <C-M-/>
@@ -1363,6 +1383,9 @@ export def Disable()
     silent! iunmap <M-o>
     silent! iunmap <M-S-o>
     silent! iunmap <leader>ed
+    silent! iunmap <C-x>j
+    silent! nunmap <C-x>j
+    silent! vunmap <C-x>j
     silent! iunmap <leader>ew
     silent! iunmap <leader>eP
     silent! iunmap <leader>eJ
@@ -1439,6 +1462,21 @@ def MoveBeginningOfLine()
   else
     normal! 0
   endif
+enddef
+
+# duplicate line
+def DuplicateLine()
+  var ccol = col('.')
+  normal! yyp
+  cursor(line('.'), ccol)
+enddef
+
+# duplicate visual region
+def DuplicateVisualRegion()
+  var ccol = col('.')
+  normal! gvy
+  normal! `>p
+  cursor(line('.'), ccol)
 enddef
 
 # spell word

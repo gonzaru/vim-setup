@@ -30,6 +30,9 @@ endif
 if !exists('g:echords_extra_mappings')
   g:echords_extra_mappings = false
 endif
+if !exists('g:echords_override_mappings')
+  g:echords_override_mappings = false
+endif
 
 # autoload
 import autoload '../autoload/echords.vim'
