@@ -35,9 +35,6 @@ endif
 if !exists('g:darkula_cursor2')
   g:darkula_cursor2 = false  # true, false
 endif
-if !exists('g:darkula_cursor2')
-  g:darkula_cursor2 = false  # true, false
-endif
 if !exists('g:darkula_pmenumatch2')
   g:darkula_pmenumatch2 = false  # true, false
 endif

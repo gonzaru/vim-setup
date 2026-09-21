@@ -105,19 +105,30 @@ highlight! SpecialKey guifg=#d70000 guibg=NONE ctermfg=160 ctermbg=NONE gui=NONE
 
 # diff (diffthis)
 execute $"highlight! DiffText guifg={colors.normal.guifg} guibg=#afafff ctermfg={colors.normal.ctermfg} ctermbg=147 gui=NONE cterm=NONE term=NONE"
-execute $"highlight! DiffChange guifg={colors.normal.guifg} guibg=#d7ffff ctermfg={colors.normal.ctermfg} ctermbg=195 gui=NONE cterm=NONE term=NONE"
-execute $"highlight! DiffDelete guifg={colors.normal.guifg} guibg=#ff8787 ctermfg={colors.normal.ctermfg} ctermbg=210 gui=NONE cterm=NONE term=NONE"
-execute $"highlight! DiffAdd guifg={colors.normal.guifg} guibg=#afffaf ctermfg={colors.normal.ctermfg} ctermbg=157 gui=NONE cterm=NONE term=NONE"
+execute $"highlight! DiffChange guifg=#0087ff guibg={colors.normal.guibg} ctermfg=33 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! DiffDelete guifg=#d70000 guibg={colors.normal.guibg} ctermfg=1 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! DiffAdd guifg=#005500 guibg={colors.normal.guibg} ctermfg=22 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # git
-highlight! link diffAdded Normal
-highlight! link diffChanged Normal
+# highlight! link diffAdded Normal
+# highlight! link diffChanged Normal
+# highlight! link diffFile Normal
+# highlight! link diffIndexLine Normal
+# highlight! link diffLine Normal
+# highlight! link diffNewFile Normal
+# highlight! link diffOldFile Normal
+# highlight! link diffRemoved Normal
+# highlight! link diffSubname Normal
+
+# git
+highlight! link diffAdded DiffAdd
+highlight! link diffChanged DiffChange
 highlight! link diffFile Normal
 highlight! link diffIndexLine Normal
-highlight! link diffLine Normal
+highlight! link diffLine DiffChange
 highlight! link diffNewFile Normal
 highlight! link diffOldFile Normal
-highlight! link diffRemoved Normal
+highlight! link diffRemoved DiffDelete
 highlight! link diffSubname Normal
 
 execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
