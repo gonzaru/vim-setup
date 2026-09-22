@@ -13,6 +13,23 @@ const GIT_BUFFER_NAME = $"git_{strcharpart(sha256('git'), 0, 8)}"
 const GIT_FILE_TYPE = "gitscm"
 var GIT_FILE: string
 
+# user tmp directory
+const TMPDIR = !empty($TMPDIR) ? ($TMPDIR == '/' ? $TMPDIR : substitute($TMPDIR, '/$', '', '')) : '/tmp'
+
+# job queue
+final JOB_QUEUE = []
+
+# files
+const PID = getpid()
+const FILES = {
+  'signs': $"{TMPDIR}/{$USER}-vim-git_signs-{PID}.log"
+}
+
+# signs (texthl=+-~)
+sign define git_signs_add text=│ texthl=DiffAdd
+sign define git_signs_delete text=│ texthl=DiffDelete
+sign define git_signs_change text=│ texthl=DiffChange
+
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
   if !empty(msg)
@@ -44,6 +61,98 @@ enddef
 # gets the git file type
 export def GitFileType(): string
   return GIT_FILE_TYPE
+enddef
+
+# clear signs
+def ClearSigns(bufnr: number)
+  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_add'})
+  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_delete'})
+  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_change'})
+enddef
+
+# signs
+export def Signs(file: string): void
+  var bufnr = bufnr(file)
+  if empty(file) || bufnr == -1 || !g:git_signs
+    return
+  endif
+
+  ClearSigns(bufnr)
+
+  var newJob: job
+  if empty(JOB_QUEUE)
+    var cwd = fnamemodify(file, ':p:h')
+    if !isdirectory(cwd) || !IsValidRepo(cwd)
+      return
+    endif
+    var cmd = $"git diff --no-ext-diff --no-color -U0 {shellescape(file)} | grep '^@@ ' | cut -d ' ' -f2,3 | tr -d '+-'"
+    var jobArgs =  [&shell, &shellcmdflag, cmd]
+    newJob = job_start(jobArgs, {
+      'out_cb': function(OutHandler),
+      'err_cb': function(ErrHandler),
+      # 'exit_cb': function(ExitHandler),
+      'exit_cb': (job, status) => ExitHandler(job, status, bufnr),
+      'out_io': 'file',
+      'out_name': FILES['signs'],
+      'out_msg': 0,
+      'out_modifiable': 0,
+      'err_io': 'out',
+      'cwd': cwd
+    })
+    if job_status(newJob) == 'run'
+      add(JOB_QUEUE, job_info(newJob)['process'])
+    endif
+  endif
+
+enddef
+
+# out handler
+def OutHandler(channel: channel, message: string)
+enddef
+
+# err handler
+def ErrHandler(channel: channel, message: string)
+enddef
+
+# exit handler for when the job ends
+def ExitHandler(job: job, status: number, bufnr: number): void
+  if filereadable(FILES['signs']) && getfsize(FILES['signs']) > 0
+  && job_info(job)["exitval"] == 0
+    var lines = readfile(FILES['signs'])
+    for line in lines
+      var sides = split(line, " ")
+      var oldParts = split(sides[0], ",")
+      var parts = split(sides[1], ",")
+      var oldCount = len(oldParts) == 1 ? 1 : str2nr(oldParts[1])
+      var nlen = len(parts)
+      if nlen == 1
+        var nl = str2nr(parts[0])
+        var signName = oldCount == 0 ? 'git_signs_add' : 'git_signs_change'
+        sign_place(nl, '',  signName, bufnr, {'lnum': nl})
+      elseif nlen == 2
+        var from = str2nr(parts[0])
+        var nlines = str2nr(parts[1])
+        var to = from + nlines - 1
+        if nlines == 0
+          # add +1 to fill the gap for the line that moved up
+          var nl = str2nr(parts[0]) + 1
+          sign_place(nl, '',  'git_signs_delete', bufnr, {'lnum': nl})
+        else
+          var signName = oldCount == 0 ? 'git_signs_add' : 'git_signs_change'
+          for nl in range(from, to)
+            sign_place(nl, '',  signName, bufnr, {'lnum': nl})
+          endfor
+        endif
+      endif
+    endfor
+  endif
+  if filereadable(FILES['signs'])
+    delete(FILES['signs'])
+  endif
+  var idx = index(JOB_QUEUE, job_info(job)['process'])
+  if idx >= 0
+    remove(JOB_QUEUE, idx)
+  endif
 enddef
 
 # closes the git window

@@ -12,9 +12,29 @@ g:loaded_git = true
 if !exists('g:git_position')
   g:git_position = 'top'
 endif
+if !exists('g:git_signs')
+  g:git_signs = false
+endif
 
 # autoload
 import autoload '../autoload/git.vim'
+
+# autocmd
+augroup git_events
+  autocmd!
+  autocmd BufEnter * {
+    var fpath = expand('%:p')
+    if g:git_enabled && g:git_signs && &filetype != '' && &buftype == '' && !empty(fpath)
+      git.Signs(fpath)
+    endif
+  }
+  autocmd BufWritePost * {
+    var fpath = expand('%:p')
+    if g:git_enabled && g:git_signs && &filetype != '' && &buftype == '' && !empty(fpath)
+      git.Signs(fpath)
+    endif
+  }
+augroup END
 
 # define mappings
 nnoremap <silent> <script> <Plug>(git-add-file) <ScriptCmd>git.Run($"git add {PrevOrNewFile()}", getcwd(), false)<CR>
