@@ -22,13 +22,7 @@ import autoload '../autoload/git.vim'
 # autocmd
 augroup git_events
   autocmd!
-  autocmd BufEnter * {
-    var fpath = expand('%:p')
-    if g:git_enabled && g:git_signs && &filetype != '' && &buftype == '' && !empty(fpath)
-      git.Signs(fpath)
-    endif
-  }
-  autocmd BufWritePost * {
+  autocmd BufEnter,BufWritePost,FileChangedShellPost * {
     var fpath = expand('%:p')
     if g:git_enabled && g:git_signs && &filetype != '' && &buftype == '' && !empty(fpath)
       git.Signs(fpath)
@@ -193,4 +187,19 @@ if !get(g:, 'git_no_commands')
   command! GitStatusShortFile execute "normal \<Plug>(git-status-short-file)"
   command! GitTagList execute "normal \<Plug>(git-tag-list)"
   command! GitTagListRemote execute "normal \<Plug>(git-tag-list-remote)"
+  command! GitToggleSigns {
+    var fpath = expand('%:p')
+    if g:git_signs
+      var bfnr = bufnr(fpath)
+      if bfnr > 0
+        git.ClearSigns(bfnr)
+      endif
+      g:git_signs = false
+    else
+      g:git_signs = true
+      if g:git_enabled && g:git_signs && &filetype != '' && &buftype == '' && !empty(fpath)
+        git.Signs(fpath)
+      endif
+    endif
+  }
 endif

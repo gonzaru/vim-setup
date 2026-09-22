@@ -120,8 +120,16 @@ highlight! link diffIndexLine Normal
 highlight! link diffLine DiffChange
 highlight! link diffNewFile Normal
 highlight! link diffOldFile Normal
-highlight! link diffRemoved DiffDelete
+highlight! link diffRemoved DiffDelete # add
 highlight! link diffSubname Normal
+
+# git signs (plugin)
+# highlight! link GitSignsDiffAdd DiffAdd
+# highlight! link GitSignsDiffChange DiffChange
+# highlight! link GitSignsDiffDelete DiffDelete
+execute $"highlight! GitSignsDiffAdd guifg=#447152 guibg={colors.normal.guibg} ctermfg=65 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffChange guifg=#43698D guibg={colors.normal.guibg} ctermfg=60 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffDelete guifg=#af5f5f guibg={colors.normal.guibg} ctermfg=131 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
 # TODO
 execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"

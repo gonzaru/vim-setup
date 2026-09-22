@@ -131,6 +131,15 @@ highlight! link diffOldFile Normal
 highlight! link diffRemoved DiffDelete
 highlight! link diffSubname Normal
 
+# git signs (plugin)
+# highlight! link GitSignsDiffAdd DiffAdd
+# highlight! link GitSignsDiffChange DiffChange
+# highlight! link GitSignsDiffDelete DiffDelete
+execute $"highlight! GitSignsDiffAdd guifg=#87d787 guibg={colors.normal.guibg} ctermfg=114 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+# execute $"highlight! GitSignsDiffChange guifg=#ffd787 guibg={colors.normal.guibg} ctermfg=222 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffChange guifg=#0087ff guibg={colors.normal.guibg} ctermfg=33 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffDelete guifg=#d70000 guibg={colors.normal.guibg} ctermfg=160 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+
 execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
 # TODO ~ (new buffer)

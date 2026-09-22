@@ -26,9 +26,12 @@ const FILES = {
 }
 
 # signs (texthl=+-~)
-sign define git_signs_add text=│ texthl=DiffAdd
-sign define git_signs_delete text=│ texthl=DiffDelete
-sign define git_signs_change text=│ texthl=DiffChange
+execute 'sign define git_signs_add'
+  .. ' text=▌ texthl=' .. (hlexists('GitSignsDiffAdd') ? 'GitSignsDiffAdd' : 'DiffAdd')
+execute 'sign define git_signs_delete'
+  .. ' text=▌ texthl=' .. (hlexists('GitSignsDiffDelete') ? 'GitSignsDiffDelete' : 'DiffDelete')
+execute 'sign define git_signs_change'
+  .. ' text=▌  texthl=' .. (hlexists('GitSignsDiffChange') ? 'GitSignsDiffChange' : 'DiffChange')
 
 # prints the error message and saves the message in the message-history
 def EchoErrorMsg(msg: string)
@@ -64,7 +67,7 @@ export def GitFileType(): string
 enddef
 
 # clear signs
-def ClearSigns(bufnr: number)
+export def ClearSigns(bufnr: number)
   sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_add'})
   sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_delete'})
   sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_change'})
@@ -73,7 +76,7 @@ enddef
 # signs
 export def Signs(file: string): void
   var bufnr = bufnr(file)
-  if empty(file) || bufnr == -1 || !g:git_signs
+  if empty(file) || bufnr == -1 || !g:git_enabled || !g:git_signs
     return
   endif
 
