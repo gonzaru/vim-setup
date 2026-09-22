@@ -101,7 +101,7 @@ def Help()
     <C-w>           # delete a word
     <C-u>           # delete all characters
     <F1>            # shows searcher help information [<C-k>]
-    <ESC>           # close the popup searcher window
+    <ESC>           # close the popup searcher window [<C-g>]
   END
   echo join(lines, "\n")
 enddef
@@ -604,7 +604,7 @@ def CompletionFilter(id: number, key: string): bool
   endif
 
   # <Esc>
-  if key == "\<Esc>"
+  if key == "\<Esc>" || key == "\<C-g>"
     popup_close(popPrompt.id, -1)
     popup_close(id, -1)
     return true
