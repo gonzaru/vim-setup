@@ -192,26 +192,23 @@ export def Enable()
 enddef
 
 # checker disable
-export def Disable()
+export def Disable(lang: string, tool: string, extTool: string, file: string): void
   g:checker_enabled = false
-  for b in getbufinfo({'buflisted': 1})
-    for s in sign_getplaced(b.bufnr)[0].signs
-      for f in CHECKER_ALLOWED_TYPES
-        for [_, v] in items(SIGNS_ERRORS[f])
-          if v == s.name
-            sign_unplace('', {'buffer': b.bufnr, 'id': s.id, 'name': s.name})
-          endif
-        endfor
-      endfor
-    endfor
-  endfor
+  var signErrTool = SIGNS_ERRORS[lang][tool]
+  var signErrExtTool = SIGNS_ERRORS[lang][extTool]
+  var bfnr = bufnr(file)
+  sign_unplace(signErrTool, {'buffer': bfnr})
+  sign_unplace(signErrExtTool, {'buffer': bfnr})
+  var pos = getcurpos()
   bufdo &statusline = substitute(&statusline, REGEX_STATUSLINE_SIGNS, '', '')
+  execute $"buffer {bufnr('%')}"
+  setpos('.', pos)
 enddef
 
 # checker toggle
-export def Toggle()
+export def Toggle(lang: string, tool: string, extTool: string, file: string)
   if g:checker_enabled
-    Disable()
+    Disable(lang, tool, extTool, file)
   else
     Enable()
   endif
@@ -303,8 +300,9 @@ def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
   var signErrTool = SIGNS_ERRORS[lang][tools.tool]
   var signErrExtTool = SIGNS_ERRORS[lang][tools.exttool]
   var synFile = CHECKER_FILES[lang][tools.tool]["syntaxfile"]
-  sign_unplace('', {'buffer': file, 'name': signErrTool})
-  sign_unplace('', {'buffer': file, 'name': signErrExtTool})
+  var bfnr = bufnr(file)
+  sign_unplace(signErrTool, {'buffer': bfnr})
+  sign_unplace(signErrExtTool, {'buffer': bfnr})
   var numErrs = 0
   var cmd: string
   if lang == 'sh'
@@ -345,7 +343,7 @@ def SetLangSign(lang: string, tools: dict<string>, file: string): list<any>
       errLine = str2nr(split(split(errOut, "\n")[1], ':')[1])
     endif
     if !empty(errLine)
-      sign_place(errLine, '', signErrTool, file, {'lnum': errLine})
+      sign_place(0, signErrTool, signErrTool, bfnr, {'lnum': errLine})
       cursor(errLine, 1)
     endif
   endif
@@ -365,7 +363,8 @@ def SetToolSigns(lang: string, extTool: string, file: string): list<any>
   var errLine: number
   var synFile = CHECKER_FILES[lang][extTool]['syntaxfile']
   var signErr = SIGNS_ERRORS[lang][extTool]
-  sign_unplace('', {'buffer': file, 'name': signErr})
+  var bfnr = bufnr(file)
+  sign_unplace(signErr, {'buffer': bfnr})
   var numErrs = 0
   for line in readfile(synFile)
     if lang == 'sh'
@@ -394,7 +393,7 @@ def SetToolSigns(lang: string, extTool: string, file: string): list<any>
       endif
     endif
     if !empty(errLine) && type(errLine) == v:t_number
-      sign_place(errLine, '', signErr, file, {'lnum': errLine})
+      sign_place(0, signErr, signErr, bfnr, {'lnum': errLine})
     endif
   endfor
   return [numErrs, lineErrs]

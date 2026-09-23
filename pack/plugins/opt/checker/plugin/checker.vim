@@ -131,8 +131,10 @@ endif
 
 # define mappings
 nnoremap <silent> <script> <Plug>(checker-enable) <ScriptCmd>checker.Enable()<CR>
-nnoremap <silent> <script> <Plug>(checker-disable) <ScriptCmd>checker.Disable()<CR>
-nnoremap <silent> <script> <Plug>(checker-toggle) <ScriptCmd>checker.Toggle()<CR>
+nnoremap <silent> <script> <Plug>(checker-disable)
+  \ <ScriptCmd>checker.Disable(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], expand('<afile>:p'))<CR>
+nnoremap <silent> <script> <Plug>(checker-toggle)
+  \ <ScriptCmd>checker.Toggle(&filetype, TOOL[&filetype]['default'], TOOL[&filetype]['exttool'], expand('<afile>:p'))<CR>
 nnoremap <silent> <script> <Plug>(checker-signsdebug-cur) <ScriptCmd>SignsDebug(&filetype, 'cur')<CR>
 nnoremap <silent> <script> <Plug>(checker-signsdebug-prev) <ScriptCmd>SignsDebug(&filetype, 'prev')<CR>
 nnoremap <silent> <script> <Plug>(checker-signsdebug-next) <ScriptCmd>SignsDebug(&filetype, 'next')<CR>
