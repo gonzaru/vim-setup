@@ -68,9 +68,7 @@ enddef
 
 # clear signs
 export def ClearSigns(bufnr: number)
-  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_add'})
-  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_delete'})
-  sign_unplace('', {'buffer': bufnr, 'name': 'git_signs_change'})
+  sign_unplace('git_signs_group', {'buffer': bufnr})
 enddef
 
 # signs
@@ -131,7 +129,7 @@ def ExitHandler(job: job, status: number, bufnr: number): void
       if nlen == 1
         var nl = str2nr(parts[0])
         var signName = oldCount == 0 ? 'git_signs_add' : 'git_signs_change'
-        sign_place(nl, '',  signName, bufnr, {'lnum': nl})
+        sign_place(0, 'git_signs_group',  signName, bufnr, {'lnum': nl})
       elseif nlen == 2
         var from = str2nr(parts[0])
         var nlines = str2nr(parts[1])
@@ -139,11 +137,11 @@ def ExitHandler(job: job, status: number, bufnr: number): void
         if nlines == 0
           # add +1 to fill the gap for the line that moved up
           var nl = str2nr(parts[0]) + 1
-          sign_place(nl, '',  'git_signs_delete', bufnr, {'lnum': nl})
+          sign_place(0, 'git_signs_group',  'git_signs_delete', bufnr, {'lnum': nl})
         else
           var signName = oldCount == 0 ? 'git_signs_add' : 'git_signs_change'
           for nl in range(from, to)
-            sign_place(nl, '',  signName, bufnr, {'lnum': nl})
+            sign_place(0, 'git_signs_group',  signName, bufnr, {'lnum': nl})
           endfor
         endif
       endif
