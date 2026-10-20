@@ -36,7 +36,8 @@ augroup cmplwild_cmdline
       set noincsearch  # TODO: blinks popup
       set wildmode=noselect:lastused,full
       # set wildmode=noselect,longest,full
-      if g:cmplwild_fuzzy
+      # set wildmode=noinsert:lastused,full
+      if g:cmplwild_fuzzy || &completeopt =~ 'fuzzy'
         set wildoptions=pum,fuzzy
       else
         set wildoptions=pum

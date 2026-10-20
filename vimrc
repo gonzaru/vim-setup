@@ -175,7 +175,7 @@ endif
 
 # cmplwild plugin
 if g:cmplwild_enabled
-  g:cmplwild_fuzzy = false
+  g:cmplwild_fuzzy = true
 endif
 
 # complementum plugin
@@ -183,7 +183,7 @@ if g:complementum_enabled
   # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default: "\<C-n>")
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
-  g:complementum_minchars = 1
+  g:complementum_minchars = 4     # num - 1
   g:complementum_autodelay = 300  # ms
   g:complementum_autopopup = true
   g:complementum_no_mappings = true
@@ -198,7 +198,15 @@ endif
 # echords plugin
 if g:echords_enabled
   g:echords_auto_enable = true
+  g:echords_normal_mappings = true
+  g:echords_visual_mappings = true
+  g:echords_command_mappings = true
+  g:echords_operator_mappings = true
+  g:echords_terminal_mappings = true
   g:echords_extra_mappings = true
+  g:echords_override_mappings = true
+  # insert mode is the default mode
+  # set insertmode
 endif
 
 # esckey plugin
@@ -238,6 +246,7 @@ endif
 # git plugin
 if g:git_enabled
   g:git_position = "top"  # top, bottom
+  g:git_signs = true
 endif
 
 # habit plugin
@@ -273,7 +282,7 @@ endif
 
 # searcher plugin
 if g:searcher_enabled
-  g:searcher_popup_fuzzy = false
+  g:searcher_popup_fuzzy = true
 endif
 
 # session plugin
@@ -368,6 +377,7 @@ set cpoptions-=aA           # don't set '#' alterative file for :read and :write
 set nonumber                # print the line number in front of each line
 set relativenumber          # show the line number relative to the line
 # set numberwidth=4         # minimal number of columns to use for the line number (default: 4)
+execute $"set numberwidth={g:git_enabled && g:git_signs ? 2 : 4}"
 set laststatus=2            # to display the status line always
 set display=lastline        # the last line in a window will be displayed if possible
 set ignorecase              # case-insensitive search (also affects if == 'var', use if == 'var')
@@ -678,7 +688,7 @@ if has("wildmenu")
   set wildmode=longest:full,full  # for bash alike use "wildmode=list:longest,full" (default: full)
   set wildignorecase              # case is ignored when completing files and directories (see: fileignorecase)
   set wildoptions=pum             # (pum) the completion matches are shown in a popup menu
-  # set wildoptions+=fuzzy        # (fuzzy) fuzzy matching
+  set wildoptions+=fuzzy          # (fuzzy) fuzzy matching
   set wildignore=*.bmp,*.bz2,*.exe,*.gif,*.gz,*.jpg,*.jpeg,*.o,*.obj,*.pdf,*.png,*.pyc,*.swp,*.zip  # ignore these patterns
 endif
 
@@ -793,19 +803,20 @@ setglobal dictionary=spell,${HOME}/.vim/dict/lang/en  # lookup words (<C-x><C-k>
 if &autocomplete
   setglobal completeopt=menu,menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 else
-  setglobal completeopt=menu,menuone,noinsert
-  # setglobal completeopt=menu,menuone,noselect
+  # setglobal completeopt=menu,menuone,noinsert
+  setglobal completeopt=menu,menuone,noselect
   # setglobal completeopt=menu,menuone,preinsert
 endif
 if &completeopt =~ 'preinsert'
   set infercase
 endif
-if exists('&completefuzzycollect')
-  set completefuzzycollect=
-  if &completeopt =~ 'fuzzy'
-    set completefuzzycollect+=keyword
-  endif
-endif
+# deprecated
+# if exists('&completefuzzycollect')
+#   set completefuzzycollect=
+#   if &completeopt =~ 'fuzzy'
+#     set completefuzzycollect+=keyword
+#   endif
+# endif
 if has('popupwin')
   # setglobal completeopt+=popup      # show extra information in a popup window
   # https://github.com/vim/vim/issues/18442
@@ -849,8 +860,8 @@ set pummaxwidth=100  # maximum width to use for the popup menu (default: 0)
 inoremap <expr> <S-CR> pumvisible() ? "\<C-e>\<CR>" : "\<S-CR>"
 
 # popup menu to move "like arrows" (highlight only)
-inoremap <expr> <C-p> pumvisible() ? "\<Up>" : "\<C-p>"
-inoremap <expr> <C-n> pumvisible() ? "\<Down>" : "\<C-n>"
+# inoremap <expr> <C-p> pumvisible() ? "\<Up>" : "\<C-p>"
+# inoremap <expr> <C-n> pumvisible() ? "\<Down>" : "\<C-n>"
 
 # map <Space> (space or insert completion + space)
 def MapInsertSpace(): string
@@ -861,12 +872,21 @@ def MapInsertSpace(): string
   endif
   if pumvisible()
     var info = complete_info()
-    keystroke = (info.selected <= 0) ? "\<C-e>\<Space>" : "\<C-y>\<Space>"
+    if &completeopt =~ 'noselect' && info.selected == -1
+      keystroke = "\<C-e>\<Space>"
+    elseif &completeopt =~ 'noinsert' && info.selected <= 0
+      keystroke = "\<C-e>\<Space>"
+    else
+      keystroke = "\<C-y>\<Space>"
+    endif
   endif
   return keystroke
 enddef
 # inoremap <expr> <Space> pumvisible() ? "\<C-y>\<Space>" : "\<Space>"
 inoremap <silent> <expr> <Space> <SID>MapInsertSpace()
+
+# map <CR> (enter)
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 # (empty) default vim clipboard
 # * X11 primary clipboard (mouse middle button)
@@ -886,7 +906,8 @@ endif
 # signs
 if has("signs")
   # draw only the sign column if contains signs
-  set signcolumn=number
+  # (default: auto)
+  execute $"set signcolumn={g:git_enabled && g:git_signs ? 'yes' : 'number'}"
 endif
 
 # +-------------+
@@ -914,6 +935,8 @@ endif
 
 # mapping leaders
 g:mapleader = "\<C-s>"  # (see: terminal "stty -ixon" and &t_xo)
+# collision with CTRL-X substract [count] from the number or alphabetic
+# g:mapleader = "\<C-x>"
 
 # alternative second leader
 g:maplocalleader = "\<C-_>"
@@ -947,6 +970,7 @@ def MapInsertTab(mode: string): string
     # elseif line->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
     #   keystroke = g:complementum_keystroke_default
     # endif
+    # use completion if a valid text exists before the cursor
     if getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
       keystroke = g:complementum_keystroke_default
     endif
@@ -1151,6 +1175,9 @@ if has('gui_running')
   nnoremap <silent> <C-z>
     \ :below terminal ++close ++norestore
     \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s gvim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
+  inoremap <silent> <C-z> <C-\><C-n>
+    \ :below terminal ++close ++norestore
+    \ /bin/sh -c "tmux -L gvim-terminal new-session -c $HOME -A -D -s gvim-terminal"<CR><ScriptCmd>misc#SetTerminalOptions()<CR>
   nnoremap <silent> <leader><BackSpace>
     \ :botright vertical terminal ++close ++norestore
     \ /bin/sh -c "tmux -L gvim-terminal-ai new-session -c $HOME -A -D -s gvim-terminal-ai"<CR>
@@ -1195,7 +1222,7 @@ nnoremap <leader>. :tabnext<CR>
 nnoremap <leader><C-n> :bnext<CR>
 # nnoremap <leader>p :bprev<CR>
 nnoremap <leader><C-p> :bprev<CR>
-nnoremap <nowait> <leader><leader> :b #<CR>
+# nnoremap <nowait> <leader><leader> :b #<CR>
 nnoremap <leader><C-g> 2<C-g>
 nnoremap <leader>bd :bd<CR>
 nnoremap <leader>bD :bd!<CR>
@@ -1335,7 +1362,7 @@ def FindPrg(arg: string, _): list<string>
   return out
 enddef
 # :find with a function
-b:findfunc_fuzzy_enabled = false
+b:findfunc_fuzzy_enabled = true
 b:findfunc_fuzzy_opts = {limit: 200, smartcase: true}
 setglobal findfunc=FindPrg
 
