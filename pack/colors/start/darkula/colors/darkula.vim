@@ -120,7 +120,7 @@ highlight! link diffIndexLine Normal
 highlight! link diffLine DiffChange
 highlight! link diffNewFile Normal
 highlight! link diffOldFile Normal
-highlight! link diffRemoved DiffDelete # add
+highlight! link diffRemoved DiffDelete
 highlight! link diffSubname Normal
 
 # git signs (plugin)
