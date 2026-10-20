@@ -173,7 +173,7 @@ def IsTriggerableDefault(ichar: string): bool
     endif
     ++num
   endwhile
-  return num == minchars - 1
+  return num >= minchars - 1
 enddef
 
 # checks if the keystroke is triggerable (omni)
