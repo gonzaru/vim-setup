@@ -7,6 +7,11 @@ vim9script
 
 # terraform
 setlocal syntax=ON
+setlocal tabstop=2
+setlocal softtabstop=2
+setlocal shiftwidth=2
+setlocal shiftround
+setlocal expandtab
 if get(g:, "lsp_enabled")
   setlocal omnifunc=lsp#OmniFunc
   setlocal complete^=o^10
