@@ -170,7 +170,8 @@ endif
 # plan9 theme
 if colortheme == "plan9"
   g:plan9_cursorline = false
-  g:plan9_color_comments = false
+  g:plan9_color_comments = false  # colors in comments
+  g:plan9_bg_alt = false          # use bg-alt for gutter (line numbers)
 endif
 
 # cmplwild plugin
@@ -184,7 +185,7 @@ if g:complementum_enabled
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
   g:complementum_minchars = 4     # num - 1
-  g:complementum_autodelay = 300  # ms
+  g:complementum_autodelay = 600  # ms
   g:complementum_autopopup = true
   g:complementum_no_mappings = true
 endif
@@ -788,7 +789,7 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # :help ins-completion
 if !g:complementum_enabled
   setglobal autocomplete         # shows a completion menu as you type:
-  set autocompletedelay=300      # delay in milliseconds before the autocomplete appears (default: 0)
+  set autocompletedelay=600      # delay in milliseconds before the autocomplete appears (default: 0)
   # set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
 endif
 # set iskeyword+=-             # keywords (default: "@,48-57,_,192-255")
@@ -990,8 +991,8 @@ def MapInsertTab(mode: string): string
     if &autocomplete || &completeopt =~ 'noselect'
       # var info = complete_info()
       # keystroke = (info.selected == -1) ? "\<C-n>\<C-y>" : "\<C-y>"
-      keystroke = (mode == 'tab') ? "\<C-n>" : "\<C-p>"  # tab, stab
-      # keystroke = (mode == 'tab') ? "\<Down>" : "\<Up>"    # tab, stab
+      # keystroke = (mode == 'tab') ? "\<C-n>" : "\<C-p>"  # tab, stab
+      keystroke = (mode == 'tab') ? "\<Down>" : "\<Up>"    # tab, stab
     else
       keystroke = "\<C-y>"
     endif
