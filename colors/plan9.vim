@@ -37,23 +37,30 @@ endif
 if !exists('g:plan9_color_comments')
   g:plan9_color_comments = false
 endif
+if !exists('g:plan9_bg_alt')
+  g:plan9_bg_alt = false
+endif
 
 # colors
 const colorcomments = g:plan9_color_comments
 const cursorline = g:plan9_cursorline
+const bgalt = g:plan9_bg_alt
 const termgui = has('termguicolors') && &termguicolors
 const colors = {
   'normal': {
     'guifg': 'black',
     'guibg': '#ffffe8',
+    'guibgalt': bgalt ? '#efefd9' : '#ffffe8',
     'ctermfg': 'black',
-    'ctermbg': 230
+    'ctermbg': 230,
+    'ctermbgalt': bgalt ? 187 : 230
   }
 }
 
 execute $"highlight! Normal guifg={colors.normal.guifg} guibg={colors.normal.guibg} ctermfg={colors.normal.ctermfg} ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
 
-execute $"highlight! MatchParen guifg={colors.normal.guifg} guibg=#afaf87 ctermfg={colors.normal.ctermfg} ctermbg=144 gui=NONE cterm=NONE term=NONE"
+# execute $"highlight! MatchParen guifg={colors.normal.guifg} guibg=#afaf87 ctermfg={colors.normal.ctermfg} ctermbg=144 gui=NONE cterm=NONE term=NONE"
+highlight! MatchParen guifg=#af5f00 guibg=NONE ctermfg=130 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 
 execute $"highlight! Visual guifg={colors.normal.guifg} guibg=#ffffaf ctermfg={colors.normal.ctermfg} ctermbg=229 gui=NONE cterm=NONE term=NONE"
 
@@ -75,7 +82,7 @@ highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={cursorline ? '#efefd8' : 'NONE'} ctermfg=NONE ctermbg={cursorline ? 187 : 'NONE'} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! CursorLineNR guifg=#d70000 guibg=NONE ctermfg=160 ctermbg=NONE gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLineNR guifg=#d70000 guibg={bgalt ? colors.normal.guibgalt : 'NONE'} ctermfg=160 ctermbg={bgalt ? colors.normal.ctermbgalt : 'NONE'} gui=NONE cterm=NONE term=NONE"
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -97,7 +104,7 @@ execute $"highlight! Search guifg={colors.normal.guifg} guibg=#ffffaf ctermfg={c
 highlight! link CurSearch Search
 highlight! link IncSearch Search
 
-execute $"highlight! LineNr guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
+execute $"highlight! LineNr guifg={colors.normal.guifg} guibg={bgalt ? colors.normal.guibgalt : 'NONE'} ctermfg={colors.normal.ctermfg} ctermbg={bgalt ? colors.normal.ctermbgalt : 'NONE'} gui=NONE cterm=NONE term=NONE"
 highlight! link LineNrAbove LineNr
 highlight! link LineNrBelow LineNr
 
@@ -135,10 +142,10 @@ highlight! link diffSubname Normal
 # highlight! link GitSignsDiffAdd DiffAdd
 # highlight! link GitSignsDiffChange DiffChange
 # highlight! link GitSignsDiffDelete DiffDelete
-execute $"highlight! GitSignsDiffAdd guifg=#87d787 guibg={colors.normal.guibg} ctermfg=114 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-# execute $"highlight! GitSignsDiffChange guifg=#ffd787 guibg={colors.normal.guibg} ctermfg=222 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! GitSignsDiffChange guifg=#0087ff guibg={colors.normal.guibg} ctermfg=33 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! GitSignsDiffDelete guifg=#d70000 guibg={colors.normal.guibg} ctermfg=160 ctermbg={colors.normal.ctermbg} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffAdd guifg=#87d787 guibg={colors.normal.guibgalt} ctermfg=114 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
+# execute $"highlight! GitSignsDiffChange guifg=#ffd787 guibg={colors.normal.guibgalt} ctermfg=222 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffChange guifg=#0087ff guibg={colors.normal.guibgalt} ctermfg=33 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffDelete guifg=#d70000 guibg={colors.normal.guibgalt} ctermfg=160 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
 
 execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
 
@@ -230,7 +237,8 @@ highlight! link Underlined Normal
 
 # signs column
 # highlight! SignColumn guifg={colors.normal.guifg} guibg=#afaf87 ctermfg={colors.normal.ctermfg} ctermbg=144 gui=NONE cterm=NONE term=NONE
-highlight! link SignColumn Normal
+# highlight! link SignColumn Normal
+highlight! link SignColumn LineNR
 
 # TODO
 # debugPC
