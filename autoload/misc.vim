@@ -182,7 +182,7 @@ export def GuiMenuBarToggle(): void
     set guioptions-=M
     set guioptions+=m
     if !exists('g:did_install_default_menus')
-      source $VIMRUNTIME/menu.vim
+      silent! source $VIMRUNTIME/menu.vim
     endif
   endif
   v:statusmsg = $"guioptions={&guioptions}"
