@@ -11,7 +11,7 @@ endif
 g:loaded_darkula = true
 
 # number of colors
-if !has('gui_running') && str2nr(&t_Co) < 256
+if !has('gui_running') && !(has('termguicolors') && &termguicolors) && str2nr(&t_Co) < 256
   finish
 endif
 
@@ -74,7 +74,7 @@ execute $"highlight! Cursor guifg={cursor2 ? "white" : "black"} guibg={cursor2 ?
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={isdark ? '#262626' : '#333333'} ctermfg=NONE ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"
-highlight! CursorLineNR guifg=#999999 guibg=NONE ctermfg=102 ctermbg=NONE gui=NONE cterm=NONE term=NONE
+highlight! CursorLineNr guifg=#999999 guibg=NONE ctermfg=102 ctermbg=NONE gui=NONE cterm=NONE term=NONE
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -178,7 +178,7 @@ highlight! link PopupSelected PmenuSel
 highlight! clear ComplMatchIns
 
 # :help  'cmdheight'
-highlight! clear MesgArea
+highlight! clear MsgArea
 
 # :help completepopup
 execute $"highlight! InfoPopup guifg={colors.normal.guifg} guibg={isdark ? '#262626' : '#333333'} ctermfg={colors.normal.ctermfg} ctermbg={isdark ? 235 : 236} gui=NONE cterm=NONE term=NONE"

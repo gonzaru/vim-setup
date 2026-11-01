@@ -11,7 +11,7 @@ endif
 g:loaded_plan9 = true
 
 # number of colors
-if !has('gui_running') && str2nr(&t_Co) < 256
+if !has('gui_running') && !(has('termguicolors') && &termguicolors) && str2nr(&t_Co) < 256
   finish
 endif
 
@@ -45,7 +45,6 @@ endif
 const colorcomments = g:plan9_color_comments
 const cursorline = g:plan9_cursorline
 const bgalt = g:plan9_bg_alt
-const termgui = has('termguicolors') && &termguicolors
 const colors = {
   'normal': {
     'guifg': 'black',
@@ -82,7 +81,7 @@ highlight! Cursor guifg=white guibg=#8888cc gui=NONE cterm=NONE term=NONE
 # language keymap cursor (i_CTRL-^)
 highlight! link lCursor Cursor
 execute $"highlight! CursorLine guifg=NONE guibg={cursorline ? '#efefd8' : 'NONE'} ctermfg=NONE ctermbg={cursorline ? 187 : 'NONE'} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! CursorLineNR guifg=#d70000 guibg={bgalt ? colors.normal.guibgalt : 'NONE'} ctermfg=160 ctermbg={bgalt ? colors.normal.ctermbgalt : 'NONE'} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! CursorLineNr guifg=#d70000 guibg={bgalt ? colors.normal.guibgalt : 'NONE'} ctermfg=160 ctermbg={bgalt ? colors.normal.ctermbgalt : 'NONE'} gui=NONE cterm=NONE term=NONE"
 highlight! link CursorColumn CursorLine
 
 # current quickfix item
@@ -144,7 +143,8 @@ highlight! link diffSubname Normal
 # highlight! link GitSignsDiffDelete DiffDelete
 execute $"highlight! GitSignsDiffAdd guifg=#87d787 guibg={colors.normal.guibgalt} ctermfg=114 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
 # execute $"highlight! GitSignsDiffChange guifg=#ffd787 guibg={colors.normal.guibgalt} ctermfg=222 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
-execute $"highlight! GitSignsDiffChange guifg=#0087ff guibg={colors.normal.guibgalt} ctermfg=33 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
+# execute $"highlight! GitSignsDiffChange guifg=#0087ff guibg={colors.normal.guibgalt} ctermfg=33 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
+execute $"highlight! GitSignsDiffChange guifg=#87d7ff guibg={colors.normal.guibgalt} ctermfg=117 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
 execute $"highlight! GitSignsDiffDelete guifg=#d70000 guibg={colors.normal.guibgalt} ctermfg=160 ctermbg={colors.normal.ctermbgalt} gui=NONE cterm=NONE term=NONE"
 
 execute $"highlight! Conceal guifg={colors.normal.guifg} guibg=NONE ctermfg={colors.normal.ctermfg} ctermbg=NONE gui=NONE cterm=NONE term=NONE"
@@ -188,7 +188,7 @@ highlight! link PopupSelected PmenuSel
 highlight! clear ComplMatchIns
 
 # :help  'cmdheight'
-highlight! clear MesgArea
+highlight! clear MsgArea
 
 # :help completepopup
 execute $"highlight! InfoPopup guifg={colors.normal.guifg} guibg=#d7ffaf ctermfg={colors.normal.ctermfg} ctermbg=193 gui=NONE cterm=NONE term=NONE"
@@ -238,7 +238,7 @@ highlight! link Underlined Normal
 # signs column
 # highlight! SignColumn guifg={colors.normal.guifg} guibg=#afaf87 ctermfg={colors.normal.ctermfg} ctermbg=144 gui=NONE cterm=NONE term=NONE
 # highlight! link SignColumn Normal
-highlight! link SignColumn LineNR
+highlight! link SignColumn LineNr
 
 # TODO
 # debugPC
