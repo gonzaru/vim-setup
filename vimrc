@@ -23,6 +23,7 @@ const background = "dark"                                                     # 
 const tabasesc = false                                                        # tab as escape
 const host = hostname()                                                       # hostname
 const sessiondir = $"{$HOME}/.vim/sessions"                                   # session dir
+const truecolor = $COLORTERM == 'truecolor'                                   # 24-bit color
 const tmux = !empty($TMUX) || &term =~ "tmux"                                 # tmux
 const multiplexer = tmux                                                      # multiplexer
 const alacritty = !empty($ALACRITTY_SOCKET) && !multiplexer                   # alacritty
@@ -199,7 +200,7 @@ endif
 # echords plugin
 if g:echords_enabled
   g:echords_auto_enable = true
-  g:echords_normal_mappings = true
+  g:echords_normal_mappings = false
   g:echords_visual_mappings = true
   g:echords_command_mappings = true
   g:echords_operator_mappings = true
@@ -461,6 +462,7 @@ if !has('gui_running')
       || vim_terminal || vim_terminal_tmux
       || xterm || xterm_tmux
       || st || st_tmux
+      || truecolor
     )
       # :help xterm-true-color
       if !jediterm && (empty(&t_8f) || empty(&t_8b))
