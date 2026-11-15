@@ -226,6 +226,9 @@ export def Enable()
   # go to paragraph backward
   inoremap <M-{> <C-o>{
   inoremap <C-Up> <C-o>{
+  if g:echords_extra_mappings
+    inoremap <C-{> <C-o>{
+  endif
   if g:echords_normal_mappings
     nnoremap <M-{> {
     nnoremap <C-Up> {
@@ -240,6 +243,9 @@ export def Enable()
   # go to paragraph forward
   inoremap <M-}> <C-o>}
   inoremap <C-Down> <C-o>}
+  if g:echords_extra_mappings
+    inoremap <C-}> <C-o>}
+  endif
   if g:echords_normal_mappings
     nnoremap <M-}> }
     nnoremap <C-Down> }
@@ -480,6 +486,9 @@ export def Enable()
   if has('gui_running')
     # inoremap <C-S-BackSpace> <C-o>0<C-o>dd
     inoremap <C-S-BackSpace> <Cmd>normal! 0d$<CR>
+    if g:echords_extra_mappings
+      inoremap <C-S-h> <Cmd>normal! 0d$<CR>
+    endif
   endif
 
   # TODO: check
@@ -521,6 +530,10 @@ export def Enable()
 
   # paste interactive (yank-pop)
   inoremap <M-y> <C-x><C-r>
+  if g:echords_extra_mappings
+    inoremap <C-S-y> <C-x><C-r>
+    inoremap <C-x>y <C-x><C-r>
+  endif
 
   # kill ring save (copy selection)
   if g:echords_visual_mappings
@@ -593,6 +606,9 @@ export def Enable()
   # tags
   # find a tag (xref-find-definitions)
   inoremap <M-.> <C-o><C-]>
+  if g:echords_extra_mappings
+    inoremap <C-.> <C-o><C-]>
+  endif
   # find a tag (a definition) in other window
   inoremap <C-x>4. <Cmd>wincmd }<CR>
   if g:echords_normal_mappings
@@ -602,13 +618,24 @@ export def Enable()
 
   # go back (xref-go-back)
   inoremap <M-,> <C-o><C-t>
+  if g:echords_extra_mappings
+    inoremap <C-,> <C-o><C-t>
+  endif
   if g:echords_normal_mappings
     nnoremap <M-,> <C-t>
   endif
 
+  # TODO: now same as <M-,>
+  # go forward (xref-go-forward)
+  # inoremap <C-M-,> <C-o><C-i>
+  # inoremap <C-M-,> <C-o><C-t>
+
   # shells / terminal
   # execute a shell command
   inoremap <M-!> <C-o>:!
+  if g:echords_extra_mappings
+    inoremap <C-!> <C-o>:!
+  endif
   # execute a shell command asynchronously
   inoremap <M-&> <ScriptCmd>AsyncShellCmd()<CR>
 
@@ -654,11 +681,26 @@ export def Enable()
     nnoremap <leader><C-v> <C-v>
   endif
 
+  # scroll down one line
+  if g:echords_extra_mappings
+    inoremap <M-]> <C-o><C-e>
+    inoremap <C-S-)> <C-o><C-e>
+  endif
+
   # scroll up
   # inoremap <M-v> <C-o><C-u>
   inoremap <M-v> <PageUp>
+  # if g:echords_extra_mappings
+  #  inoremap <C-S-v> <PageUp>
+  # endif
   if g:echords_normal_mappings
     nnoremap <M-v> <PageUp>
+  endif
+
+  # scroll up one line
+  if g:echords_extra_mappings
+    inoremap <M-[> <C-o><C-y>
+    inoremap <C-S-(> <C-o><C-y>
   endif
 
   # scroll current line top, center, bottom  (zz, zb, zt)
@@ -712,6 +754,9 @@ export def Enable()
 
   # go to buffer beginning
   inoremap <M-<> <Cmd>normal! 1G0<CR>
+  if g:echords_extra_mappings
+    inoremap <C-S-<> <Cmd>normal! 1G0<CR>
+  endif
   inoremap <C-Home> <Cmd>normal! 1G0<CR>
   inoremap <C-x>[ <Cmd>normal! 1G0<CR>
   if g:echords_normal_mappings
@@ -722,6 +767,9 @@ export def Enable()
 
   # go to buffer end
   inoremap <M->> <Cmd>normal! G$<CR>
+  if g:echords_extra_mappings
+    inoremap <C-S->> <Cmd>normal! G$<CR>
+  endif
   inoremap <C-End> <Cmd>normal! G$<CR>
   # collision: i_CTRL-X_CTRL-] search the first tag that starts with the same character before the cursor
   inoremap <C-x>] <Cmd>normal! G$<CR>
@@ -952,295 +1000,31 @@ export def Enable()
     # delete the whole line
     if has('gui_running')
       tnoremap <C-S-BackSpace> <C-a><C-k>
+      if g:echords_extra_mappings
+        tnoremap <C-S-h> <C-a><C-k>
+      endif
     endif
   endif
 enddef
 
 # disable echords keys
 export def Disable()
-  silent! iunmap <C-a>
-  if g:echords_visual_mappings
-    silent! vunmap <C-a>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <C-a>
-  endif
   if has('gui_running')
     silent! iunmap <C-S-a>
-  else
-    silent! iunmap <F13>
-  endif
-  silent! iunmap <C-x><C-a>
-  if g:echords_command_mappings
-    silent! cunmap <C-a>
-    silent! cunmap <C-x><C-a>
-  endif
-  silent! iunmap <C-e>
-  if g:echords_visual_mappings
-    silent! vunmap <C-e>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <C-e>
-  endif
-  if g:echords_command_mappings
-    silent! cunmap <C-e>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-e>
-  else
-    silent! iunmap <F14>
-  endif
-  silent! iunmap <C-q>
-  silent! iunmap <C-o>
-  if has('gui_running')
     silent! iunmap <C-S-o>
-  endif
-  if has('gui_running')
     silent! iunmap <C-Space>
-    if g:echords_normal_mappings
-      silent! nunmap <C-Space>
-    endif
-  else
-    silent! iunmap <C-@>
-    if g:echords_normal_mappings
-      silent! nunmap <C-@>
-    endif
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-@>
-  endif
-  silent! iunmap <C-x>h
-  if has('gui_running')
     silent! iunmap <C-u><C-Space>
-  else
-    silent! iunmap <C-u><C-@>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-x><C-x>
-  endif
-  silent! iunmap <M-@>
-  silent! iunmap <M-%>
-  silent! iunmap <M-$>
-  silent! iunmap <M-q>
-  if g:echords_visual_mappings
-    silent! vunmap <M-q>
-  endif
-  silent! iunmap <M-m>
-  if g:echords_normal_mappings
-    silent! nunmap <M-m>
-  endif
-  silent! iunmap <M-S-m>
-  silent! iunmap <M-a>
-  if g:echords_normal_mappings
-    silent! nunmap <M-a>
-  endif
-  silent! iunmap <M-S-a>
-  silent! iunmap <M-e>
-  if g:echords_normal_mappings
-    silent! nunmap <M-e>
-  endif
-  silent! iunmap <M-S-e>
-  silent! iunmap <C-x><BackSpace>
-  silent! iunmap <M-k>
-  silent! iunmap <M-{>
-  silent! iunmap <C-Up>
-  if g:echords_normal_mappings
-    silent! nunmap <M-{>
-    silent! nunmap <C-Up>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-Up>
-  else
-    silent! iunmap <F18>
-  endif
-  silent! iunmap <M-}>
-  silent! iunmap <C-Down>
-  if g:echords_normal_mappings
-    silent! nunmap <M-}>
-    silent! nunmap <C-Down>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-Down>
-  else
-    silent! iunmap <F19>
-  endif
-  silent! iunmap <C-M-a>
-  silent! iunmap <C-M-Home>
-  if g:echords_normal_mappings
-    silent! nunmap <C-M-a>
-    silent! nunmap <C-M-Home>
-  endif
-  silent! iunmap <C-M-e>
-  silent! iunmap <C-M-End>
-  if g:echords_normal_mappings
-    silent! nunmap <C-M-e>
-    silent! nunmap <C-M-End>
-  endif
-  silent! iunmap <C-p>
-  if g:echords_normal_mappings
-    silent! nunmap <C-p>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-p>
-  else
-    silent! iunmap <F22>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-p>
-  endif
-  silent! iunmap <C-n>
-  if g:echords_normal_mappings
-    silent! nunmap <C-n>
-  endif
-  silent! iunmap <C-s><C-s>
-  silent! iunmap <C-s><C-w>
-  silent! iunmap <C-r><C-r>
-  silent! iunmap <C-r><C-w>
-  if has('gui_running')
     silent! iunmap <C-S-n>
-  else
-    silent! iunmap <F21>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-n>
-  endif
-  silent! iunmap <C-x>s
-  silent! iunmap <C-x><C-s>
-  silent! iunmap <C-x>xg
-  silent! iunmap <C-x>d
-  silent! iunmap <C-x><C-f>
-  # silent! iunmap <C-x><C-c>
-  silent! iunmap <C-x><C-j>
-  # if g:echords_extra_mappings
-  #  silent! iunmap <C-x>j
-  # endif
-  silent! iunmap <C-x><C-w>
-  silent! iunmap <C-t>
-  silent! iunmap <M-t>
-  silent! iunmap <C-x><C-t>
-  silent! iunmap <C-b>
-  if g:echords_command_mappings
-    silent! cunmap <C-b>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-b>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <C-b>
-  endif
-  silent! iunmap <C-f>
-  if g:echords_command_mappings
-    silent! cunmap <C-f>
-    silent! cunmap <C-x><C-f>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-f>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <C-f>
-  endif
-  silent! iunmap <M-b>
-  silent! iunmap <M-Left>
-  silent! iunmap <C-Left>
-  if g:echords_command_mappings
-    silent! cunmap <M-b>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <M-b>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <M-b>
-  endif
-  silent! iunmap <M-f>
-  silent! iunmap <M-Right>
-  silent! iunmap <C-Right>
-  if g:echords_command_mappings
-    silent! cunmap <M-f>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <M-f>
-  endif
-  if g:echords_normal_mappings
-    silent! nunmap <M-f>
-  endif
-  silent! iunmap <C-d>
-  if g:echords_command_mappings
-    silent! cunmap <C-d>
-    silent! cunmap <M-d>
-  endif
-  silent! iunmap <M-BackSpace>
-  silent! iunmap <C-BackSpace>
-  if g:echords_command_mappings
-    silent! cunmap <M-BackSpace>
-    silent! cunmap <C-BackSpace>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-BackSpace>
-  endif
-  silent! iunmap <M-d>
-  silent! iunmap <C-Delete>
-  silent! iunmap <C-k>
-  if has('gui_running')
     silent! iunmap <C-S-k>
-  endif
-  silent! iunmap <C-y>
-  if g:echords_command_mappings
-    silent! cunmap <C-k>
-    silent! cunmap <C-y>
-  endif
-  silent! iunmap <M-y>
-  if g:echords_visual_mappings
-    silent! vunmap <M-w>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-w>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-M-\>
-  endif
-  silent! iunmap <C-/>
-  silent! iunmap <C-x>u
-  silent! iunmap <Undo>
-  if has('gui_running')
     silent! iunmap <C-S-_>
-  else
-    silent! iunmap <F15>
-  endif
-  if has('gui_running')
     silent! iunmap <C-M-S-_>
-  else
-    silent! iunmap <F17>
-  endif
-  if has('gui_running')
     silent! iunmap <C-S-?>
-  else
-    silent! iunmap <F16>
-  endif
-  silent! iunmap <C-x>b
-  silent! iunmap <C-x><C-b>
-  silent! iunmap <C-x>k
-  silent! iunmap <M-x>
-  # silent! iunmap <M-:>
-  silent! iunmap <M-.>
-  silent! iunmap <C-x>4.
-  silent! iunmap <M-,>
-  if g:echords_normal_mappings
-    silent! nunmap <M-.>
-    silent! nunmap <C-x>4.
-    silent! nunmap <M-,>
-  endif
-  silent! iunmap <M-!>
-  silent! iunmap <M-&>
-  silent! iunmap <M-1>
-  silent! iunmap <M-2>
-  silent! iunmap <M-3>
-  silent! iunmap <M-4>
-  silent! iunmap <M-5>
-  silent! iunmap <M-6>
-  silent! iunmap <M-7>
-  silent! iunmap <M-8>
-  silent! iunmap <M-9>
-  if has('gui_running')
     silent! iunmap <C-1>
     silent! iunmap <C-2>
     silent! iunmap <C-3>
@@ -1250,132 +1034,231 @@ export def Disable()
     silent! iunmap <C-7>
     silent! iunmap <C-8>
     silent! iunmap <C-9>
+    silent! iunmap <C-M-S-v>
+  else
+    silent! iunmap <C-a>
+    silent! iunmap <F13>
+    silent! iunmap <C-x><C-a>
+    silent! iunmap <C-e>
+    silent! iunmap <F14>
+    silent! iunmap <C-q>
+    silent! iunmap <C-o>
+    silent! iunmap <C-@>
+    silent! iunmap <C-x>h
+    silent! iunmap <C-u><C-@>
+    silent! iunmap <M-@>
+    silent! iunmap <M-%>
+    silent! iunmap <M-$>
+    silent! iunmap <M-q>
+    silent! iunmap <M-m>
+    silent! iunmap <M-S-m>
+    silent! iunmap <M-a>
+    silent! iunmap <M-S-a>
+    silent! iunmap <M-e>
+    silent! iunmap <M-S-e>
+    silent! iunmap <C-x><BackSpace>
+    silent! iunmap <M-k>
+    silent! iunmap <M-{>
+    silent! iunmap <C-Up>
+    silent! iunmap <F18>
+    silent! iunmap <M-}>
+    silent! iunmap <C-Down>
+    silent! iunmap <F19>
+    silent! iunmap <C-M-a>
+    silent! iunmap <C-M-Home>
+    silent! iunmap <C-M-e>
+    silent! iunmap <C-M-End>
+    silent! iunmap <C-p>
+    silent! iunmap <F22>
+    silent! iunmap <C-n>
+    silent! iunmap <C-s><C-s>
+    silent! iunmap <C-s><C-w>
+    silent! iunmap <C-r><C-r>
+    silent! iunmap <C-r><C-w>
+    silent! iunmap <F21>
+    silent! iunmap <C-x>s
+    silent! iunmap <C-x><C-s>
+    silent! iunmap <C-x>xg
+    silent! iunmap <C-x>d
+    silent! iunmap <C-x><C-f>
+    # silent! iunmap <C-x><C-c>
+    silent! iunmap <C-x><C-j>
+    silent! iunmap <C-x><C-w>
+    silent! iunmap <C-t>
+    silent! iunmap <M-t>
+    silent! iunmap <C-x><C-t>
+    silent! iunmap <C-b>
+    silent! iunmap <C-f>
+    silent! iunmap <M-b>
+    silent! iunmap <M-Left>
+    silent! iunmap <C-Left>
+    silent! iunmap <M-f>
+    silent! iunmap <M-Right>
+    silent! iunmap <C-Right>
+    silent! iunmap <C-d>
+    silent! iunmap <M-BackSpace>
+    silent! iunmap <C-BackSpace>
+    silent! iunmap <M-d>
+    silent! iunmap <C-Delete>
+    silent! iunmap <C-k>
+    silent! iunmap <C-y>
+    silent! iunmap <M-y>
+    silent! iunmap <C-/>
+    silent! iunmap <C-x>u
+    silent! iunmap <Undo>
+    silent! iunmap <F15>
+    silent! iunmap <F17>
+    silent! iunmap <F16>
+    silent! iunmap <C-x>b
+    silent! iunmap <C-x><C-b>
+    silent! iunmap <C-x>k
+    silent! iunmap <M-x>
+    silent! iunmap <M-.>
+    silent! iunmap <C-x>4.
+    silent! iunmap <M-,>
+    silent! iunmap <M-!>
+    silent! iunmap <M-&>
+    silent! iunmap <M-1>
+    silent! iunmap <M-2>
+    silent! iunmap <M-3>
+    silent! iunmap <M-4>
+    silent! iunmap <M-5>
+    silent! iunmap <M-6>
+    silent! iunmap <M-7>
+    silent! iunmap <M-8>
+    silent! iunmap <M-9>
+    ### silent! iunmap <M-p>
+    ### silent! iunmap <M-n>
+    silent! iunmap <C-v>
+    silent! iunmap <M-v>
+    silent! iunmap <C-l>
+    silent! iunmap <M-r>
+    silent! iunmap <M-z>
+    silent! iunmap <M-u>
+    silent! iunmap <M-l>
+    silent! iunmap <M-c>
+    silent! iunmap <C-x><C-q>
+    silent! iunmap <M-g>g
+    silent! iunmap <M-g><M-g>
+    silent! iunmap <M-<>
+    silent! iunmap <C-Home>
+    silent! iunmap <C-x>[
+    silent! iunmap <M->>
+    silent! iunmap <C-End>
+    silent! iunmap <C-x>]
+    silent! iunmap <M-/>
+    silent! iunmap <C-M-/>
+    silent! iunmap <C-x>0
+    silent! iunmap <C-x>1
+    silent! iunmap <C-x>2
+    silent! iunmap <C-x>3
+    silent! iunmap <C-x>o
+    silent! iunmap <C-x>O
+    silent! iunmap <C-x>+
+    silent! iunmap <C-x>{
+    silent! iunmap <C-x>}
+    silent! iunmap <C-x>^
+    silent! iunmap <C-M-v>
+    silent! iunmap <F20>
+    silent! iunmap <C-x>4<C-f>
+    silent! iunmap <C-x>(
+    silent! iunmap <C-x>)
+    silent! iunmap <C-x>e
+    silent! iunmap <M-^>
+    silent! iunmap <C-g>
   endif
-  ### silent! iunmap <M-p>
-  ### silent! iunmap <M-n>
-  if g:echords_command_mappings
-    silent! cunmap <M-p>
-    silent! cunmap <M-n>
+
+  if g:echords_visual_mappings
+    silent! vunmap <C-a>
+    silent! vunmap <C-e>
+    silent! vunmap <C-x><C-x>
+    silent! vunmap <M-q>
+    silent! vunmap <C-p>
+    silent! vunmap <C-n>
+    silent! vunmap <C-b>
+    silent! vunmap <C-f>
+    silent! vunmap <M-b>
+    silent! vunmap <M-f>
+    silent! vunmap <M-w>
+    silent! vunmap <C-w>
+    silent! vunmap <C-M-\>
+    silent! vunmap <C-g>
   endif
-  silent! iunmap <C-v>
-  silent! iunmap <M-v>
+
   if g:echords_normal_mappings
+    silent! nunmap <C-a>
+    silent! nunmap <C-e>
+    silent! nunmap <C-Space>
+    silent! nunmap <C-@>
+    silent! nunmap <M-m>
+    silent! nunmap <M-a>
+    silent! nunmap <M-e>
+    silent! nunmap <M-{>
+    silent! nunmap <C-Up>
+    silent! nunmap <M-}>
+    silent! nunmap <C-Down>
+    silent! nunmap <C-M-a>
+    silent! nunmap <C-M-Home>
+    silent! nunmap <C-M-e>
+    silent! nunmap <C-M-End>
+    silent! nunmap <C-p>
+    silent! nunmap <C-n>
+    silent! nunmap <C-b>
+    silent! nunmap <C-f>
+    silent! nunmap <M-b>
+    silent! nunmap <M-f>
+    silent! nunmap <M-.>
+    silent! nunmap <C-x>4.
+    silent! nunmap <M-,>
     silent! nunmap <C-v>
     silent! nunmap <M-v>
     silent! nunmap <leader><C-v>
-  endif
-  silent! iunmap <C-l>
-  if g:echords_normal_mappings
     silent! nunmap <C-l>
-  endif
-  silent! iunmap <M-r>
-  if g:echords_normal_mappings
     silent! nunmap <M-r>
-  endif
-  silent! iunmap <M-z>
-  silent! iunmap <M-u>
-  silent! iunmap <M-l>
-  silent! iunmap <M-c>
-  silent! iunmap <C-x><C-q>
-  silent! iunmap <M-g>g
-  silent! iunmap <M-g><M-g>
-  if g:echords_normal_mappings
     silent! nunmap <M-g>g
     silent! nunmap <M-g><M-g>
-  endif
-  silent! iunmap <M-<>
-  silent! iunmap <C-Home>
-  silent! iunmap <C-x>[
-  if g:echords_normal_mappings
     silent! nunmap <M-<>
     silent! nunmap <C-Home>
     silent! nunmap <C-x>[
-  endif
-  silent! iunmap <M->>
-  silent! iunmap <C-End>
-  silent! iunmap <C-x>]
-  if g:echords_normal_mappings
     silent! nunmap <M->>
     silent! nunmap <C-End>
     silent! nunmap <C-x>]
-  endif
-  silent! iunmap <M-/>
-  silent! iunmap <C-M-/>
-  silent! iunmap <C-x>0
-  if g:echords_normal_mappings
     silent! nunmap <C-x>0
-  endif
-  silent! iunmap <C-x>1
-  if g:echords_normal_mappings
     silent! nunmap <C-x>1
-  endif
-  silent! iunmap <C-x>2
-  if g:echords_normal_mappings
     silent! nunmap <C-x>2
-  endif
-  silent! iunmap <C-x>3
-  if g:echords_normal_mappings
     silent! nunmap <C-x>3
-  endif
-  silent! iunmap <C-x>o
-  if g:echords_normal_mappings
     silent! nunmap <C-x>o
-  endif
-  silent! iunmap <C-x>O
-  if g:echords_normal_mappings
     silent! nunmap <C-x>O
-  endif
-  silent! iunmap <C-x>+
-  if g:echords_normal_mappings
     silent! nunmap <C-x>+
-  endif
-  silent! iunmap <C-x>{
-  if g:echords_normal_mappings
     silent! nunmap <C-x>{
-  endif
-  silent! iunmap <C-x>}
-  if g:echords_normal_mappings
     silent! nunmap <C-x>}
-  endif
-  silent! iunmap <C-x>^
-  if g:echords_normal_mappings
     silent! nunmap <C-x>^
-  endif
-  silent! iunmap <C-M-v>
-  if g:echords_normal_mappings
     silent! nunmap <C-M-v>
-  endif
-  if has('gui_running')
-    silent! iunmap <C-M-S-v>
-    if g:echords_normal_mappings
-      silent! nunmap <C-M-S-v>
-    endif
-  else
-    silent! iunmap <F20>
-    if g:echords_normal_mappings
-      silent! nunmap <F20>
-    endif
-  endif
-  silent! iunmap <C-x>4<C-f>
-  silent! iunmap <C-x>(
-  silent! iunmap <C-x>)
-  silent! iunmap <C-x>e
-  silent! iunmap <M-^>
-  silent! iunmap <C-g>
-  if g:echords_command_mappings
-    silent! cunmap <C-g>
-  endif
-  if g:echords_visual_mappings
-    silent! vunmap <C-g>
-  endif
-  if g:echords_operator_mappings
-    silent! ounmap <C-g>
-  endif
-  if g:echords_normal_mappings
+    silent! nunmap <C-M-S-v>
+    silent! nunmap <F20>
     silent! nunmap <C-g>
+    silent! nunmap <M-x>
   endif
 
   if g:echords_extra_mappings
+    silent! iunmap <C-{>
+    silent! iunmap <C-}>
+    # silent! iunmap <C-x>j
+    silent! iunmap <C-S-h>
+    silent! iunmap <C-S-y>
+    silent! iunmap <C-x>y
+    # silent! iunmap <M-:>
+    silent! iunmap <C-.>
+    silent! iunmap <C-,>
+    # silent! iunmap <C-M-,>
+    silent! iunmap <C-!>
+    silent! iunmap <C-S-v>
+    silent! iunmap <M-]>
+    silent! iunmap <M-[>
+    silent! iunmap <C-S-)>
+    silent! iunmap <C-S-(>
+    silent! iunmap <C-S-<>
+    silent! iunmap <C-S->>
     silent! iunmap <C-x><C-x>
     silent! iunmap <C-^>
     silent! iunmap <C-x>K
@@ -1391,11 +1274,33 @@ export def Disable()
     silent! iunmap <leader>eJ
     silent! iunmap <C-x>=
     silent! iunmap <C-x><C-m>
-    if g:echords_normal_mappings
-      silent! nunmap <M-x>
-    endif
     silent! iunmap <leader>e=
     silent! iunmap <leader>ez
+    silent! iunmap <C-S-h>
+  endif
+
+  if g:echords_command_mappings
+    silent! cunmap <C-a>
+    silent! cunmap <C-x><C-a>
+    silent! cunmap <C-e>
+    silent! cunmap <C-b>
+    silent! cunmap <C-f>
+    silent! cunmap <C-x><C-f>
+    silent! cunmap <M-b>
+    silent! cunmap <M-f>
+    silent! cunmap <C-d>
+    silent! cunmap <M-d>
+    silent! cunmap <M-BackSpace>
+    silent! cunmap <C-BackSpace>
+    silent! cunmap <C-k>
+    silent! cunmap <C-y>
+    silent! cunmap <M-p>
+    silent! cunmap <M-n>
+    silent! cunmap <C-g>
+  endif
+
+  if g:echords_operator_mappings
+    silent! ounmap <C-g>
   endif
 
   if g:echords_terminal_mappings
