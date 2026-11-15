@@ -185,9 +185,9 @@ if g:complementum_enabled
   # g:complementum_keystroke_default = "\<C-x>\<C-n>"   # (default: "\<C-n>")
   # g:complementum_keystroke_default_toggle = "\<C-n>"  # (default: "\<C-x>\<C-n>")
   g:complementum_debuginfo = false
-  g:complementum_minchars = 4     # num - 1
-  g:complementum_autodelay = 600  # ms
-  g:complementum_autopopup = true
+  g:complementum_minchars = 3     # >= 1
+  g:complementum_autodelay = 300  # ms
+  g:complementum_autopopup = false
   g:complementum_no_mappings = true
 endif
 
@@ -201,12 +201,12 @@ endif
 if g:echords_enabled
   g:echords_auto_enable = true
   g:echords_normal_mappings = false
-  g:echords_visual_mappings = true
+  g:echords_visual_mappings = false
   g:echords_command_mappings = true
-  g:echords_operator_mappings = true
+  g:echords_operator_mappings = false
   g:echords_terminal_mappings = true
   g:echords_extra_mappings = true
-  g:echords_override_mappings = true
+  g:echords_override_mappings = false
   # insert mode is the default mode
   # set insertmode
 endif
@@ -791,7 +791,7 @@ set preserveindent  # when changing the indent of the current line, preserve it 
 # :help ins-completion
 if !g:complementum_enabled
   setglobal autocomplete         # shows a completion menu as you type:
-  set autocompletedelay=600      # delay in milliseconds before the autocomplete appears (default: 0)
+  set autocompletedelay=300      # delay in milliseconds before the autocomplete appears (default: 0)
   # set autocompletetimeout=150  # initial timeout in milliseconds for the time-slice completion (default: 80)
 endif
 # set iskeyword+=-             # keywords (default: "@,48-57,_,192-255")
@@ -807,7 +807,7 @@ if &autocomplete
   setglobal completeopt=menu,menuone,noselect  # noinsert,nearest <> fuzzy,nosort,longest (with autocomplete)
 else
   # setglobal completeopt=menu,menuone,noinsert
-  setglobal completeopt=menu,menuone,noselect
+  setglobal completeopt=menu,menuone,noselect,fuzzy
   # setglobal completeopt=menu,menuone,preinsert
 endif
 if &completeopt =~ 'preinsert'
@@ -861,6 +861,9 @@ set pummaxwidth=100  # maximum width to use for the popup menu (default: 0)
 
 # map <S-CR> (close completion + CR)
 inoremap <expr> <S-CR> pumvisible() ? "\<C-e>\<CR>" : "\<S-CR>"
+
+# map <C-S-CR> (completion + CR)
+inoremap <expr> <C-S-CR> pumvisible() ? "\<C-y>\<CR>" : "\<C-S-CR>"
 
 # popup menu to move "like arrows" (highlight only)
 # inoremap <expr> <C-p> pumvisible() ? "\<Up>" : "\<C-p>"
@@ -965,7 +968,7 @@ def MapInsertTab(mode: string): string
   endif
   if get(g:, 'loaded_copilot') && !empty(copilot#GetDisplayedSuggestion().text)
     keystroke = copilot#Accept()
-  elseif g:complementum_enabled && !g:complementum_autopopup && !pumvisible()
+  elseif g:complementum_enabled && !pumvisible() # && !g:complementum_autopopup
     # var line = getline('.')
     # if !empty(trim(line)) && line->strpart(0, col('.') - 1) =~ '^\s*$'
     #   # indent
@@ -974,7 +977,8 @@ def MapInsertTab(mode: string): string
     #   keystroke = g:complementum_keystroke_default
     # endif
     # use completion if a valid text exists before the cursor
-    if getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+    # if getline('.')->strpart(0, col('.') - 1) =~ '\k\{' .. g:complementum_minchars .. ',}$'
+    if getline('.')->strpart(0, col('.') - 1) =~ '\k$'
       keystroke = g:complementum_keystroke_default
     endif
   elseif &completeopt =~ 'preinsert' && preinserted()
