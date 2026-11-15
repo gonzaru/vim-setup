@@ -21,6 +21,7 @@ endif
 const colortheme = "darkula"                                                  # theme
 const background = "dark"                                                     # background
 const tabasesc = false                                                        # tab as escape
+const is_gui = has('gui_running')                                             # gui is running
 const host = hostname()                                                       # hostname
 const sessiondir = $"{$HOME}/.vim/sessions"                                   # session dir
 const truecolor = $COLORTERM == 'truecolor'                                   # 24-bit color
@@ -164,7 +165,7 @@ endif
 # darkula theme
 if colortheme == "darkula"
   g:darkula_style = "dark"                # light or dark
-  g:darkula_cursor2 = has('gui_running')  # alternative cursor n2
+  g:darkula_cursor2 = is_gui              # alternative cursor n2
   g:darkula_pmenumatch2 = false           # pmenu match color n2
 endif
 
@@ -215,13 +216,13 @@ endif
 if g:esckey_enabled
   # g:esckey_key = "<C-l>"
   # <F23> maps to <F23> in gui, but <F3> in terminal
-  # g:esckey_key = has('gui_running') ? '<F23>' : '<F3>'
+  # g:esckey_key = is_gui ? '<F23>' : '<F3>'
   # inoremap ^V<89> (Ctrl+v + key)
   # g:esckey_key = ''
   g:esckey_key = '<F12>'
   g:esckey_nnoremap = false # normal mode
   g:esckey_cnoremap = true  # command mode
-  if has('gui_running')
+  if is_gui
     if !g:esckey_cnoremap
       # cnoremap <F23> <Nop>
       cnoremap <F12> <Nop>
@@ -420,7 +421,7 @@ setglobal tags=./tags;,tags,./TAGS;,TAGS
 set tagrelative
 
 # vim
-if !has('gui_running')
+if !is_gui
   # viminfo with vim version
   execute $"set viminfofile={$HOME}/.viminfo_{v:progname}-{v:version}"
   # cursor shapes
@@ -430,13 +431,13 @@ if !has('gui_running')
   if gnome_terminal || gnome_terminal_tmux
     || jediterm || jediterm_tmux
     || xterm || xterm_tmux
-    &t_SI ..= "\e[6 q"
-    &t_SR ..= "\e[4 q"
-    &t_EI ..= "\e[2 q"
+    &t_SI = "\e[6 q"
+    &t_SR = "\e[4 q"
+    &t_EI = "\e[2 q"
   else
-    &t_SI ..= "\eP\e[5 q\e\\"
-    &t_SR ..= "\eP\e[3 q\e\\"
-    &t_EI ..= "\eP\e[1 q\e\\"
+    &t_SI = "\eP\e[5 q\e\\"
+    &t_SR = "\eP\e[3 q\e\\"
+    &t_EI = "\eP\e[1 q\e\\"
   endif
   # tmux/alacritty mouse codes
   if match(&term, '^\(tmux\|alacritty\|xterm-ghostty\)') != -1
@@ -573,7 +574,7 @@ if !has('gui_running')
 endif
 
 # gui
-if has('gui_running')
+if is_gui
   # see misc#SetGuiFont()
   if has('gui_macvim')
     # set guifont=SFMono-Regular:h16
@@ -823,7 +824,7 @@ endif
 if has('popupwin')
   # setglobal completeopt+=popup      # show extra information in a popup window
   # https://github.com/vim/vim/issues/18442
-  if !has('gui_running')
+  if !is_gui
     setglobal completeopt+=popuphidden  # like popup option but hidden by default
   endif
   inoremap <expr> <silent> <C-h> pumvisible() ? '<ScriptCmd>misc#PopupToggle()<CR>' : "\<C-h>"
@@ -1005,7 +1006,7 @@ def MapInsertTab(mode: string): string
   endif
   return keystroke
 enddef
-if tabasesc && (has('gui_running') || (&t_ti =~ "\<Esc>[>4;2m" && &t_te =~ "\<Esc>[>4;m"))
+if tabasesc && (is_gui || (&t_ti =~ "\<Esc>[>4;2m" && &t_te =~ "\<Esc>[>4;m"))
   inoremap <silent> <C-i> <C-r>=<SID>MapInsertTab("tab")<CR>
   inoremap <silent> <C-Tab> <C-r>=<SID>MapInsertTab("tab")<CR>
   inoremap <Tab> <C-\><C-n>
@@ -1028,7 +1029,7 @@ command! Backup {
   var filepath = expand('%:p')
   var filetail = fnamemodify(filepath, ':t')
   var fileback = $"{&backupdir}/{filetail}-{strftime('%Y%m%d%H%M%S')}{&backupext}"
-  system($"cp {filepath} {fileback}")
+  system($"cp {shellescape(filepath)} {shellescape(fileback)}")
   if v:shell_error != 0
     throw $"Error: failed to copy '{filepath}' to '{fileback}'"
   else
@@ -1156,7 +1157,7 @@ if g:misc_enabled
 endif
 
 # :sh
-if has('gui_running')
+if is_gui
   if g:misc_enabled
     # nnoremap <silent> <leader>sh <ScriptCmd>misc#SH()<CR>exec tmux -L gvim-builtin new-session -c $HOME -A -D -s gvim-builtin<CR>
     nnoremap <leader>sh <ScriptCmd>misc#SH()<CR>
@@ -1171,7 +1172,7 @@ endif
 #   # TODO: laststatus=0
 #   autocmd TerminalWinOpen * setlocal nonumber norelativenumber signcolumn=no statusline=%#Normal#
 # augroup END
-if has('gui_running')
+if is_gui
   if has('linux') || has('bsd')
     map <S-Insert> <Nop>
     map! <S-Insert> <MiddleMouse>
@@ -1344,9 +1345,9 @@ if g:searcher_enabled
   command! -nargs=1 -complete=dir FindDir searcher#Popup('find', '<args>')
   command! -nargs=1 -complete=dir GrepDir searcher#Popup('grep', '<args>')
 endif
-def FindPrg(arg: string, _): list<string>
-  var fuzzy = get(b:, 'findfunc_fuzzy_enabled', false)
-  var fuzzyOpts = get(b:, 'findfunc_fuzzy_opts', {})
+def FindPrg(arg: string, _: any): list<string>
+  var fuzzy = get(g:, 'vimrc_findfunc_fuzzy_enabled', false)
+  var fuzzyOpts = get(g:, 'vimrc_findfunc_fuzzy_opts', {})
   var exclude = [
     '--exclude', '.git',
     '--exclude', '.cache',
@@ -1364,13 +1365,13 @@ def FindPrg(arg: string, _): list<string>
   elseif fuzzy
     out = matchfuzzy(files, arg, fuzzyOpts)
   else
-    out = filter(files, $"v:val =~? '{arg}'")
+    out = filter(files, (_, val) => val =~? arg)
   endif
   return out
 enddef
 # :find with a function
-b:findfunc_fuzzy_enabled = true
-b:findfunc_fuzzy_opts = {limit: 200, smartcase: true}
+g:vimrc_findfunc_fuzzy_enabled = true
+g:vimrc_findfunc_fuzzy_opts = {limit: 200, smartcase: true}
 setglobal findfunc=FindPrg
 
 # edit file in the same directory as the current file
@@ -1472,7 +1473,7 @@ command! ReloadPluginMisc {
 }
 
 # set gui font (shows a gui panel to pick a font)
-if has('gui_running')
+if is_gui
   command! Font echo getfontname()
   command! Fonti misc#FontSize("increase")
   command! Fontd misc#FontSize("decrease")
@@ -1530,7 +1531,7 @@ augroup event_vim
   # autocmd VimEnter * ++once startinsert | stopinsert | redraw!
   # clear the terminal on exit
   autocmd VimLeave * ++once {
-    if !has('gui_running')
+    if !is_gui
       if xterm
         silent !printf '\e[0m'
       elseif st || st_tmux
