@@ -13,6 +13,7 @@ g:autoloaded_echords = true
 
 # enable echords keys
 export def Enable()
+  const is_gui = has('gui_running')
 
   # TODO: check all C-S-* for terminal
 
@@ -90,7 +91,7 @@ export def Enable()
     nnoremap <C-a> ^
   endif
   # go to line beginning + select
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-a> <C-o>v0
   else
     # <F13> is mapped to <C-S-a>
@@ -125,7 +126,7 @@ export def Enable()
   endif
 
   # go to line end + select
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-e> <C-o>v$
   else
     # <F14> is mapped to <C-S-e>
@@ -141,12 +142,12 @@ export def Enable()
   # add new line below
   inoremap <C-o> <C-o>o
   # add new line above
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-o> <C-o>O
   endif
 
   # mark set
-  if has('gui_running')
+  if is_gui
     inoremap <C-Space> <C-o>v
     if g:echords_normal_mappings
       nnoremap <C-Space> v
@@ -157,7 +158,7 @@ export def Enable()
       nnoremap <C-@> v
     endif
   endif
-  if has('gui_running')
+  if is_gui
     # collision: i_CTRL-@ insert previously inserted text and stop insert
     inoremap <C-S-@> <C-o>v
   endif
@@ -166,7 +167,7 @@ export def Enable()
   inoremap <C-x>h <Cmd>normal! ggVG<CR>
 
   # go to last edit position
-  if has('gui_running')
+  if is_gui
     inoremap <C-u><C-Space> <C-o>g;
   else
     inoremap <C-u><C-@> <C-o>g;
@@ -234,7 +235,7 @@ export def Enable()
     nnoremap <C-Up> {
   endif
   # go to paragraph backward + select
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-Up> <C-o>v{
   else
     inoremap <F18> <C-o>v{
@@ -251,7 +252,7 @@ export def Enable()
     nnoremap <C-Down> }
   endif
   # go to paragraph forward + select
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-Down> <C-o>v}
   else
     inoremap <F19> <C-o>v}
@@ -291,7 +292,7 @@ export def Enable()
   endif
 
   # goto previous line + select
-  if has('gui_running')
+  if is_gui
     # inoremap <C-S-p> <C-o>v0k
     inoremap <expr> <C-S-p> pumvisible() ? "\<C-e>\<C-o>k" : "\<C-o>v0k"
   else
@@ -322,7 +323,7 @@ export def Enable()
   endif
 
   # goto next line + select
-  if has('gui_running')
+  if is_gui
     # inoremap <C-S-n> <C-o>v$j
     inoremap <expr> <C-S-n> pumvisible() ? "\<C-e>\<C-o>j" : "\<C-o>v$j"
   else
@@ -483,7 +484,7 @@ export def Enable()
   endif
 
   # delete the whole line
-  if has('gui_running')
+  if is_gui
     # inoremap <C-S-BackSpace> <C-o>0<C-o>dd
     inoremap <C-S-BackSpace> <Cmd>normal! 0d$<CR>
     if g:echords_extra_mappings
@@ -507,7 +508,7 @@ export def Enable()
   # collision: i_CTRL_K enter digraph
   # inoremap <C-k> <C-o>d$
   inoremap <expr> <C-k> col('.') == col('$') ? "\<Cmd>normal! gJ\<CR>" : "\<Cmd>normal! d$\<CR>"
-  if has('gui_running')
+  if is_gui
     inoremap <expr> <C-S-k> empty(trim(getline('.'))) ? "\<Cmd>normal! dd\<CR>" : "\<Cmd>normal! d$\<CR>"
   endif
   if g:echords_command_mappings
@@ -531,7 +532,9 @@ export def Enable()
   # paste interactive (yank-pop)
   inoremap <M-y> <C-x><C-r>
   if g:echords_extra_mappings
-    inoremap <C-S-y> <C-x><C-r>
+    if is_gui
+      inoremap <C-S-y> <C-x><C-r>
+    endif
     inoremap <C-x>y <C-x><C-r>
   endif
 
@@ -566,7 +569,7 @@ export def Enable()
   inoremap <C-x>u <Cmd>undo<CR>
   inoremap <Undo> <Cmd>undo<CR>
   # collision: i_CTRL-_ switch between languages
-  if has('gui_running')
+  if is_gui
    inoremap <C-S-_> <Cmd>undo<CR>
   else
    inoremap <F15> <Cmd>undo<CR>
@@ -574,12 +577,12 @@ export def Enable()
 
   # redo (undo-redo)
   # inoremap <C-M-S-_> <C-o><C-r>
-  if has('gui_running')
+  if is_gui
     inoremap <C-M-S-_> <Cmd>redo<CR>
   else
     inoremap <F17> <Cmd>redo<CR>
   endif
-  if has('gui_running')
+  if is_gui
     inoremap <C-S-?> <Cmd>redo<CR>
   else
     inoremap <F16> <Cmd>redo<CR>
@@ -650,7 +653,7 @@ export def Enable()
   inoremap <M-8> <C-o>8
   inoremap <M-9> <C-o>9
   # C-num numeric arguments (C-u num)
-  if has('gui_running')
+  if is_gui
     inoremap <C-1> <C-o>1
     inoremap <C-2> <C-o>2
     inoremap <C-3> <C-o>3
@@ -684,7 +687,9 @@ export def Enable()
   # scroll down one line
   if g:echords_extra_mappings
     inoremap <M-]> <C-o><C-e>
-    inoremap <C-S-)> <C-o><C-e>
+    if is_gui
+      inoremap <C-S-)> <C-o><C-e>
+    endif
   endif
 
   # scroll up
@@ -700,7 +705,9 @@ export def Enable()
   # scroll up one line
   if g:echords_extra_mappings
     inoremap <M-[> <C-o><C-y>
-    inoremap <C-S-(> <C-o><C-y>
+    if is_gui
+      inoremap <C-S-(> <C-o><C-y>
+    endif
   endif
 
   # scroll current line top, center, bottom  (zz, zb, zt)
@@ -754,7 +761,7 @@ export def Enable()
 
   # go to buffer beginning
   inoremap <M-<> <Cmd>normal! 1G0<CR>
-  if g:echords_extra_mappings
+  if is_gui && g:echords_extra_mappings
     inoremap <C-S-<> <Cmd>normal! 1G0<CR>
   endif
   inoremap <C-Home> <Cmd>normal! 1G0<CR>
@@ -767,7 +774,7 @@ export def Enable()
 
   # go to buffer end
   inoremap <M->> <Cmd>normal! G$<CR>
-  if g:echords_extra_mappings
+  if is_gui && g:echords_extra_mappings
     inoremap <C-S->> <Cmd>normal! G$<CR>
   endif
   inoremap <C-End> <Cmd>normal! G$<CR>
@@ -863,7 +870,7 @@ export def Enable()
   endif
 
   # scroll other window backward
-  if has('gui_running')
+  if is_gui
     inoremap <C-M-S-v> <Cmd>wincmd w<CR><PageUp><Cmd>wincmd W<CR>
     if g:echords_normal_mappings
       nnoremap <C-M-S-v> <C-w>w<PageUp><C-w>W
@@ -998,7 +1005,7 @@ export def Enable()
     tnoremap <C-M-h> <Esc>b<Esc>d
 
     # delete the whole line
-    if has('gui_running')
+    if is_gui
       tnoremap <C-S-BackSpace> <C-a><C-k>
       if g:echords_extra_mappings
         tnoremap <C-S-h> <C-a><C-k>
@@ -1009,7 +1016,9 @@ enddef
 
 # disable echords keys
 export def Disable()
-  if has('gui_running')
+  const is_gui = has('gui_running')
+
+  if is_gui
     silent! iunmap <C-S-a>
     silent! iunmap <C-S-e>
     silent! iunmap <C-S-o>
@@ -1036,137 +1045,137 @@ export def Disable()
     silent! iunmap <C-9>
     silent! iunmap <C-M-S-v>
   else
-    silent! iunmap <C-a>
     silent! iunmap <F13>
-    silent! iunmap <C-x><C-a>
-    silent! iunmap <C-e>
     silent! iunmap <F14>
-    silent! iunmap <C-q>
-    silent! iunmap <C-o>
     silent! iunmap <C-@>
-    silent! iunmap <C-x>h
     silent! iunmap <C-u><C-@>
-    silent! iunmap <M-@>
-    silent! iunmap <M-%>
-    silent! iunmap <M-$>
-    silent! iunmap <M-q>
-    silent! iunmap <M-m>
-    silent! iunmap <M-S-m>
-    silent! iunmap <M-a>
-    silent! iunmap <M-S-a>
-    silent! iunmap <M-e>
-    silent! iunmap <M-S-e>
-    silent! iunmap <C-x><BackSpace>
-    silent! iunmap <M-k>
-    silent! iunmap <M-{>
-    silent! iunmap <C-Up>
     silent! iunmap <F18>
-    silent! iunmap <M-}>
-    silent! iunmap <C-Down>
     silent! iunmap <F19>
-    silent! iunmap <C-M-a>
-    silent! iunmap <C-M-Home>
-    silent! iunmap <C-M-e>
-    silent! iunmap <C-M-End>
-    silent! iunmap <C-p>
     silent! iunmap <F22>
-    silent! iunmap <C-n>
-    silent! iunmap <C-s><C-s>
-    silent! iunmap <C-s><C-w>
-    silent! iunmap <C-r><C-r>
-    silent! iunmap <C-r><C-w>
     silent! iunmap <F21>
-    silent! iunmap <C-x>s
-    silent! iunmap <C-x><C-s>
-    silent! iunmap <C-x>xg
-    silent! iunmap <C-x>d
-    silent! iunmap <C-x><C-f>
-    # silent! iunmap <C-x><C-c>
-    silent! iunmap <C-x><C-j>
-    silent! iunmap <C-x><C-w>
-    silent! iunmap <C-t>
-    silent! iunmap <M-t>
-    silent! iunmap <C-x><C-t>
-    silent! iunmap <C-b>
-    silent! iunmap <C-f>
-    silent! iunmap <M-b>
-    silent! iunmap <M-Left>
-    silent! iunmap <C-Left>
-    silent! iunmap <M-f>
-    silent! iunmap <M-Right>
-    silent! iunmap <C-Right>
-    silent! iunmap <C-d>
-    silent! iunmap <M-BackSpace>
-    silent! iunmap <C-BackSpace>
-    silent! iunmap <M-d>
-    silent! iunmap <C-Delete>
-    silent! iunmap <C-k>
-    silent! iunmap <C-y>
-    silent! iunmap <M-y>
-    silent! iunmap <C-/>
-    silent! iunmap <C-x>u
-    silent! iunmap <Undo>
     silent! iunmap <F15>
     silent! iunmap <F17>
     silent! iunmap <F16>
-    silent! iunmap <C-x>b
-    silent! iunmap <C-x><C-b>
-    silent! iunmap <C-x>k
-    silent! iunmap <M-x>
-    silent! iunmap <M-.>
-    silent! iunmap <C-x>4.
-    silent! iunmap <M-,>
-    silent! iunmap <M-!>
-    silent! iunmap <M-&>
-    silent! iunmap <M-1>
-    silent! iunmap <M-2>
-    silent! iunmap <M-3>
-    silent! iunmap <M-4>
-    silent! iunmap <M-5>
-    silent! iunmap <M-6>
-    silent! iunmap <M-7>
-    silent! iunmap <M-8>
-    silent! iunmap <M-9>
-    ### silent! iunmap <M-p>
-    ### silent! iunmap <M-n>
-    silent! iunmap <C-v>
-    silent! iunmap <M-v>
-    silent! iunmap <C-l>
-    silent! iunmap <M-r>
-    silent! iunmap <M-z>
-    silent! iunmap <M-u>
-    silent! iunmap <M-l>
-    silent! iunmap <M-c>
-    silent! iunmap <C-x><C-q>
-    silent! iunmap <M-g>g
-    silent! iunmap <M-g><M-g>
-    silent! iunmap <M-<>
-    silent! iunmap <C-Home>
-    silent! iunmap <C-x>[
-    silent! iunmap <M->>
-    silent! iunmap <C-End>
-    silent! iunmap <C-x>]
-    silent! iunmap <M-/>
-    silent! iunmap <C-M-/>
-    silent! iunmap <C-x>0
-    silent! iunmap <C-x>1
-    silent! iunmap <C-x>2
-    silent! iunmap <C-x>3
-    silent! iunmap <C-x>o
-    silent! iunmap <C-x>O
-    silent! iunmap <C-x>+
-    silent! iunmap <C-x>{
-    silent! iunmap <C-x>}
-    silent! iunmap <C-x>^
-    silent! iunmap <C-M-v>
     silent! iunmap <F20>
-    silent! iunmap <C-x>4<C-f>
-    silent! iunmap <C-x>(
-    silent! iunmap <C-x>)
-    silent! iunmap <C-x>e
-    silent! iunmap <M-^>
-    silent! iunmap <C-g>
   endif
+  silent! iunmap <C-a>
+  silent! iunmap <C-x><C-a>
+  silent! iunmap <C-e>
+  silent! iunmap <C-q>
+  silent! iunmap <C-o>
+  silent! iunmap <C-x>h
+  silent! iunmap <M-@>
+  silent! iunmap <M-%>
+  silent! iunmap <M-$>
+  silent! iunmap <M-q>
+  silent! iunmap <M-m>
+  silent! iunmap <M-S-m>
+  silent! iunmap <M-a>
+  silent! iunmap <M-S-a>
+  silent! iunmap <M-e>
+  silent! iunmap <M-S-e>
+  silent! iunmap <C-x><BackSpace>
+  silent! iunmap <M-k>
+  silent! iunmap <M-{>
+  silent! iunmap <C-Up>
+  silent! iunmap <M-}>
+  silent! iunmap <C-Down>
+  silent! iunmap <C-M-a>
+  silent! iunmap <C-M-Home>
+  silent! iunmap <C-M-e>
+  silent! iunmap <C-M-End>
+  silent! iunmap <C-p>
+  silent! iunmap <C-n>
+  silent! iunmap <C-s><C-s>
+  silent! iunmap <C-s><C-w>
+  silent! iunmap <C-r><C-r>
+  silent! iunmap <C-r><C-w>
+  silent! iunmap <C-x>s
+  silent! iunmap <C-x><C-s>
+  silent! iunmap <C-x>xg
+  silent! iunmap <C-x>d
+  silent! iunmap <C-x><C-f>
+  # silent! iunmap <C-x><C-c>
+  silent! iunmap <C-x><C-j>
+  silent! iunmap <C-x><C-w>
+  silent! iunmap <C-t>
+  silent! iunmap <M-t>
+  silent! iunmap <C-x><C-t>
+  silent! iunmap <C-b>
+  silent! iunmap <C-f>
+  silent! iunmap <M-b>
+  silent! iunmap <M-Left>
+  silent! iunmap <C-Left>
+  silent! iunmap <M-f>
+  silent! iunmap <M-Right>
+  silent! iunmap <C-Right>
+  silent! iunmap <C-d>
+  silent! iunmap <M-BackSpace>
+  silent! iunmap <C-BackSpace>
+  silent! iunmap <M-d>
+  silent! iunmap <C-Delete>
+  silent! iunmap <C-k>
+  silent! iunmap <C-y>
+  silent! iunmap <M-y>
+  silent! iunmap <C-/>
+  silent! iunmap <C-x>u
+  silent! iunmap <Undo>
+  silent! iunmap <C-x>b
+  silent! iunmap <C-x><C-b>
+  silent! iunmap <C-x>k
+  silent! iunmap <M-x>
+  silent! iunmap <M-.>
+  silent! iunmap <C-x>4.
+  silent! iunmap <M-,>
+  silent! iunmap <M-!>
+  silent! iunmap <M-&>
+  silent! iunmap <M-1>
+  silent! iunmap <M-2>
+  silent! iunmap <M-3>
+  silent! iunmap <M-4>
+  silent! iunmap <M-5>
+  silent! iunmap <M-6>
+  silent! iunmap <M-7>
+  silent! iunmap <M-8>
+  silent! iunmap <M-9>
+  ### silent! iunmap <M-p>
+  ### silent! iunmap <M-n>
+  silent! iunmap <C-v>
+  silent! iunmap <M-v>
+  silent! iunmap <C-l>
+  silent! iunmap <M-r>
+  silent! iunmap <M-z>
+  silent! iunmap <M-u>
+  silent! iunmap <M-l>
+  silent! iunmap <M-c>
+  silent! iunmap <C-x><C-q>
+  silent! iunmap <M-g>g
+  silent! iunmap <M-g><M-g>
+  silent! iunmap <M-<>
+  silent! iunmap <C-Home>
+  silent! iunmap <C-x>[
+  silent! iunmap <M->>
+  silent! iunmap <C-End>
+  silent! iunmap <C-x>]
+  silent! iunmap <M-/>
+  # silent! iunmap <C-M-/>
+  silent! iunmap <C-x>0
+  silent! iunmap <C-x>1
+  silent! iunmap <C-x>2
+  silent! iunmap <C-x>3
+  silent! iunmap <C-x>o
+  silent! iunmap <C-x>O
+  silent! iunmap <C-x>+
+  silent! iunmap <C-x>{
+  silent! iunmap <C-x>}
+  silent! iunmap <C-x>^
+  silent! iunmap <C-M-v>
+  silent! iunmap <C-x>4<C-f>
+  silent! iunmap <C-x>(
+  silent! iunmap <C-x>)
+  silent! iunmap <C-x>e
+  silent! iunmap <M-^>
+  silent! iunmap <C-g>
 
   if g:echords_visual_mappings
     silent! vunmap <C-a>
@@ -1188,8 +1197,13 @@ export def Disable()
   if g:echords_normal_mappings
     silent! nunmap <C-a>
     silent! nunmap <C-e>
-    silent! nunmap <C-Space>
-    silent! nunmap <C-@>
+    if is_gui
+      silent! nunmap <C-Space>
+      silent! nunmap <C-M-S-v>
+    else
+      silent! nunmap <C-@>
+      silent! nunmap <F20>
+    endif
     silent! nunmap <M-m>
     silent! nunmap <M-a>
     silent! nunmap <M-e>
@@ -1203,6 +1217,8 @@ export def Disable()
     silent! nunmap <C-M-End>
     silent! nunmap <C-p>
     silent! nunmap <C-n>
+    silent! nunmap <C-s><C-s>
+    silent! nunmap <C-r><C-r>
     silent! nunmap <C-b>
     silent! nunmap <C-f>
     silent! nunmap <M-b>
@@ -1234,31 +1250,33 @@ export def Disable()
     silent! nunmap <C-x>}
     silent! nunmap <C-x>^
     silent! nunmap <C-M-v>
-    silent! nunmap <C-M-S-v>
-    silent! nunmap <F20>
     silent! nunmap <C-g>
-    silent! nunmap <M-x>
+    if g:echords_extra_mappings
+      silent! nunmap <M-x>
+    endif
   endif
 
   if g:echords_extra_mappings
     silent! iunmap <C-{>
     silent! iunmap <C-}>
     # silent! iunmap <C-x>j
-    silent! iunmap <C-S-h>
-    silent! iunmap <C-S-y>
+    if is_gui
+      silent! iunmap <C-S-h>
+      silent! iunmap <C-S-y>
+      silent! iunmap <C-S-)>
+      silent! iunmap <C-S-(>
+      silent! iunmap <C-S-<>
+      silent! iunmap <C-S->>
+      # silent! iunmap <C-S-v>
+    endif
     silent! iunmap <C-x>y
     # silent! iunmap <M-:>
     silent! iunmap <C-.>
     silent! iunmap <C-,>
     # silent! iunmap <C-M-,>
     silent! iunmap <C-!>
-    silent! iunmap <C-S-v>
     silent! iunmap <M-]>
     silent! iunmap <M-[>
-    silent! iunmap <C-S-)>
-    silent! iunmap <C-S-(>
-    silent! iunmap <C-S-<>
-    silent! iunmap <C-S->>
     silent! iunmap <C-x><C-x>
     silent! iunmap <C-^>
     silent! iunmap <C-x>K
@@ -1276,7 +1294,6 @@ export def Disable()
     silent! iunmap <C-x><C-m>
     silent! iunmap <leader>e=
     silent! iunmap <leader>ez
-    silent! iunmap <C-S-h>
   endif
 
   if g:echords_command_mappings
@@ -1314,8 +1331,11 @@ export def Disable()
     silent! tunmap <M-n>
     silent! tunmap <M-BackSpace>
     silent! tunmap <C-BackSpace>
-    if has('gui_running')
+    if is_gui
       silent! tunmap <C-S-BackSpace>
+      if g:echords_extra_mappings
+        silent! tunmap <C-S-h>
+      endif
     endif
     # TODO: bash?
     silent! tunmap <C-M-h>
@@ -1348,16 +1368,14 @@ enddef
 # query replace
 def QueryReplace(): void
   var old = input("Query Replace: ")
-  if old == ""
+  if empty(old)
     redraw!
     return
   endif
   var new = input($"Query replace {old} with: ")
-  if new == ""
-    redraw!
-    return
-  endif
-  feedkeys($"\<C-o>:.,$s/{old}/{new}/gc\<CR>", "n")
+  var oldesc = escape(old, '/\')
+  var newesc = escape(new, '/\')
+  feedkeys($"\<C-o>:.,$s/{oldesc}/{newesc}/gc\<CR>", "n")
 enddef
 
 # move beginning of line
@@ -1467,7 +1485,7 @@ def DeleteCmdLine(): void
     return
   endif
   var line = getcmdline()
-  var new = line[: pos - 2]
+  var new = strpart(line, 0, pos - 1)
   setcmdline(new)
   setcmdpos(strlen(new) + 1)
   # TODO: custom collision with <C-Space> (see vimrc.local)
