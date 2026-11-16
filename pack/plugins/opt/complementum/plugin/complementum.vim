@@ -28,6 +28,7 @@ if !exists('g:complementum_omnichars')
   # 'c': [".", "#"],
     'terraform': ["."],
     'rust': [".", "::"],
+    'kotlin': [".", "::"],
   }
 endif
 if !exists('g:complementum_omnifuncs')
@@ -45,6 +46,7 @@ if !exists('g:complementum_lspfuncs')
   # 'c': ['g:LspOmniFunc'],
     'terraform': ['lsp#OmniFunc', 'g:LspOmniFunc'],
     'rust': ['lsp#OmniFunc', 'g:LspOmniFunc'],
+    'kotlin': ['lsp#OmniFunc', 'g:LspOmniFunc'],
   }
 endif
 if !exists('g:complementum_regex_dict')
