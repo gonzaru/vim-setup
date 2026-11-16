@@ -9,7 +9,7 @@ endif
 g:loaded_lsp = true
 
 # global variables
-g:lsp_allowed_types = ['c', 'go', 'python', 'rust', 'terraform']
+g:lsp_allowed_types = ['c', 'go', 'python', 'rust', 'kotlin', 'terraform']
 # TODO
 # if !exists('g:lsp_auto_stop')
 #   g:lsp_auto_stop = false
@@ -61,7 +61,7 @@ augroup END
 # start
 augroup lsp_start
   autocmd!
-  autocmd FileType c,go,python,rust,terraform ++once {
+  autocmd FileType c,go,python,rust,kotlin,terraform ++once {
     if g:lsp_enabled && index(g:lsp_allowed_types, &filetype) >= 0
       execute "normal \<Plug>(lsp-start)"
     endif

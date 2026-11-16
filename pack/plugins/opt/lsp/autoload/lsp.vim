@@ -14,7 +14,8 @@ const LANGUAGES = {
   'go': 2,
   'python': 3,
   'rust': 4,
-  'terraform': 5
+  'kotlin': 5,
+  'terraform': 6
 }
 
 # id request
@@ -165,6 +166,17 @@ servers[LANGUAGES['rust']] = NewServer({
   'waitInit': true
 })
 
+# kotlin
+servers[LANGUAGES['kotlin']] = NewServer({
+  'id': LANGUAGES['kotlin'],
+  'name': 'intellij',
+  'cmd': 'intellij-server',
+  'args': ['--stdio'],
+  'desc': 'The Kotlin Language Server',
+  'language': 'kotlin',
+  'waitInit': true
+})
+
 # terraform-ls
 servers[LANGUAGES['terraform']] = NewServer({
   'id': LANGUAGES['terraform'],
@@ -212,6 +224,11 @@ enddef
 # uri encode
 def UriEncode(str: string): string
   return substitute(str, ' ', '%20', 'g')
+enddef
+
+# uri decode
+def UriDecode(str: string): string
+  return substitute(str, '%20', ' ', 'g')
 enddef
 
 # running servers
@@ -288,6 +305,10 @@ enddef
 
 # start server
 export def Start(lang: string = &filetype): void
+  if !has_key(LANGUAGES, lang)
+    EchoErrorMsg($"lsp: the filetype '{lang}' is not supported")
+    return
+  endif
   var server = servers[ID(lang)]
   var err = PreChecks(server, lang)
   if !empty(err)
@@ -334,7 +355,7 @@ export def Stop(sid: number = -1): void
     method: 'exit',
     params: v:null
   })
-  if has_key(server, 'job') && server.job isnot 0
+  if has_key(server, 'job') && server.job != null
     job_stop(server.job)
   endif
   # cleanup
@@ -424,7 +445,7 @@ def RequestInitialize(server: dict<any>)
   # git
   # language
   # default
-  var rootGit = systemlist('git rev-parse --show-toplevel')[0]
+  var rootGit = get(systemlist('git rev-parse --show-toplevel'), 0, '')
   if isdirectory(rootGit)
     server.rootPath = rootGit
     server.rootUri = AddScheme(rootGit)
@@ -433,12 +454,28 @@ def RequestInitialize(server: dict<any>)
     server.rootPath = rootDir
     server.rootUri = AddScheme(UriEncode(rootDir))
   endif
+
+  # go
   if server.language == 'go'
-    var rootMod = systemlist('dirname $(go env GOMOD)')[0]
+    var rootMod = get(systemlist('dirname $(go env GOMOD)'), 0, '')
     if isdirectory(rootMod)
       server.rootPath = rootMod
       server.rootUri = AddScheme(rootMod)
     endif
+  endif
+
+  # kotlin
+  if server.language == 'kotlin'
+    var markers = ['settings.gradle.kts', 'settings.gradle', 'build.gradle.kts', 'build.gradle', 'pom.xml']
+    for marker in markers
+      var buildFile = findfile(marker, '.;')
+      if !empty(buildFile)
+        var rootKt = fnamemodify(buildFile, ':p:h')
+        server.rootPath = rootKt
+        server.rootUri = AddScheme(UriEncode(rootKt))
+        break
+      endif
+    endfor
   endif
 
   # initialization options
@@ -616,6 +653,21 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
     })
   endif
 
+  # intellij (kotlin)
+  if server.name == 'intellij'
+    ch_sendexpr(server.channel, {
+      jsonrpc: '2.0',
+      method: 'workspace/didChangeConfiguration',
+      params: {
+        settings: {
+          intellij: {
+            dataSharing: 'None'
+          }
+        }
+      }
+    })
+  endif
+
   var abs = fnamemodify(expand('%:p'), ':p')
   server.uri = AddScheme(UriEncode(abs))
   server.version = 1
@@ -711,7 +763,7 @@ def ResponseCompletion(server: dict<any>, message: any): string
 
   var items = []
   if has_key(message, 'result')
-    if has_key(message.result, 'items')
+    if type(message.result) == v:t_dict && has_key(message.result, 'items')
       items = message.result.items
     elseif type(message.result) == v:t_list
       items = message.result
@@ -870,7 +922,7 @@ export def OmniFunc(findstart: number, base: string): any
 
   var items = []
   if has_key(message, 'result')
-    if has_key(message.result, 'items')
+    if type(message.result) == v:t_dict && has_key(message.result, 'items')
       items = message.result.items
     elseif type(message.result) == v:t_list
       items = message.result
@@ -923,8 +975,8 @@ def ResponseDefinition(server: dict<any>, message: any): string
     return $"definition error: {string(message.error.message)}"
   endif
   var items = []
-  if has_key(message, 'result')
-    items = message.result
+  if has_key(message, 'result') && message.result != null
+    items = type(message.result) == v:t_list ? message.result : [message.result]
   endif
   if empty(items)
     return $"{server.name} definition: (empty)"
@@ -933,7 +985,7 @@ def ResponseDefinition(server: dict<any>, message: any): string
   var defs = []
   for [key, _] in items(items)
     var path: string
-    path = UriEncode(RemoveScheme(items[key].uri))
+    path = UriDecode(RemoveScheme(items[key].uri))
     var line = items[key].range.start.line + 1
     var col = items[key].range.start.character + 1
     add(defs, {'filename': $"{path}", 'lnum': line, 'col': col})
@@ -990,7 +1042,7 @@ def ResponseReferences(server: dict<any>, message: any): string
     return $"references error: {string(message.error.message)}"
   endif
   var items = []
-  if has_key(message, 'result')
+  if has_key(message, 'result') && message.result != null
     items = message.result
   endif
   if empty(items)
@@ -1000,7 +1052,7 @@ def ResponseReferences(server: dict<any>, message: any): string
   var refs = []
   for [key, _] in items(items)
     var path: string
-    path = UriEncode(RemoveScheme(items[key].uri))
+    path = UriDecode(RemoveScheme(items[key].uri))
     var line = items[key].range.start.line + 1
     var col = items[key].range.start.character + 1
     add(refs, {'filename': $"{path}", 'lnum': line, 'col': col})
@@ -1082,7 +1134,7 @@ def ResponseRename(server: dict<any>, message: any): string
   endif
 
   var items: list<dict<any>>
-  if has_key(message, 'result')
+  if has_key(message, 'result') && type(message.result) == v:t_dict
     if has_key(message.result, 'documentChanges')
       items = message.result.documentChanges
     elseif has_key(message.result, 'changes')
@@ -1170,8 +1222,9 @@ def ResponseHover(server: dict<any>, message: any): string
   if has_key(message, 'result')
     items = message.result
   endif
-  if empty(items)
-    return $"{server.name} signature: (empty)"
+  if empty(items) || type(get(items, 'contents', null)) != v:t_dict
+  || empty(get(items.contents, 'value', ''))
+    return $"{server.name} hover: (empty)"
   endif
   var contents = []
   add(contents, {
@@ -1192,7 +1245,7 @@ def PopupHover(contents: list<dict<any>>)
   var id = popup_create(
     contents[0].text, {
       title: '',
-      post: 'topleft',
+      pos: 'topleft',
       line: 'cursor+1',
       col: 1,
       moved: 'any',
@@ -1242,7 +1295,7 @@ def ResponseDocumentSymbol(server: dict<any>, message: any): string
     return $"document symbol error: {string(message.error.message)}"
   endif
   var items = []
-  if has_key(message, 'result')
+  if has_key(message, 'result') && message.result != null
     items = message.result
   endif
   if empty(items)
@@ -1253,8 +1306,8 @@ def ResponseDocumentSymbol(server: dict<any>, message: any): string
   for [key, _] in items(items)
     var name = items[key].name
     var kind = items[key].kind
-    var text = $"{SYMBOL_KINDS[items[key].kind]} : {items[key].name}"
-    var path = UriEncode(RemoveScheme(items[key].location.uri))
+    var text = $"{SYMBOL_KINDS[string(items[key].kind)]} : {items[key].name}"
+    var path = UriDecode(RemoveScheme(items[key].location.uri))
     var line = items[key].location.range.start.line + 1
     var col = items[key].location.range.start.character + 1
     add(symbls, {'filename': $"{path}", 'lnum': line, 'col': col, 'text': text})
@@ -1335,7 +1388,7 @@ enddef
 # response signature
 def ResponseSignature(server: dict<any>, message: any): string
   if has_key(message, 'error') && has_key(message.error, 'message')
-    return $"document symbol error: {string(message.error.message)}"
+    return $"signature error: {string(message.error.message)}"
   endif
   if !has_key(message, 'result')
     return $"{server.name} signature: (empty)"
@@ -1350,15 +1403,17 @@ def ResponseSignature(server: dict<any>, message: any): string
   if has_key(message, 'result')
     items = message.result
   endif
-  if empty(items)
+  if empty(items) || empty(get(items, 'signatures', []))
     return $"{server.name} signature: (empty)"
   endif
   var signs = []
   for sign in items.signatures
+    var doc = get(sign, 'documentation', {})
+    var kind = type(doc) == v:t_dict ? get(doc, 'kind', 'plaintext') : 'plaintext'
     add(signs, {
       'label': sign.label,
       'parameters': has_key(sign, 'parameters') ? sign.parameters : [],
-      'kind': sign.documentation.kind
+      'kind': kind
     })
   endfor
   PopupSignature(signs)
@@ -1370,7 +1425,7 @@ def PopupSignature(signs: list<dict<any>>)
   var id = popup_create(
     signs[0].label, {
       title: '',
-      post: 'topleft',
+      pos: 'topleft',
       line: 'cursor+1',
       col: 1,
       moved: 'any',
@@ -1414,7 +1469,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=3 response of request text document definition
+  # id=4 response of request text document definition
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_DEFINITION
     var err = ResponseDefinition(server, message)
     if !empty(err)
@@ -1423,7 +1478,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=4 response of request text document references
+  # id=5 response of request text document references
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_REFERENCES
     var err = ResponseReferences(server, message)
     if !empty(err)
@@ -1432,7 +1487,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=5 response of request text document rename
+  # id=6 response of request text document rename
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_RENAME
     var err = ResponseRename(server, message)
     if !empty(err)
@@ -1441,7 +1496,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=6 response of request text document hover
+  # id=7 response of request text document hover
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_HOVER
     var err = ResponseHover(server, message)
     if !empty(err)
@@ -1450,7 +1505,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=7 response of request text document symbol
+  # id=8 response of request text document symbol
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_SYMBOL
     var err = ResponseDocumentSymbol(server, message)
     if !empty(err)
@@ -1459,7 +1514,7 @@ def OutHandler(server: dict<any>, channel: channel, message: any)
     return
   endif
 
-  # id=8 response of request text document signature
+  # id=9 response of request text document signature
   if get(message, 'id', 0) == ID_REQUEST_TEXT_DOCUMENT_SIGNATURE
     var err = ResponseSignature(server, message)
     if !empty(err)
@@ -1473,7 +1528,7 @@ enddef
 def ErrHandler(server: dict<any>, channel: channel, message: string)
   if !empty(message)
     EchoErrorMsg($"{server.name} stderr: {message}")
-    endif
+  endif
 enddef
 
 # exit handler
