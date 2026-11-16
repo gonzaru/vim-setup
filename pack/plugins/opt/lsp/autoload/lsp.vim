@@ -166,12 +166,14 @@ servers[LANGUAGES['rust']] = NewServer({
   'waitInit': true
 })
 
+# increase JVM Heap if necessary
+# $IJ_JAVA_OPTIONS = "-Xmx4g -XX:+UseG1GC"
 # kotlin
 servers[LANGUAGES['kotlin']] = NewServer({
   'id': LANGUAGES['kotlin'],
   'name': 'intellij',
   'cmd': 'intellij-server',
-  'args': ['--stdio'],
+  'args': ['--stdio', '--data-sharing=none'],
   'desc': 'The Kotlin Language Server',
   'language': 'kotlin',
   'waitInit': true
@@ -524,6 +526,13 @@ def RequestInitialize(server: dict<any>)
     }
   endif
 
+  # intellij only
+  if server.name == 'intellij'
+    initOpts = {
+      disableRocksDBWriteAheadLog: true
+    }
+  endif
+
   # initialize
   ch_sendexpr(server.channel, {
     jsonrpc: '2.0',
@@ -653,20 +662,21 @@ def ResponseInitialize(server: dict<any>, channel: channel, message: any): strin
     })
   endif
 
+  # disabled: see config args (--data-sharing=none)
   # intellij (kotlin)
-  if server.name == 'intellij'
-    ch_sendexpr(server.channel, {
-      jsonrpc: '2.0',
-      method: 'workspace/didChangeConfiguration',
-      params: {
-        settings: {
-          intellij: {
-            dataSharing: 'None'
-          }
-        }
-      }
-    })
-  endif
+  # if server.name == 'intellij'
+  #   ch_sendexpr(server.channel, {
+  #     jsonrpc: '2.0',
+  #     method: 'workspace/didChangeConfiguration',
+  #     params: {
+  #       settings: {
+  #         intellij: {
+  #           dataSharing: 'None'
+  #         }
+  #       }
+  #     }
+  #   })
+  # endif
 
   var abs = fnamemodify(expand('%:p'), ':p')
   server.uri = AddScheme(UriEncode(abs))
